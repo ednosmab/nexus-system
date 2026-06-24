@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
 
@@ -477,4 +477,54 @@ function scoreProject(
     behavioralMetrics,
     computedAt: new Date().toISOString(),
   };
+}
+
+// ── Report Writer ────────────────────────────────────────────────────────────
+
+/**
+ * Grava um relatório JSON em reports/ após cada scoring.
+ * Convenção: complexity-<projectName>-<YYYY-MM-DD>-session<N>.json
+ */
+export function writeComplexityReport(
+  projectRoot: string,
+  nexusDir: string,
+  report: ComplexityReport
+): string | null {
+  const reportsDir = join(nexusDir, "reports");
+  if (!existsSync(reportsDir)) {
+    return null; // reports/ only available at L3 (senior)
+  }
+
+  const dirName = projectRoot.split(/[/\\]/).pop() || "unknown";
+  const projectName = dirName.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
+  const date = new Date().toISOString().slice(0, 10);
+
+  // Count existing reports for this project today
+  const existing = readdirSync(reportsDir).filter(
+    (f) => f.startsWith(`complexity-${projectName}-${date}`)
+  );
+  const sessionNum = existing.length + 1;
+
+  const filename = `complexity-${projectName}-${date}-session${sessionNum}.json`;
+  const filepath = join(reportsDir, filename);
+
+  const reportData = {
+    projectName,
+    computedAt: report.computedAt,
+    score: report.score,
+    level: report.level,
+    staticScore: report.staticScore,
+    behaviorScore: report.behaviorScore,
+    staticMetrics: report.staticMetrics,
+    behavioralMetrics: report.behavioralMetrics,
+    reasons: report.reasons,
+    suggestions: report.suggestions,
+  };
+
+  try {
+    writeFileSync(filepath, JSON.stringify(reportData, null, 2), "utf-8");
+    return filename;
+  } catch {
+    return null;
+  }
 }

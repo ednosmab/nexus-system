@@ -28,6 +28,7 @@ function getDirectoriesForLevel(level: string): string[] {
     "nexus-system/governance/agents",
     "nexus-system/governance/context",
     "nexus-profile",
+    "nexus-system/docs/feedback",
   ];
 
   if (level === "junior") return junior;
@@ -50,12 +51,12 @@ function getDirectoriesForLevel(level: string): string[] {
     "nexus-system/governance/premortem",
     "nexus-system/governance/reviews",
     "nexus-system/docs/adrs",
-    "nexus-system/docs/feedback",
     "nexus-system/docs/history",
     "nexus-system/docs/layers",
     "nexus-system/docs/plans",
     "nexus-system/docs/roadmaps",
     "nexus-system/docs/sdr",
+    "nexus-system/reports",
   ];
 }
 
@@ -70,6 +71,8 @@ function getFilesForLevel(level: string): Array<{ src: string; dest: string; cus
     { src: "scripts/premortem-check.ts", dest: "nexus-system/scripts/premortem-check.ts" },
     // Core complexity types
     { src: "core/complexity/types.ts", dest: "nexus-system/core/complexity/types.ts" },
+    // Feedback template
+    { src: "docs/feedback/README.md", dest: "nexus-system/docs/feedback/README.md" },
     // Agent contracts (all 4 roles)
     { src: "governance/agents/AI-CONTRACT-planner-v1.yaml", dest: "nexus-system/governance/agents/AI-CONTRACT-planner-v1.yaml" },
     { src: "governance/agents/AI-CONTRACT-executor-v1.yaml", dest: "nexus-system/governance/agents/AI-CONTRACT-executor-v1.yaml" },
@@ -92,6 +95,7 @@ function getFilesForLevel(level: string): Array<{ src: string; dest: string; cus
     ...plenoFiles,
     { src: "cognition/context/CONTEXT_HIERARCHY.md", dest: "nexus-system/cognition/context/CONTEXT_HIERARCHY.md" },
     { src: "cognition/memory/MEM-operational-state-v1.json", dest: "nexus-system/cognition/memory/MEM-operational-state-v1.json" },
+    { src: "docs/reports/README.md", dest: "nexus-system/reports/README.md" },
   ];
 }
 
@@ -170,12 +174,24 @@ export function scaffoldNexusSystem(
     removeSync(templatePath);
   }
 
+  // Add feedback/ to .gitignore (private session data, not versioned)
+  const gitignorePath = join(targetDir, ".gitignore");
+  let gitignoreContent = "";
+  if (existsSync(gitignorePath)) {
+    gitignoreContent = readFileSync(gitignorePath, "utf-8");
+  }
+  if (!gitignoreContent.includes("nexus-system/docs/feedback")) {
+    const feedbackIgnore = "\n# Nexus System — feedback de sessão (dado privado, não versionado)\nnexus-system/docs/feedback/\n";
+    writeFileSync(gitignorePath, gitignoreContent + feedbackIgnore, "utf-8");
+  }
+
   // Copy selected skills (only if docs/skills exists)
   if (dirs.includes("nexus-system/docs/skills")) {
     const skillsDir = join(l1Dir, "docs/skills");
-    const selectedSkills = selectSkills(answers);
+    const selectedSkills = selectSkills(answers.teamLevel);
     for (const skill of selectedSkills) {
       const srcPath = join(skillsDir, `${skill}.md`);
+      if (!existsSync(srcPath)) continue; // skip missing template files
       const destPath = join(targetDir, "nexus-system", "docs", "skills", `${skill}.md`);
       copySync(srcPath, destPath);
       result.filesCreated.push(`nexus-system/docs/skills/${skill}.md`);
@@ -280,9 +296,11 @@ function detectAreas(targetDir: string): string[] {
   return areas.length > 0 ? areas : ["src"];
 }
 
-function selectSkills(answers: UserAnswers): string[] {
-  const skills = [
+function selectSkills(level: string): string[] {
+  // L1 Junior: 11 core engineering skills (genéricas puras + essenciais)
+  const juniorSkills = [
     "senior-engineer",
+    "tdd-agent",
     "tdd_workflow",
     "clean_code_standards",
     "solid_principles",
@@ -291,7 +309,28 @@ function selectSkills(answers: UserAnswers): string[] {
     "error_handling_observability",
     "pnpm_management",
     "optimistic_ui",
+    "codebase_hygiene_git",
   ];
 
-  return skills;
+  // L2 Pleno: + 7 intermediate skills (mistas especializadas)
+  const plenoExtra = [
+    "animation_protocol",
+    "ci_cd_pipeline",
+    "ddd_patterns",
+    "responsividade",
+    "state_management_protocol",
+    "ui_ux_principles",
+    "operacao_no_nexus",
+  ];
+
+  // L3 Senior: + 3 advanced skills (performance, security, infra)
+  const seniorExtra = [
+    "nextjs_performance_seo",
+    "postgresql_performance",
+    "security_xss_prevention",
+  ];
+
+  if (level === "junior") return juniorSkills;
+  if (level === "pleno") return [...juniorSkills, ...plenoExtra];
+  return [...juniorSkills, ...plenoExtra, ...seniorExtra];
 }

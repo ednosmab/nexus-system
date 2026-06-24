@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import chalk from "chalk";
 import fse from "fs-extra";
-import { calculateComplexityScore, type ComplexityReport } from "../scorer.js";
+import { calculateComplexityScore, writeComplexityReport, type ComplexityReport } from "../scorer.js";
 import { analyseProject, type ProjectAnalysis } from "../analyser.js";
 
 interface StatusCheck {
@@ -110,6 +110,13 @@ export const statusCommand = new Command("status")
     const analysis = analyseProject(projectRoot);
     const complexity = calculateComplexityScore(projectRoot, nexusDir, analysis);
     displayComplexityReport(complexity, analysis);
+
+    // Write report to reports/
+    const reportFile = writeComplexityReport(projectRoot, nexusDir, complexity);
+    if (reportFile) {
+      console.log(chalk.gray(`  📄 Report saved: nexus-system/reports/${reportFile}`));
+      console.log("");
+    }
   });
 
 function runHealthChecks(projectRoot: string, nexusDir: string): StatusCheck[] {
