@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
+import { walkSourceFiles, countSourceFilesInDir, FileContentCache } from "./utils.js";
 
 // ── Types (aligned with nexus-system/core/complexity/types.ts) ───────────────
 
@@ -137,15 +138,21 @@ export function calculateComplexityScore(
 
 // ── Per-Area Scoring ────────────────────────────────────────────────────────
 
+/** Shared cache for file content reads across all areas. */
+let _fileCache: FileContentCache | null = null;
+
 function calculateAreaScores(
   projectRoot: string,
   profile: ProjectProfile
 ): AreaScore[] {
-  return profile.areas.map((area) => {
+  // Create a shared cache so overlapping areas don't re-read files
+  _fileCache = new FileContentCache();
+
+  const results = profile.areas.map((area) => {
     const areaPath = join(projectRoot, area);
-    const fileCount = countFilesInArea(areaPath);
+    const fileCount = countSourceFilesInDir(areaPath);
     const churn = countChurnPerArea(projectRoot, area, profile.churnWindowDays);
-    const sensitiveSurface = countSensitivePerArea(areaPath, profile.sensitiveKeywords);
+    const sensitiveSurface = countSensitivePerAreaCached(areaPath, profile.sensitiveKeywords);
     const violations = countViolationsPerArea(projectRoot, area, profile.violationKeywords);
 
     // Compose score: normalize each component to 0-3, then weighted sum (max ~10)
@@ -189,32 +196,33 @@ function calculateAreaScores(
       evidence: evidenceParts.join(", ") || "no activity detected",
     };
   });
+
+  _fileCache = null; // release memory
+  return results;
 }
 
-function countFilesInArea(areaPath: string): number {
+/** Counts sensitive keywords in an area using shared cache. */
+function countSensitivePerAreaCached(areaPath: string, keywords: string[]): number {
   if (!existsSync(areaPath)) return 0;
   let count = 0;
-  const extensions = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
-  const ignore = ["node_modules", ".git", "dist", "build", ".next", ".nuxt"];
+  const cache = _fileCache!;
 
-  function walk(dir: string) {
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (ignore.includes(entry.name)) continue;
-        const fullPath = join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-        } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
+  walkSourceFiles(
+    areaPath,
+    (fullPath) => {
+      const content = cache.get(fullPath);
+      if (content === null) return;
+      const lower = content.toLowerCase();
+      for (const kw of keywords) {
+        if (lower.includes(kw.toLowerCase())) {
           count++;
+          break; // one match per file
         }
       }
-    } catch {
-      // skip
-    }
-  }
+    },
+    { includeAll: true }
+  );
 
-  walk(areaPath);
   return count;
 }
 
@@ -234,42 +242,7 @@ function countChurnPerArea(
   }
 }
 
-function countSensitivePerArea(areaPath: string, keywords: string[]): number {
-  if (!existsSync(areaPath)) return 0;
-  let count = 0;
-  const ignore = ["node_modules", ".git", "dist", "build"];
-  const extensions = [".ts", ".tsx", ".js", ".jsx", ".json", ".yaml", ".yml"];
 
-  function walk(dir: string) {
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (ignore.includes(entry.name)) continue;
-        const fullPath = join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-        } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
-          try {
-            const content = readFileSync(fullPath, "utf-8").toLowerCase();
-            for (const kw of keywords) {
-              if (content.includes(kw.toLowerCase())) {
-                count++;
-                break; // one match per file
-              }
-            }
-          } catch {
-            // skip unreadable
-          }
-        }
-      }
-    } catch {
-      // skip
-    }
-  }
-
-  walk(areaPath);
-  return count;
-}
 
 function countViolationsPerArea(
   projectRoot: string,

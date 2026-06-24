@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { walkSourceFiles } from "./utils.js";
 
 export interface ProjectAnalysis {
   rootDir: string;
@@ -138,27 +139,7 @@ function countDependencies(rootDir: string): number {
 
 function countSourceFiles(rootDir: string): number {
   let count = 0;
-  const extensions = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
-  const ignore = ["node_modules", ".git", "dist", "build", ".next", ".nuxt"];
-
-  function walk(dir: string) {
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (ignore.includes(entry.name)) continue;
-        const fullPath = join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(fullPath);
-        } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
-          count++;
-        }
-      }
-    } catch {
-      // skip inaccessible dirs
-    }
-  }
-
-  walk(rootDir);
+  walkSourceFiles(rootDir, () => count++);
   return count;
 }
 
