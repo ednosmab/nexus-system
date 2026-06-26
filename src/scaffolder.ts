@@ -72,10 +72,18 @@ function getFilesForLevel(level: string): Array<{ src: string; dest: string; cus
     { src: "scripts/validate-session.ts", dest: "nexus-system/scripts/validate-session.ts" },
     { src: "scripts/close-session.ts", dest: "nexus-system/scripts/close-session.ts" },
     { src: "scripts/premortem-check.ts", dest: "nexus-system/scripts/premortem-check.ts" },
+    // FORBIDDEN_OPERATIONS and DESDO (P0)
+    { src: "docs/FORBIDDEN_OPERATIONS.md", dest: "nexus-system/docs/FORBIDDEN_OPERATIONS.md" },
+    { src: "docs/DESDO.md", dest: "nexus-system/docs/DESDO.md" },
+    // BACKLOG
+    { src: "docs/BACKLOG.md", dest: "nexus-system/docs/BACKLOG.md" },
     // Core complexity types
     { src: "core/complexity/types.ts", dest: "nexus-system/core/complexity/types.ts" },
     // Feedback template
     { src: "docs/feedback/README.md", dest: "nexus-system/docs/feedback/README.md" },
+    // Governance — WORKFLOW and SYSTEM_MAP
+    { src: "governance/WORKFLOW.md", dest: "nexus-system/governance/WORKFLOW.md", customize: true },
+    { src: "governance/SYSTEM_MAP.md", dest: "nexus-system/governance/SYSTEM_MAP.md" },
     // Agent contracts (all 4 roles)
     { src: "governance/agents/AI-CONTRACT-planner-v1.yaml", dest: "nexus-system/governance/agents/AI-CONTRACT-planner-v1.yaml" },
     { src: "governance/agents/AI-CONTRACT-executor-v1.yaml", dest: "nexus-system/governance/agents/AI-CONTRACT-executor-v1.yaml" },
@@ -285,6 +293,10 @@ function fillPlaceholders(content: string, answers: UserAnswers): string {
     .replace(
       /opencode\/\[modelo-executor\]/g,
       `opencode/${answers.executorModel.replace(/^opencode\//, "")}`
+    )
+    .replace(
+      /\[PERSONALIZAR: comando de testes\]/g,
+      "pnpm run test"
     );
 }
 
