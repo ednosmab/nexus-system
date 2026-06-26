@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
-import { walkSourceFiles, countSourceFilesInDir, FileContentCache } from "./utils.js";
+import { walkSourceFiles, FileContentCache } from "./utils.js";
 
 // ── Types (aligned with nexus-system/core/complexity/types.ts) ───────────────
 
@@ -414,7 +414,6 @@ async function calculateAreaScores(
   return results;
 }
 
-// (countSensitivePerAreaCached and countDependencyDepth consolidated into batchScoreArea above)
 
 /** Measures context pressure: total size (KB) of P2 docs for a layer. */
 function countContextPressure(projectRoot: string, area: string): number {
