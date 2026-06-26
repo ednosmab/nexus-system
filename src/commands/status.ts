@@ -6,6 +6,7 @@ import fse from "fs-extra";
 import { calculateComplexityScore, writeComplexityReport, type ComplexityReport } from "../scorer.js";
 import { analyseProject, type ProjectAnalysis } from "../analyser.js";
 import { detectNexusProject } from "../utils.js";
+import { getCached, setCache, computeKeyChecksums } from "../cache.js";
 
 interface StatusCheck {
   name: string;
@@ -16,6 +17,7 @@ interface StatusCheck {
 export const statusCommand = new Command("status")
   .description("Check governance health status")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
+  .option("--no-cache", "Skip cache and recalculate")
   .action(async (options) => {
     console.log("");
     console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
@@ -83,10 +85,31 @@ export const statusCommand = new Command("status")
     const checks = runHealthChecks(projectRoot, nexusDir);
     displayResults(checks);
 
-    // Complexity analysis
+    // Complexity analysis (with cache)
     const analysis = analyseProject(projectRoot);
-    const complexity = await calculateComplexityScore(projectRoot, nexusDir, analysis);
+    let complexity: ComplexityReport;
+    let cacheHit = false;
+
+    if (options.cache !== false) {
+      const cached = getCached<ComplexityReport>(projectRoot, nexusDir, "complexity",
+        () => computeKeyChecksums(projectRoot, nexusDir));
+      if (cached) {
+        complexity = cached;
+        cacheHit = true;
+      } else {
+        complexity = await calculateComplexityScore(projectRoot, nexusDir, analysis);
+        setCache(projectRoot, nexusDir, "complexity", complexity,
+          computeKeyChecksums(projectRoot, nexusDir));
+      }
+    } else {
+      complexity = await calculateComplexityScore(projectRoot, nexusDir, analysis);
+    }
+
     displayComplexityReport(complexity, analysis);
+    if (cacheHit) {
+      console.log(chalk.gray("  📦 Used cached results"));
+      console.log("");
+    }
 
     // Write report to reports/
     const reportFile = writeComplexityReport(projectRoot, nexusDir, complexity);

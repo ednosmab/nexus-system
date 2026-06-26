@@ -3,12 +3,14 @@ import { existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
-import { detectPatterns, writePatternReport } from "../pattern-detector.js";
+import { detectPatterns, writePatternReport, type PatternDetectionReport } from "../pattern-detector.js";
 import { detectNexusProject } from "../utils.js";
+import { getCached, setCache, computeKeyChecksums } from "../cache.js";
 
 export const detectCommand = new Command("detect")
   .description("Detect patterns in history and propose candidate rules (Phase 2)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
+  .option("--no-cache", "Skip cache and recalculate")
   .action(async (options) => {
     console.log("");
     console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
@@ -44,7 +46,23 @@ export const detectCommand = new Command("detect")
     const spinner = ora("Analyzing history and reports...").start();
 
     try {
-      const report = detectPatterns(projectRoot, nexusDir);
+      // Check cache first
+      let report: PatternDetectionReport;
+      let cacheHit = false;
+      if (options.cache !== false) {
+        const cached = getCached<PatternDetectionReport>(projectRoot, nexusDir, "patterns",
+          () => computeKeyChecksums(projectRoot, nexusDir));
+        if (cached) {
+          report = cached;
+          cacheHit = true;
+        } else {
+          report = detectPatterns(projectRoot, nexusDir);
+          setCache(projectRoot, nexusDir, "patterns", report,
+            computeKeyChecksums(projectRoot, nexusDir));
+        }
+      } else {
+        report = detectPatterns(projectRoot, nexusDir);
+      }
       spinner.succeed(`Analyzed ${report.historyEntriesAnalyzed} history entries, ${report.reportsAnalyzed} reports`);
 
       console.log("");

@@ -3,12 +3,14 @@ import { existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
-import { auditHealth, writeHealthReport } from "../health-auditor.js";
+import { auditHealth, writeHealthReport, type HealthAuditReport } from "../health-auditor.js";
 import { detectNexusProject } from "../utils.js";
+import { getCached, setCache, computeKeyChecksums } from "../cache.js";
 
 export const auditCommand = new Command("audit")
   .description("Audit Nexus governance health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
+  .option("--no-cache", "Skip cache and recalculate")
   .action(async (options) => {
     console.log("");
     console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
@@ -44,7 +46,23 @@ export const auditCommand = new Command("audit")
     const spinner = ora("Auditing governance health...").start();
 
     try {
-      const report = auditHealth(projectRoot, nexusDir);
+      // Check cache first
+      let report: HealthAuditReport;
+      let cacheHit = false;
+      if (options.cache !== false) {
+        const cached = getCached<HealthAuditReport>(projectRoot, nexusDir, "health",
+          () => computeKeyChecksums(projectRoot, nexusDir));
+        if (cached) {
+          report = cached;
+          cacheHit = true;
+        } else {
+          report = auditHealth(projectRoot, nexusDir);
+          setCache(projectRoot, nexusDir, "health", report,
+            computeKeyChecksums(projectRoot, nexusDir));
+        }
+      } else {
+        report = auditHealth(projectRoot, nexusDir);
+      }
       spinner.succeed(`Audit complete — health score: ${report.healthScore}/100`);
 
       console.log("");
