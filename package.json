@@ -1,25 +1,40 @@
 {
-  "name": "nexus-cli",
+  "name": "nexus-governance",
   "version": "0.1.0",
-  "description": "AI governance framework that grows with your project",
+  "description": "AI governance framework that grows with your project — scoring, pattern detection, health auditing",
   "type": "module",
   "bin": {
     "nexus": "./dist/nexus.js"
   },
+  "main": "./dist/nexus.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup bin/nexus.ts --format esm --dts && cp -r src/templates dist/templates",
     "dev": "tsx bin/nexus.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "ai",
     "governance",
     "opencode",
     "engineering",
-    "framework"
+    "framework",
+    "scoring",
+    "pattern-detection",
+    "health-audit"
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/nexus-governance.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
