@@ -5,7 +5,7 @@
  * - FileContentCache: cache de conteúdo de ficheiros para evitar leitura repetida
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 
 /** Extensões de ficheiros de código fonte. */
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
@@ -72,6 +72,19 @@ export function countSourceFilesInDir(dir: string): number {
  * Cache de conteúdo de ficheiros para evitar leitura repetida.
  * Usado pelo scorer para keyword search em múltiplas áreas sobrepostas.
  */
+/** Detecta a raiz do projecto nexus procurando por opencode.json ou nexus-system/. */
+export function detectNexusProject(startDir: string): { root: string; nexusDir: string } | null {
+  let current = startDir;
+  while (true) {
+    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, "nexus-system"))) {
+      return { root: current, nexusDir: join(current, "nexus-system") };
+    }
+    const parent = dirname(current);
+    if (parent === current) return null;
+    current = parent;
+  }
+}
+
 export class FileContentCache {
   private cache = new Map<string, string>();
 
