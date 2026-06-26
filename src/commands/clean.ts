@@ -35,6 +35,18 @@ export const cleanCommand = new Command("clean")
       nexusDir = detected.nexusDir;
     }
 
+    // Verify project is initialized
+    if (!existsSync(resolve(projectRoot, "opencode.json"))) {
+      if (isJson) {
+        outputJson({ error: "missing_config", message: "opencode.json not found. Run 'nexus init' first." });
+      } else {
+        console.log(chalk.yellow("  ⚠ opencode.json not found at project root."));
+        console.log(chalk.gray("  Run 'nexus init' first."));
+        console.log("");
+      }
+      return;
+    }
+
     if (!isJson) {
       console.log("");
       console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
