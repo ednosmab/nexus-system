@@ -7,6 +7,7 @@ import { statusCommand } from "../src/commands/status.js";
 import { upgradeCommand } from "../src/commands/upgrade.js";
 import { validateCommand } from "../src/commands/validate.js";
 import { detectCommand } from "../src/commands/detect.js";
+import { auditCommand } from "../src/commands/audit.js";
 
 const program = new Command();
 
@@ -21,5 +22,6 @@ program.addCommand(statusCommand);
 program.addCommand(upgradeCommand);
 program.addCommand(validateCommand);
 program.addCommand(detectCommand);
+program.addCommand(auditCommand);
 
 program.parse();
