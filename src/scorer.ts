@@ -33,7 +33,7 @@ export interface AreaScore {
   level: "junior" | "pleno" | "senior";
   /** Número de ficheiros na área. */
   fileCount: number;
-  /** Churn: commits que afectaram esta área nos últimos N dias. */
+  /** Churn: ficheiros únicos afectados nesta área nos últimos N dias. */
   churn: number;
   /** Número de keywords sensíveis encontradas nos ficheiros da área. */
   sensitiveSurface: number;
@@ -119,7 +119,7 @@ function loadProjectProfile(projectRoot: string): ProjectProfile | null {
     weights: { churn: 1.0, violationRate: 1.0, sensitiveSurface: 1.0 },
     violationKeywords: violationMatch
       ? parseStringArray(violationMatch[1])
-      : ["erro", "bug", "corrigi", "falhou", "rollback"],
+      : ["erro", "bug", "corrigi", "falhou", "rollback", "violação"],
   };
 }
 
@@ -136,29 +136,144 @@ export function calculateComplexityScore(
   // Per-area scoring (with shared cache for file reads)
   const profile = loadProjectProfile(projectRoot);
   const areaScores = profile
-    ? calculateAreaScores(projectRoot, profile, new FileContentCache())
+    ? calculateAreaScores(projectRoot, nexusDir, profile, new FileContentCache())
     : [];
 
   return scoreProject(analysis, staticMetrics, behavioralMetrics, areaScores);
+}
+
+// ── Batch Pre-computation (optimisation: single I/O pass for all areas) ──────
+
+/**
+ * Single git log call to get churn counts for ALL areas at once.
+ * Replaces N separate `execSync git log` calls with 1.
+ */
+function batchGitChurn(
+  projectRoot: string,
+  areas: string[],
+  windowDays: number
+): Map<string, number> {
+  const churnMap = new Map<string, number>();
+  for (const a of areas) churnMap.set(a, 0);
+
+  try {
+    // Single call: get all commits in window with file paths
+    const output = execSync(
+      `git log --since="${windowDays} days ago" --name-only --pretty=format:"" 2>/dev/null`,
+      { encoding: "utf-8", cwd: projectRoot, timeout: 5000 }
+    );
+
+    // Count unique commits per area (each non-empty line = a file path)
+    // We count by unique file paths per area since --name-only groups by commit
+    const fileSetByArea = new Map<string, Set<string>>();
+    for (const a of areas) fileSetByArea.set(a, new Set());
+
+    for (const line of output.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      for (const a of areas) {
+        if (trimmed.startsWith(a + "/") || trimmed.includes("/" + a + "/")) {
+          fileSetByArea.get(a)!.add(trimmed);
+        }
+      }
+    }
+
+    for (const [a, files] of fileSetByArea) {
+      churnMap.set(a, files.size);
+    }
+  } catch {
+    // git not available or no commits — return zeros
+  }
+
+  return churnMap;
+}
+
+/** Pre-read history files once and compute per-area violation counts + incident-free ages. */
+interface PreReadHistory {
+  totalEntries: number;
+  /** area → count of history entries mentioning area + violation keyword */
+  violationsByArea: Map<string, number>;
+  /** area → sessions since last violation mentioning this area */
+  incidentFreeAgeByArea: Map<string, number>;
+}
+
+function preReadHistory(
+  nexusDir: string,
+  areas: string[],
+  violationKeywords: string[]
+): PreReadHistory {
+  const historyDir = join(nexusDir, "docs", "history");
+  const result: PreReadHistory = {
+    totalEntries: 0,
+    violationsByArea: new Map(),
+    incidentFreeAgeByArea: new Map(),
+  };
+
+  for (const a of areas) {
+    result.violationsByArea.set(a, 0);
+    result.incidentFreeAgeByArea.set(a, 0);
+  }
+
+  if (!existsSync(historyDir)) return result;
+
+  const files = readdirSync(historyDir)
+    .filter((f) => f.endsWith(".md") && !f.startsWith("README"))
+    .sort(); // chronological
+
+  result.totalEntries = files.length;
+
+  // Per-area: track violations + find last violation index
+  const lastViolationIdx = new Map<string, number>();
+  for (const a of areas) lastViolationIdx.set(a, -1);
+
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const content = readFileSync(join(historyDir, files[i]), "utf-8").toLowerCase();
+      for (const a of areas) {
+        if (content.includes(a.toLowerCase())) {
+          const hasViolation = violationKeywords.some((kw) => content.includes(kw));
+          if (hasViolation) {
+            result.violationsByArea.set(a, (result.violationsByArea.get(a) || 0) + 1);
+            lastViolationIdx.set(a, i);
+          }
+        }
+      }
+    } catch {
+      // skip
+    }
+  }
+
+  // Compute incident-free age: files.length - lastViolationIdx - 1
+  for (const a of areas) {
+    const idx = lastViolationIdx.get(a)!;
+    result.incidentFreeAgeByArea.set(a, idx < 0 ? files.length : files.length - idx - 1);
+  }
+
+  return result;
 }
 
 // ── Per-Area Scoring ────────────────────────────────────────────────────────
 
 function calculateAreaScores(
   projectRoot: string,
+  nexusDir: string,
   profile: ProjectProfile,
   cache: FileContentCache
 ): AreaScore[] {
 
+  // ── Batch pre-computation: single I/O pass for all areas ──
+  const churnMap = batchGitChurn(projectRoot, profile.areas, profile.churnWindowDays);
+  const history = preReadHistory(nexusDir, profile.areas, profile.violationKeywords);
+
   const results = profile.areas.map((area) => {
     const areaPath = join(projectRoot, area);
     const fileCount = countSourceFilesInDir(areaPath);
-    const churn = countChurnPerArea(projectRoot, area, profile.churnWindowDays);
+    const churn = churnMap.get(area) || 0;
     const sensitiveSurface = countSensitivePerAreaCached(areaPath, profile.sensitiveKeywords, cache);
-    const violations = countViolationsPerArea(projectRoot, area, profile.violationKeywords);
+    const violations = history.violationsByArea.get(area) || 0;
     // Fase 1.1 signals
-    const dependencyDepth = countDependencyDepth(projectRoot, area, profile.areas);
-    const incidentFreeAge = countIncidentFreeAge(projectRoot, area);
+    const dependencyDepth = countDependencyDepth(areaPath, profile.areas, cache);
+    const incidentFreeAge = history.incidentFreeAgeByArea.get(area) || 0;
     const contextPressure = countContextPressure(projectRoot, area);
 
     // Compose score: normalize each component to 0-3, then weighted sum (max ~10)
@@ -245,127 +360,44 @@ function countSensitivePerAreaCached(areaPath: string, keywords: string[], cache
   return count;
 }
 
-function countChurnPerArea(
-  projectRoot: string,
-  area: string,
-  windowDays: number
-): number {
-  try {
-    const output = execSync(
-      `git log --since="${windowDays} days ago" --oneline -- "${area}" 2>/dev/null | wc -l`,
-      { encoding: "utf-8", cwd: projectRoot, timeout: 5000 }
-    );
-    return parseInt(output.trim(), 10) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function countViolationsPerArea(
-  projectRoot: string,
-  area: string,
-  violationKeywords: string[]
-): number {
-  const nexusDir = join(projectRoot, "nexus-system");
-  const historyDir = join(nexusDir, "docs", "history");
-  if (!existsSync(historyDir)) return 0;
-
-  let count = 0;
-  const files = readdirSync(historyDir).filter((f) => f.endsWith(".md"));
-
-  for (const file of files) {
-    try {
-      const content = readFileSync(join(historyDir, file), "utf-8").toLowerCase();
-      // Check if this history entry mentions the area AND a violation keyword
-      if (content.includes(area.toLowerCase())) {
-        for (const kw of violationKeywords) {
-          if (content.includes(kw.toLowerCase())) {
-            count++;
-            break; // one violation per history entry
-          }
-        }
-      }
-    } catch {
-      // skip
-    }
-  }
-  return count;
-}
-
 // ── Fase 1.1: Additional Signals ─────────────────────────────────────────────
 
-/** Counts cross-area imports (dependency depth). Scans import/from statements. */
-function countDependencyDepth(projectRoot: string, area: string, allAreas: string[]): number {
-  const areaPath = join(projectRoot, area);
+/** Counts cross-area imports using shared FileContentCache (avoids re-reading files). */
+function countDependencyDepth(areaPath: string, allAreas: string[], cache: FileContentCache): number {
   if (!existsSync(areaPath)) return 0;
 
-  const otherAreas = allAreas.filter((a) => a !== area);
+  // Build other areas with both full path and short name
+  const otherAreas = allAreas
+    .filter((a) => !areaPath.includes(a))
+    .map((a) => ({ full: a, short: a.split("/").pop()! }));
   if (otherAreas.length === 0) return 0;
 
   let depth = 0;
   const importRegex = /^(?:import|from)\s+.*["'](.*)["']/;
 
   walkSourceFiles(areaPath, (fullPath) => {
-    try {
-      const content = readFileSync(fullPath, "utf-8");
-      for (const line of content.split("\n")) {
-        const match = line.match(importRegex);
-        if (!match) continue;
-        const importPath = match[1];
-        for (const other of otherAreas) {
-          // Check if import resolves to another area (relative or alias)
-          if (
-            importPath.includes(`../${other}/`) ||
-            importPath.includes(`./${other}/`) ||
-            importPath.startsWith(other + "/")
-          ) {
-            depth++;
-            break;
-          }
+    const content = cache.get(fullPath);
+    if (content === null) return;
+    for (const line of content.split("\n")) {
+      const match = line.match(importRegex);
+      if (!match) continue;
+      const importPath = match[1];
+      for (const { full, short } of otherAreas) {
+        if (
+          importPath.includes(`../${short}/`) ||
+          importPath.includes(`./${short}/`) ||
+          importPath.includes(`../${full}/`) ||
+          importPath.includes(`./${full}/`) ||
+          importPath.startsWith(full + "/")
+        ) {
+          depth++;
+          break;
         }
       }
-    } catch {
-      // skip
     }
-  });
+  }, { includeAll: true });
 
   return depth;
-}
-
-/** Counts sessions since last violation for an area. Reads history files. */
-function countIncidentFreeAge(projectRoot: string, area: string): number {
-  const nexusDir = join(projectRoot, "nexus-system");
-  const historyDir = join(nexusDir, "docs", "history");
-  if (!existsSync(historyDir)) return 0;
-
-  const files = readdirSync(historyDir)
-    .filter((f) => f.endsWith(".md"))
-    .sort(); // chronological
-
-  const violationKeywords = ["erro", "bug", "corrigi", "falhou", "rollback", "violação"];
-  let sessionsSinceLastViolation = 0;
-  let found = false;
-
-  // Walk from newest to oldest
-  for (let i = files.length - 1; i >= 0; i--) {
-    try {
-      const content = readFileSync(join(historyDir, files[i]), "utf-8").toLowerCase();
-      if (content.includes(area.toLowerCase())) {
-        for (const kw of violationKeywords) {
-          if (content.includes(kw)) {
-            found = true;
-            break;
-          }
-        }
-      }
-      if (found) break;
-      sessionsSinceLastViolation++;
-    } catch {
-      sessionsSinceLastViolation++;
-    }
-  }
-
-  return sessionsSinceLastViolation;
 }
 
 /** Measures context pressure: total size (KB) of P2 docs for a layer. */
