@@ -9,7 +9,7 @@ import { getCached, setCache, computeKeyChecksums } from "../cache.js";
 import { healthBar, outputJson } from "../formatting.js";
 
 export const auditCommand = new Command("audit")
-  .description("Audit Nexus governance health (Phase 3)")
+  .description("Audit Nexus System health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("--no-cache", "Skip cache and recalculate")
   .option("--json", "Output results as JSON")

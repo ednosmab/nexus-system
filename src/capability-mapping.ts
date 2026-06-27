@@ -41,6 +41,8 @@ const CAPABILITY_MAPPINGS: Record<Capability, CapabilityMapping> = {
       { src: "docs/AGENTS.md", dest: "nexus-system/docs/AGENTS.md", customize: true },
       { src: "docs/opencode-context.md", dest: "nexus-system/docs/opencode-context.md", customize: true },
       { src: "docs/Nexus-System_GUIDE.md", dest: "nexus-system/docs/Nexus-System_GUIDE.md", customize: true },
+      { src: "docs/CONCEPTUAL_MODEL.md", dest: "nexus-system/docs/CONCEPTUAL_MODEL.md" },
+      { src: "docs/KNOWLEDGE_LIFECYCLE.md", dest: "nexus-system/docs/KNOWLEDGE_LIFECYCLE.md" },
       { src: "docs/FORBIDDEN_OPERATIONS.md", dest: "nexus-system/docs/FORBIDDEN_OPERATIONS.md" },
       { src: "docs/DESDO.md", dest: "nexus-system/docs/DESDO.md" },
       { src: "docs/BACKLOG.md", dest: "nexus-system/docs/BACKLOG.md" },

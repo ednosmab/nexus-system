@@ -13,7 +13,7 @@ A CLI tool that analyses your project's complexity, detects patterns in engineer
 | `nexus init` | Initialize governance framework in your project | — |
 | `nexus status` | Check governance health + complexity scoring | Phase 1 |
 | `nexus detect` | Detect patterns in history and propose candidate rules | Phase 2 |
-| `nexus audit` | Audit Nexus governance health (metacognition) | Phase 3 |
+| `nexus audit` | Audit Nexus System health (metacognition) | Phase 3 |
 | `nexus upgrade` | Upgrade governance level (L1 → L2 → L3) | — |
 | `nexus validate` | Validate session integrity | — |
 | `nexus sync` | Sync project governance files from nexus-system | — |
@@ -23,13 +23,13 @@ A CLI tool that analyses your project's complexity, detects patterns in engineer
 ## Installation
 
 ```bash
-npm install -g nexus-governance
+npm install -g nexus-system
 ```
 
 Or run directly with npx:
 
 ```bash
-npx nexus-governance status
+npx nexus-system status
 ```
 
 ### Requirements

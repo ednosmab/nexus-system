@@ -84,7 +84,7 @@ function displayCapabilities(profile: MaturityProfile): void {
 }
 
 export const initCommand = new Command("init")
-  .description("Initialize nexus governance framework with maturity-based discovery")
+  .description("Initialize Nexus System framework with maturity-based discovery")
   .option("-d, --dir <path>", "Project root directory (default: current)")
   .option("--force", "Force creation inside nexus-cli (not recommended)")
   .action(async (options) => {
@@ -170,7 +170,7 @@ export const initCommand = new Command("init")
 
       // Display results
       console.log("");
-      console.log(chalk.bold.green("  ✓ Nexus Governance Framework installed!"));
+      console.log(chalk.bold.green("  ✓ Nexus System Framework installed!"));
       console.log("");
       console.log(chalk.bold("  Structure created:"));
       console.log(chalk.gray("    opencode.json          ← configuration (project root)"));

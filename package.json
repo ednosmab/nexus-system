@@ -1,5 +1,5 @@
 {
-  "name": "nexus-governance",
+  "name": "nexus-system",
   "version": "0.1.0",
   "description": "AI governance framework that grows with your project — scoring, pattern detection, health auditing",
   "type": "module",
@@ -38,7 +38,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/nexus-governance.git"
+    "url": "https://github.com/ednosmab/nexus-system.git"
   },
   "engines": {
     "node": ">=18.0.0"
