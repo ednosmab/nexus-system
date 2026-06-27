@@ -1,4 +1,4 @@
-# nexus-governance
+# Nexus System
 
 > AI governance framework that grows with your project — scoring, pattern detection, health auditing.
 
