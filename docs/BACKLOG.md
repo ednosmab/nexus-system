@@ -19,6 +19,7 @@
 | Renomear "nexus-governance" → "nexus-system" | Critico | package.json, package-lock.json, README.md, init.ts, audit.ts atualizados |
 | Fix repository URL | Alto | package.json repository.url atualizado para ednosmab/nexus-system |
 | Executar Plano Estrategico | Alto | 10 pilares: conceptual model, knowledge lifecycle, capabilities, rule engine, knowledge graph, state separation, knowledge debt, doctor, auto-evolution |
+| Executar NEXUS_EVOLUTION_PLAN | Alto | Engineering State, Capability Engine, Recommendation Engine, pipeline explícito, 10 novos eventos, entropy metrics |
 | Comando `evolve` com dual-path | Alto | Implementado em `src/commands/evolve.ts` (251 linhas) — dual-path, feedback, growth profile |
 | Comando `run` (pipeline) | Alto | Implementado em `src/commands/run.ts` (206 linhas) — pipeline com 5 estagios |
 | Comando `assess` | Medio | Implementado em `src/commands/assess.ts` (11k linhas) |
@@ -105,12 +106,13 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | unassigned |
 | **Arquivo** | `src/pipeline.ts:15-31` |
 | **Descricao** | Todos os stage outputs (analysis, complexityReport, patternReport, healthReport, evolutionReport) sao `unknown`. Codigo consumidor usa type casts inseguros (`as ReturnType<typeof analyseProject>`). |
 | **Correcao** | Parametrizar PipelineContext com generics ou criar tipos de stage |
+| **Resolucao** | PipelineContext agora usa tipos proprios (ProjectAnalysis, ComplexityReport, PatternDetectionReport, etc.) — commit a9fb3fc |
 
 ### Refactoring: `validation.ts` centralizado
 
@@ -200,10 +202,12 @@ Estes itens sao de longo prazo e estao documentados em `plans/`. Nao devem ser a
 
 | Item | Documento | Status |
 |---|---|---|
-| Engineering State como fonte unica de verdade | `NEXUS_EVOLUTION_PLAN.md` | Conceitual |
-| Capability Engine | `NEXUS_EVOLUTION_PLAN.md` | Conceitual |
-| Recommendation Engine | `NEXUS_EVOLUTION_PLAN.md` | Conceitual |
+| Engineering State como fonte unica de verdade | `NEXUS_EVOLUTION_PLAN.md` | **Done** — `src/engineering-state.ts` (712 linhas) |
+| Capability Engine | `NEXUS_EVOLUTION_PLAN.md` | **Done** — `src/capability-engine.ts` (542 linhas) |
+| Recommendation Engine | `NEXUS_EVOLUTION_PLAN.md` | **Done** — `src/recommendation-engine.ts` (474 linhas) |
 | Maturity-based installation (substituir L1/L2/L3) | `Plano-de-Evolução-do-Nexus-CLI.md` | Conceitual |
-| Reducao de entropia organizacional | `NEXUS_EVOLUTION_PLAN.md` | Conceitual |
+| Reducao de entropia organizacional | `NEXUS_EVOLUTION_PLAN.md` | **Done** — integrado em `engineering-state.ts` (entropy metrics) |
+| Pipeline explícito com 8 stages | `NEXUS_EVOLUTION_PLAN.md` | **Done** — `src/pipeline.ts` (createDefaultPipeline) |
+| Eventos de engenharia (10 novos tipos) | `NEXUS_EVOLUTION_PLAN.md` | **Done** — `src/event-bus.ts` |
 
 > **Nota:** Os 11 arquivos em `plans/` possuem massiva sobreposicao. `auditoria-completa-plano.md` e `auditoria-correcao-completa.md` cobrem o mesmo escopo. `unified-execution.md` e o documento de coordenacao. Recomenda-se consolidar em um unico plano antes de iniciar novo ciclo.
