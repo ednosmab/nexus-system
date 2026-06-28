@@ -41,6 +41,8 @@ export interface SessionMetrics {
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
+let sessionCounter = 0;
+
 function getTelemetryDir(nexusDir: string): string {
   return join(nexusDir, "telemetry");
 }
@@ -63,8 +65,11 @@ export function startSession(nexusDir: string): SessionRecord {
   ensureTelemetryDir(nexusDir);
 
   const now = new Date();
+  const ts = now.toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+  const ms = String(now.getMilliseconds()).padStart(3, "0");
+  const seq = String(++sessionCounter).padStart(4, "0");
   const session: SessionRecord = {
-    id: `SES-${now.toISOString().slice(0, 10).replace(/-/g, "")}-${now.toISOString().slice(11, 19).replace(/:/g, "")}`,
+    id: `SES-${ts}${ms}-${seq}`,
     startedAt: now.toISOString(),
     commands: [],
     feedbackGiven: 0,

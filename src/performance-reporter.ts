@@ -408,16 +408,16 @@ export function writePerformanceReport(
   nexusDir: string,
   report: PerformanceReport
 ): string | null {
-  const reportsDir = join(nexusDir, "reports");
-  if (!existsSync(reportsDir)) {
-    mkdirSync(reportsDir, { recursive: true });
-  }
-
-  const date = new Date().toISOString().slice(0, 10);
-  const filename = `performance-${date}.json`;
-  const filepath = join(reportsDir, filename);
-
   try {
+    const reportsDir = join(nexusDir, "reports");
+    if (!existsSync(reportsDir)) {
+      mkdirSync(reportsDir, { recursive: true });
+    }
+
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `performance-${date}.json`;
+    const filepath = join(reportsDir, filename);
+
     writeFileSync(filepath, JSON.stringify(report, null, 2), "utf-8");
     return filename;
   } catch {
