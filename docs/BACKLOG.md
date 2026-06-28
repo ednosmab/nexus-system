@@ -123,11 +123,12 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | unassigned |
 | **Descricao** | Logica de validacao fragmentada entre `rule-engine.ts`, `commands/validate.ts`, e `templates/base/scripts/validate-session.ts`. Falta modulo compartilhado com `safeJsonParse()` e `validateSchema()`. |
 | **Correcao** | Criar `src/validation.ts` |
+| **Resolucao** | Modulo criado com 11 funcoes: safeJsonParse, safeJsonParseFile, validateRequiredFields, validateStringId, validateFileExists, validateYamlHasSections, validateJsonConfig, escapeRegex, isSafeFieldName, sanitizeForYaml, sanitizeIdentifier |
 
 ---
 
