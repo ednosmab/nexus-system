@@ -88,6 +88,17 @@ function selectSkills(capabilities: Capability[]): string[] {
 
 // ── Main Scaffolding Function ───────────────────────────────────────────────
 
+/**
+ * Cria a estrutura inicial do Nexus System num projeto.
+ *
+ * Gera opencode.json, nexus-system/, nexus-profile/, skills,
+ * scripts e docs baseado nas capacidades seleccionadas.
+ *
+ * @param targetDir - Directorio onde criar a estrutura
+ * @param answers - Respostas do utilizador (modelos, stack, etc.)
+ * @param capabilities - Capacidades a instalar (knowledge, governance, etc.)
+ * @returns Resultado com ficheiros e directórios criados
+ */
 export function scaffoldNexusSystem(
   targetDir: string,
   answers: UserAnswers,

@@ -340,6 +340,13 @@ export function auditHealth(
 
 // ── Report Writer ────────────────────────────────────────────────────────────
 
+/**
+ * Grava relatório de saúde em nexus-system/reports/.
+ *
+ * @param nexusDir - Directorio do nexus-system
+ * @param report - Relatório de auditoria de saúde
+ * @returns Nome do ficheiro criado ou null se reports/ não existir
+ */
 export function writeHealthReport(nexusDir: string, report: HealthAuditReport): string | null {
   const reportsDir = join(nexusDir, "reports");
   if (!existsSync(reportsDir)) return null;

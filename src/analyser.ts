@@ -20,6 +20,19 @@ export interface ProjectAnalysis {
   hasTypeScript: boolean;
 }
 
+/**
+ * Analisa a estrutura de um projeto e detecta stack tecnológico.
+ *
+ * @param rootDir - Diretório raiz do projeto a analisar
+ * @returns Análise completa com contagem de packages, apps, files, dependencies e stack detectada
+ *
+ * @example
+ * ```ts
+ * const analysis = analyseProject("/path/to/project");
+ * console.log(analysis.packageCount); // 3
+ * console.log(analysis.stack);        // ["react", "nextjs", "tailwindcss"]
+ * ```
+ */
 export function analyseProject(rootDir: string): ProjectAnalysis {
   return {
     rootDir,

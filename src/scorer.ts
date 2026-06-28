@@ -127,6 +127,18 @@ function loadProjectProfile(projectRoot: string): ProjectProfile | null {
 
 // ── Main Scoring Function ───────────────────────────────────────────────────
 
+/**
+ * Calcula o score de complexidade de um projeto (0-20+).
+ *
+ * Combina métricas estáticas (packages, files, deps) com métricas
+ * comportamentais (bug fixes, branches, commits) para gerar um
+ * score composto com nível recomendado (junior/pleno/senior).
+ *
+ * @param projectRoot - Diretório raiz do projeto
+ * @param nexusDir - Caminho para nexus-system/
+ * @param analysis - Resultado de analyseProject()
+ * @returns Relatório completo de complexidade com scores por área
+ */
 export async function calculateComplexityScore(
   projectRoot: string,
   nexusDir: string,

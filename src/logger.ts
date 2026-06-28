@@ -15,10 +15,22 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
   error: 3,
 };
 
+/**
+ * Define o nível de log global.
+ *
+ * Níveis: "debug" | "info" | "warn" | "error"
+ * Default: "info"
+ *
+ * @param level - Nível de log a ativar
+ */
 export function setLogLevel(level: LogLevel): void {
   currentLevel = level;
 }
 
+/**
+ * Suprime todo output de log (útil em testes).
+ * Equivalente a setLogLevel("error").
+ */
 export function muteLogs(): void {
   currentLevel = "error";
 }
