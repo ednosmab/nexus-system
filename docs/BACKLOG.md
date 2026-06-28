@@ -150,21 +150,23 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | unassigned |
 | **Descricao** | Nenhum `.eslintrc.json` ou equivalente existe. npm script `lint` referencia mas nao ha config. |
 | **Correcao** | Instalar e configurar ESLint com regras TypeScript |
+| **Resolucao** | .eslintrc.json criado com @typescript-eslint/recommended + lint scripts atualizados |
 
 ### Tooling: `tsup.config.ts` ausente
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | unassigned |
 | **Descricao** | Build usa tsup mas nao ha arquivo de configuracao. Configuracao esta implicita em package.json. |
 | **Correcao** | Criar `tsup.config.ts` com configuracao explicita |
+| **Resolucao** | tsup.config.ts criado com entry, format, dts, outDir explicitos |
 
 ### CI/CD: GitHub Actions ausentes
 
