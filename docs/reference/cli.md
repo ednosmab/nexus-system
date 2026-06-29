@@ -8,6 +8,7 @@
 |--------|-------------|
 | `-d, --dir <path>` | Project directory (default: current directory) |
 | `--json` | Output as JSON |
+| `--force` | Skip confirmation prompts |
 | `--help` | Show help |
 | `--version` | Show version |
 
@@ -18,14 +19,21 @@
 Initialize Nexus in a project.
 
 ```bash
-nexus init [--dir <path>]
+nexus init [--dir <path>] [--answers-file <path>] [--profile <name>]
 ```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--answers-file <path>` | JSON file with pre-filled answers (skips interactive prompts) |
+| `--profile <name>` | Project profile (`fullstack`, `frontend`, `backend`, `library`, `mobile`) |
 
 **What it does:**
 - Creates `nexus-system/` directory
 - Scaffolds governance structure
 - Installs core capability
-- Creates `opencode.json`
+- Creates `opencode.json` and `nexus-profile.json`
 
 **Exit codes:** 0 (success), 1 (error)
 
@@ -126,8 +134,16 @@ nexus run [--dir <path>] [--json]
 Install or upgrade capabilities.
 
 ```bash
-nexus upgrade --capability <name> [--dir <path>]
+nexus upgrade --capability <name> [--dir <path>] [--accept-recommended] [--list]
 ```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `--capability <cap>` | Capability to add (`knowledge`, `architecture`, `governance`, `ai`, `quality`, `metrics`, `operations`, `compliance`) |
+| `--list` | List all capabilities and their status |
+| `--accept-recommended` | Install all recommended capabilities from maturity profile |
 
 **What it does:**
 - Installs specified capability

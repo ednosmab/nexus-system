@@ -30,7 +30,7 @@ const { copySync, ensureDirSync } = fse;
 function getTemplatesDir(): string {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  return join(__dirname, "..", "templates", "l1");
+  return join(__dirname, "..", "templates", "base");
 }
 
 export const upgradeCommand = new Command("upgrade")

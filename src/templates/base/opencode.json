@@ -14,6 +14,11 @@
       "model": "opencode/[modelo-executor]",
       "description": "Build/executor agent. Runs the user-approved plan step-by-step. MANDATORY: execute ONLY what the plan specifies — no autonomous refactors, no JSDoc additions, no renames, no 'improvements'. If you spot something outside the plan, STOP and report (do not fix it). Allowed exceptions: (1) minimal fixes (< 5 lines) to make the current step's build pass; (2) recording out-of-scope findings in the buffer's 'technical_debt' section. See AGENTS.md rule 16 for full protocol."
     },
+    "orchestrator": {
+      "role": "orchestrator",
+      "model": "opencode/[modelo-principal]",
+      "description": "Orchestration agent. Routes tasks to the correct subagent (plan, build, review) based on task type. Coordinates multi-step workflows and ensures pipeline integrity. Has access to all subagents via the task tool."
+    },
     "review": {
       "role": "auditor",
       "mode": "primary",

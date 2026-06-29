@@ -150,7 +150,7 @@ For the complete specification, see [docs/domain/ubiquitous-language.md](docs/do
               └─────────┘ └─────────┘
 ```
 
-9 capabilities. 7 maturity dimensions. 13 CLI commands. 30+ core modules.
+9 capabilities. 7 maturity dimensions. 13 CLI commands. 40+ core modules.
 
 For the complete architecture, see [docs/INDEX.md](docs/INDEX.md).
 
@@ -237,7 +237,7 @@ Executes the 5-stage pipeline: Analyse → Score → Detect → Audit → Evolve
 npm install
 npm run dev status     # development mode
 npm run build          # build with tsup
-npm test               # 410+ tests (28 files)
+npm test               # 484+ tests (31 files)
 npm run typecheck      # type checking
 npm run lint           # ESLint with TypeScript rules
 npm run bench          # benchmarks
@@ -245,7 +245,9 @@ npm run bench          # benchmarks
 
 ## CI/CD
 
-GitHub Actions in `.github/workflows/`:
+Local validation: `bash tests/e2e/validate.sh` (36 tests across 3 personas).
+
+GitHub Actions (planned) in `.github/workflows/`:
 - **ci.yml** — typecheck + build + test on Node 18/20/22
 - **release.yml** — npm publish + GitHub Release on git tags
 

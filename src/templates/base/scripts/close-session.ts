@@ -94,21 +94,7 @@ function checkCommit() {
   }
 }
 
-// ── 6. UI Governance (verify:all) ───────────────────────────────────────
-function checkUIGovernance() {
-  try {
-    execSync('pnpm run verify:ui 2>/dev/null', {
-      encoding: 'utf-8',
-      cwd: ROOT,
-      timeout: 30000,
-    });
-    pass('UI_GOVERNANCE', 'All UI rules pass');
-  } catch {
-    warn('UI_GOVERNANCE', 'UI governance check failed — run pnpm run verify:ui');
-  }
-}
-
-// ── 7. Build verification ───────────────────────────────────────────────
+// ── 6. Build verification ───────────────────────────────────────────────
 function checkBuild() {
   try {
     execSync('pnpm run build:verify 2>/dev/null | tail -5', {
@@ -130,7 +116,6 @@ checkTests();
 checkBuffer();
 checkBacklog();
 checkCommit();
-checkUIGovernance();
 checkBuild();
 
 console.log(`\n${exitCode === 0 ? '✅ Session ready to close' : '❌ Session has issues to resolve'}`);

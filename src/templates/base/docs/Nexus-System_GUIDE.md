@@ -27,12 +27,12 @@ Todo conhecimento tácito (regras, convenções, decisões arquitecturais, padr�
 │                    PROJECTO DO UTILIZADOR                    │
 │                                                             │
 │  opencode.json          ← Configuração (project root)       │
-│  nexus-profile/         ← Perfil do projecto                │
+│  nexus-profile.json     ← Perfil do projecto                │
 │  nexus-system/          ← Framework de governança           │
 │    ├── docs/            ← Documentação e skills             │
 │    ├── governance/      ← Contratos, contextos, políticas   │
 │    ├── scripts/         ← Scripts de validação              │
-│    └── cognition/       ← Memória e hierarquia (L3)        │
+│    └── cognition/       ← Memória e hierarquia              │
 └─────────────────────────────────────────────────────────────┘
                           ▲
                           │ nexus init / nexus upgrade
@@ -42,12 +42,12 @@ Todo conhecimento tácito (regras, convenções, decisões arquitecturais, padr�
 │                                                             │
 │  nexus init          ← Instala framework no projecto        │
 │  nexus status        ← Verifica saúde da governança         │
-│  nexus upgrade       ← Eleva nível (junior→pleno→senior)    │
+│  nexus upgrade       ← Eleva capacidades (knowledge, etc.)  │
 │  nexus validate      ← Valida conformidade                 │
 │  nexus sync          ← Sincroniza templates                 │
 └─────────────────────────────────────────────────────────────┘
                           ▲
-                          │ templates/l1/
+                          │ templates/base/
                           │
 ┌─────────────────────────────────────────────────────────────┐
 │                    TEMPLATES DO CLI                          │
@@ -62,63 +62,42 @@ Todo conhecimento tácito (regras, convenções, decisões arquitecturais, padr�
 
 ---
 
-## 2. Os 3 Níveis do Sistema
+## 2. Capacidades do Sistema
 
-O Nexus System oferece três níveis progressivos de governança:
+O Nexus System usa uma abordagem modular baseada em **capacidades**. O `nexus init` instala a base, e `nexus upgrade --capability <name>` adiciona capacidades conforme necessário.
 
-### L1 — Junior (Base)
+### Capacidades Disponíveis
 
-**Para:** Equipas pequenas, projectos novos, protótipos rápidos.
+| Capacidade | Descrição | Componentes |
+|---|---|---|
+| **knowledge** | ADRs, skills, runbooks, workflow | Skills de engenharia, documentação |
+| **architecture** | Contratos de agentes, SYSTEM_MAP | Agentes IA, mapeamento de pastas |
+| **governance** | Políticas, FORBIDDEN_OPERATIONS, DESDO | Regras vinculantes, diretrizes |
+| **ai** | Context buffer, cognição, handoffs | Memória de sessão, coordenação |
+| **quality** | TDD, code review, premortem | Scripts de validação, checklists |
+| **metrics** | Complexity scoring, performance | Scoring, métricas de engenharia |
+| **operations** | CI/CD, deploy, monitoring | Pipelines, runbooks operacionais |
+| **compliance** | Audit trails, ADRs, SDRs | Rastreabilidade, decisões |
 
-| Componente | Incluído |
-|---|---|
-| Documentação (AGENTS.md, GUIDE, skills) | ✅ |
-| Scripts de sessão (validate, close, premortem) | ✅ |
-| Core complexity types | ✅ |
-| 4 contratos de agente | ✅ |
-| 11 skills de engenharia | ✅ |
-| ProjectProfile auto-detectado | ✅ |
-| Context buffer (RAM) | ❌ |
-| Cognição e memória (L3) | ❌ |
-| Skills avançadas (security, performance) | ❌ |
+### Como Funciona
 
-### L2 — Pleno (Intermediária)
-
-**Para:** Equipas em crescimento, projectos com mais de 1 developer.
-
-| Componente | Incluído |
-|---|---|
-| Tudo do L1 | ✅ |
-| Context buffer (RAM mutável) | ✅ |
-| 18 skills (L1 + intermédias) | ✅ |
-| Skills: CI/CD, DDD, animação, responsividade, UI/UX, state management, operação no Nexus | ✅ |
-
-### L3 — Senior (Completa)
-
-**Para:** Equipas senior, projectos complexos, multi-app.
-
-| Componente | Incluído |
-|---|---|
-| Tudo do L2 | ✅ |
-| Cognição (CONTEXT_HIERARCHY, operational state) | ✅ |
-| 21 skills (todas) | ✅ |
-| Skills: Next.js performance, PostgreSQL, security/XSS | ✅ |
-| Governance completa (contracts, handoffs, policies, premortem, reviews) | ✅ |
-| Documentação (ADRs, plans, SDRs, history, layers, roadmaps, feedback) | ✅ |
+1. **`nexus init`** — Instala base completa (knowledge + architecture + governance)
+2. **`nexus upgrade --capability <name>`** — Adiciona capacidade específica
+3. **`nexus upgrade --accept-recommended`** — Instala todas as recomendadas pelo perfil
 
 ---
 
 ## 3. Skills — 21 Competências de Engenharia
 
-### Distribuição por Nível
+### Distribuição
 
-| Nível | # Skills | Categorias |
+| Categoria | # Skills | Descrição |
 |---|---|---|
-| **L1 Junior** | 11 | Engenharia core (genéricas puras + essenciais) |
-| **L2 Pleno** | 18 | + Intermedias (especializadas) |
-| **L3 Senior** | 21 | + Avançadas (performance, security, infra) |
+| **Core** | 11 | Engenharia fundamental (TDD, SOLID, clean code, etc.) |
+| **Intermediárias** | 7 | Especializadas (CI/CD, DDD, animação, UI/UX, etc.) |
+| **Avançadas** | 3 | Performance, segurança, infraestrutura |
 
-### L1 — Skills Core (11)
+### Skills Core (11)
 
 | Skill | Tipo | Descrição |
 |---|---|---|
@@ -134,7 +113,7 @@ O Nexus System oferece três níveis progressivos de governança:
 | `optimistic_ui.md` | Mista | UI optimista para respostas imediatas |
 | `codebase_hygiene_git.md` | Genérica pura | Higiene de código e workflow Git |
 
-### L2 — Skills Intermediárias (+7)
+### Skills Intermediárias (+7)
 
 | Skill | Tipo | Descrição |
 |---|---|---|
@@ -146,7 +125,7 @@ O Nexus System oferece três níveis progressivos de governança:
 | `ui_ux_principles.md` | Mista | Princípios de UI e UX visual |
 | `operacao_no_nexus.md` | Meta-skill | Como agir dentro da estrutura de pastas do Nexus |
 
-### L3 — Skills Avançadas (+3)
+### Skills Avançadas (+3)
 
 | Skill | Tipo | Descrição |
 |---|---|---|
@@ -362,31 +341,31 @@ projecto/
     │   ├── validate-session.ts
     │   ├── close-session.ts
     │   └── premortem-check.ts
-    └── cognition/                   ← L3 only
+    └── cognition/                   ← capability: ai
         ├── context/
         │   └── CONTEXT_HIERARCHY.md
         └── memory/
             └── MEM-operational-state-v1.json
 ```
 
-### O que muda por nível
+### O que muda por capacidade
 
-| Directório | L1 Junior | L2 Pleno | L3 Senior |
-|---|---|---|---|
-| `docs/skills/` | 11 skills | 18 skills | 21 skills |
-| `governance/agents/` | 4 contratos | 4 contratos | 4 contratos |
-| `governance/context/` | ❌ | ✅ | ✅ |
-| `governance/contracts/` | ❌ | ❌ | ✅ |
-| `governance/handoffs/` | ❌ | ❌ | ✅ |
-| `governance/policies/` | ❌ | ❌ | ✅ |
-| `governance/premortem/` | ❌ | ❌ | ✅ |
-| `governance/reviews/` | ❌ | ❌ | ✅ |
-| `cognition/` | ❌ | ❌ | ✅ |
-| `docs/adrs/` | ❌ | ❌ | ✅ |
-| `docs/feedback/` | ✅ | ✅ | ✅ |
-| `docs/history/` | ❌ | ❌ | ✅ |
-| `docs/plans/` | ❌ | ❌ | ✅ |
-| `docs/sdr/` | ❌ | ❌ | ✅ |
+| Directório | Base (init) | + knowledge | + architecture | + governance | + ai | + quality | + metrics | + operations | + compliance |
+|---|---|---|---|---|---|---|---|---|---|
+| `docs/skills/` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `governance/agents/` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `governance/context/` | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `governance/contracts/` | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `governance/handoffs/` | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `governance/policies/` | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `governance/premortem/` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| `governance/reviews/` | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| `cognition/` | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `docs/adrs/` | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `docs/feedback/` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `docs/history/` | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `docs/plans/` | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `docs/sdr/` | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -467,11 +446,20 @@ export const profile: ProjectProfile = {
 | Comando | Função |
 |---|---|
 | `nexus init` | Instala framework no projecto (detecta stack, gera profile) |
-| `nexus init --level <junior\|pleno\|senior>` | Instala com nível específico |
+| `nexus init --answers-file <path>` | Instala com respostas pré-definidas (JSON, sem prompts interactivos) |
 | `nexus status` | Verifica saúde da governança (auto-detecta projecto) |
-| `nexus upgrade --level <pleno\|senior>` | Eleva nível de governança |
-| `nexus upgrade --list` | Mostra níveis disponíveis |
+| `nexus upgrade --capability <name>` | Adiciona uma capacidade (knowledge, architecture, governance, ai, quality, metrics, operations, compliance) |
+| `nexus upgrade --list` | Mostra capacidades disponíveis e seu estado |
+| `nexus upgrade --accept-recommended` | Instala todas as capacidades recomendadas pelo perfil |
 | `nexus validate` | Valida conformidade do projecto |
+| `nexus detect` | Detecta padrões no histórico de commits |
+| `nexus audit` | Auto-avaliação: regras mortas, hotspots de violação |
+| `nexus evolve` | Recomendações adaptativas baseadas na maturidade |
+| `nexus run` | Pipeline completo de 5 estágios |
+| `nexus assess` | Re-avaliação do perfil de maturidade |
+| `nexus doctor` | Diagnósticos de saúde do sistema |
+| `nexus report` | Gera relatórios |
+| `nexus clean` | Limpa cache e ficheiros temporários |
 
 ---
 

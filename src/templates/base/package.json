@@ -5,7 +5,6 @@
   "scripts": {
     "validate:session": "npx tsx scripts/validate-session.ts",
     "close:session": "npx tsx scripts/close-session.ts",
-    "verify:ui": "npx tsx scripts/verify-ui-rules.ts",
     "premortem:check": "npx tsx scripts/premortem-check.ts"
   },
   "engines": {

@@ -1,42 +1,112 @@
 # Configuration Reference
 
-> How to configure the Nexus CLI.
+> How Nexus CLI reads and writes configuration.
 
 ## opencode.json
 
-The main configuration file, located at the project root.
+The AI agent configuration file, created by `nexus init` at the project root.
 
 ```json
 {
-  "name": "my-project",
-  "version": "1.0.0",
-  "nexus": {
-    "version": "0.1.0",
-    "initialized": true
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/[modelo-principal]",
+  "default_agent": "plan",
+  "agent": {
+    "plan": { ... },
+    "build": { ... },
+    "orchestrator": { ... },
+    "review": { ... }
+  },
+  "instructions": [ ... ],
+  "skills": { ... },
+  "mcp": { ... }
+}
+```
+
+### Top-level Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `$schema` | string | No | JSON schema URL for validation |
+| `model` | string | Yes | Default model for all agents |
+| `default_agent` | string | Yes | Agent invoked on startup (`plan`) |
+| `agent` | object | Yes | Agent definitions (plan, build, review, orchestrator) |
+| `instructions` | string[] | Yes | File paths loaded as system context |
+| `skills` | object | No | Skills directory configuration |
+| `mcp` | object | No | MCP server configurations |
+
+### Agent Definitions
+
+Each agent under `agent` supports:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `role` | string | Agent role (`planner`, `executor`, `auditor`, `orchestrator`) |
+| `model` | string | Model override for this agent |
+| `description` | string | System prompt / behavior description |
+| `permission` | object | Tool permission rules (review agent only) |
+
+#### Permission Rules (review agent)
+
+```json
+{
+  "permission": {
+    "edit": "deny",
+    "bash": {
+      "pnpm run test": "allow",
+      "pnpm run lint": "allow",
+      "git status": "allow",
+      "*": "ask"
+    }
   }
 }
 ```
 
-### Fields
+### Skills Configuration
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Project name |
-| `version` | string | Yes | Project version |
-| `nexus.version` | string | Yes | Nexus version used |
-| `nexus.initialized` | boolean | Yes | Whether Nexus is initialized |
+```json
+{
+  "skills": {
+    "paths": ["nexus-system/docs/skills"]
+  }
+}
+```
+
+### MCP Server Configuration
+
+```json
+{
+  "mcp": {
+    "local-filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "."],
+      "enabled": true
+    }
+  }
+}
+```
 
 ---
 
 ## nexus-system/ Directory
 
-The governance directory created by `nexus init`.
+Created by `nexus init`. Structure:
 
 ```
 nexus-system/
-├── docs/              # Documentation
+├── docs/              # Documentation, skills, ADRs, plans
+│   ├── skills/        # Engineering skills (21+)
+│   ├── plans/         # Execution plans (archived)
+│   ├── feedback/      # Session feedback (private)
+│   └── history/       # Migrated legacy docs
 ├── governance/        # Governance structure
-├── cognition/         # AI context
+│   ├── contracts/     # AI role contracts
+│   ├── context/       # context_buffer.yaml
+│   ├── knowledge/     # ADRs, workflows
+│   ├── quality/       # Quality rules
+│   └── metrics/       # Metrics definitions
+├── scripts/           # Session scripts (validate, close)
+├── cognition/         # AI context memory
 ├── reports/           # Generated reports
 ├── maturity-profile.json
 └── complexity-report.json
@@ -44,23 +114,43 @@ nexus-system/
 
 ---
 
+## nexus-profile/ ProjectProfile
+
+Defines how Nexus adapts to your project type.
+
+```json
+{
+  "projectType": "fullstack",
+  "complexity": "medium",
+  "teamSize": "small",
+  "lifecycle": "active",
+  "governanceLevel": "standard"
+}
+```
+
+### Fields
+
+| Field | Type | Values | Description |
+|-------|------|--------|-------------|
+| `projectType` | string | `frontend`, `backend`, `fullstack`, `library`, `mobile` | Project category |
+| `complexity` | string | `simple`, `medium`, `complex` | Structural complexity |
+| `teamSize` | string | `solo`, `small`, `medium`, `large` | Team size |
+| `lifecycle` | string | `new`, `active`, `mature`, `legacy` | Project lifecycle phase |
+| `governanceLevel` | string | `minimal`, `standard`, `strict` | Governance strictness |
+
+---
+
 ## Loading Profiles
 
-Control how much context AI agents load.
+Control how much context AI agents load per session.
 
-| Profile | P0 | P1 | P2 | P3 | P4 | Tokens |
-|---------|----|----|----|----|----|----|
-| **minimal** | ✓ | ✓ | — | — | — | ~2K |
-| **lite** | ✓ | ✓ | ✓ | — | — | ~8K |
-| **full** | ✓ | ✓ | ✓ | ✓ | ✓ | ~25K |
+| Profile | Rules | Use Case | Tokens |
+|---------|-------|----------|--------|
+| **minimal** | #1-11, FORBIDDEN_OPERATIONS, DESDO | Quick tasks, typo fixes | ~3-4K |
+| **lite** (default) | minimal + #12-16 | Feature implementation, bug fixes | ~5-6K |
+| **full** | lite + #17-22 | Architecture decisions, complex debugging | ~8-10K |
 
-### When to Use
-
-| Profile | Use Case |
-|---------|----------|
-| **minimal** | Quick questions, status checks |
-| **lite** | Feature implementation, bug fixes |
-| **full** | Architecture decisions, complex debugging |
+Override with `loading_profile` field in `opencode.json`.
 
 ---
 
@@ -70,16 +160,17 @@ Control how much context AI agents load.
 |----------|-------------|---------|
 | `NEXUS_HOME` | Nexus home directory | `~/.nexus` |
 | `NEXUS_PLUGINS` | Plugin directory | `nexus-plugins/` |
-| `NEXUS_LOG_LEVEL` | Log level | `info` |
+| `NEXUS_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
 
 ---
 
 ## Configuration Precedence
 
-1. CLI flags (`--dir`, `--json`)
+1. CLI flags (`--dir`, `--json`, `--force`)
 2. Environment variables
 3. `opencode.json`
-4. Defaults
+4. `nexus-profile.json`
+5. Defaults
 
 ---
 
