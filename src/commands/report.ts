@@ -21,7 +21,7 @@ import {
 import { healthBar, outputJson } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
-import { DIMENSION_LABELS, type PerformanceDimension } from "../feedback-loops.js";
+import { METRIC_LABELS, type PerformanceMetric } from "../feedback-loops.js";
 
 // ── Formatting Helpers ───────────────────────────────────────────────────────
 
@@ -57,11 +57,11 @@ export function formatReport(report: PerformanceReport): void {
 
   // Dimensions
   console.log(chalk.bold("📐 Dimensões"));
-  const dims = Object.entries(report.dimensions) as [PerformanceDimension, DimensionReport][];
+  const dims = Object.entries(report.dimensions) as [PerformanceMetric, DimensionReport][];
   // Sort by score descending
   dims.sort((a, b) => b[1].score - a[1].score);
   for (const [dim, data] of dims) {
-    console.log(formatDimensionBar(DIMENSION_LABELS[dim], data));
+    console.log(formatDimensionBar(METRIC_LABELS[dim], data));
   }
   console.log("");
 

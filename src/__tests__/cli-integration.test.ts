@@ -226,7 +226,7 @@ describe("CLI Integration Tests", () => {
       expect(stdout).toContain("Total score");
     });
 
-    it("should generate a report file when reports/ exists (L3)", async () => {
+    it("should generate a report file when reports/ exists (senior)", async () => {
       const { dir } = scaffoldTestProject("status-report", "senior");
       dirs.push(dir);
 
@@ -333,7 +333,7 @@ describe("CLI Integration Tests", () => {
       expect(stdout).toContain("Issues found:");
     });
 
-    it("should write a health report when reports/ exists (L3)", async () => {
+    it("should write a health report when reports/ exists (senior)", async () => {
       const { dir } = scaffoldTestProject("audit-report", "senior");
       dirs.push(dir);
 

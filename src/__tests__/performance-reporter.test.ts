@@ -84,10 +84,10 @@ describe("Performance Reporter", () => {
   function seedTrends() {
     const telemetryDir = join(nexusDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
-    writeFileSync(join(telemetryDir, "maturity-current.json"), JSON.stringify(65), "utf-8");
-    writeFileSync(join(telemetryDir, "maturity-previous.json"), JSON.stringify(55), "utf-8");
-    writeFileSync(join(telemetryDir, "debt-current.json"), JSON.stringify(30), "utf-8");
-    writeFileSync(join(telemetryDir, "debt-previous.json"), JSON.stringify(45), "utf-8");
+    writeFileSync(join(telemetryDir, "maturity-2026-06-29.json"), JSON.stringify({ overallScore: 65 }), "utf-8");
+    writeFileSync(join(telemetryDir, "maturity-2026-06-28.json"), JSON.stringify({ overallScore: 55 }), "utf-8");
+    writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-29.json"), JSON.stringify({ healthScore: 70 }), "utf-8");
+    writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-28.json"), JSON.stringify({ healthScore: 55 }), "utf-8");
   }
 
   it("generatePerformanceReport returns correct shape", () => {
@@ -213,8 +213,8 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
     const telemetryDir = join(nexusDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
-    writeFileSync(join(telemetryDir, "debt-current.json"), JSON.stringify(80), "utf-8");
-    writeFileSync(join(telemetryDir, "debt-previous.json"), JSON.stringify(50), "utf-8");
+    writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-29.json"), JSON.stringify({ healthScore: 20 }), "utf-8");
+    writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-28.json"), JSON.stringify({ healthScore: 50 }), "utf-8");
 
     const report = generatePerformanceReport(tempDir, nexusDir);
     const debtInsight = report.insights.find(
@@ -228,8 +228,8 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
     const telemetryDir = join(nexusDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
-    writeFileSync(join(telemetryDir, "maturity-current.json"), JSON.stringify(70), "utf-8");
-    writeFileSync(join(telemetryDir, "maturity-previous.json"), JSON.stringify(55), "utf-8");
+    writeFileSync(join(telemetryDir, "maturity-2026-06-29.json"), JSON.stringify({ overallScore: 70 }), "utf-8");
+    writeFileSync(join(telemetryDir, "maturity-2026-06-28.json"), JSON.stringify({ overallScore: 55 }), "utf-8");
 
     const report = generatePerformanceReport(tempDir, nexusDir);
     const maturityInsight = report.insights.find(

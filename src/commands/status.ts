@@ -420,9 +420,9 @@ function displayComplexityReport(
     senior: chalk.red,
   };
   const levelNames: Record<string, string> = {
-    junior: "L1 (Base)",
-    pleno: "L2 (Intermediária)",
-    senior: "L3 (Completa)",
+    junior: "Basic",
+    pleno: "Moderate",
+    senior: "Advanced",
   };
 
   const color = levelColors[complexity.level] || chalk.gray;

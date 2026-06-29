@@ -8,15 +8,15 @@
  * PRINCIPLE: To improve, one must first see oneself clearly.
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
   getAllDimensionSummaries,
   getFeedbackRecords,
   detectFeedbackPatterns,
-  type PerformanceDimension,
+  type PerformanceMetric,
   type DimensionSummary,
-  DIMENSION_LABELS,
+  METRIC_LABELS,
 } from "./feedback-loops.js";
 import {
   getSessionMetrics,
@@ -38,7 +38,7 @@ export interface DimensionReport {
 
 export interface Insight {
   type: "strength" | "improvement" | "pattern" | "suggestion";
-  dimension: PerformanceDimension | null;
+  dimension: PerformanceMetric | null;
   text: string;
   evidence?: string;
 }
@@ -46,13 +46,13 @@ export interface Insight {
 export interface PerformanceReport {
   period: { from: string; to: string; days: number };
   profile: {
-    dominantDimension: PerformanceDimension | null;
-    weakestDimension: PerformanceDimension | null;
+    dominantDimension: PerformanceMetric | null;
+    weakestDimension: PerformanceMetric | null;
     growthPattern: string;
     growthCapacity: number;
     challengeLevel: number;
   };
-  dimensions: Record<PerformanceDimension, DimensionReport>;
+  dimensions: Record<PerformanceMetric, DimensionReport>;
   sessions: {
     total: number;
     avgDuration: number;
@@ -75,12 +75,28 @@ export interface PerformanceReport {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getTelemetryPath(nexusDir: string, filename: string): string {
-  return join(nexusDir, "telemetry", filename);
+function getLatestTelemetryFile(nexusDir: string, prefix: string, rank = 0): string {
+  const telemetryDir = join(nexusDir, "telemetry");
+  if (!existsSync(telemetryDir)) return "";
+  try {
+    const files = readdirSync(telemetryDir)
+      .filter((f: string) => f.startsWith(`${prefix}-`) && f.endsWith(".json"))
+      .sort()
+      .reverse();
+    return files[rank] ? join(telemetryDir, files[rank]) : "";
+  } catch {
+    return "";
+  }
+}
+
+interface TelemetrySnapshot {
+  overallScore?: number;
+  healthScore?: number;
+  dimensions?: Record<string, number>;
 }
 
 function readJsonFile<T>(path: string, fallback: T): T {
-  if (!existsSync(path)) return fallback;
+  if (!path || !existsSync(path)) return fallback;
   try {
     return JSON.parse(readFileSync(path, "utf-8"));
   } catch {
@@ -129,11 +145,11 @@ export function generatePerformanceReport(
   );
 
   // Calculate dimension scores
-  const dimensions = {} as Record<PerformanceDimension, DimensionReport>;
+  const dimensions = {} as Record<PerformanceMetric, DimensionReport>;
   let maxScore = -1;
   let minScore = 101;
-  let dominantDim: PerformanceDimension | null = null;
-  let weakestDim: PerformanceDimension | null = null;
+  let dominantDim: PerformanceMetric | null = null;
+  let weakestDim: PerformanceMetric | null = null;
   let allTied = false;
 
   // Calculate previous period's scores for trend comparison
@@ -143,7 +159,7 @@ export function generatePerformanceReport(
   );
 
   for (const [dim, summary] of Object.entries(dimensionSummaries)) {
-    const d = dim as PerformanceDimension;
+    const d = dim as PerformanceMetric;
     const score = calculateDimensionScore(summary);
     const previousDimRecords = previousPeriodRecords.filter((r) => r.dimension === d);
     const previousSummary: DimensionSummary = {
@@ -192,18 +208,19 @@ export function generatePerformanceReport(
   }
 
   // Debt and maturity trends (from telemetry snapshots)
-  const currentMaturity = readJsonFile<number>(
-    getTelemetryPath(nexusDir, "maturity-current.json"), 0
-  );
-  const previousMaturity = readJsonFile<number>(
-    getTelemetryPath(nexusDir, "maturity-previous.json"), currentMaturity
-  );
-  const currentDebt = readJsonFile<number>(
-    getTelemetryPath(nexusDir, "debt-current.json"), 100
-  );
-  const previousDebt = readJsonFile<number>(
-    getTelemetryPath(nexusDir, "debt-previous.json"), currentDebt
-  );
+  const currentMaturityFile = getLatestTelemetryFile(nexusDir, "maturity");
+  const currentMaturityData = currentMaturityFile ? readJsonFile<TelemetrySnapshot>(currentMaturityFile, {}) : {};
+  const currentMaturity = currentMaturityData.overallScore ?? 0;
+  const previousMaturityFile = getLatestTelemetryFile(nexusDir, "maturity", 1);
+  const previousMaturityData = previousMaturityFile ? readJsonFile<TelemetrySnapshot>(previousMaturityFile, {}) : {};
+  const previousMaturity = previousMaturityData.overallScore ?? currentMaturity;
+
+  const currentDebtFile = getLatestTelemetryFile(nexusDir, "knowledge-debt");
+  const currentDebtData = currentDebtFile ? readJsonFile<TelemetrySnapshot>(currentDebtFile, {}) : {};
+  const currentDebt = currentDebtData.healthScore != null ? 100 - currentDebtData.healthScore : 100;
+  const previousDebtFile = getLatestTelemetryFile(nexusDir, "knowledge-debt", 1);
+  const previousDebtData = previousDebtFile ? readJsonFile<TelemetrySnapshot>(previousDebtFile, {}) : {};
+  const previousDebt = previousDebtData.healthScore != null ? 100 - previousDebtData.healthScore : currentDebt;
 
   // Generate insights
   const insights = generateInsights(
@@ -273,7 +290,7 @@ export function generatePerformanceReport(
 // ── Insight Generation ───────────────────────────────────────────────────────
 
 function generateInsights(
-  dimensions: Record<PerformanceDimension, DimensionReport>,
+  dimensions: Record<PerformanceMetric, DimensionReport>,
   sessionMetrics: SessionMetrics,
   growthProfile: GrowthProfile,
   debtTrend: { current: number; previous: number; delta: number },
@@ -284,11 +301,11 @@ function generateInsights(
   // Find strongest and weakest dimensions
   let maxScore = -1;
   let minScore = 101;
-  let strongest: PerformanceDimension | null = null;
-  let weakest: PerformanceDimension | null = null;
+  let strongest: PerformanceMetric | null = null;
+  let weakest: PerformanceMetric | null = null;
 
   for (const [dim, report] of Object.entries(dimensions)) {
-    const d = dim as PerformanceDimension;
+    const d = dim as PerformanceMetric;
     if (report.score > maxScore) { maxScore = report.score; strongest = d; }
     if (report.score < minScore) { minScore = report.score; weakest = d; }
   }
@@ -305,7 +322,7 @@ function generateInsights(
     insights.push({
       type: "strength",
       dimension: strongest,
-      text: `Sua força está em ${DIMENSION_LABELS[strongest]}. Score: ${maxScore}/100.`,
+      text: `Sua força está em ${METRIC_LABELS[strongest]}. Score: ${maxScore}/100.`,
       evidence: dimensions[strongest].evidence[0],
     });
   } else {
@@ -321,7 +338,7 @@ function generateInsights(
     insights.push({
       type: "improvement",
       dimension: weakest,
-      text: `Área com mais potencial de melhoria: ${DIMENSION_LABELS[weakest]}. Score: ${minScore}/100.`,
+      text: `Área com mais potencial de melhoria: ${METRIC_LABELS[weakest]}. Score: ${minScore}/100.`,
     });
   } else {
     insights.push({
@@ -395,7 +412,7 @@ function generateInsights(
 
 function generateNextSteps(
   insights: Insight[],
-  dimensions: Record<PerformanceDimension, DimensionReport>,
+  dimensions: Record<PerformanceMetric, DimensionReport>,
   growthProfile: GrowthProfile
 ): string[] {
   const steps: string[] = [];
@@ -403,7 +420,7 @@ function generateNextSteps(
   // Based on weakest dimension
   const weakest = insights.find((i) => i.type === "improvement");
   if (weakest?.dimension) {
-    steps.push(`Focar em ${DIMENSION_LABELS[weakest.dimension]} na próxima sessão`);
+    steps.push(`Focar em ${METRIC_LABELS[weakest.dimension]} na próxima sessão`);
   }
 
   // Based on growth pattern
@@ -426,7 +443,7 @@ function generateNextSteps(
 }
 
 function generateSummary(
-  dimensions: Record<PerformanceDimension, DimensionReport>,
+  dimensions: Record<PerformanceMetric, DimensionReport>,
   sessionMetrics: SessionMetrics,
   totalInteractions: number,
   accepted: number,

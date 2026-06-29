@@ -21,7 +21,7 @@ import {
 import { outputJson, healthBar } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
-import { recordFeedback } from "../feedback-loops.js";
+import { recordFeedback, recordDimensionFeedback, type PerformanceMetric } from "../feedback-loops.js";
 
 function displayDimensionBar(label: string, value: number, prev?: number): void {
   const barWidth = 20;
@@ -186,6 +186,34 @@ export const assessCommand = new Command("assess")
           knowledgeDebt: 0,
         },
       });
+    }
+
+    // Record dimension feedback for performance metrics
+    const dimensionToMetric: Record<string, PerformanceMetric> = {
+      architecture: "architectural_vision",
+      governance: "decision_making",
+      quality: "technical_communication",
+      automation: "sustainable_velocity",
+      ai: "prompt_quality",
+      documentation: "scope_management",
+      observability: "risk_management",
+    };
+    for (const [dim, score] of Object.entries(newProfile.dimensions)) {
+      const metric = dimensionToMetric[dim];
+      if (metric) {
+        const action = score >= 65 ? "accepted" : score < 35 ? "rejected" : "deferred";
+        recordDimensionFeedback(ctx.nexusDir, {
+          recommendationId: `maturity-${dim}`,
+          action,
+          dimension: metric,
+          evidence: `Maturity score: ${score}/100`,
+          context: {
+            maturityScore: newProfile.overallScore,
+            installedCapabilities: newProfile.installedCapabilities,
+            knowledgeDebt: 0,
+          },
+        });
+      }
     }
 
     // JSON output

@@ -32,7 +32,7 @@ import {
 import type { NexusState } from "../state-manager.js";
 import type { KnowledgeDebtReport } from "../knowledge-debt.js";
 import type { DimensionReport, Insight, PerformanceReport } from "../performance-reporter.js";
-import type { PerformanceDimension } from "../feedback-loops.js";
+import type { PerformanceMetric } from "../feedback-loops.js";
 
 let tempDir: string;
 
@@ -505,31 +505,31 @@ describe("report.ts — formatDimensionBar", () => {
 
 describe("report.ts — formatInsight", () => {
   it("formats strength insight", () => {
-    const insight: Insight = { type: "strength", dimension: "decision_making" as PerformanceDimension, text: "Good test coverage", evidence: "95% coverage" };
+    const insight: Insight = { type: "strength", dimension: "decision_making" as PerformanceMetric, text: "Good test coverage", evidence: "95% coverage" };
     const result = formatInsight(insight);
     expect(result).toContain("Good test coverage");
   });
 
   it("formats improvement insight", () => {
-    const insight: Insight = { type: "improvement", dimension: "prompt_quality" as PerformanceDimension, text: "Add more tests" };
+    const insight: Insight = { type: "improvement", dimension: "prompt_quality" as PerformanceMetric, text: "Add more tests" };
     const result = formatInsight(insight);
     expect(result).toContain("Add more tests");
   });
 
   it("formats pattern insight", () => {
-    const insight: Insight = { type: "pattern", dimension: "decision_making" as PerformanceDimension, text: "Recurring pattern detected" };
+    const insight: Insight = { type: "pattern", dimension: "decision_making" as PerformanceMetric, text: "Recurring pattern detected" };
     const result = formatInsight(insight);
     expect(result).toContain("Recurring pattern detected");
   });
 
   it("formats suggestion insight", () => {
-    const insight: Insight = { type: "suggestion", dimension: "sustainable_velocity" as PerformanceDimension, text: "Consider refactoring" };
+    const insight: Insight = { type: "suggestion", dimension: "sustainable_velocity" as PerformanceMetric, text: "Consider refactoring" };
     const result = formatInsight(insight);
     expect(result).toContain("Consider refactoring");
   });
 
   it("includes evidence when present", () => {
-    const insight: Insight = { type: "strength", dimension: "decision_making" as PerformanceDimension, text: "Good", evidence: "Because X" };
+    const insight: Insight = { type: "strength", dimension: "decision_making" as PerformanceMetric, text: "Good", evidence: "Because X" };
     const result = formatInsight(insight);
     expect(result).toContain("Because X");
   });
@@ -540,8 +540,8 @@ describe("report.ts — formatReport", () => {
     const report: PerformanceReport = {
       period: { days: 30, from: "2024-01-01", to: "2024-01-31" },
       profile: {
-        dominantDimension: "decision_making" as PerformanceDimension,
-        weakestDimension: "prompt_quality" as PerformanceDimension,
+        dominantDimension: "decision_making" as PerformanceMetric,
+        weakestDimension: "prompt_quality" as PerformanceMetric,
         growthPattern: "balanced",
         growthCapacity: 0.5,
         challengeLevel: 0.4,
@@ -554,7 +554,7 @@ describe("report.ts — formatReport", () => {
         risk_management: { score: 50, trend: "stable", acceptRate: 50, evidence: [] },
         technical_communication: { score: 55, trend: "stable", acceptRate: 55, evidence: [] },
         sustainable_velocity: { score: 65, trend: "improving", acceptRate: 70, evidence: [] },
-      } as Record<PerformanceDimension, DimensionReport>,
+      } as Record<PerformanceMetric, DimensionReport>,
       debtTrend: { current: 20, previous: 25, delta: -5 },
       maturityTrend: { current: 60, previous: 57, delta: 3 },
       feedback: {
@@ -571,8 +571,8 @@ describe("report.ts — formatReport", () => {
         commandFrequency: { status: 3, detect: 2 },
       },
       insights: [
-        { type: "strength", dimension: "decision_making" as PerformanceDimension, text: "Good coverage", evidence: "95%" },
-        { type: "improvement", dimension: "prompt_quality" as PerformanceDimension, text: "Add tests" },
+        { type: "strength", dimension: "decision_making" as PerformanceMetric, text: "Good coverage", evidence: "95%" },
+        { type: "improvement", dimension: "prompt_quality" as PerformanceMetric, text: "Add tests" },
       ],
       nextSteps: ["Run nexus upgrade", "Add more tests"],
       summary: "Project is in good shape.",

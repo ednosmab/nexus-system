@@ -14,7 +14,7 @@ import { join } from "node:path";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 /** Performance dimensions inspired by the feedback template. */
-export type PerformanceDimension =
+export type PerformanceMetric =
   | "architectural_vision"
   | "scope_management"
   | "prompt_quality"
@@ -24,7 +24,7 @@ export type PerformanceDimension =
   | "sustainable_velocity";
 
 /** Human-readable labels for each dimension. */
-export const DIMENSION_LABELS: Record<PerformanceDimension, string> = {
+export const METRIC_LABELS: Record<PerformanceMetric, string> = {
   architectural_vision: "Visão Arquitectural",
   scope_management: "Gestão de Scope",
   prompt_quality: "Qualidade de Prompts",
@@ -48,7 +48,7 @@ export interface FeedbackRecord {
   /** Path choice made by the user (for dual-path system). */
   pathChoice?: "comfortable" | "challenging";
   /** Performance dimension this feedback relates to. */
-  dimension?: PerformanceDimension;
+  dimension?: PerformanceMetric;
   /** Concrete evidence for the assessment. */
   evidence?: string;
   /** Session ID where this feedback was given. */
@@ -242,7 +242,7 @@ export function detectFeedbackPatterns(nexusDir: string): FeedbackPattern[] {
 // ── Dimension Functions ──────────────────────────────────────────────────────
 
 export interface DimensionSummary {
-  dimension: PerformanceDimension;
+  dimension: PerformanceMetric;
   acceptCount: number;
   rejectCount: number;
   deferCount: number;
@@ -256,7 +256,7 @@ export function recordDimensionFeedback(
     recommendationId: string;
     action: "accepted" | "rejected" | "deferred";
     reason?: string;
-    dimension: PerformanceDimension;
+    dimension: PerformanceMetric;
     evidence: string;
     sessionId?: string;
     pathChoice?: "comfortable" | "challenging";
@@ -286,7 +286,7 @@ export function recordDimensionFeedback(
 /** Get feedback summary for a specific dimension. */
 export function getDimensionSummary(
   nexusDir: string,
-  dimension: PerformanceDimension
+  dimension: PerformanceMetric
 ): DimensionSummary {
   const records = getFeedbackRecords(nexusDir);
   const filtered = records.filter((r) => r.dimension === dimension);
@@ -306,8 +306,8 @@ export function getDimensionSummary(
 /** Get feedback summaries for all dimensions. */
 export function getAllDimensionSummaries(
   nexusDir: string
-): Record<PerformanceDimension, DimensionSummary> {
-  const dimensions: PerformanceDimension[] = [
+): Record<PerformanceMetric, DimensionSummary> {
+  const dimensions: PerformanceMetric[] = [
     "architectural_vision",
     "scope_management",
     "prompt_quality",
@@ -317,7 +317,7 @@ export function getAllDimensionSummaries(
     "sustainable_velocity",
   ];
 
-  const result = {} as Record<PerformanceDimension, DimensionSummary>;
+  const result = {} as Record<PerformanceMetric, DimensionSummary>;
   for (const dim of dimensions) {
     result[dim] = getDimensionSummary(nexusDir, dim);
   }

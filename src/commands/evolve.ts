@@ -12,7 +12,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import { analyzeEvolution, writeEvolutionReport } from "../auto-evolution.js";
-import { recordFeedback, detectFeedbackPatterns, getAllFeedbackSummaries } from "../feedback-loops.js";
+import { recordFeedback, detectFeedbackPatterns, getAllFeedbackSummaries, recordDimensionFeedback, type PerformanceMetric } from "../feedback-loops.js";
 import { getEventBus } from "../event-bus.js";
 import { outputJson } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
@@ -64,6 +64,28 @@ export const evolveCommand = new Command("evolve")
         recommendationId: recId,
         action,
         reason,
+        context: {
+          maturityScore: 0,
+          installedCapabilities: [],
+          knowledgeDebt: 0,
+        },
+        pathChoice,
+      });
+
+      // Record dimension feedback based on recommendation type
+      const recTypeToMetric: Record<string, PerformanceMetric> = {
+        capability: "scope_management",
+        knowledge: "architectural_vision",
+        governance: "decision_making",
+        automation: "sustainable_velocity",
+      };
+      const metric = recTypeToMetric[recId.split("-")[0]] || "decision_making";
+      recordDimensionFeedback(ctx.nexusDir, {
+        recommendationId: recId,
+        action,
+        reason,
+        dimension: metric,
+        evidence: `User ${action} recommendation: ${recId}`,
         context: {
           maturityScore: 0,
           installedCapabilities: [],

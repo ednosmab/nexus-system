@@ -853,12 +853,12 @@ function scoreProject(
 
   if (level === "pleno" && !suggestions.some((s) => s.includes("upgrade"))) {
     suggestions.push(
-      "Your project complexity suggests L2 (Pleno). Run: nexus upgrade --level pleno"
+      "Your project complexity suggests moderate complexity. Run: nexus upgrade --list"
     );
   }
   if (level === "senior" && !suggestions.some((s) => s.includes("upgrade"))) {
     suggestions.push(
-      "Your project complexity suggests L3 (Senior). Run: nexus upgrade --level senior"
+      "Your project complexity suggests high complexity. Run: nexus upgrade --list"
     );
   }
 
@@ -897,7 +897,7 @@ export function writeComplexityReport(
 ): string | null {
   const reportsDir = join(nexusDir, "reports");
   if (!existsSync(reportsDir)) {
-    return null; // reports/ only available at L3 (senior)
+    return null; // reports/ only available with metrics capability
   }
 
   const dirName = projectRoot.split(/[/\\]/).pop() || "unknown";
