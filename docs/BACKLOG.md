@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-06-30 — 532 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (36 done, 5 P0 + 8 P1 integracao)
+> **Ultima atualizacao:** 2026-06-30 — 544 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (39 done, 5 P0 + 11 P1)
 
 ---
 
@@ -191,34 +191,31 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
-| **Owner** | unassigned |
-| **Modulos** | `src/commands/bench.ts` (0%), `src/commands/dashboard.ts` (0%), `src/commands/feedback.ts` (0% action) |
-| **Descricao** | Os 3 comandos novos da Context Pipeline nao tem testes. |
-| **Correcao** | Criar testes unitarios para: (a) `runBenchmark()` com mock de `collectContext`. (b) `displayDashboard()` com mock de `computeFeedbackSummary`. (c) Feedback command action com validacao de --outcome, summary mode, JSON output. |
+| **Owner** | Edson |
+| **Resolucao** | Criados testes para bench, dashboard e session-feedback extended (2026-06-30) |
+| **Arquivos** | `src/__tests__/bench.test.ts`, `src/__tests__/dashboard.test.ts`, `src/__tests__/session-feedback-extended.test.ts` |
 
 ### 1.10 Testes para enrichBriefingWithPatterns
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
-| **Owner** | unassigned |
-| **Arquivo** | `src/context-collector.ts` |
-| **Descricao** | A funcao `enrichBriefingWithPatterns()` e a espinha dorsal da integracao feedback→briefing e pattern-detector→briefing, mas nao tem testes unitarios. |
-| **Correcao** | Criar teste com DI mock: mockar `getFeedbackRecords()` e `detectPatterns()`. |
+| **Owner** | Edson |
+| **Resolucao** | Criados testes para collectContext com DI mock (2026-06-30) |
+| **Arquivo** | `src/__tests__/context-collector.test.ts` |
 
 ### 1.11 Testes para getFeedbackForSession e getLatestFeedback
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivo** | `src/session-feedback.ts` |
-| **Descricao** | Duas funcoes novas exportadas sem testes. |
-| **Correcao** | Adicionar testes cobrindo: filtrar por sessionId, retorno de records vazios, retorno do ultimo record. |
+| **Owner** | Edson |
+| **Resolucao** | Criados testes em session-feedback-extended.test.ts (2026-06-30) |
+| **Arquivo** | `src/__tests__/session-feedback-extended.test.ts` |
 
 ### 1.12 Coverage gap: comandos CLI com 0%
 
@@ -948,9 +945,9 @@ Context Pipeline: collectContext → cache → briefing → feedback → dashboa
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 36 | Bugs, integracao, qualidade, pipeline |
+| **Done** | 39 | Bugs, integracao, qualidade, pipeline, testes |
 | **P0** (≤ 7d) | 0 | Todos concluidos |
-| **P1** (≤ 30d) | 14 | Testes, produto, monetizacao, AI agents |
+| **P1** (≤ 30d) | 11 | Coverage gap, empty catch, produto, monetizacao, AI agents |
 | **P2** (≤ 90d) | 32 | Features, enterprise, docs, performance, security |
 | **P3** (sem SLA) | 37 | Nice-to-have, ecosystem, observability, i18n, nome/logo |
 | **Total** | **119** | |
