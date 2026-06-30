@@ -233,6 +233,34 @@ export const upgradeCommand = new Command("upgrade")
         console.log(chalk.gray(`    Files installed: ${result.filesInstalled}`));
         console.log("");
       }
+
+      // Generate and display context rules
+      try {
+        const { generateProjectFingerprint, loadFingerprint } = await import("../project-fingerprint.js");
+        const { generateRiskMap } = await import("../risk-map.js");
+        const { generateContextRules } = await import("../context-rules.js");
+
+        const analysis = (await import("../analyser.js")).analyseProject(targetDir);
+        let fingerprint = loadFingerprint(ctx.nexusDir);
+        if (!fingerprint) {
+          const { saveFingerprint } = await import("../project-fingerprint.js");
+          fingerprint = generateProjectFingerprint(targetDir, analysis);
+          saveFingerprint(ctx.nexusDir, fingerprint);
+        }
+
+        const riskMap = generateRiskMap(targetDir, ctx.nexusDir);
+        const contextRules = generateContextRules(fingerprint, riskMap);
+
+        if (contextRules.length > 0 && !isJson) {
+          console.log(chalk.bold("  Context-Aware Rules Generated:"));
+          for (const rule of contextRules.slice(0, 3)) {
+            console.log(chalk.gray(`    • ${rule.rule}`));
+          }
+          console.log("");
+        }
+      } catch {
+        // Skip context rules on error
+      }
     } catch (error) {
       if (isJson) {
         outputJson({ error: "install_failed", message: String(error) });

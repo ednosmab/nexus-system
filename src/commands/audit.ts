@@ -189,6 +189,25 @@ export const auditCommand = new Command("audit")
         console.log("");
       }
 
+      // Generate and display dynamic rules
+      try {
+        const { generateDynamicRules } = await import("../dynamic-rules.js");
+        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.nexusDir);
+
+        if (dynamicRules.length > 0 && !isJson) {
+          console.log(chalk.bold("  🚨 Dynamic Rules (from History):"));
+          console.log("");
+          for (const rule of dynamicRules.slice(0, 5)) {
+            const severityIcon = rule.severity === "critical" ? "🔴" : rule.severity === "high" ? "🟡" : "ℹ️";
+            console.log(`    ${severityIcon} ${rule.rule}`);
+            console.log(chalk.gray(`      Evidence: ${rule.evidence}`));
+            console.log("");
+          }
+        }
+      } catch {
+        // Skip dynamic rules on error
+      }
+
       // Summary
       console.log(chalk.bold("  📝 Summary:"));
       console.log(chalk.gray(`    ${report.summary}`));

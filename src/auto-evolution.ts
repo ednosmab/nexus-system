@@ -257,6 +257,55 @@ function generateAutomationRecommendations(state: NexusState): EvolutionRecommen
   return recs;
 }
 
+// ── Smart Suggestions ───────────────────────────────────────────────────────
+
+function generateSmartSuggestions(state: NexusState): EvolutionRecommendation[] {
+  const recs: EvolutionRecommendation[] = [];
+  let id = 400;
+
+  // Suggest daily digest if no recent activity
+  const hasRecentDigest = state.knowledge.scripts.some((s) => s.name.includes("digest"));
+  if (!hasRecentDigest && state.project.installedCapabilities.includes("governance")) {
+    recs.push({
+      id: `EVO-${String(id++).padStart(3, "0")}`,
+      type: "automation_addition",
+      priority: "low",
+      title: "Enable daily digest",
+      description: "No daily digest found — run `nexus digest` to see project health at a glance",
+      expectedImpact: "Quick daily health check keeps issues visible",
+      action: "Run `nexus digest` each morning",
+      affectedArtifacts: [],
+      dependencies: [],
+      confidence: 0.6,
+      evidence: ["Daily digest not yet used"],
+      feedbackAdjusted: false,
+    });
+  }
+
+  // Suggest context rules if high-risk areas detected
+  if (state.project.installedCapabilities.includes("governance")) {
+    const hasContextRules = state.knowledge.governanceDocs.some((d) => d.name === "CONTEXT_RULES.md");
+    if (!hasContextRules) {
+      recs.push({
+        id: `EVO-${String(id++).padStart(3, "0")}`,
+        type: "governance_enhancement",
+        priority: "medium",
+        title: "Generate context-aware rules",
+        description: "Context rules adapt governance to your project's specific risk profile",
+        expectedImpact: "More targeted governance reduces noise",
+        action: "Run `nexus upgrade --capability governance` to generate context rules",
+        affectedArtifacts: ["CONTEXT_RULES.md"],
+        dependencies: ["capability:governance"],
+        confidence: 0.75,
+        evidence: ["Context rules not yet generated"],
+        feedbackAdjusted: false,
+      });
+    }
+  }
+
+  return recs;
+}
+
 // ── Main Analysis ───────────────────────────────────────────────────────────
 
 /** Executa análise de evolução autónoma. */
@@ -279,6 +328,7 @@ export function analyzeEvolution(
     ...generateKnowledgeRecommendations(state, debtReport),
     ...generateGovernanceRecommendations(state),
     ...generateAutomationRecommendations(state),
+    ...generateSmartSuggestions(state),
   ];
 
   // Load feedback and adjust confidence

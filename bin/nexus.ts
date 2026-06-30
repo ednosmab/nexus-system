@@ -14,6 +14,7 @@ import { doctorCommand } from "../src/commands/doctor.js";
 import { runCommand } from "../src/commands/run.js";
 import { evolveCommand } from "../src/commands/evolve.js";
 import { reportCommand } from "../src/commands/report.js";
+import { digestCommand } from "../src/commands/digest.js";
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -42,5 +43,6 @@ program.addCommand(doctorCommand);
 program.addCommand(runCommand);
 program.addCommand(evolveCommand);
 program.addCommand(reportCommand());
+program.addCommand(digestCommand());
 
 program.parse();

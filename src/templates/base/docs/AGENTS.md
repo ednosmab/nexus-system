@@ -266,3 +266,10 @@ Sempre que o usuário enviar uma nova mensagem ou comando, você DEVE executar r
 1. **Imutabilidade:** Os arquivos dentro de `docs/history/` são registros históricos. Você está PROIBIDO de alterar arquivos de sessões passadas.
 2. **Geração de Saída:** Quando o usuário solicitar o encerramento ou resumo de uma sessão para transição de chat, sintetize os pontos em um formato denso contendo: Data, Objetivos Alcançados, Decisões Técnicas de Arquitetura e Estado do Repositório.
 3. **Leitura Sob Demanda:** Você só deve ler a pasta `docs/history/` se o usuário solicitar explicitamente uma retrospectiva sobre o motivo de uma decisão tomada em sessões anteriores.
+
+---
+
+<!-- NEXUS_CONTEXT_RULES -->
+<!-- As regras abaixo são geradas automaticamente pelo Nexus baseadas no contexto do projeto.
+     Não edite manualmente. Execute `nexus status` para atualizar. -->
+<!-- /NEXUS_CONTEXT_RULES -->

@@ -129,6 +129,56 @@ export const statusCommand = new Command("status")
       console.log("");
     }
 
+    // Display brief context rules summary
+    try {
+      const { generateRiskMap } = await import("../risk-map.js");
+      const { generateContextRules } = await import("../context-rules.js");
+      const { generateDynamicRules } = await import("../dynamic-rules.js");
+      const { generateBriefing } = await import("../briefing.js");
+
+      const riskMap = generateRiskMap(ctx.projectRoot, ctx.nexusDir);
+      if (fingerprint) {
+        const contextRules = generateContextRules(fingerprint, riskMap);
+        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.nexusDir);
+        const briefing = generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined);
+
+        // Show briefing summary
+        console.log(chalk.bold("  📋 Pre-Session Briefing:"));
+        console.log(chalk.gray(`    Domain: ${briefing.project.domain} | Scale: ${briefing.project.scale} | Risk: ${briefing.risks.overall}`));
+        if (briefing.risks.criticalAreas.length > 0) {
+          console.log(chalk.red(`    ⚠ Critical areas: ${briefing.risks.criticalAreas.join(", ")}`));
+        }
+        if (briefing.tests.areasWithoutTests.length > 0) {
+          console.log(chalk.yellow(`    🧪 Areas without tests: ${briefing.tests.areasWithoutTests.length}`));
+        }
+        for (const rec of briefing.recommendations.slice(0, 2)) {
+          console.log(chalk.cyan(`    → ${rec}`));
+        }
+        console.log("");
+      }
+    } catch {
+      // Skip briefing on error
+    }
+
+    // Display capability engine summary
+    try {
+      const { evaluateCapabilities } = await import("../capability-engine.js");
+      const { consolidateEngineeringState } = await import("../engineering-state.js");
+      const state = consolidateEngineeringState(ctx.projectRoot, ctx.nexusDir);
+      const engineResult = evaluateCapabilities(state, ctx.nexusDir);
+
+      console.log(chalk.bold("  ⚙ Capability Engine:"));
+      console.log(chalk.gray(`    Overall: ${engineResult.overallScore}% | Installed: ${engineResult.byMaturity.installed.length + engineResult.byMaturity.configured.length + engineResult.byMaturity.active.length + engineResult.byMaturity.optimized.length} | Dormant: ${engineResult.byMaturity.dormant.length}`));
+
+      const activeCaps = [...engineResult.byMaturity.active, ...engineResult.byMaturity.optimized];
+      if (activeCaps.length > 0) {
+        console.log(chalk.green(`    Active: ${activeCaps.join(", ")}`));
+      }
+      console.log("");
+    } catch {
+      // Skip capability engine on error
+    }
+
     if (cacheHit) {
       console.log(chalk.gray("  📦 Used cached results"));
       console.log("");
