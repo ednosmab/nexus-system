@@ -6,6 +6,7 @@ import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
 import { guardNotInitialized } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
+import { logger } from "../logger.js";
 
 export const cleanCommand = new Command("clean")
   .description("Clear nexus cache and temporary files")
@@ -49,12 +50,12 @@ export const cleanCommand = new Command("clean")
               unlinkSync(filePath);
               itemsRemoved.push(file);
             } catch {
-              // skip
+              logger.debug("clean", "Failed to remove:", filePath);
             }
           }
         }
       } catch {
-        // skip
+        logger.debug("clean", "Failed to read directory:", ctx.projectRoot);
       }
     }
 

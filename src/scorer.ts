@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "
 import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
 import { walkSourceFiles, FileContentCache } from "./utils.js";
+import { logger } from "./logger.js";
 
 // ── Types (aligned with nexus-system/core/complexity/types.ts) ───────────────
 
@@ -195,10 +196,10 @@ function batchGitChurn(
 
     for (const [a, files] of fileSetByArea) {
       churnMap.set(a, files.size);
+      }
+    } catch {
+      logger.debug("scorer", "Failed to compute churn metrics");
     }
-  } catch {
-    // git not available or no commits — return zeros
-  }
 
   return churnMap;
 }
@@ -453,7 +454,7 @@ function countContextPressure(projectRoot: string, area: string): number {
       const stats = statSync(fullPath);
       totalBytes += stats.size;
     } catch {
-      // skip
+      logger.debug("scorer", "Failed to stat file:", fullPath);
     }
   });
 
@@ -724,7 +725,7 @@ function countValidateFailures(nexusDir: string): number {
         count++;
       }
     } catch {
-      // skip
+      logger.debug("scorer", "Failed to read history file:", file);
     }
   }
   return count;

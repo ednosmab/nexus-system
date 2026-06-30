@@ -13,6 +13,7 @@ import { Command } from "commander";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import chalk from "chalk";
+import { logger } from "../logger.js";
 import ora from "ora";
 import { consolidateState, type NexusState } from "../state-manager.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "../knowledge-debt.js";
@@ -228,7 +229,7 @@ export function runDoctorAnalysis(
   try {
     debtReport = detectKnowledgeDebt(projectRoot, nexusDir);
   } catch {
-    // skip
+    logger.debug("doctor", "Knowledge debt detection unavailable");
   }
 
   // Run analyses

@@ -13,6 +13,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { UserAnswers } from "./prompts.js";
 import type { Capability } from "./maturity-profile.js";
+import { logger } from "./logger.js";
 import { getCapabilityMapping } from "./capability-mapping.js";
 
 const { copySync, ensureDirSync, readFileSync, writeFileSync, existsSync, readdirSync, removeSync } = fse;
@@ -259,7 +260,7 @@ function detectAreas(targetDir: string): string[] {
         }
       }
     } catch {
-      // skip inaccessible dirs
+      logger.debug("scaffolder", "Inaccessible directory skipped:", base);
     }
   }
 

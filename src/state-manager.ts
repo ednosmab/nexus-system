@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import YAML from "yaml";
 import { analyseProject } from "./analyser.js";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -261,7 +262,7 @@ export function readProjectState(
       state.installedCapabilities = content.installedCapabilities || [];
       state.recommendedCapabilities = content.recommendedCapabilities || [];
     } catch {
-      // skip
+      logger.debug("state-manager", "Failed to parse maturity profile");
     }
   }
 
@@ -283,7 +284,7 @@ export function readProjectState(
             detectedAt: content.generatedAt,
           };
         } catch {
-          // skip
+          logger.debug("state-manager", "Failed to parse knowledge debt report:", debtFile);
         }
       }
     }
@@ -303,7 +304,7 @@ export function readProjectState(
       sourceFileCount: analysis.sourceFileCount,
     };
   } catch {
-    // skip
+    logger.debug("state-manager", "Project analysis unavailable");
   }
 
   return state;
@@ -371,7 +372,7 @@ export function readSessionMemory(nexusDir: string): SessionMemory {
       }
     }
   } catch {
-    // skip
+    logger.debug("state-manager", "Failed to read session memory");
   }
 
   return memory;

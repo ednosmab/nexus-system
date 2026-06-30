@@ -13,6 +13,7 @@
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -195,7 +196,7 @@ function detectOrphanDirs(nexusDir: string): HealthIssue[] {
       }
     }
   } catch {
-    // skip
+    logger.debug("health-auditor", "Failed to analyze directories");
   }
 
   return issues;
@@ -230,7 +231,7 @@ function detectStaleBuffer(nexusDir: string): HealthIssue[] {
       });
     }
   } catch {
-    // skip
+    logger.debug("health-auditor", "Failed to read context buffer");
   }
 
   return issues;

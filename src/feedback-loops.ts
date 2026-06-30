@@ -10,6 +10,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -135,7 +136,7 @@ export function getFeedbackRecords(nexusDir: string): FeedbackRecord[] {
       const content = JSON.parse(readFileSync(join(recordsDir, file), "utf-8"));
       records.push(content);
     } catch {
-      // skip corrupted files
+      logger.debug("feedback-loops", "Failed to parse feedback record:", file);
     }
   }
 

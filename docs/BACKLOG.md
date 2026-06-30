@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-06-30 — 544 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (39 done, 5 P0 + 11 P1)
+> **Ultima atualizacao:** 2026-06-30 — 544 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (40 done)
 
 ---
 
@@ -232,12 +232,12 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivos** | ~20 blocos catch {} vazios em: analyser.ts, auto-evolution.ts, cache.ts, capability-engine.ts, engineering-state.ts, event-bus.ts, feedback-loops.ts, context-collector.ts |
-| **Descricao** | Blocos catch vazios escondem falhas silenciosamente. |
-| **Correcao** | Adicionar `logger.debug()` ou `logger.warn()` em cada catch vazio. Priorizar cache.ts e engineering-state.ts. |
+| **Owner** | Edson |
+| **Resolucao** | Adicionado logger.debug() em 25 catch blocks "// skip" em 12 arquivos (2026-06-30) |
+| **Arquivos** | cache.ts, capability-engine.ts, clean.ts, doctor.ts, engineering-state.ts, feedback-loops.ts, health-auditor.ts, knowledge-debt.ts, scaffolder.ts, scorer.ts, state-manager.ts, utils.ts |
+| **Nota** | 116 catch blocks analisados: 19 return null (legitimo), 25 // skip (corrigidos), 16 return default (legitimo), 8 com logging (OK), 48 outros (legitimo) |
 
 ### 1.14 Remover displayBriefing dead code
 
@@ -945,9 +945,9 @@ Context Pipeline: collectContext → cache → briefing → feedback → dashboa
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 39 | Bugs, integracao, qualidade, pipeline, testes |
+| **Done** | 40 | Bugs, integracao, qualidade, pipeline, testes, catch blocks |
 | **P0** (≤ 7d) | 0 | Todos concluidos |
-| **P1** (≤ 30d) | 11 | Coverage gap, empty catch, produto, monetizacao, AI agents |
+| **P1** (≤ 30d) | 10 | Coverage gap, produto, monetizacao, AI agents |
 | **P2** (≤ 90d) | 32 | Features, enterprise, docs, performance, security |
 | **P3** (sem SLA) | 37 | Nice-to-have, ecosystem, observability, i18n, nome/logo |
 | **Total** | **119** | |

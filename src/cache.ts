@@ -10,6 +10,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, renameSync, chmodSync } from "node:fs";
 import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -69,7 +70,7 @@ function dirChecksum(dirPath: string, maxDepth = 3): string {
         }
       }
     } catch {
-      // skip inaccessible dirs
+      logger.debug("cache", "Inaccessible directory skipped:", dirPath);
     }
   }
 

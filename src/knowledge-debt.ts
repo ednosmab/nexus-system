@@ -10,6 +10,7 @@
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -209,7 +210,7 @@ function detectMissingRunbooks(nexusDir: string, now: string): KnowledgeGap[] {
         incidentCount++;
       }
     } catch {
-      // skip
+      logger.debug("knowledge-debt", "Failed to read history file:", file);
     }
   }
 
@@ -356,7 +357,7 @@ function detectMissingContracts(nexusDir: string, now: string): KnowledgeGap[] {
       });
     }
   } catch {
-    // skip
+    logger.debug("knowledge-debt", "Failed to analyze AI contracts");
   }
 
   return gaps;
@@ -412,7 +413,7 @@ function detectStaleAdrs(nexusDir: string, now: string): KnowledgeGap[] {
         });
       }
     } catch {
-      // skip
+      logger.debug("knowledge-debt", "Failed to read ADR file:", file);
     }
   }
 

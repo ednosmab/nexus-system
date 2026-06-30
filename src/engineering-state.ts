@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { analyseProject } from "./analyser.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "./knowledge-debt.js";
+import { logger } from "./logger.js";
 import {
   detectInstalledCapabilities,
   loadMaturityProfile,
@@ -240,7 +241,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
           dependencies: [],
         });
       } catch {
-        // skip invalid JSON
+        logger.debug("engineering-state", "Failed to parse rule file:", file);
       }
     }
   }
@@ -537,7 +538,7 @@ export function consolidateEngineeringState(
   try {
     debtReport = detectKnowledgeDebt(projectRoot, nexusDir);
   } catch {
-    // skip
+    logger.debug("engineering-state", "Knowledge debt detection unavailable");
   }
 
   // Entropy
@@ -559,7 +560,7 @@ export function consolidateEngineeringState(
         const content = JSON.parse(readFileSync(join(rulesDir, file), "utf-8"));
         if (content.enabled) activeRules++;
       } catch {
-        // skip
+        logger.debug("engineering-state", "Failed to parse rule file:", file);
       }
     }
   }

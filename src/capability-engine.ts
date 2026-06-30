@@ -11,6 +11,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getEventBus } from "./event-bus.js";
+import { logger } from "./logger.js";
 import {
   CAPABILITIES,
   type Capability,
@@ -167,7 +168,7 @@ function checkCapabilityRules(capability: Capability, nexusDir: string): boolean
       const content = JSON.parse(readFileSync(join(rulesDir, file), "utf-8"));
       if (content.tags && content.tags.includes(capability)) return true;
     } catch {
-      // skip
+      logger.debug("capability-engine", "Failed to parse rule file:", file);
     }
   }
   return false;
@@ -274,7 +275,7 @@ function collectCapabilityPolicies(capability: Capability, nexusDir: string): st
         policies.push(content.id || file.replace(".json", ""));
       }
     } catch {
-      // skip
+      logger.debug("capability-engine", "Failed to parse rule file:", file);
     }
   }
   return policies;

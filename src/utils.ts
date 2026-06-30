@@ -6,6 +6,7 @@
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { logger } from "./logger.js";
 
 /** Extensões de ficheiros de código fonte. */
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
@@ -49,7 +50,7 @@ export function walkSourceFiles(
         }
       }
     } catch {
-      // skip inaccessible dirs
+      logger.debug("utils", "Inaccessible directory skipped:", currentDir);
     }
   }
 

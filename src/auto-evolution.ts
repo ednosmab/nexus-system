@@ -16,6 +16,7 @@ import { CAPABILITIES } from "./maturity-profile.js";
 import { getAllFeedbackSummaries, adjustConfidence, shouldSuppress, type FeedbackSummary } from "./feedback-loops.js";
 import { loadGrowthProfile, type GrowthProfile } from "./growth-profile.js";
 import { generateChallengingAlternative, type DualPath } from "./challenge-generator.js";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -318,8 +319,8 @@ export function analyzeEvolution(
   let debtReport: KnowledgeDebtReport | null = null;
   try {
     debtReport = detectKnowledgeDebt(projectRoot, nexusDir);
-  } catch {
-    // skip
+  } catch (err) {
+    logger.debug("auto-evolution", "Knowledge debt detection unavailable:", err instanceof Error ? err.message : err);
   }
 
   // Generate all recommendations
