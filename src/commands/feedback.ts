@@ -30,6 +30,7 @@ export function feedbackCommand(): Command {
     .option("--areas <list>", "Comma-separated list of modified areas (e.g. src/auth,src/payments)")
     .option("--notes <text>", "Optional notes about the session")
     .option("--duration <minutes>", "Session duration in minutes")
+    .option("--session-id <id>", "Link feedback to a session-tracker session")
     .option("--json", "Output as JSON")
     .option("--summary", "Show feedback summary statistics")
     .action(async function (this: Command, options: Record<string, unknown>) {
@@ -118,6 +119,7 @@ export function feedbackCommand(): Command {
         modifiedAreas,
         notes: options.notes ? String(options.notes) : undefined,
         durationMinutes: Number.isFinite(durationMinutes) ? durationMinutes : undefined,
+        sessionId: options["session-id"] ? String(options["session-id"]) : undefined,
       });
 
       if (isJson) {

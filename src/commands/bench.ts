@@ -14,6 +14,8 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { collectContext, type ContextSnapshot } from "../context-collector.js";
 import { computeInputHash, setCachedBriefing, readCache, invalidateBriefingCache } from "../briefing-cache.js";
@@ -21,14 +23,44 @@ import { outputJson } from "../formatting.js";
 
 // ── Benchmark Helpers ──────────────────────────────────────────────────────
 
-/** Estimate tokens needed for manual discovery (~8.8k). */
-function estimateManualTokens(): number {
-  return 8800;
+/** Estimate tokens needed for manual discovery based on project size. */
+function estimateManualTokens(projectRoot: string): number {
+  let fileCount = 0;
+  let totalSize = 0;
+
+  function walkDir(dir: string) {
+    if (!existsSync(dir)) return;
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== "nexus-system") {
+          walkDir(fullPath);
+        }
+      } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".js") || entry.name.endsWith(".json")) {
+        fileCount++;
+        try {
+          totalSize += readFileSync(fullPath, "utf-8").length;
+        } catch { /* ignore */ }
+      }
+    }
+  }
+
+  walkDir(projectRoot);
+
+  // Base: ~100 tokens per file + ~0.5 tokens per character of code
+  const fileTokens = fileCount * 100;
+  const charTokens = Math.round(totalSize / 4); // ~4 chars per token
+  return Math.max(2000, fileTokens + charTokens);
 }
 
-/** Briefing markdown is typically ~500 tokens. */
-function estimateBriefingTokens(): number {
-  return 500;
+/** Briefing markdown is typically proportional to project complexity. */
+function estimateBriefingTokens(snapshot: ContextSnapshot): number {
+  const baseTokens = 200;
+  const ruleTokens = (snapshot.contextRules.length + snapshot.dynamicRules.length) * 30;
+  const highRiskCount = snapshot.riskMap.areas.filter(a => a.riskLevel === "high" || a.riskLevel === "critical").length;
+  const riskTokens = highRiskCount * 20;
+  return baseTokens + ruleTokens + riskTokens;
 }
 
 // ── Benchmark Runner ───────────────────────────────────────────────────────
@@ -88,8 +120,8 @@ function runBenchmark(
     : 0;
 
   // Calculate savings
-  const manualTokens = estimateManualTokens();
-  const briefingTokens = snapshot ? estimateBriefingTokens() : 500;
+  const manualTokens = estimateManualTokens(projectRoot);
+  const briefingTokens = snapshot ? estimateBriefingTokens(snapshot) : 500;
   const tokensSaved = manualTokens - briefingTokens;
   const percentSaved = Math.round((tokensSaved / manualTokens) * 100);
   const timeSaved = avgFreshTime;

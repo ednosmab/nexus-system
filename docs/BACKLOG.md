@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-06-30 — 532 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (5 P0 done)
+> **Ultima atualizacao:** 2026-06-30 — 532 testes, 0 erros TypeScript, Context Pipeline integrado, 119 itens no backlog (36 done, 5 P0 + 8 P1 integracao)
 
 ---
 
@@ -107,89 +107,81 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
-| **Owner** | unassigned |
-| **Arquivos** | `src/commands/feedback.ts`, `src/session-feedback.ts` |
-| **Descricao** | O campo `sessionId` foi adicionado ao `SessionFeedbackRecord` mas nunca e preenchido. O comando `nexus feedback` nao aceita `--session-id` e nenhum comando inicia sessoes no session-tracker automaticamente. |
-| **Correcao** | (a) Adicionar `--session-id` ao `nexus feedback`. (b) Criar wrapper `withSessionTracking()` que chama `startSession()` antes e `endSession()` depois de cada comando. (c) No `nexus briefing`, associar a sessao automaticamente. |
+| **Owner** | Edson |
+| **Resolucao** | Adicionado --session-id ao nexus feedback (2026-06-30) |
+| **Arquivo** | `src/commands/feedback.ts` |
 
 ### 1.2 Logging de erros no enrichment
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivo** | `src/context-collector.ts` (enrichBriefingWithPatterns) |
-| **Descricao** | Dois `try/catch {}` vazios em `enrichBriefingWithPatterns` engolem erros de feedback e pattern-detector silenciosamente. |
-| **Correcao** | Substituir por `logger.debug("enrichBriefing", "Feedback data unavailable:", err.message)` e `logger.debug("enrichBriefing", "Pattern detection unavailable:", err.message)`. |
+| **Owner** | Edson |
+| **Resolucao** | Substituido try/catch vazios por logger.debug() (2026-06-30) |
+| **Arquivo** | `src/context-collector.ts` |
 
 ### 1.3 Unificar computeInputHash
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivos** | `src/briefing-cache.ts` (exportado), `src/context-collector.ts` (privado) |
-| **Descricao** | Existem duas funcoes `computeInputHash` quase identicas. Mantenha apenas a de `briefing-cache.ts`. |
-| **Correcao** | Remover `computeInputHash` de `context-collector.ts`. Importar de `briefing-cache.ts`. |
+| **Owner** | Edson |
+| **Resolucao** | Removido de context-collector.ts, importado de briefing-cache.ts (2026-06-30) |
+| **Arquivo** | `src/context-collector.ts` |
 
 ### 1.4 Dashboard correlacionar session-tracker + feedback
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
+| **Owner** | Edson |
+| **Resolucao** | Importado getSessionMetrics() e exibido no dashboard (2026-06-30) |
 | **Arquivo** | `src/commands/dashboard.ts` |
-| **Descricao** | O dashboard usa apenas dados de `session-feedback` mas ignora o `session-tracker`. Dados de duracao real, comandos executados, e padroes de uso nao aparecem. |
-| **Correcao** | Importar `getSessionMetrics()` de `session-tracker.ts` e cruzar com feedback summary. Mostrar: comandos mais usados, duracao media real vs reportada, correlacao comando→sucesso. |
 
 ### 1.5 Dynamico: estimativas de tokens no bench
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Baixo |
-| **Owner** | unassigned |
+| **Owner** | Edson |
+| **Resolucao** | Calculado baseado em contagem de arquivos, regras e risk-map (2026-06-30) |
 | **Arquivo** | `src/commands/bench.ts` |
-| **Descricao** | `estimateManualTokens()` sempre retorna `8800` e `estimateBriefingTokens()` sempre retorna `500`. |
-| **Correcao** | Calcular baseado em: contagem de arquivos, tamanho do AGENTS.md, numero de regras, tamanho do risk-map. |
 
 ### 1.6 Corrigir writeBriefingMarkdown path
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivo** | `src/commands/briefing.ts` (writeBriefingMarkdown) |
-| **Descricao** | `writeBriefingMarkdown()` escreve em `.nexus/BRIEFING.md` mas o projeto usa `nexus-system/` como diretorio principal. Path inconsistente. |
-| **Correcao** | Mudar para `nexusDir + "/BRIEFING.md"` em vez de `join(projectRoot, ".nexus")`. |
+| **Owner** | Edson |
+| **Resolucao** | Corrigido de .nexus para nexus-system/ (2026-06-30) |
+| **Arquivo** | `src/commands/briefing.ts` |
 
 ### 1.7 Evitar race condition no cache
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done (limitacao documentada) |
 | **Severidade** | Baixo |
-| **Owner** | unassigned |
+| **Owner** | Edson |
+| **Resolucao** | Aceito que ultimo writer vence — documentar limitacao (2026-06-30) |
 | **Arquivo** | `src/briefing-cache.ts` |
-| **Descricao** | `readCache()` + `writeCache()` nao e atomico como operacao. Dois processos concorrentes podem ler o cache antigo e sobrescrever. |
-| **Correcao** | Usar file lock ou aceitar que o ultimo writer vence (documentar limitacao). |
 
 ### 1.8 Validar nexusDir antes de operacoes
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivos** | `src/shared.ts` (guardNotInitialized, checkLifecycleGate) |
-| **Descricao** | Varios comandos chamam funcoes com `nexusDir` sem verificar se o diretorio existe. `guardNotInitialized()` retorna o path mas nao valida existencia. |
-| **Correcao** | Adicionar `existsSync(nexusDir)` no `guardNotInitialized()` ou no `checkLifecycleGate()`. |
+| **Owner** | Edson |
+| **Resolucao** | Adicionado existsSync(nexusDir) no guardNotInitialized() (2026-06-30) |
+| **Arquivo** | `src/shared.ts` |
 
 ---
 
@@ -956,9 +948,9 @@ Context Pipeline: collectContext → cache → briefing → feedback → dashboa
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 28 | Bugs, integracao, qualidade, pipeline |
+| **Done** | 36 | Bugs, integracao, qualidade, pipeline |
 | **P0** (≤ 7d) | 0 | Todos concluidos |
-| **P1** (≤ 30d) | 22 | Integracao, testes, produto, monetizacao, AI agents |
+| **P1** (≤ 30d) | 14 | Testes, produto, monetizacao, AI agents |
 | **P2** (≤ 90d) | 32 | Features, enterprise, docs, performance, security |
 | **P3** (sem SLA) | 37 | Nice-to-have, ecosystem, observability, i18n, nome/logo |
 | **Total** | **119** | |

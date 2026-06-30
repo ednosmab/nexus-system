@@ -21,6 +21,8 @@ import { createHash } from "node:crypto";
 import { analyseProject, type ProjectAnalysis } from "./analyser.js";
 import { detectPatterns, type DetectedPattern } from "./pattern-detector.js";
 import { getFeedbackRecords, computeFeedbackSummary } from "./session-feedback.js";
+import { logger } from "./logger.js";
+import { computeInputHash } from "./briefing-cache.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -73,19 +75,6 @@ export const defaultDeps: ContextDeps = {
   generateDynamicRules,
   generateBriefing,
 };
-
-// ── Hash Computation ───────────────────────────────────────────────────────
-
-function computeInputHash(data: {
-  fingerprintHash: string;
-  riskMapHash: string;
-  contextRuleCount: number;
-  dynamicRuleCount: number;
-  maturityScore: number | null;
-}): string {
-  const payload = JSON.stringify(data);
-  return createHash("sha256").update(payload).digest("hex").slice(0, 16);
-}
 
 // ── Main Collector ─────────────────────────────────────────────────────────
 
@@ -173,8 +162,8 @@ function enrichBriefingWithPatterns(
       const summary = computeFeedbackSummary(records);
       recurringErrors = summary.failureHotspots;
     }
-  } catch {
-    // Feedback data unavailable — not fatal
+  } catch (err) {
+    logger.debug("enrichBriefing", "Feedback data unavailable:", err instanceof Error ? err.message : err);
   }
 
   // Gap 5: Populate detected patterns from pattern-detector
@@ -188,8 +177,8 @@ function enrichBriefingWithPatterns(
       affectedArea: p.affectedArea,
       severity: p.severity,
     }));
-  } catch {
-    // Pattern detection unavailable — not fatal
+  } catch (err) {
+    logger.debug("enrichBriefing", "Pattern detection unavailable:", err instanceof Error ? err.message : err);
   }
 
   return {

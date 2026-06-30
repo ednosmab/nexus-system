@@ -124,6 +124,18 @@ export function guardNotInitialized(
     return null;
   }
 
+  // Validate nexusDir exists
+  if (!existsSync(ctx.nexusDir)) {
+    if (isJson) {
+      outputJson({ error: "nexus_dir_missing", message: "nexus-system/ directory not found. Run 'nexus init' to recreate." });
+    } else {
+      console.log(chalk.yellow("  ⚠ nexus-system/ directory not found."));
+      console.log(chalk.gray("  Run 'nexus init' to recreate it."));
+      console.log("");
+    }
+    return null;
+  }
+
   return ctx;
 }
 

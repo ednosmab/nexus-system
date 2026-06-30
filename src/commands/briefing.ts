@@ -30,7 +30,7 @@ import { getEventBus } from "../event-bus.js";
 // ── Output Helpers ─────────────────────────────────────────────────────────
 
 function writeBriefingMarkdown(projectRoot: string, briefing: Briefing): string {
-  const nexusDir = join(projectRoot, ".nexus");
+  const nexusDir = join(projectRoot, "nexus-system");
   if (!existsSync(nexusDir)) {
     mkdirSync(nexusDir, { recursive: true });
   }

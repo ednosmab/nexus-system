@@ -17,6 +17,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getFeedbackRecords, computeFeedbackSummary } from "../session-feedback.js";
+import { getSessionMetrics } from "../session-tracker.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
 
@@ -33,6 +34,7 @@ function healthBar(value: number, max: number, width = 20): string {
 
 function displayDashboard(
   summary: ReturnType<typeof computeFeedbackSummary>,
+  sessionMetrics: ReturnType<typeof getSessionMetrics>,
   periodDays: number
 ): void {
   console.log("");
@@ -76,6 +78,24 @@ function displayDashboard(
   if (summary.avgSuccessDuration !== null) {
     console.log(chalk.bold("  ⏱ Session Duration"));
     console.log(`     Avg (success):  ${chalk.cyan(summary.avgSuccessDuration + " min")}`);
+    console.log("");
+  }
+
+  // ── Session Tracker (from session-tracker.ts) ─────────────────
+  if (sessionMetrics.totalSessions > 0) {
+    console.log(chalk.bold("  📊 Session Tracker"));
+    console.log(`     Total sessions: ${chalk.cyan(String(sessionMetrics.totalSessions))}`);
+    console.log(`     Avg duration:   ${chalk.cyan(sessionMetrics.avgDuration + " min")}`);
+    console.log(`     Total commands: ${chalk.cyan(String(sessionMetrics.totalCommands))}`);
+    if (Object.keys(sessionMetrics.commandFrequency).length > 0) {
+      const topCmds = Object.entries(sessionMetrics.commandFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5);
+      console.log(chalk.gray("     Top commands:"));
+      for (const [cmd, count] of topCmds) {
+        console.log(chalk.gray(`       ${cmd}: ${count}`));
+      }
+    }
     console.log("");
   }
 
@@ -137,18 +157,20 @@ export function dashboardCommand(): Command {
       const since = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString();
       const filteredRecords = records.filter((r) => r.timestamp >= since);
       const summary = computeFeedbackSummary(filteredRecords);
+      const sessionMetrics = getSessionMetrics(ctx.nexusDir, periodDays);
 
       if (isJson) {
         outputJson({
           periodDays,
           totalRecords: records.length,
           filteredRecords: filteredRecords.length,
+          sessionTracker: sessionMetrics,
           ...summary,
         });
         return;
       }
 
-      displayDashboard(summary, periodDays);
+      displayDashboard(summary, sessionMetrics, periodDays);
 
       getEventBus().publish("analysis.complete", {
         type: "dashboard",
