@@ -273,3 +273,28 @@ Sempre que o usuário enviar uma nova mensagem ou comando, você DEVE executar r
 <!-- As regras abaixo são geradas automaticamente pelo Nexus baseadas no contexto do projeto.
      Não edite manualmente. Execute `nexus status` para atualizar. -->
 <!-- /NEXUS_CONTEXT_RULES -->
+
+---
+
+## 🧠 CONTEXTO DO PROJECTO (CONTEXT PIPELINE)
+
+**ANTES de iniciar qualquer tarefa:**
+1. Execute `nexus briefing` (ou leia `.nexus/BRIEFING.md` se disponível)
+2. Verifique as áreas de risco, cobertura de testes e regras contextuais
+3. Adapte o comportamento baseado nos alertas e recomendações do briefing
+
+**APÓS completar a tarefa:**
+1. Execute `nexus feedback --outcome success` se a tarefa foi concluída com sucesso
+2. Execute `nexus feedback --outcome failure --notes "<descrição do problema>"` se falhou
+3. Execute `nexus feedback --outcome partial --areas <áreas>"` se parcialmente concluída
+4. O sistema aprenderá com o resultado e ajustará recomendações futuras
+
+**Ver resumo de feedback:**
+- `nexus feedback --summary` — mostra taxa de sucesso, hotspots de falha, e estatísticas
+
+**Formatos disponíveis para briefing:**
+- `nexus briefing` — output markdown para IA
+- `nexus briefing --json` — JSON estruturado para ferramentas
+- `nexus briefing --write` — escreve `.nexus/BRIEFING.md` para leitura offline
+- `nexus briefing --diff` — mostra mudanças desde o último briefing
+- `nexus briefing --invalidate` — força regeneração ignorando cache

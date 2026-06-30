@@ -15,6 +15,10 @@ import { runCommand } from "../src/commands/run.js";
 import { evolveCommand } from "../src/commands/evolve.js";
 import { reportCommand } from "../src/commands/report.js";
 import { digestCommand } from "../src/commands/digest.js";
+import { briefingCommand } from "../src/commands/briefing.js";
+import { feedbackCommand } from "../src/commands/feedback.js";
+import { benchCommand } from "../src/commands/bench.js";
+import { dashboardCommand } from "../src/commands/dashboard.js";
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -44,5 +48,9 @@ program.addCommand(runCommand);
 program.addCommand(evolveCommand);
 program.addCommand(reportCommand());
 program.addCommand(digestCommand());
+program.addCommand(briefingCommand());
+program.addCommand(feedbackCommand());
+program.addCommand(benchCommand());
+program.addCommand(dashboardCommand());
 
 program.parse();

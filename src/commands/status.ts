@@ -129,33 +129,37 @@ export const statusCommand = new Command("status")
       console.log("");
     }
 
-    // Display brief context rules summary
+    // Display context pipeline summary via collectContext()
     try {
-      const { generateRiskMap } = await import("../risk-map.js");
-      const { generateContextRules } = await import("../context-rules.js");
-      const { generateDynamicRules } = await import("../dynamic-rules.js");
-      const { generateBriefing } = await import("../briefing.js");
+      const { collectContext } = await import("../context-collector.js");
+      const { computeInputHash, getCachedBriefing } = await import("../briefing-cache.js");
 
-      const riskMap = generateRiskMap(ctx.projectRoot, ctx.nexusDir);
-      if (fingerprint) {
-        const contextRules = generateContextRules(fingerprint, riskMap);
-        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.nexusDir);
-        const briefing = generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined);
+      const snapshot = collectContext(ctx.projectRoot, ctx.nexusDir);
+      const inputHash = computeInputHash({
+        fingerprintHash: snapshot.fingerprint.hash,
+        riskMapHash: snapshot.riskMap.generatedAt,
+        contextRuleCount: snapshot.contextRules.length,
+        dynamicRuleCount: snapshot.dynamicRules.length,
+        maturityScore: snapshot.maturityProfile?.overallScore ?? null,
+      });
+      const cached = getCachedBriefing(ctx.nexusDir, inputHash);
+      const briefing = cached?.briefing ?? snapshot.briefing;
 
-        // Show briefing summary
-        console.log(chalk.bold("  📋 Pre-Session Briefing:"));
-        console.log(chalk.gray(`    Domain: ${briefing.project.domain} | Scale: ${briefing.project.scale} | Risk: ${briefing.risks.overall}`));
-        if (briefing.risks.criticalAreas.length > 0) {
-          console.log(chalk.red(`    ⚠ Critical areas: ${briefing.risks.criticalAreas.join(", ")}`));
-        }
-        if (briefing.tests.areasWithoutTests.length > 0) {
-          console.log(chalk.yellow(`    🧪 Areas without tests: ${briefing.tests.areasWithoutTests.length}`));
-        }
-        for (const rec of briefing.recommendations.slice(0, 2)) {
-          console.log(chalk.cyan(`    → ${rec}`));
-        }
-        console.log("");
+      console.log(chalk.bold("  📋 Pre-Session Briefing:"));
+      console.log(chalk.gray(`    Domain: ${briefing.project.domain} | Scale: ${briefing.project.scale} | Risk: ${briefing.risks.overall}`));
+      if (cached?.cacheHit) {
+        console.log(chalk.gray("    Cache: hit"));
       }
+      if (briefing.risks.criticalAreas.length > 0) {
+        console.log(chalk.red(`    ⚠ Critical areas: ${briefing.risks.criticalAreas.join(", ")}`));
+      }
+      if (briefing.tests.areasWithoutTests.length > 0) {
+        console.log(chalk.yellow(`    🧪 Areas without tests: ${briefing.tests.areasWithoutTests.length}`));
+      }
+      for (const rec of briefing.recommendations.slice(0, 2)) {
+        console.log(chalk.cyan(`    → ${rec}`));
+      }
+      console.log("");
     } catch {
       // Skip briefing on error
     }

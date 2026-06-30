@@ -26,6 +26,10 @@ export const COMMAND_GATES: Record<string, string> = {
   sync: "governed",
   clean: "governed",
   evolve: "governed",
+  briefing: "discovered",
+  feedback: "discovered",
+  bench: "discovered",
+  dashboard: "discovered",
 };
 
 /** Timeout for git commands (ms). */

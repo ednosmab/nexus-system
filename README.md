@@ -158,6 +158,23 @@ For the complete architecture, see [docs/INDEX.md](docs/INDEX.md).
 
 ---
 
+## Token Economy — How Nexus Saves You Money
+
+Without Nexus, every AI session starts from zero context — the agent must read multiple files to understand the project. Nexus compresses all of that into a cached briefing.
+
+| Scenario | Without Nexus | With Nexus | Savings |
+|---|---|---|---|
+| Average session (feature) | ~15-25k tokens | ~2-5k tokens | **60-80%** |
+| Cache hit (stable project) | ~15-25k tokens | ~0-1k tokens | **95-100%** |
+| Trivial task (typo, rename) | ~10-15k tokens | ~3-4k tokens | **70-75%** |
+| Complex refactor | ~20-30k tokens | ~8-10k tokens | **50-65%** |
+
+**Monthly projection (10 sessions/month):** ~100-200k tokens saved.
+
+Loading profiles (`minimal`, `lite`, `full`) control how much context is loaded per task type. See [docs/ROI.md](docs/ROI.md) for the full analysis.
+
+---
+
 ## Quick Start
 
 ### Install

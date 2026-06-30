@@ -44,6 +44,14 @@ export interface Briefing {
   patterns: {
     recurringErrors: string[];
     hotAreas: string[];
+    /** Detected patterns from pattern-detector (recurring errors, reverted decisions, hot areas). */
+    detected: Array<{
+      type: string;
+      description: string;
+      occurrences: number;
+      affectedArea: string;
+      severity: number;
+    }>;
   };
   /** Context rules (top 5) */
   contextRules: ContextRule[];
@@ -51,6 +59,17 @@ export interface Briefing {
   dynamicRules: DynamicRule[];
   /** Recommended next steps */
   recommendations: string[];
+  /** Token economy metrics */
+  tokenEconomy: {
+    /** Estimated tokens saved vs manual discovery */
+    estimatedTokensSaved: number;
+    /** Whether this briefing was served from cache */
+    cacheHit: boolean;
+    /** Number of context rules contributing to savings */
+    contextRuleCount: number;
+    /** Number of dynamic rules contributing to savings */
+    dynamicRuleCount: number;
+  };
 }
 
 // ── Briefing Generation ────────────────────────────────────────────────────
@@ -92,6 +111,15 @@ export function generateBriefing(
     recommendations.push("Project looks healthy. Continue current practices.");
   }
 
+  // Token economy estimate:
+  // Without nexus, agent reads: package.json (~500) + AGENTS.md (~3k) +
+  // risk analysis (~2k) + history (~1k) + rules (~1.5k) = ~8k tokens
+  // With nexus: briefing provides all of that in ~500 tokens
+  // Rules add targeted context (~100 tokens each) vs agent discovering (~500 each)
+  const estimatedTokensSaved = 8000
+    + (contextRules.length * 400) // 500 (manual) - 100 (briefing) per rule
+    + (dynamicRules.length * 400);
+
   return {
     generatedAt: new Date().toISOString(),
     project: {
@@ -114,11 +142,154 @@ export function generateBriefing(
       hotAreas: riskMap.areas
         .filter((a) => a.factors.some((f) => f.type === "high-churn"))
         .map((a) => a.path),
+      detected: [],
     },
     contextRules: contextRules.slice(0, 5),
     dynamicRules: dynamicRules.slice(0, 3),
     recommendations,
+    tokenEconomy: {
+      estimatedTokensSaved,
+      cacheHit: false,
+      contextRuleCount: contextRules.length,
+      dynamicRuleCount: dynamicRules.length,
+    },
   };
+}
+
+// ── Output Formats ────────────────────────────────────────────────────────
+
+/**
+ * Structured JSON output for tooling consumption.
+ * Pure function — easy to test.
+ */
+export function briefingToJson(briefing: Briefing): Record<string, unknown> {
+  return {
+    generatedAt: briefing.generatedAt,
+    project: briefing.project,
+    risks: briefing.risks,
+    tests: briefing.tests,
+    patterns: briefing.patterns,
+    contextRules: briefing.contextRules.map((r) => ({
+      id: r.id,
+      rule: r.rule,
+      priority: r.priority,
+      area: r.area,
+    })),
+    dynamicRules: briefing.dynamicRules.map((r) => ({
+      id: r.id,
+      rule: r.rule,
+      severity: r.severity,
+    })),
+    recommendations: briefing.recommendations,
+  };
+}
+
+/**
+ * One-line summary for quick consumption.
+ * Pure function — easy to test.
+ */
+export function briefingToSummary(briefing: Briefing): string {
+  const parts: string[] = [];
+  parts.push(`Domain: ${briefing.project.domain}`);
+  parts.push(`Scale: ${briefing.project.scale}`);
+  parts.push(`Risk: ${briefing.risks.overall}`);
+  if (briefing.risks.criticalAreas.length > 0) {
+    parts.push(`Critical: ${briefing.risks.criticalAreas.join(", ")}`);
+  }
+  if (briefing.tests.areasWithoutTests.length > 0) {
+    parts.push(`No-tests: ${briefing.tests.areasWithoutTests.length} area(s)`);
+  }
+  parts.push(`Recommendations: ${briefing.recommendations.length}`);
+  if (briefing.tokenEconomy.estimatedTokensSaved > 0) {
+    parts.push(`Tokens saved: ~${briefing.tokenEconomy.estimatedTokensSaved.toLocaleString()}`);
+  }
+  return parts.join(" | ");
+}
+
+/**
+ * Generate a human-readable diff between two briefings.
+ * Shows what changed between the old and new briefing.
+ * Pure function — easy to test.
+ */
+export function generateDiff(oldBriefing: Briefing, newBriefing: Briefing): string {
+  const lines: string[] = [];
+
+  lines.push("# Briefing Diff");
+  lines.push("");
+
+  let hasChanges = false;
+
+  // Risk changes
+  if (oldBriefing.risks.overall !== newBriefing.risks.overall) {
+    lines.push(`- Risk level changed: ${oldBriefing.risks.overall} → ${newBriefing.risks.overall}`);
+    hasChanges = true;
+  }
+
+  const oldCritical = new Set(oldBriefing.risks.criticalAreas);
+  const newCritical = new Set(newBriefing.risks.criticalAreas);
+  for (const area of newBriefing.risks.criticalAreas) {
+    if (!oldCritical.has(area)) {
+      lines.push(`+ New critical area: ${area}`);
+      hasChanges = true;
+    }
+  }
+  for (const area of oldBriefing.risks.criticalAreas) {
+    if (!newCritical.has(area)) {
+      lines.push(`- Removed critical area: ${area}`);
+      hasChanges = true;
+    }
+  }
+
+  // Test coverage changes
+  const oldNoTests = new Set(oldBriefing.tests.areasWithoutTests);
+  const newNoTests = new Set(newBriefing.tests.areasWithoutTests);
+  for (const area of newBriefing.tests.areasWithoutTests) {
+    if (!oldNoTests.has(area)) {
+      lines.push(`+ New area without tests: ${area}`);
+      hasChanges = true;
+    }
+  }
+  for (const area of oldBriefing.tests.areasWithoutTests) {
+    if (!newNoTests.has(area)) {
+      lines.push(`- Area now has tests: ${area}`);
+      hasChanges = true;
+    }
+  }
+
+  // Rule changes
+  const oldRuleIds = new Set(oldBriefing.contextRules.map((r) => r.id));
+  const newRuleIds = new Set(newBriefing.contextRules.map((r) => r.id));
+  for (const rule of newBriefing.contextRules) {
+    if (!oldRuleIds.has(rule.id)) {
+      lines.push(`+ New rule: [${rule.area}] ${rule.rule}`);
+      hasChanges = true;
+    }
+  }
+
+  // Dynamic rule changes
+  const oldDynamicIds = new Set(oldBriefing.dynamicRules.map((r) => r.id));
+  for (const rule of newBriefing.dynamicRules) {
+    if (!oldDynamicIds.has(rule.id)) {
+      lines.push(`+ New dynamic rule: [${rule.severity}] ${rule.rule}`);
+      hasChanges = true;
+    }
+  }
+
+  // Recommendation changes
+  const oldRecs = new Set(oldBriefing.recommendations);
+  const newRecs = new Set(newBriefing.recommendations);
+  for (const rec of newBriefing.recommendations) {
+    if (!oldRecs.has(rec)) {
+      lines.push(`+ New recommendation: ${rec}`);
+      hasChanges = true;
+    }
+  }
+
+  if (!hasChanges) {
+    lines.push("No changes detected.");
+  }
+
+  return lines.join("\n");
 }
 
 export function briefingToMarkdown(briefing: Briefing): string {
@@ -178,6 +349,14 @@ export function briefingToMarkdown(briefing: Briefing): string {
   for (const rec of briefing.recommendations) {
     lines.push(`1. ${rec}`);
   }
+
+  // Token economy
+  lines.push("");
+  lines.push("## Token Economy");
+  lines.push(`- **Estimated tokens saved:** ~${briefing.tokenEconomy.estimatedTokensSaved.toLocaleString()}`);
+  lines.push(`- **Context rules:** ${briefing.tokenEconomy.contextRuleCount}`);
+  lines.push(`- **Dynamic rules:** ${briefing.tokenEconomy.dynamicRuleCount}`);
+  lines.push(`- **Cache hit:** ${briefing.tokenEconomy.cacheHit ? "Yes" : "No"}`);
 
   return lines.join("\n");
 }
