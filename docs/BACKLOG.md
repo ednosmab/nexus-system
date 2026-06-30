@@ -44,6 +44,7 @@
 | P0 0.3: Dead code briefing.ts | Medio | Removido displayBriefing() e import getCachedBriefing |
 | P0 0.4: Dead code dashboard.ts | Baixo | Removido trendArrow() |
 | P0 0.5: Simplificar getLatestFeedback | Baixo | Refatorado para records.at(-1) ?? null |
+| 1.12 Coverage gap: comandos CLI | Alto | 36 novos testes em digest.test.ts + commands-action.test.ts (580 total) |
 
 ---
 
@@ -221,12 +222,12 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
-| **Owner** | unassigned |
-| **Modulos** | assess.ts, audit.ts, clean.ts, detect.ts, doctor.ts, evolve.ts, init.ts, report.ts, run.ts, status.ts, upgrade.ts, validate.ts |
-| **Descricao** | 12 dos 13 comandos originais continuam com 0% de coverage. |
-| **Correcao** | Exportar funcoes auxiliares e criar testes unitarios. Priorizar: assess, doctor, evolve, report, upgrade. |
+| **Owner** | Edson |
+| **Modulos** | assess.ts, clean.ts, digest.ts, doctor.ts, evolve.ts, report.ts, sync.ts |
+| **Descricao** | 7 comandos com 0% de coverage cobertos com 36 novos testes. |
+| **Correcao** | digest.test.ts (17 testes — generateDigest, health determination, recommendations) + commands-action.test.ts (19 testes — action handlers de clean, doctor, report, assess, evolve, sync). Total: 580 tests passing. |
 
 ### 1.13 Empty catch blocks (erros silenciados)
 
