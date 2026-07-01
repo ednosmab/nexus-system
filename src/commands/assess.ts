@@ -313,7 +313,15 @@ export const assessCommand = new Command("assess")
     if (recommended.length > 0) {
       console.log(chalk.bold("  📝 Summary:"));
       console.log(chalk.gray(`    ${recommended.length} capability(ies) recommended.`));
-      console.log(chalk.gray("    Run 'nexus upgrade --accept-recommended' to install all."));
+      console.log("");
+      console.log(chalk.bold.cyan("  🎯 Next step:"));
+      console.log(chalk.cyan("    nexus upgrade --accept-recommended"));
+      console.log(chalk.gray("    This will install all recommended capabilities for your maturity level."));
+      console.log("");
+      console.log(chalk.gray("    Or install individually:"));
+      for (const cap of recommended) {
+        console.log(chalk.gray(`      nexus upgrade --capability ${cap}`));
+      }
     } else {
       console.log(chalk.green("  ✔ Your project is well-equipped! No new capabilities recommended."));
     }

@@ -22,10 +22,12 @@ import {
   calculateMaturityProfile,
   saveMaturityProfile,
   recordMaturitySnapshot,
+  loadMaturityProfile,
   CAPABILITIES,
   type MaturityProfile,
   type Capability,
 } from "../maturity-profile.js";
+import { healthBar } from "../formatting.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
   const dims = profile.dimensions;
@@ -119,9 +121,72 @@ export const initCommand = new Command("init")
 
     // Check if already initialized
     if (existsSync(resolve(targetDir, "opencode.json"))) {
-      console.log(chalk.yellow("  ⚠ nexus is already initialized in this directory."));
-      console.log(chalk.gray("  Use 'nexus upgrade' to add more capabilities."));
-      console.log(chalk.gray("  Use 'nexus assess' to re-evaluate maturity."));
+      console.log(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
+      console.log("");
+      console.log(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
+      console.log("");
+
+      // Re-analyse project complexity
+      const analyseSpinner = ora("Re-analysing project complexity...").start();
+      const analysis = analyseProject(targetDir);
+      analyseSpinner.succeed("Project analysis complete");
+
+      // Show what was detected (compare with initial state)
+      console.log("");
+      console.log(chalk.bold("  Current state:"));
+      console.log(`    Stack:     ${analysis.stack.length > 0 ? analysis.stack.join(", ") : chalk.gray("none detected")}`);
+      console.log(`    Packages:  ${analysis.packageCount}`);
+      console.log(`    Apps:      ${analysis.appCount}`);
+      console.log(`    Source:    ${analysis.sourceFileCount} files`);
+      console.log(`    Manager:  ${analysis.packageManager}`);
+      console.log(`    TypeScript:${analysis.hasTypeScript ? " yes" : chalk.gray(" no")}`);
+      console.log(`    Tests:     ${analysis.hasTests ? "yes" : chalk.gray("no")}`);
+      console.log(`    CI/CD:     ${analysis.hasCI ? "yes" : chalk.gray("no")}`);
+      console.log("");
+
+      // Load previous maturity profile
+      const nexusDir = resolve(targetDir, "nexus-system");
+      const previousProfile = loadMaturityProfile(nexusDir);
+
+      if (previousProfile) {
+        console.log(chalk.bold("  Previous maturity score:"));
+        console.log(`    ${previousProfile.overallScore}/100 ${healthBar(previousProfile.overallScore, 100)}`);
+        console.log("");
+      }
+
+      // Get fresh answers
+      console.log(chalk.bold("  Answer a few questions to re-evaluate your maturity:"));
+      console.log("");
+      const answers = await askQuestions(analysis);
+
+      // Calculate new maturity profile
+      const profileSpinner = ora("Calculating maturity profile...").start();
+      const profile = calculateMaturityProfile(answers.maturity, analysis, nexusDir);
+      profileSpinner.succeed("Maturity profile calculated");
+
+      // Display new profile
+      console.log("");
+      console.log(chalk.bold.green("  ═══ Updated Maturity Profile ═══"));
+      console.log("");
+      displayMaturityDimensions(profile);
+      console.log("");
+      displayCapabilities(profile);
+
+      // Check if there are new capabilities to install
+      const recommended = profile.recommendedCapabilities;
+
+      if (recommended.length > 0) {
+        console.log(chalk.bold.cyan("  🎯 New capabilities available:"));
+        for (const cap of recommended) {
+          const info = CAPABILITIES.find((c) => c.id === cap);
+          console.log(chalk.cyan(`    → ${info?.name || cap} — ${info?.description || ""}`));
+          console.log(chalk.gray(`      Install with: nexus upgrade --capability ${cap}`));
+        }
+        console.log("");
+        console.log(chalk.gray("  Or install all recommended: nexus upgrade --accept-recommended"));
+      } else {
+        console.log(chalk.green("  ✔ Your project is well-equipped! No new capabilities recommended."));
+      }
       console.log("");
       return;
     }

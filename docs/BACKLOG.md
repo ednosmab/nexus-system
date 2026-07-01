@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-06-30 — 606 testes, 0 erros TypeScript, auto-backlog feature, 137 itens no backlog
+> **Ultima atualizacao:** 2026-07-01 — 606 testes, 0 erros TypeScript, auto-backlog feature, 139 itens no backlog
 
 ---
 
@@ -100,6 +100,17 @@
 | **Owner** | Edson |
 | **Resolucao** | Refatorado para records.at(-1) ?? null (2026-06-30) |
 | **Arquivo** | `src/session-feedback.ts:161` |
+
+### 0.6 Documentacao dinamica + deteccao proativa de gaps
+
+| Campo | Valor |
+|---|---|
+| **Status** | In Progress |
+| **Severidade** | Critico |
+| **Owner** | Edson |
+| **Descricao** | Dois problemas combinados: (A) A documentacao (AGENTS.md, SYSTEM_MAP.md) descreve a arquitetura completa como se tudo estivesse presente, mas o sistema ja suporta entrega incremental por capacidades. A documentacao nao indica claramente o que esta instalado vs disponivel vs futuro. (B) O AGENTS.md nao inclui regras que obriguem o agente a detectar gaps proativamente e informar ao usuario. A capacidade tecnica ja existe (auto-evolution.ts, doctor.ts, status.ts, knowledge-debt.ts) mas nao esta acionada pelas regras do time. |
+| **Resolucao parcial** | (2026-07-01) `nexus init` agora re-analisa complexidade quando projeto ja inicializado. `nexus assess` mostra proximo passo claro com `nexus upgrade --accept-recommended`. |
+| **Correcao** | **Fase 1 — Documentacao dinamica:** (1) AGENTS.md com secoes condicionais por capacidade: `<!-- CAPABILITY: governance -->...<!-- /CAPABILITY -->`. (2) SYSTEM_MAP.md com legenda: ✅ instalado, 📋 disponivel, 🔮 futuro. (3) `docs/capabilities.md` com mapeamento capacidade→regras→arquivos. (4) Scaffolder copia apenas secoes das capacidades instaladas. (5) `upgrade.ts` ativa novas secoes ao adicionar capacidade. **Fase 2 — Regra proativa no AGENTS.md:** (6) Adicionar regra: "Quando uma regra referencia infraestrutura ausente, o agente DEVE informar ao usuario que `nexus upgrade --capability <name>` desbloqueia essa funcionalidade". (7) Adicionar regra: "O agente DEVE executar `nexus status` ou `nexus doctor` para detectar gaps antes de iniciar tarefa". (8) Adicionar regra: "O usuario NAO deve precisar descobrir manualmente o que falta — o sistema recomenda". **Fase 3 — Validacao:** (9) Testar: init com core apenas → documentacao minima + recomenda upgrade. (10) Testar: upgrade governance → documentacao expandida + novas regras ativadas. (11) Testar: regra #11 detecta WORKFLOW.md ausente e sugere `nexus upgrade --capability governance`. |
 
 ---
 
@@ -761,6 +772,16 @@
 | **Descricao** | Endpoint REST para briefing sob demanda. Agentes podem chamar HTTP em vez de CLI. |
 | **Correcao** | Adicionar `nexus serve` que inicia servidor HTTP com endpoints: GET /briefing, GET /risk-map, GET /rules. |
 
+### A7 Skill template para nexus-cli
+
+| Campo | Valor |
+|---|---|
+| **Status** | Backlog |
+| **Severidade** | Medio |
+| **Owner** | unassigned |
+| **Descricao** | nexus-cli precisa prover um template para criar novas skills. Atualmente as 14 skills em `nexus-system/docs/skills/` foram criadas manualmente sem padrao formal. O template deve definir: frontmatter obrigatorio (name, description), estrutura de secoes (objetivo, regras, onde aplicar), e validacao. Comando: `nexus skill:create <nome>` que scaffolds um novo arquivo `.md` com o template preenchido. |
+| **Correcao** | Criar `src/templates/base/skills/SKILL_TEMPLATE.md` com frontmatter + secoes padrao. Adicionar comando `skill:create` em `src/commands/skill-create.ts`. Validar frontmatter contra schema existente. |
+
 ---
 
 ## P2 — Developer Experience (≤ 90 dias)
@@ -1196,8 +1217,8 @@ Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
 | **Done** | 41 | Bugs, integracao, qualidade, pipeline, testes, catch blocks, auto-backlog |
-| **P0** (≤ 7d) | 3 | Auto-analise: WORKFLOW.md, digest bug, governanca 0% |
-| **P1** (≤ 30d) | 18 | Auto-analise: arquitetura, docs, knowledge graph, Clean/SOLID, contracts |
+| **P0** (≤ 7d) | 4 | Auto-analise: WORKFLOW.md, digest bug, governanca 0%, governance infrastructure |
+| **P1** (≤ 30d) | 19 | Auto-analise: arquitetura, docs, knowledge graph, Clean/SOLID, contracts, skill template |
 | **P2** (≤ 90d) | 38 | Auto-analise: DDD, TDD, Commander; Features, enterprise, docs, performance |
 | **P3** (sem SLA) | 37 | Nice-to-have, ecosystem, observability, i18n, nome/logo |
-| **Total** | **137** | |
+| **Total** | **139** | |
