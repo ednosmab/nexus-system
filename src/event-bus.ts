@@ -10,6 +10,7 @@
 
 import { existsSync, mkdirSync, appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { EventPayloadMap, CorrelationId, TraceId } from "./event-payloads.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,13 +48,34 @@ export type NexusEventType =
 
 export type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;
 
+/** Envelope wrapping a typed payload with metadata. */
+export interface EventEnvelope<T = unknown> {
+  type: NexusEventType;
+  payload: T;
+  timestamp: string;
+  traceId: TraceId;
+  correlationId?: CorrelationId;
+}
+
 export interface EventBus {
-  publish<T>(eventType: NexusEventType, payload: T): void;
-  subscribe<T>(eventType: NexusEventType, handler: EventHandler<T>): () => void;
-  subscribeOnce<T>(eventType: NexusEventType, handler: EventHandler<T>): () => void;
+  /**
+   * Publish an event. Payload accepts any shape for backward compatibility.
+   * New code should use createEventPayload() from event-payloads.ts for type safety.
+   */
+  publish<T extends NexusEventType>(
+    eventType: T,
+    payload: Record<string, unknown>,
+    options?: { correlationId?: CorrelationId; traceId?: TraceId }
+  ): void;
+  /** Subscribe to an event. Handler receives the raw payload. */
+  subscribe(
+    eventType: NexusEventType,
+    handler: EventHandler<Record<string, unknown>>
+  ): () => void;
+  subscribeOnce(eventType: NexusEventType, handler: EventHandler<Record<string, unknown>>): () => void;
   removeAllListeners(eventType?: NexusEventType): void;
   listenerCount(eventType: NexusEventType): number;
-  getHistory(): Array<{ type: string; payload: unknown; timestamp: string }>;
+  getHistory(): EventEnvelope[];
   enablePersistence(nexusDir: string): void;
 }
 
@@ -61,22 +83,24 @@ export interface EventBus {
 
 class NexusEventBus implements EventBus {
   private listeners = new Map<string, Set<EventHandler>>();
-  private eventHistory: Array<{
-    type: string;
-    payload: unknown;
-    timestamp: string;
-  }> = [];
+  private eventHistory: EventEnvelope[] = [];
   private static readonly MAX_HISTORY = 1000;
   private persistenceDir: string | null = null;
 
-  publish<T>(eventType: NexusEventType, payload: T): void {
-    const entry = {
+  publish<T extends NexusEventType>(
+    eventType: T,
+    payload: Record<string, unknown>,
+    options?: { correlationId?: CorrelationId; traceId?: TraceId }
+  ): void {
+    const envelope: EventEnvelope = {
       type: eventType,
       payload,
       timestamp: new Date().toISOString(),
+      traceId: options?.traceId ?? crypto.randomUUID(),
+      correlationId: options?.correlationId,
     };
 
-    this.eventHistory.push(entry);
+    this.eventHistory.push(envelope);
 
     if (this.eventHistory.length > NexusEventBus.MAX_HISTORY) {
       this.eventHistory = this.eventHistory.slice(-NexusEventBus.MAX_HISTORY);
@@ -84,7 +108,7 @@ class NexusEventBus implements EventBus {
 
     // Persist to disk if enabled
     if (this.persistenceDir) {
-      this.persistEvent(entry);
+      this.persistEvent(envelope);
     }
 
     // Deliver to all subscribers
@@ -115,7 +139,7 @@ class NexusEventBus implements EventBus {
     this.persistenceDir = telemetryDir;
   }
 
-  private persistEvent(entry: { type: string; payload: unknown; timestamp: string }): void {
+  private persistEvent(entry: EventEnvelope): void {
     if (!this.persistenceDir) return;
     try {
       const date = entry.timestamp.slice(0, 10);
@@ -126,7 +150,10 @@ class NexusEventBus implements EventBus {
     }
   }
 
-  subscribe<T>(eventType: NexusEventType, handler: EventHandler<T>): () => void {
+  subscribe(
+    eventType: NexusEventType,
+    handler: EventHandler<Record<string, unknown>>
+  ): () => void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
@@ -159,7 +186,7 @@ class NexusEventBus implements EventBus {
     return this.listeners.get(eventType)?.size ?? 0;
   }
 
-  getHistory(): Array<{ type: string; payload: unknown; timestamp: string }> {
+  getHistory(): EventEnvelope[] {
     return [...this.eventHistory];
   }
 
@@ -194,7 +221,7 @@ export function enableEventPersistence(nexusDir: string): void {
 export function readPersistedEvents(
   nexusDir: string,
   date: string
-): Array<{ type: string; payload: unknown; timestamp: string }> {
+): EventEnvelope[] {
   const telemetryDir = join(nexusDir, "telemetry");
   const filePath = join(telemetryDir, `events-${date}.jsonl`);
 
