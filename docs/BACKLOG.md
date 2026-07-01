@@ -782,6 +782,16 @@
 | **Descricao** | nexus-cli precisa prover um template para criar novas skills. Atualmente as 14 skills em `nexus-system/docs/skills/` foram criadas manualmente sem padrao formal. O template deve definir: frontmatter obrigatorio (name, description), estrutura de secoes (objetivo, regras, onde aplicar), e validacao. Comando: `nexus skill:create <nome>` que scaffolds um novo arquivo `.md` com o template preenchido. |
 | **Correcao** | Criar `src/templates/base/skills/SKILL_TEMPLATE.md` com frontmatter + secoes padrao. Adicionar comando `skill:create` em `src/commands/skill-create.ts`. Validar frontmatter contra schema existente. |
 
+### A8 Feedback personalizado agente + usuario com calibragem de perfil
+
+| Campo | Valor |
+|---|---|
+| **Status** | Backlog |
+| **Severidade** | Alto |
+| **Owner** | unassigned |
+| **Descricao** | O feedback atual (`nexus-system/docs/feedback/`) e tecnico e nao diferencia agente de usuario. O sistema deve: (1) Gerar feedback DUPLICE — sobre o desempenho do agente (o que fez bem, o que errou) E sobre o usuario (o que aprendeu, o que pode melhorar). (2) Analisar o perfil do usuario (T-shaped: arquitetura senior/codigo junior, ou pleno, etc.) para calibrar o tom — nem leve demais nem agressivo em excesso. (3) Seguir o formato do exemplo `2026-06-12-personalizado.md`: perfil, sessao com timestamp, "o que fizeste bem", "o que podes melhorar" (com raciocinio de tech lead), "proximo nivel", "metricas de leadership". (4) Salvar em `nexus-system/docs/feedback/YYYY-MM-DD.md` (diretorio correto). |
+| **Correcao** | (1) Criar `src/feedback-engine.ts` com `generateFeedback(session, userProfile)` que gera feedback duplo. (2) Criar tipos `UserProfile` (arquitetura: senior/pleno/junior, codigo: senior/pleno/junior, tom: mentor/peer/relatorio). (3) Adicionar comando `nexus feedback --personalized` que analisa sessao + perfil e gera feedback calibrado. (4) Integrar com `session-feedback.ts` para dados da sessao. (5) Template em `src/templates/base/docs/feedback/TEMPLATE.md` com formato do exemplo. (6) Testes para calibragem de tom por perfil. |
+
 ---
 
 ## P2 — Developer Experience (≤ 90 dias)
