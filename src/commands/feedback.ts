@@ -10,15 +10,22 @@
  *   nexus feedback --outcome partial --areas src/auth,src/payments
  *   nexus feedback --json
  *   nexus feedback --summary
+ *   nexus feedback --personalized
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
+import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { recordOutcome, createFileStorage, getFeedbackRecords, computeFeedbackSummary } from "../session-feedback.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
 import { readCache } from "../briefing-cache.js";
+import {
+  loadUserProfile,
+  generatePersonalizedFeedback,
+  formatFeedbackAsMarkdown,
+} from "../feedback-engine.js";
 
 // ── Command ────────────────────────────────────────────────────────────────
 
@@ -33,6 +40,7 @@ export function feedbackCommand(): Command {
     .option("--session-id <id>", "Link feedback to a session-tracker session")
     .option("--json", "Output as JSON")
     .option("--summary", "Show feedback summary statistics")
+    .option("--personalized", "Generate personalized feedback based on user profile")
     .action(async function (this: Command, options: Record<string, unknown>) {
       const isJson = options.json === true;
 
@@ -40,6 +48,55 @@ export function feedbackCommand(): Command {
       if (!ctx) return;
 
       if (!checkLifecycleGate("feedback", ctx.projectRoot, ctx.nexusDir, isJson)) {
+        return;
+      }
+
+      // ── Personalized mode ────────────────────────────────────────
+      if (options.personalized) {
+        const records = getFeedbackRecords(ctx.nexusDir);
+        const latestRecord = records.at(-1);
+
+        if (!latestRecord) {
+          if (isJson) {
+            outputJson({
+              error: "no_feedback",
+              message: "No feedback records found. Run 'nexus feedback --outcome <type>' first.",
+            });
+          } else {
+            console.log(chalk.red("  ✘ No feedback records found."));
+            console.log(chalk.gray("    Run 'nexus feedback --outcome <type>' first."));
+          }
+          return;
+        }
+
+        const profile = loadUserProfile(ctx.nexusDir);
+        const feedback = generatePersonalizedFeedback(latestRecord, profile);
+        const markdown = formatFeedbackAsMarkdown(feedback);
+
+        if (isJson) {
+          outputJson({ type: "personalized_feedback", ...feedback });
+        } else {
+          console.log("");
+          console.log(markdown);
+          console.log("");
+        }
+
+        // Save to feedback directory
+        const { existsSync, mkdirSync } = await import("node:fs");
+        const feedbackDir = join(ctx.nexusDir, "docs", "feedback");
+        if (!existsSync(feedbackDir)) {
+          mkdirSync(feedbackDir, { recursive: true });
+        }
+
+        const feedbackPath = join(feedbackDir, `${feedback.date}.md`);
+        const { writeFileSync, appendFileSync } = await import("node:fs");
+
+        if (existsSync(feedbackPath)) {
+          appendFileSync(feedbackPath, "\n\n" + markdown + "\n", "utf-8");
+        } else {
+          writeFileSync(feedbackPath, markdown + "\n", "utf-8");
+        }
+
         return;
       }
 
