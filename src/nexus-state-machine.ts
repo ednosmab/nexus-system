@@ -9,6 +9,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { getEventBus } from "./event-bus.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -150,6 +151,14 @@ export function createStateMachine(nexusDir: string): NexusStateMachine {
 
       // Persist
       this.save();
+
+      // Publish lifecycle event to the event bus
+      getEventBus().publish("lifecycle.state_changed", {
+        capabilityId: "lifecycle",
+        previousState: from,
+        newState: to,
+        reason: trigger,
+      });
 
       return true;
     },
