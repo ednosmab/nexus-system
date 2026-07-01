@@ -161,7 +161,7 @@ for persona in junior-solo established-team senior-enterprise; do
   check "nexus audit" "$?" "$output" "Health|Score|Audit|audit|health"
 
   # ── nexus assess ────────────────────────────────────────────────────────────
-  output=$(node "$NEXUS_CLI" assess --dir "$TEST_DIR" 2>&1) || true
+  output=$(node "$NEXUS_CLI" assess --dir "$TEST_DIR" --answers-file "$PERSONA_FILE" 2>&1) || true
   check "nexus assess" "$?" "$output" "Capability|Maturity|assessed|Assess"
 
   # ── nexus run ───────────────────────────────────────────────────────────────

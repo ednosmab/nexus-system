@@ -165,3 +165,32 @@ export async function withCache<T>(
     data as Record<string, unknown>, computeKeyChecksums(projectRoot, nexusDir));
   return { data, cacheHit: false };
 }
+
+// ── Interactive Guard ────────────────────────────────────────────────────────
+
+/**
+ * Guard against running interactive prompts in non-interactive environments.
+ * Returns true if safe to proceed (interactive or answers-file provided).
+ * Returns false if should abort (non-interactive without answers-file).
+ */
+export function guardInteractive(
+  options: { answersFile?: string },
+  isJson: boolean
+): boolean {
+  if (options.answersFile) return true;
+  if (process.stdin.isTTY) return true;
+
+  if (isJson) {
+    outputJson({
+      error: "non_interactive",
+      message: "Non-interactive environment detected and no --answers-file provided.",
+      hint: "Pass --answers-file <path> to run in non-interactive mode.",
+    });
+  } else {
+    console.log(chalk.red("  ✘ Non-interactive environment detected and no --answers-file provided."));
+    console.log(chalk.gray("    Pass --answers-file <path> to run non-interactively."));
+    console.log("");
+  }
+  process.exitCode = 1;
+  return false;
+}

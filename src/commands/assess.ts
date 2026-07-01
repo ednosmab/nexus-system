@@ -8,6 +8,8 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { analyseProject } from "../analyser.js";
 import { askQuestions } from "../prompts.js";
 import {
@@ -19,7 +21,7 @@ import {
   type MaturityProfile,
 } from "../maturity-profile.js";
 import { outputJson, healthBar } from "../formatting.js";
-import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
+import { guardNotInitialized, guardInteractive, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { recordFeedback, recordDimensionFeedback, type PerformanceMetric } from "../feedback-loops.js";
 
@@ -71,6 +73,7 @@ export const assessCommand = new Command("assess")
   .description("Re-evaluate project maturity and recommend new capabilities")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("--json", "Output results as JSON")
+  .option("--answers-file <path>", "JSON file with pre-defined answers (skips interactive prompts)")
   .action(async (options) => {
     const isJson = options.json === true;
 
@@ -149,9 +152,33 @@ export const assessCommand = new Command("assess")
       calcSpinner.succeed("Maturity profile calculated");
     } else {
       // Interactive mode: run the full questionnaire
+      // Guard against non-interactive environments
+      if (!guardInteractive(options, isJson)) return;
+
       console.log(chalk.bold("  Re-evaluate your maturity profile:"));
       console.log("");
-      const answers = await askQuestions(analysis);
+
+      let answers: Awaited<ReturnType<typeof askQuestions>>;
+      if (options.answersFile) {
+        const answersPath = resolve(options.answersFile);
+        if (!existsSync(answersPath)) {
+          if (isJson) {
+            outputJson({ error: "answers_file_not_found", message: `File not found: ${answersPath}` });
+          } else {
+            console.log(chalk.red(`  ✘ Answers file not found: ${answersPath}`));
+          }
+          process.exitCode = 1;
+          return;
+        }
+        const raw = readFileSync(answersPath, "utf-8");
+        answers = JSON.parse(raw);
+        if (!isJson) {
+          console.log(chalk.gray(`  Loaded answers from ${options.answersFile}`));
+        }
+      } else {
+        answers = await askQuestions(analysis);
+      }
+
       const calcSpinner = ora("Calculating maturity profile...").start();
       newProfile = calculateMaturityProfile(answers.maturity, analysis, ctx.nexusDir);
       calcSpinner.succeed("Maturity profile calculated");

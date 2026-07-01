@@ -13,11 +13,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
+import fse from "fs-extra";
 import { analyseProject } from "../analyser.js";
 import { askQuestions, type UserAnswers } from "../prompts.js";
 import { scaffoldNexusSystem } from "../scaffolder.js";
 import { invalidateCache } from "../cache.js";
 import { loadPlugins, getHookBus } from "../plugin-system.js";
+import { guardInteractive } from "../shared.js";
 import {
   calculateMaturityProfile,
   saveMaturityProfile,
@@ -215,12 +217,16 @@ export const initCommand = new Command("init")
       const answersPath = resolve(options.answersFile);
       if (!existsSync(answersPath)) {
         console.log(chalk.red(`  ✘ Answers file not found: ${answersPath}`));
+        process.exitCode = 1;
         return;
       }
       const raw = readFileSync(answersPath, "utf-8");
       answers = JSON.parse(raw);
       console.log(chalk.gray(`  Loaded answers from ${options.answersFile}`));
     } else {
+      // Guard against non-interactive environments
+      if (!guardInteractive(options, false)) return;
+
       console.log(chalk.bold("  Answer a few questions to determine your maturity profile:"));
       console.log("");
       answers = await askQuestions(analysis);
@@ -304,6 +310,19 @@ export const initCommand = new Command("init")
     } catch (error) {
       scaffoldSpinner.fail("Failed to install framework");
       console.error(chalk.red(`  Error: ${error}`));
+
+      // Rollback: remove partial nexus-system directory
+      const nexusDir = resolve(targetDir, "nexus-system");
+      if (existsSync(nexusDir)) {
+        try {
+          fse.removeSync(nexusDir);
+          console.log(chalk.gray("  Cleaned up partial nexus-system/ directory."));
+        } catch {
+          console.log(chalk.yellow("  ⚠ Could not clean up nexus-system/ — remove manually."));
+        }
+      }
+
+      process.exitCode = 1;
       return;
     }
   });

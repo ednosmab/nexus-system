@@ -614,4 +614,75 @@ describe("CLI Integration Tests", () => {
       expect(json.evolution).toHaveProperty("recommendations");
     });
   });
+
+  // ──────────────────────────────────────────────
+  // Non-interactive Assess
+  // ──────────────────────────────────────────────
+  describe("Non-interactive Assess", () => {
+    const dirs: string[] = [];
+
+    afterEach(() => {
+      for (const d of dirs) rmSync(d, { recursive: true, force: true });
+      dirs.length = 0;
+    });
+
+    it("should run assess with --answers-file and exit 0", async () => {
+      const { dir } = scaffoldTestProject("assess-noninteractive", "junior");
+      dirs.push(dir);
+
+      // Create a persona answers file
+      const personaPath = join(dir, "persona.json");
+      writeFileSync(
+        personaPath,
+        JSON.stringify({
+          principalModel: "opencode/mimo-v2.5-free",
+          executorModel: "opencode/deepseek-v4-flash-free",
+          stack: ["react", "typescript"],
+          database: "PostgreSQL",
+          styling: "Tailwind CSS",
+          maturity: {
+            usedNexusBefore: false,
+            isFirstProject: false,
+            projectAge: "new",
+            teamSize: "solo",
+            hasDedicatedTeam: false,
+            hasArchitectureDocs: false,
+            hasADRs: false,
+            hasTechnicalReviews: false,
+            hasCICD: false,
+            hasAutomatedTests: false,
+            hasValidationPipeline: false,
+            intendsToUseAI: false,
+            aiWillImplement: false,
+            requiresHumanReview: false,
+            hasDefinedPatterns: false,
+            hasReviewProcess: false,
+            hasDecisionControl: false,
+          },
+        })
+      );
+
+      const { stdout, exitCode } = await runNexus(
+        `assess --dir "${dir}" --answers-file "${personaPath}"`,
+        dir
+      );
+      expect(exitCode).toBe(0);
+      expect(stdout).toMatch(/Capability|Maturity|assessed|Assess/i);
+    });
+
+    it("should fail fast in non-interactive mode without --answers-file", async () => {
+      const { dir } = scaffoldTestProject("assess-noninteractive-fail", "junior");
+      dirs.push(dir);
+
+      // Run assess without --answers-file in a non-interactive context
+      // The CLI should detect non-TTY and fail fast
+      const { stdout, exitCode } = await runNexus(
+        `assess --dir "${dir}"`,
+        dir
+      );
+      // Should fail with non-interactive error
+      expect(exitCode).not.toBe(0);
+      expect(stdout).toMatch(/non-interactive|answers-file/i);
+    });
+  });
 });
