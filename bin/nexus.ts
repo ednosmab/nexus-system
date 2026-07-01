@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { initCommand } from "../src/commands/init.js";
 import { syncCommand } from "../src/commands/sync.js";
 import { statusCommand } from "../src/commands/status.js";
@@ -26,12 +31,60 @@ import { policyCommand } from "../src/commands/policy.js";
 import { actCommand } from "../src/commands/act.js";
 import { planCommand } from "../src/commands/plan.js";
 
-import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
+import { initializeRuleEngine } from "../src/rule-engine.js";
+import { initializeKnowledgeGraph } from "../src/knowledge-graph.js";
+import { initializeCapabilityEngine } from "../src/capability-engine.js";
+import { startSession, endSession, trackCommand } from "../src/session-tracker.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { version } = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
+
+// ── Event-Driven Bootstrap ──────────────────────────────────────────────────
+
+const projectRoot = process.cwd();
+const nexusDir = join(projectRoot, "nexus-system");
+const isInitialized =
+  existsSync(join(projectRoot, "opencode.json")) && existsSync(nexusDir);
+
+let currentSessionId: string | null = null;
+
+if (isInitialized) {
+  enableEventPersistence(nexusDir);
+  initializeRuleEngine(projectRoot, nexusDir);
+  initializeKnowledgeGraph(nexusDir);
+  initializeCapabilityEngine(projectRoot, nexusDir);
+
+  const session = startSession(nexusDir);
+  currentSessionId = session.id;
+
+  let branch: string | undefined;
+  try {
+    branch = execSync("git branch --show-current", {
+      encoding: "utf-8",
+      timeout: 2000,
+    }).trim();
+  } catch {
+    // not a git repo or git not available — skip
+  }
+
+  getEventBus().publish("session.start", {
+    sessionId: session.id,
+    projectRoot,
+    agentName: branch,
+  });
+}
+
+function existsSync(path: string): boolean {
+  try {
+    readFileSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── CLI Program ─────────────────────────────────────────────────────────────
 
 const program = new Command();
 
@@ -66,3 +119,15 @@ program.addCommand(actCommand());
 program.addCommand(planCommand());
 
 program.parse();
+
+// ── Post-Execution: Session End ─────────────────────────────────────────────
+
+if (isInitialized && currentSessionId) {
+  const bus = getEventBus();
+  bus.publish("session.end", {
+    sessionId: currentSessionId,
+    duration: 0,
+    outcome: "success",
+  });
+  endSession(nexusDir, currentSessionId);
+}
