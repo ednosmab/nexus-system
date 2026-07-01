@@ -37,6 +37,7 @@ import { initializeKnowledgeGraph } from "../src/knowledge-graph.js";
 import { initializeCapabilityEngine } from "../src/capability-engine.js";
 import { startSession, endSession } from "../src/session-tracker.js";
 import { installMiddleware } from "../src/cli-middleware.js";
+import { startWatching } from "../src/file-watcher.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { version } = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
@@ -74,6 +75,9 @@ if (isInitialized) {
     projectRoot,
     agentName: branch,
   });
+
+  // Start watching governance artifacts for changes
+  startWatching(nexusDir);
 }
 
 // ── CLI Program ─────────────────────────────────────────────────────────────
