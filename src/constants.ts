@@ -30,6 +30,7 @@ export const COMMAND_GATES: Record<string, string> = {
   feedback: "discovered",
   bench: "discovered",
   dashboard: "discovered",
+  "docs-audit": "discovered",
 };
 
 /** Timeout for git commands (ms). */

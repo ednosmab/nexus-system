@@ -275,6 +275,15 @@ export interface DocsSyncTriggeredPayload extends EventMeta {
   reasons: string[];
 }
 
+// ── Doc Lifecycle Events ───────────────────────────────────────────────────
+
+export interface DocLifecycleAuditPayload extends EventMeta {
+  totalDocuments: number;
+  classified: Record<string, number>;
+  clustersDetected: number;
+  movesProposed: number;
+}
+
 // ── Payload Map ────────────────────────────────────────────────────────────
 
 /**
@@ -315,6 +324,7 @@ export interface EventPayloadMap {
   "asset.archived": AssetArchivedPayload;
   "entropy.calculated": EntropyCalculatedPayload;
   "docs.sync.triggered": DocsSyncTriggeredPayload;
+  "doc.lifecycle.audited": DocLifecycleAuditPayload;
 }
 
 // ── Helper ─────────────────────────────────────────────────────────────────

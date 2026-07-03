@@ -330,6 +330,27 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       },
     ],
   },
+  {
+    name: "Documentation",
+    description: "Manage documentation lifecycle and organization",
+    commands: [
+      {
+        name: "docs-audit",
+        description: "Audit documentation lifecycle status and propose organization",
+        usage: "nexus docs-audit [options]",
+        examples: [
+          "nexus docs-audit              # Dry-run: show proposed moves",
+          "nexus docs-audit --apply      # Apply moves with confirmation",
+          "nexus docs-audit --json       # Output as JSON",
+        ],
+        tips: [
+          "Run this periodically to keep documentation organized",
+          "Use --apply only after reviewing the dry-run report",
+          "Documents are classified as: planned, in_progress, completed, superseded, stale",
+        ],
+      },
+    ],
+  },
 ];
 
 /**

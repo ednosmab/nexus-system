@@ -99,6 +99,7 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
   "asset.archived": 1,
   "entropy.calculated": 1,
   "docs.sync.triggered": 1,
+  "doc.lifecycle.audited": 1,
 };
 
 /** Migrate a payload from one version to another. */
