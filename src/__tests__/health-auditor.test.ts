@@ -1217,3 +1217,180 @@ function todoFunc() { return 1; }`
     expect(todoIssues.length).toBeLessThanOrEqual(5);
   });
 });
+
+describe("SEC-* Security Pattern Detectors", () => {
+  let projectRoot: string;
+  let nexusDir: string;
+
+  beforeEach(() => {
+    projectRoot = mkdtempSync(join(tmpdir(), "sec-test-"));
+    nexusDir = join(projectRoot, "nexus-system");
+    mkdirSync(nexusDir, { recursive: true });
+    mkdirSync(join(projectRoot, "src"), { recursive: true });
+    mkdirSync(join(nexusDir, "docs"), { recursive: true });
+    writeFileSync(join(projectRoot, "package.json"), JSON.stringify({ name: "test", dependencies: {} }));
+    writeFileSync(join(nexusDir, ".gitignore"), "node_modules/");
+  });
+
+  afterEach(() => {
+    rmSync(projectRoot, { recursive: true, force: true });
+  });
+
+  it("SEC-01: detectHardcodedSecrets detects password hardcoded", () => {
+    writeFileSync(join(projectRoot, "src", "config.ts"),
+      `const DB_PASSWORD = "supersecret123";\n` +
+      `export const apiKey = "sk-1234567890abcdef1234";\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const secrets = report.issues.filter((i) => i.type === "hardcoded_secret");
+    expect(secrets.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-01: detectHardcodedSecrets ignores comments", () => {
+    writeFileSync(join(projectRoot, "src", "safe.ts"),
+      `// password = "notreal"\n` +
+      `// This is just a comment\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const secrets = report.issues.filter((i) => i.type === "hardcoded_secret" && i.location.includes("safe.ts"));
+    expect(secrets.length).toBe(0);
+  });
+
+  it("SEC-02: detectSQLInjection detects query concatenation", () => {
+    writeFileSync(join(projectRoot, "src", "db.ts"),
+      `db.query("SELECT * FROM users WHERE id = " + userId);\n` +
+      `db.execute(\`SELECT * FROM orders WHERE name = \${name}\`);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const sqli = report.issues.filter((i) => i.type === "sql_injection");
+    expect(sqli.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-03: detectXSS detects innerHTML usage", () => {
+    writeFileSync(join(projectRoot, "src", "render.ts"),
+      `element.innerHTML = userInput;\n` +
+      `document.write(unsafeContent);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const xss = report.issues.filter((i) => i.type === "xss_risk");
+    expect(xss.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-04: detectUnsafeEval detects eval()", () => {
+    writeFileSync(join(projectRoot, "src", "dynamic.ts"),
+      `eval(userCode);\n` +
+      `new Function(params, body);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const evalIssues = report.issues.filter((i) => i.type === "unsafe_eval");
+    expect(evalIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-05: detectConsoleSecrets detects sensitive data in console", () => {
+    writeFileSync(join(projectRoot, "src", "debug.ts"),
+      `console.log("password:", req.body.password);\n` +
+      `console.log("token:", req.headers.authorization);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const consoleIssues = report.issues.filter((i) => i.type === "console_secret");
+    expect(consoleIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-06: detectWeakCrypto detects MD5 usage", () => {
+    writeFileSync(join(projectRoot, "src", "crypto.ts"),
+      `crypto.createHash("md5");\n` +
+      `crypto.createHash("sha1");\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const cryptoIssues = report.issues.filter((i) => i.type === "weak_crypto");
+    expect(cryptoIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-06: detectWeakCrypto ignores createCipheriv (safe)", () => {
+    writeFileSync(join(projectRoot, "src", "safe-crypto.ts"),
+      `crypto.createCipheriv("aes-256-gcm", key, iv);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const cryptoIssues = report.issues.filter((i) => i.type === "weak_crypto" && i.location.includes("safe-crypto.ts"));
+    expect(cryptoIssues.length).toBe(0);
+  });
+
+  it("SEC-07: detectInsecureHTTP detects http URLs", () => {
+    writeFileSync(join(projectRoot, "src", "api.ts"),
+      `const url = "http://api.example.com/data";\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const httpIssues = report.issues.filter((i) => i.type === "insecure_http");
+    expect(httpIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-07: detectInsecureHTTP ignores localhost", () => {
+    writeFileSync(join(projectRoot, "src", "dev.ts"),
+      `const url = "http://localhost:3000/api";\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const httpIssues = report.issues.filter((i) => i.type === "insecure_http" && i.location.includes("dev.ts"));
+    expect(httpIssues.length).toBe(0);
+  });
+
+  it("SEC-08: detectPrototypePollution detects Object.assign with req", () => {
+    writeFileSync(join(projectRoot, "src", "merge.ts"),
+      `Object.assign(target, req.body);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const protoIssues = report.issues.filter((i) => i.type === "proto_pollution");
+    expect(protoIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-09: detectPathTraversal detects dynamic file paths", () => {
+    writeFileSync(join(projectRoot, "src", "files.ts"),
+      `readFile(req.query.path);\n` +
+      `writeFileSync(req.body.filename, data);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const pathIssues = report.issues.filter((i) => i.type === "path_traversal");
+    expect(pathIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-11: detectUnsafeDeserialization detects JSON.parse with req", () => {
+    writeFileSync(join(projectRoot, "src", "parse.ts"),
+      `JSON.parse(req.body.data);\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const deserIssues = report.issues.filter((i) => i.type === "unsafe_deserialize");
+    expect(deserIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("All SEC-* detectors return 0 issues for clean code", () => {
+    writeFileSync(join(projectRoot, "src", "clean.ts"),
+      `export const x = 42;\n` +
+      `export function add(a: number, b: number) { return a + b; }\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const secIssues = report.issues.filter((i) =>
+      ["hardcoded_secret", "sql_injection", "xss_risk", "unsafe_eval",
+       "console_secret", "weak_crypto", "insecure_http", "proto_pollution",
+       "path_traversal", "regex_dos", "unsafe_deserialize", "dep_confusion"].includes(i.type)
+    );
+    expect(secIssues.length).toBe(0);
+  });
+
+  it("SEC-10: detectRegexDos detects ReDoS patterns", () => {
+    writeFileSync(join(projectRoot, "src", "regex.ts"),
+      `const bad = new RegExp("(a+)+$");\n` +
+      `const also = new RegExp("\\w+\\s*=\\s*\\w+");\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const regexIssues = report.issues.filter((i) => i.type === "regex_dos");
+    expect(regexIssues.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("SEC-12: detectDependencyConfusion detects phantom imports", () => {
+    writeFileSync(join(projectRoot, "src", "import.ts"),
+      `import { something } from "nonexistent-package-xyz";\n`
+    );
+    const report = auditHealth(projectRoot, nexusDir, "full");
+    const depIssues = report.issues.filter((i) => i.type === "dep_confusion");
+    expect(depIssues.length).toBeGreaterThanOrEqual(1);
+  });
+});

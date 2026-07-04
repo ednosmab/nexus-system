@@ -43,3 +43,34 @@ Cada agent configurado em `opencode.json → agent.*` tem um **role** interno qu
 **Princípio:**
 
 > Trocar o `model` num agent **não quebra** sua função. Trocar o `role` **sim** — porque é o contrato semântico do agente. Por isso, mantenha o campo `role` em cada bloco de agent (o opencode tolera campos extras dentro de `agent.*` mesmo não estando no schema).
+
+---
+
+## 4. Quick Board — Regra Obrigatória de Início de Sessão
+
+> **Regra #13 em AGENTS.md:** Ao iniciar QUALQUER sessão de chat (primeira mensagem do utilizador), o agente DEVE apresentar o **Quick Board** do `BRIEFING.md` antes da primeira resposta operacional.
+
+### Formato do Quick Board
+
+```
+┌─────────────────────────────────────────┐
+│ QUICK BOARD — <data>                    │
+│ Tarefa: <tarefa em curso ou "Nenhuma">  │
+│ Próximo: <próximo P0 ou "Definir">      │
+│ Dívidas P1: <lista ou "Nenhuma">        │
+│ Estado: <estado da última sessão>       │
+└─────────────────────────────────────────┘
+```
+
+### Quando mostrar
+
+- **Sempre** na primeira resposta a qualquer mensagem do utilizador
+- **Não substitui** a leitura completa dos documentos P0
+- **É apenas** um aviso de contexto para orientar a sessão
+
+### Fonte de dados
+
+O Quick Board é alimentado por:
+- `governance/context/context_buffer.yaml` — estado actual da sessão
+- `docs/BACKLOG.md` — prioridades e dívidas
+- `reports/` — saúde e complexidade do projecto
