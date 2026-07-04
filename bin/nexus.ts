@@ -66,36 +66,35 @@ if (isInitialized) {
   const session = startSession(nexusDir);
   currentSessionId = session.id;
 
-  let branch: string | undefined;
-  try {
-    branch = execSync("git branch --show-current", {
-      encoding: "utf-8",
-      timeout: 2000,
-    }).trim();
-  } catch {
-    // not a git repo or git not available — skip
+  // Skip watcher + briefing in child processes (avoids deadlock via rule engine)
+  if (!process.env.NEXUS_CHILD) {
+    let branch: string | undefined;
+    try {
+      branch = execSync("git branch --show-current", {
+        encoding: "utf-8",
+        timeout: 2000,
+        stdio: ["pipe", "pipe", "pipe"],
+      }).trim();
+    } catch {
+      // not a git repo or git not available — skip
+    }
+
+    getEventBus().publish("session.start", {
+      sessionId: session.id,
+      projectRoot,
+      agentName: branch,
+    });
+
+    startWatching(nexusDir);
+
+    registerDocSyncHook({
+      projectRoot,
+      enableAutoSync: true,
+      minSignificance: 0.3,
+    });
+
+    showBriefingSummary(projectRoot, nexusDir);
   }
-
-  getEventBus().publish("session.start", {
-    sessionId: session.id,
-    projectRoot,
-    agentName: branch,
-  });
-
-  // Start watching governance artifacts for changes
-  startWatching(nexusDir);
-
-  // Register doc sync hook for automatic documentation updates
-  registerDocSyncHook({
-    projectRoot,
-    enableAutoSync: true,
-    minSignificance: 0.3,
-  });
-
-  // Show session briefing summary
-  console.error("DEBUG: before briefing");
-  showBriefingSummary(projectRoot, nexusDir);
-  console.error("DEBUG: after briefing");
 }
 
 /**
@@ -279,7 +278,6 @@ installMiddleware(program, {
 });
 
 program.parse();
-console.error("DEBUG: parse done");
 
 // ── Post-Execution: Session End ─────────────────────────────────────────────
 
@@ -291,8 +289,7 @@ if (isInitialized && currentSessionId) {
     outcome: "success",
   });
   endSession(nexusDir, currentSessionId);
-  stopWatching();
+  if (!process.env.NEXUS_CHILD) {
+    stopWatching();
+  }
 }
-
-// Force exit to prevent hanging on open handles (chokidar, etc.)
-process.exit(process.exitCode ?? 0);

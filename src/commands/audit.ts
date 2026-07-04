@@ -14,6 +14,7 @@ import { appendBacklogSection, issueToBacklogItem, type BacklogItem } from "../b
 export const auditCommand = new Command("audit")
   .description("Audit Nexus System health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
+  .option("-l, --level <level>", "Audit level: quick, standard, full (default: standard)", "standard")
   .option("--no-cache", "Skip cache and recalculate")
   .option("--json", "Output results as JSON")
   .option("--auto-backlog", "Auto-detect gaps and add to BACKLOG.md")
@@ -21,9 +22,11 @@ export const auditCommand = new Command("audit")
     const isJson = options.json === true;
 
     if (!isJson) {
+      const levelLabel = options.level === "full" ? "full" : options.level === "quick" ? "quick" : "standard";
       console.log("");
       console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
       console.log(chalk.bold.cyan("  ║    nexus audit — Health Audit        ║"));
+      console.log(chalk.bold.cyan(`  ║    Level: ${levelLabel.padEnd(25)}║`));
       console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       console.log("");
     }
@@ -36,22 +39,25 @@ export const auditCommand = new Command("audit")
     const spinner = isJson ? null : ora("Auditing governance health...").start();
 
     try {
-      // Check cache first
+      // Validate level
+      const level = ["quick", "standard", "full"].includes(options.level) ? options.level : "standard";
+
+      // Check cache first (skip cache for full level to get fresh results)
       let report: HealthAuditReport;
       let cacheHit = false;
-      if (options.cache !== false) {
+      if (options.cache !== false && level !== "full") {
         const cached = getCached<HealthAuditReport>(ctx.projectRoot, ctx.nexusDir, "health",
           () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
         if (cached) {
           report = cached;
           cacheHit = true;
         } else {
-          report = auditHealth(ctx.projectRoot, ctx.nexusDir);
+          report = auditHealth(ctx.projectRoot, ctx.nexusDir, level);
           setCache(ctx.projectRoot, ctx.nexusDir, "health", report,
             computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
         }
       } else {
-        report = auditHealth(ctx.projectRoot, ctx.nexusDir);
+        report = auditHealth(ctx.projectRoot, ctx.nexusDir, level);
       }
 
       // Write report (always, even with 0 issues)
@@ -77,11 +83,44 @@ export const auditCommand = new Command("audit")
       if (isJson) {
         outputJson({
           projectRoot: ctx.projectRoot,
+          level: report.level,
           healthScore: report.healthScore,
           totalRules: report.totalRules,
           historyEntries: report.historyEntries,
           sessionsAnalyzed: report.sessionsAnalyzed,
           issues: report.issues,
+          issueCounts: {
+            total: report.issues.length,
+            critical: report.issues.filter((i) => i.severity === 3).length,
+            warning: report.issues.filter((i) => i.severity === 2).length,
+            info: report.issues.filter((i) => i.severity === 1).length,
+            datePlaceholders: report.issues.filter((i) => i.type === "date_placeholder").length,
+            emptyDirs: report.issues.filter((i) => i.type === "empty_dir").length,
+            brokenRefs: report.issues.filter((i) => i.type === "broken_ref").length,
+            missingGitignore: report.issues.filter((i) => i.type === "missing_gitignore").length,
+            maturityInconsistency: report.issues.filter((i) => i.type === "maturity_inconsistency").length,
+            adrCoverageGap: report.issues.filter((i) => i.type === "adr_coverage_gap").length,
+            // Engineering audit dimensions
+            testFailures: report.issues.filter((i) => i.type === "test_failure").length,
+            orphanModules: report.issues.filter((i) => i.type === "orphan_module").length,
+            oversizedFiles: report.issues.filter((i) => i.type === "oversized_file").length,
+            lintErrors: report.issues.filter((i) => i.type === "lint_error").length,
+            missingTests: report.issues.filter((i) => i.type === "missing_test").length,
+            anyTypeUsage: report.issues.filter((i) => i.type === "any_type_usage").length,
+            typeErrors: report.issues.filter((i) => i.type === "type_error").length,
+            consoleLogs: report.issues.filter((i) => i.type === "console_log_outside_cmd").length,
+            emptyCatchBlocks: report.issues.filter((i) => i.type === "empty_catch").length,
+            circularDeps: report.issues.filter((i) => i.type === "circular_dep").length,
+            highComplexity: report.issues.filter((i) => i.type === "high_complexity").length,
+            unusedExports: report.issues.filter((i) => i.type === "unused_export").length,
+            deadCode: report.issues.filter((i) => i.type === "dead_code").length,
+            // Supply chain
+            unpinnedVersions: report.issues.filter((i) => i.type === "unpinned_version").length,
+            missingLockFile: report.issues.filter((i) => i.type === "missing_lock_file").length,
+            lockFileDrift: report.issues.filter((i) => i.type === "lock_file_drift").length,
+            phantomDeps: report.issues.filter((i) => i.type === "phantom_dep").length,
+            deprecatedPackages: report.issues.filter((i) => i.type === "deprecated_package").length,
+          },
           optimizations: report.optimizations,
           summary: report.summary,
           knowledgeGraph: {
@@ -110,6 +149,58 @@ export const auditCommand = new Command("audit")
       console.log(chalk.gray(`    History entries:  ${report.historyEntries}`));
       console.log(chalk.gray(`    Issues found:    ${report.issues.length}`));
       console.log(chalk.gray(`    Optimizations:   ${report.optimizations.length}`));
+      // New issue type counts
+      const datePlaceholders = report.issues.filter((i) => i.type === "date_placeholder").length;
+      const emptyDirs = report.issues.filter((i) => i.type === "empty_dir").length;
+      const brokenRefs = report.issues.filter((i) => i.type === "broken_ref").length;
+      const missingGitignore = report.issues.filter((i) => i.type === "missing_gitignore").length;
+      const maturityIssues = report.issues.filter((i) => i.type === "maturity_inconsistency").length;
+      const adrGaps = report.issues.filter((i) => i.type === "adr_coverage_gap").length;
+      if (datePlaceholders > 0) console.log(chalk.gray(`    Date placeholders: ${datePlaceholders}`));
+      if (emptyDirs > 0) console.log(chalk.gray(`    Empty directories: ${emptyDirs}`));
+      if (brokenRefs > 0) console.log(chalk.gray(`    Broken references: ${brokenRefs}`));
+      if (missingGitignore > 0) console.log(chalk.gray(`    Missing .gitignore: ${missingGitignore}`));
+      if (maturityIssues > 0) console.log(chalk.gray(`    Maturity issues:   ${maturityIssues}`));
+      if (adrGaps > 0) console.log(chalk.gray(`    ADR coverage gaps: ${adrGaps}`));
+      // Engineering audit dimensions
+      const testFailures = report.issues.filter((i) => i.type === "test_failure").length;
+      const orphanModules = report.issues.filter((i) => i.type === "orphan_module").length;
+      const oversizedFiles = report.issues.filter((i) => i.type === "oversized_file").length;
+      const lintErrors = report.issues.filter((i) => i.type === "lint_error").length;
+      const missingTests = report.issues.filter((i) => i.type === "missing_test").length;
+      const anyTypeUsage = report.issues.filter((i) => i.type === "any_type_usage").length;
+      const typeErrors = report.issues.filter((i) => i.type === "type_error").length;
+      const consoleLogs = report.issues.filter((i) => i.type === "console_log_outside_cmd").length;
+      if (testFailures > 0) console.log(chalk.red(`    Test failures:      ${testFailures}`));
+      if (orphanModules > 0) console.log(chalk.gray(`    Orphan modules:     ${orphanModules}`));
+      if (oversizedFiles > 0) console.log(chalk.gray(`    Oversized files:    ${oversizedFiles}`));
+      if (lintErrors > 0) console.log(chalk.yellow(`    Lint errors:        ${lintErrors}`));
+      if (missingTests > 0) console.log(chalk.gray(`    Missing tests:      ${missingTests}`));
+      if (anyTypeUsage > 0) console.log(chalk.gray(`    Any type usage:     ${anyTypeUsage}`));
+      if (typeErrors > 0) console.log(chalk.yellow(`    Type errors:        ${typeErrors}`));
+      if (consoleLogs > 0) console.log(chalk.gray(`    Console.log:        ${consoleLogs}`));
+      // Code quality issues
+      const emptyCatchBlocks = report.issues.filter((i) => i.type === "empty_catch").length;
+      const circularDeps = report.issues.filter((i) => i.type === "circular_dep").length;
+      const highComplexity = report.issues.filter((i) => i.type === "high_complexity").length;
+      const unusedExports = report.issues.filter((i) => i.type === "unused_export").length;
+      const deadCode = report.issues.filter((i) => i.type === "dead_code").length;
+      if (emptyCatchBlocks > 0) console.log(chalk.yellow(`    Empty catch blocks: ${emptyCatchBlocks}`));
+      if (circularDeps > 0) console.log(chalk.red(`    Circular deps:      ${circularDeps}`));
+      if (highComplexity > 0) console.log(chalk.yellow(`    High complexity:    ${highComplexity}`));
+      if (unusedExports > 0) console.log(chalk.gray(`    Unused exports:     ${unusedExports}`));
+      if (deadCode > 0) console.log(chalk.gray(`    Dead code:          ${deadCode}`));
+      // Supply chain issues
+      const unpinnedVersions = report.issues.filter((i) => i.type === "unpinned_version").length;
+      const missingLockFile = report.issues.filter((i) => i.type === "missing_lock_file").length;
+      const lockFileDrift = report.issues.filter((i) => i.type === "lock_file_drift").length;
+      const phantomDeps = report.issues.filter((i) => i.type === "phantom_dep").length;
+      const deprecatedPackages = report.issues.filter((i) => i.type === "deprecated_package").length;
+      if (unpinnedVersions > 0) console.log(chalk.yellow(`    Unpinned versions:  ${unpinnedVersions}`));
+      if (missingLockFile > 0) console.log(chalk.red(`    Missing lock file:  ${missingLockFile}`));
+      if (lockFileDrift > 0) console.log(chalk.yellow(`    Lock file drift:    ${lockFileDrift}`));
+      if (phantomDeps > 0) console.log(chalk.yellow(`    Phantom deps:       ${phantomDeps}`));
+      if (deprecatedPackages > 0) console.log(chalk.yellow(`    Deprecated pkgs:    ${deprecatedPackages}`));
       console.log("");
 
       // Health score with bar

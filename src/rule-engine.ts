@@ -492,7 +492,7 @@ function executeAction(
 
       try {
         const nexusCommand = ALLOWED_NEXUS_COMMANDS[command]!;
-        const result = execSync(`node dist/nexus.js ${nexusCommand}`, {
+        const result = execSync(`NEXUS_CHILD=1 node dist/nexus.js ${nexusCommand}`, {
           cwd: context.projectRoot,
           timeout: 30000,
           encoding: "utf-8",

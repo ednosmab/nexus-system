@@ -1,0 +1,69 @@
+/**
+ * sources.ts — Taint Source Definitions
+ *
+ * Sources are entry points where untrusted data enters the application.
+ * These are the starting points for taint propagation.
+ */
+
+import type { TaintSourceDef } from "./types.js";
+
+/** Express/Koa/Fastify HTTP request properties */
+export const HTTP_SOURCES: TaintSourceDef[] = [
+  { pattern: /^req\.body$/, kind: "property", description: "req.body — HTTP request body" },
+  { pattern: /^req\.query$/, kind: "property", description: "req.query — URL query parameters" },
+  { pattern: /^req\.params$/, kind: "property", description: "req.params — URL path parameters" },
+  { pattern: /^req\.headers$/, kind: "property", description: "req.headers — HTTP request headers" },
+  { pattern: /^req\.cookies$/, kind: "property", description: "req.cookies — HTTP cookies" },
+  { pattern: /^req\.files$/, kind: "property", description: "req.files — Uploaded files" },
+];
+
+/** Node.js process and global sources */
+export const PROCESS_SOURCES: TaintSourceDef[] = [
+  { pattern: /^process\.argv$/, kind: "global", description: "process.argv — Command line arguments" },
+  { pattern: /^process\.env$/, kind: "global", description: "process.env — Environment variables" },
+  { pattern: /^process\.env\.\w+$/, kind: "global", description: "process.env.X — Environment variable" },
+];
+
+/** DOM/browser sources */
+export const DOM_SOURCES: TaintSourceDef[] = [
+  { pattern: /^window\.location$/, kind: "property", description: "window.location — Browser URL" },
+  { pattern: /^document\.URL$/, kind: "property", description: "document.URL — Document URL" },
+  { pattern: /^document\.referrer$/, kind: "property", description: "document.referrer — Referrer URL" },
+  { pattern: /^location\.href$/, kind: "property", description: "location.href — Current URL" },
+];
+
+/** WebSocket sources */
+export const WS_SOURCES: TaintSourceDef[] = [
+  { pattern: /^socket\.data$/, kind: "property", description: "socket.data — WebSocket message data" },
+  { pattern: /^message$/, kind: "property", description: "message — Event message data" },
+];
+
+/** Database query results (indirect sources) */
+export const DB_SOURCES: TaintSourceDef[] = [
+  { pattern: /^result\.rows$/, kind: "property", description: "result.rows — Database query result" },
+  { pattern: /^row$/, kind: "property", description: "row — Database row" },
+];
+
+/** File system sources */
+export const FS_SOURCES: TaintSourceDef[] = [
+  { pattern: /^readFileSync$/, kind: "call", description: "readFileSync() — File content" },
+  { pattern: /^readFile$/, kind: "call", description: "readFile() — File content (async)" },
+];
+
+/** All sources combined */
+export const ALL_SOURCES: TaintSourceDef[] = [
+  ...HTTP_SOURCES,
+  ...PROCESS_SOURCES,
+  ...DOM_SOURCES,
+  ...WS_SOURCES,
+  ...DB_SOURCES,
+  ...FS_SOURCES,
+];
+
+/** Check if a variable/expression matches any taint source */
+export function isTaintSource(name: string): TaintSourceDef | undefined {
+  return ALL_SOURCES.find((s) => {
+    if (s.pattern instanceof RegExp) return s.pattern.test(name);
+    return s.pattern === name;
+  });
+}
