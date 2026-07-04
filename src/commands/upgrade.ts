@@ -24,6 +24,7 @@ import { getCapabilityFiles } from "../capability-mapping.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { recordFeedback } from "../feedback-loops.js";
+import { readManifest, writeManifest, updateManifest } from "../manifest.js";
 
 const { copySync, ensureDirSync } = fse;
 
@@ -107,6 +108,25 @@ export const upgradeCommand = new Command("upgrade")
       const spinner = ora(`Installing ${toInstall.length} capability(ies)...`).start();
       const result = installCapabilities(targetDir, toInstall);
       spinner.succeed(`Installed ${result.filesInstalled} file(s) in ${result.directoriesCreated} directory(ies)`);
+
+      // Update manifest
+      const currentManifest = readManifest(ctx.nexusDir);
+      const { readFileSync: readFS } = await import("node:fs");
+      let cliVersion = "unknown";
+      try {
+        const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8"));
+        cliVersion = pkg.version || "unknown";
+      } catch {
+        // Skip
+      }
+      const updatedManifest = updateManifest(
+        currentManifest,
+        cliVersion,
+        ctx.nexusDir,
+        [...installed, ...toInstall],
+        profile?.overallScore ?? 0
+      );
+      writeManifest(ctx.nexusDir, updatedManifest);
 
       invalidateCache(targetDir);
 
@@ -207,15 +227,34 @@ export const upgradeCommand = new Command("upgrade")
     }
 
     // Install
-    const spinner = ora(`Installing ${capInfo.name}...`).start();
-    try {
-      const result = installCapabilities(targetDir, [targetCapability as Capability]);
-      spinner.succeed(`Installed ${capInfo.name}`);
+      const spinner = ora(`Installing ${capInfo.name}...`).start();
+      try {
+        const result = installCapabilities(targetDir, [targetCapability as Capability]);
+        spinner.succeed(`Installed ${capInfo.name}`);
 
-      // Update AGENTS.md with new capability sections
-      updateAgentsMdWithCapabilities(targetDir, [...installed, targetCapability as Capability]);
+        // Update AGENTS.md with new capability sections
+        updateAgentsMdWithCapabilities(targetDir, [...installed, targetCapability as Capability]);
 
-      invalidateCache(targetDir);
+        // Update manifest
+        const currentManifest = readManifest(ctx.nexusDir);
+        const { readFileSync: readFS } = await import("node:fs");
+        let cliVersion = "unknown";
+        try {
+          const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8"));
+          cliVersion = pkg.version || "unknown";
+        } catch {
+          // Skip
+        }
+        const updatedManifest = updateManifest(
+          currentManifest,
+          cliVersion,
+          ctx.nexusDir,
+          [...installed, targetCapability as Capability],
+          0
+        );
+        writeManifest(ctx.nexusDir, updatedManifest);
+
+        invalidateCache(targetDir);
 
       // Publish event
       getEventBus().publish("capability.installed", { capability: targetCapability, projectRoot: ctx.projectRoot });

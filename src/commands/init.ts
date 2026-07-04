@@ -10,7 +10,7 @@
 
 import { Command } from "commander";
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import fse from "fs-extra";
@@ -34,6 +34,7 @@ import { saveUserProfile } from "../feedback-engine.js";
 import { initializeRules } from "../rule-engine.js";
 import { auditHealth, type HealthAuditReport } from "../health-auditor.js";
 import { discoverArtifacts, discoverRelations, analyzeGraph, type GraphAnalysis } from "../knowledge-graph.js";
+import { createManifest, writeManifest } from "../manifest.js";
 import type { ProjectAnalysis } from "../analyser.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
@@ -356,6 +357,18 @@ export const initCommand = new Command("init")
       // Save maturity profile
       saveMaturityProfile(nexusDir, profile);
       recordMaturitySnapshot(nexusDir, profile);
+
+      // Create installation manifest for change detection
+      const { readFileSync: readFS } = await import("node:fs");
+      let cliVersion = "unknown";
+      try {
+        const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8"));
+        cliVersion = pkg.version || "unknown";
+      } catch {
+        // Skip
+      }
+      const manifest = createManifest(cliVersion, nexusDir, capsToInstall, profile.overallScore);
+      writeManifest(nexusDir, manifest);
 
       // Save user profile for personalized feedback
       if (answers.userProfile) {

@@ -284,6 +284,11 @@ export interface DocLifecycleAuditPayload extends EventMeta {
   movesProposed: number;
 }
 
+export interface SystemUpdatedPayload extends EventMeta {
+  filesChanged: number;
+  cliVersion: string;
+}
+
 // ── Payload Map ────────────────────────────────────────────────────────────
 
 /**
@@ -325,6 +330,7 @@ export interface EventPayloadMap {
   "entropy.calculated": EntropyCalculatedPayload;
   "docs.sync.triggered": DocsSyncTriggeredPayload;
   "doc.lifecycle.audited": DocLifecycleAuditPayload;
+  "system.updated": SystemUpdatedPayload;
 }
 
 // ── Helper ─────────────────────────────────────────────────────────────────

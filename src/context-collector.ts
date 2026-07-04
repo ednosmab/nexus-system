@@ -18,6 +18,9 @@ import { generateDynamicRules, type DynamicRule } from "./dynamic-rules.js";
 import { generateBriefing, type Briefing } from "./briefing.js";
 import { loadMaturityProfile, type MaturityProfile } from "./maturity-profile.js";
 import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parse as parseYaml } from "yaml";
 import { analyseProject, type ProjectAnalysis } from "./analyser.js";
 import { detectPatterns, type DetectedPattern } from "./pattern-detector.js";
 import { getFeedbackRecords, computeFeedbackSummary } from "./session-feedback.js";
@@ -216,10 +219,6 @@ function loadQuickBoard(nexusDir: string): {
   };
 
   try {
-    const { existsSync, readFileSync } = require("node:fs") as typeof import("node:fs");
-    const { join } = require("node:path") as typeof import("node:path");
-    const { parse: parseYaml } = require("yaml") as typeof import("yaml");
-
     const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
     if (!existsSync(bufferPath)) {
       return defaultQuickBoard;
@@ -255,7 +254,7 @@ function loadQuickBoard(nexusDir: string): {
 
     return {
       currentTask,
-      nextP0: "Verificar BACKLOG.md para próximo P0",
+      nextP0: data?.next_p0 ?? "Verificar BACKLOG.md para próximo P0",
       p1Debts,
       impediments,
       lastSessionStatus,

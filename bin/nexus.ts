@@ -34,6 +34,7 @@ import { planCommand } from "../src/commands/plan.js";
 import { shellInitCommand } from "../src/commands/shell-init.js";
 import { consoleCommand } from "../src/commands/console.js";
 import { docsAuditCommand } from "../src/commands/docs-audit.js";
+import { updateCommand } from "../src/commands/update.js";
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
 import { initializeRuleEngine } from "../src/rule-engine.js";
@@ -268,6 +269,7 @@ program.addCommand(planCommand());
 program.addCommand(consoleCommand());
 program.addCommand(shellInitCommand);
 program.addCommand(docsAuditCommand);
+program.addCommand(updateCommand);
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 
