@@ -7,7 +7,7 @@
  * PRINCIPLE: Plugins extend Nexus without modifying core.
  */
 
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 interface PluginContext {
@@ -47,7 +47,7 @@ const plugin = {
         for (const file of adrFiles) {
           const filepath = join(adrDir, file);
           try {
-            const stat = require("node:fs").statSync(filepath);
+            const stat = statSync(filepath);
             const ageDays = Math.floor(
               (Date.now() - stat.mtimeMs) / (1000 * 60 * 60 * 24)
             );
