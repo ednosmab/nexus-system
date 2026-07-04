@@ -37,7 +37,7 @@ export interface ContextDeps {
   generateRiskMap: (root: string, nexusDir: string) => RiskMap;
   generateContextRules: (fp: ProjectFingerprint, risk: RiskMap) => ContextRule[];
   generateDynamicRules: (root: string, nexusDir: string) => DynamicRule[];
-  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile) => Briefing;
+  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }) => Briefing;
 }
 
 /** The collected context snapshot. */
@@ -112,8 +112,11 @@ export function collectContext(
   // 5. Maturity Profile
   const maturityProfile = deps.loadMaturityProfile(nexusDir);
 
-  // 6. Generate Briefing
-  const briefing = deps.generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined);
+  // 6. Load Quick Board data from context_buffer.yaml
+  const quickBoard = loadQuickBoard(nexusDir);
+
+  // 7. Generate Briefing
+  const briefing = deps.generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined, quickBoard);
 
   // 7. Enrich briefing with detected patterns (Gap 4+5: feedback hotspots + pattern-detector)
   const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, nexusDir);
@@ -189,4 +192,76 @@ function enrichBriefingWithPatterns(
       detected,
     },
   };
+}
+
+// ── Quick Board Loading ─────────────────────────────────────────────────────
+
+/**
+ * Load Quick Board data from context_buffer.yaml.
+ * Provides session state summary for agent reminder at session start.
+ */
+function loadQuickBoard(nexusDir: string): {
+  currentTask: string;
+  nextP0: string;
+  p1Debts: string;
+  impediments: string;
+  lastSessionStatus: string;
+} {
+  const defaultQuickBoard = {
+    currentTask: "Nenhuma",
+    nextP0: "Definir novo P0 no BACKLOG.md",
+    p1Debts: "Nenhuma",
+    impediments: "Nenhum",
+    lastSessionStatus: "Desconhecido",
+  };
+
+  try {
+    const { existsSync, readFileSync } = require("node:fs") as typeof import("node:fs");
+    const { join } = require("node:path") as typeof import("node:path");
+    const { parse: parseYaml } = require("yaml") as typeof import("yaml");
+
+    const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+    if (!existsSync(bufferPath)) {
+      return defaultQuickBoard;
+    }
+
+    const content = readFileSync(bufferPath, "utf-8");
+    const data = parseYaml(content);
+
+    // Extract current task
+    const currentTask = data?.current_task?.description
+      ? `${data.current_task.description} (${data.current_task.status})`
+      : "Nenhuma";
+
+    // Extract last session status
+    const lastSessionStatus = data?.session?.status === "completed"
+      ? "Concluída"
+      : data?.session?.status === "in_progress"
+        ? "Em curso"
+        : "Desconhecido";
+
+    // Extract impediments
+    const impediments = data?.impediments?.length > 0
+      ? data.impediments.map((i: { description: string }) => i.description).join(", ")
+      : "Nenhum";
+
+    // Extract technical debt (P1 debts)
+    const p1Debts = data?.technical_debt?.length > 0
+      ? data.technical_debt
+          .filter((d: { priority: string }) => d.priority === "P1")
+          .map((d: { description: string }) => d.description)
+          .join(", ") || "Nenhuma"
+      : "Nenhuma";
+
+    return {
+      currentTask,
+      nextP0: "Verificar BACKLOG.md para próximo P0",
+      p1Debts,
+      impediments,
+      lastSessionStatus,
+    };
+  } catch (err) {
+    logger.debug("loadQuickBoard", "Failed to load context buffer:", err instanceof Error ? err.message : err);
+    return defaultQuickBoard;
+  }
 }

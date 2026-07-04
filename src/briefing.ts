@@ -70,6 +70,19 @@ export interface Briefing {
     /** Number of dynamic rules contributing to savings */
     dynamicRuleCount: number;
   };
+  /** Quick Board — session state summary for agent reminder */
+  quickBoard?: {
+    /** Current task in progress (from context_buffer.yaml) */
+    currentTask: string;
+    /** Next P0 priority item */
+    nextP0: string;
+    /** P1 debts with due dates */
+    p1Debts: string;
+    /** Impediments */
+    impediments: string;
+    /** Last session status */
+    lastSessionStatus: string;
+  };
 }
 
 // ── Briefing Generation ────────────────────────────────────────────────────
@@ -79,7 +92,14 @@ export function generateBriefing(
   riskMap: RiskMap,
   contextRules: ContextRule[],
   dynamicRules: DynamicRule[],
-  maturityProfile?: MaturityProfile
+  maturityProfile?: MaturityProfile,
+  quickBoard?: {
+    currentTask: string;
+    nextP0: string;
+    p1Debts: string;
+    impediments: string;
+    lastSessionStatus: string;
+  }
 ): Briefing {
   // Extract risk information
   const criticalAreas = riskMap.areas
@@ -152,6 +172,13 @@ export function generateBriefing(
       cacheHit: false,
       contextRuleCount: contextRules.length,
       dynamicRuleCount: dynamicRules.length,
+    },
+    quickBoard: quickBoard ?? {
+      currentTask: "Nenhuma",
+      nextP0: "Definir novo P0 no BACKLOG.md",
+      p1Debts: "Nenhuma",
+      impediments: "Nenhum",
+      lastSessionStatus: "Desconhecido",
     },
   };
 }
@@ -298,6 +325,27 @@ export function briefingToMarkdown(briefing: Briefing): string {
   lines.push("# Pre-Session Briefing");
   lines.push(`*Generated: ${briefing.generatedAt}*`);
   lines.push("");
+
+  // Quick Board — session state summary
+  if (briefing.quickBoard) {
+    lines.push("---");
+    lines.push("");
+    lines.push("## QUICK BOARD — Estado do Projecto");
+    lines.push("");
+    lines.push("> **Apresentar este quadro ao utilizador antes da primeira resposta operacional.**");
+    lines.push("> Veja regra #13 em `docs/AGENTS.md` (QUICK BOARD DE AVISO).");
+    lines.push("");
+    lines.push("| Campo | Estado |");
+    lines.push("|---|---|");
+    lines.push(`| **Tarefa em curso** | ${briefing.quickBoard.currentTask} |`);
+    lines.push(`| **Próximo P0** | ${briefing.quickBoard.nextP0} |`);
+    lines.push(`| **Dívidas P1** | ${briefing.quickBoard.p1Debts} |`);
+    lines.push(`| **Impedimentos** | ${briefing.quickBoard.impediments} |`);
+    lines.push(`| **Estado última sessão** | ${briefing.quickBoard.lastSessionStatus} |`);
+    lines.push("");
+    lines.push("---");
+    lines.push("");
+  }
 
   // Project identity
   lines.push("## Project Identity");
