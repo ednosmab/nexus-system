@@ -46,6 +46,8 @@
 | P0 0.5: Simplificar getLatestFeedback | Baixo | Refatorado para records.at(-1) ?? null |
 | 1.12 Coverage gap: comandos CLI | Alto | 36 novos testes em digest.test.ts + commands-action.test.ts (580 total) |
 | Auto-backlog feature | Alto | nexus audit --auto-backlog — detecta gaps e escreve no BACKLOG.md (606 testes) |
+| AUDIT-EXPANSION | Alto | Expandir audit coverage 79% → ~93% (taint, rule-engine) — 2026-07-04 |
+| QUICK-BOARD-FIX | Alto | Corrigir loadQuickBoard() — require() em contexto ESM — 2026-07-04 |
 
 ---
 
