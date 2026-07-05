@@ -32,4 +32,4 @@ jobs:
         run: npm run build
 
       - name: Run tests with coverage
-        run: npx vitest run --coverage
+        run: node --max-old-space-size=8192 node_modules/.bin/vitest run --coverage

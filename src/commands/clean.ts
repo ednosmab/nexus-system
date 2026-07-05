@@ -4,7 +4,7 @@ import { join } from "node:path";
 import chalk from "chalk";
 import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
-import { guardNotInitialized } from "../shared.js";
+import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { logger } from "../logger.js";
 
@@ -17,6 +17,8 @@ export const cleanCommand = new Command("clean")
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
+
+    if (!checkLifecycleGate("clean", ctx.projectRoot, ctx.nexusDir, isJson)) return;
 
     if (!isJson) {
       console.log("");

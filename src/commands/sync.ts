@@ -6,6 +6,7 @@ import ora from "ora";
 import fse from "fs-extra";
 import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
+import { checkLifecycleGate } from "../shared.js";
 
 const { copySync, ensureDirSync, writeFileSync } = fse;
 
@@ -26,6 +27,12 @@ export const syncCommand = new Command("sync")
     const targetDir = resolve(options.dir);
     const nexusPath = options.nexusPath || process.env.NEXUS_SYSTEM_PATH;
     const isJson = options.json === true;
+
+    // Lifecycle gate check
+    if (existsSync(resolve(targetDir, "opencode.json"))) {
+      const nexusDir = resolve(targetDir, "nexus-system");
+      if (!checkLifecycleGate("sync", targetDir, nexusDir, isJson)) return;
+    }
 
     if (!isJson) {
       console.log("");
