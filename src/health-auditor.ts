@@ -3076,6 +3076,12 @@ function detectDeadCodePatterns(projectRoot: string, files: SourceFileInfo[]): H
 
 // ── Security Pattern Detectors (SEC-*) ────────────────────────────────────────
 
+const SECURITY_DETECTOR_SELF_PATHS = ["src/health-auditor.ts", "src/audit/taint/"];
+
+function isDetectorDefinitionFile(relPath: string): boolean {
+  return SECURITY_DETECTOR_SELF_PATHS.some((p) => relPath.startsWith(p));
+}
+
 /**
  * SEC-01: Detecta chaves/tokens hardcoded em código.
  */
@@ -3094,6 +3100,7 @@ function detectHardcodedSecrets(projectRoot: string, files: SourceFileInfo[]): H
 
   for (const file of files) {
     if (skipPatterns.some((p) => p.test(file.relPath))) continue;
+    if (isDetectorDefinitionFile(file.relPath)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
@@ -3157,6 +3164,7 @@ function detectXSS(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] 
 
   for (const file of files) {
     if (file.relPath.includes("__tests__")) continue;
+    if (isDetectorDefinitionFile(file.relPath)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
@@ -3187,6 +3195,7 @@ function detectUnsafeEval(projectRoot: string, files: SourceFileInfo[]): HealthI
 
   for (const file of files) {
     if (file.relPath.includes("__tests__")) continue;
+    if (isDetectorDefinitionFile(file.relPath)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
@@ -3210,15 +3219,18 @@ function detectUnsafeEval(projectRoot: string, files: SourceFileInfo[]): HealthI
 function detectConsoleSecrets(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const sensitivePatterns = [
-    /console\.(log|info|warn|error|debug)\s*\(.*(?:password|token|secret|key|credential)/i,
+    /console\.(log|info|warn|error|debug)\s*\(.*\b(?:password|api[_-]?key|access[_-]?token|auth[_-]?token|secret|credential)s?\b/i,
     /console\.(log|info|warn|error|debug)\s*\(.*(?:req\.headers|req\.cookies)/i,
   ];
+  const falsePositiveContext = /\b(estimated|saved|monthly|total|context|window|token)\w*\s*[\.\[]?\s*tokens?\b/i;
 
   for (const file of files) {
+    if (file.relPath.includes("__tests__")) continue;
+    if (isDetectorDefinitionFile(file.relPath)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
-      if (sensitivePatterns.some((p) => p.test(line))) {
+      if (sensitivePatterns.some((p) => p.test(line)) && !falsePositiveContext.test(line)) {
         issues.push({
           type: "console_secret",
           severity: 3,
