@@ -17,7 +17,7 @@ import { generateContextRules, type ContextRule } from "./context-rules.js";
 import { generateDynamicRules, type DynamicRule } from "./dynamic-rules.js";
 import { generateBriefing, type Briefing } from "./briefing.js";
 import { loadMaturityProfile, type MaturityProfile } from "./maturity-profile.js";
-import { createHash } from "node:crypto";
+
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";

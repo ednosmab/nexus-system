@@ -10,7 +10,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, appendFileSync as fsAppendFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync as fsAppendFileSync } from "node:fs";
 import { join } from "node:path";
 import { getEventBus } from "./event-bus.js";
 import type { EngineeringState, EngineeringAsset, AssetType } from "./engineering-state.js";

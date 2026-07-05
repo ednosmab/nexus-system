@@ -129,20 +129,6 @@ export interface MoveResult {
 /** Threshold in days for considering a document stale. */
 const STALENESS_THRESHOLD_DAYS = 90;
 
-/** Keywords indicating ADR supersession. */
-const SUPERSESSION_KEYWORDS = [
-  "supersedes",
-  "superseded by",
-  "replaces",
-  "replaced by",
-  "substitui",
-  "substituído por",
-  "obsolete",
-  "no longer valid",
-  "see instead",
-  "ver instead",
-];
-
 // ── Status Marker Detection ──────────────────────────────────────────────────
 
 /** Patterns for detecting status markers in document content. */

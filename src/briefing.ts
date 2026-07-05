@@ -285,7 +285,6 @@ export function generateDiff(oldBriefing: Briefing, newBriefing: Briefing): stri
 
   // Rule changes
   const oldRuleIds = new Set(oldBriefing.contextRules.map((r) => r.id));
-  const newRuleIds = new Set(newBriefing.contextRules.map((r) => r.id));
   for (const rule of newBriefing.contextRules) {
     if (!oldRuleIds.has(rule.id)) {
       lines.push(`+ New rule: [${rule.area}] ${rule.rule}`);
@@ -304,7 +303,6 @@ export function generateDiff(oldBriefing: Briefing, newBriefing: Briefing): stri
 
   // Recommendation changes
   const oldRecs = new Set(oldBriefing.recommendations);
-  const newRecs = new Set(newBriefing.recommendations);
   for (const rec of newBriefing.recommendations) {
     if (!oldRecs.has(rec)) {
       lines.push(`+ New recommendation: ${rec}`);

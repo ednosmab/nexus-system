@@ -76,7 +76,7 @@ export const auditCommand = new Command("audit")
       });
 
       if (spinner) {
-        spinner.succeed(`Audit complete — health score: ${report.healthScore}/100`);
+        spinner.succeed(`Audit complete — code health: ${report.healthScore}/100`);
       }
 
       // JSON output
@@ -204,7 +204,7 @@ export const auditCommand = new Command("audit")
       console.log("");
 
       // Health score with bar
-      console.log(chalk.bold("    Health Score:"));
+      console.log(chalk.bold("    Code Health:"));
       console.log(`      ${report.healthScore}/100  ${healthBar(report.healthScore, 100)}`);
       console.log("");
 

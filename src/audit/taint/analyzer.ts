@@ -8,12 +8,12 @@
 import * as ts from "typescript";
 import { statSync } from "node:fs";
 import { createHash } from "node:crypto";
-import type { TaintNode, TaintEdge, TaintIssue, TaintPath } from "./types.js";
+import type { TaintNode, TaintIssue } from "./types.js";
 import { isTaintSource } from "./sources.js";
 import { findTaintSink } from "./sinks.js";
 import { isSanitizer } from "./sanitizers.js";
 import { DataFlowGraph } from "./graph.js";
-import type { TaintSourceDef, TaintSinkDef } from "./types.js";
+import type { TaintSourceDef } from "./types.js";
 
 export interface TaintAnalyzerOptions {
   /** Project root directory */
@@ -201,7 +201,6 @@ export class TaintAnalyzer {
       if (sourceDef) {
         const nodeId = this.nextNodeId();
         const { line, character } = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart());
-        const location = this.getLocation(node);
 
         const taintNode: TaintNode = {
           id: nodeId,
@@ -235,7 +234,6 @@ export class TaintAnalyzer {
       if (sinkDef) {
         const nodeId = this.nextNodeId();
         const { line, character } = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart());
-        const location = this.getLocation(node);
 
         // Check if any argument is tainted
         let isTainted = false;
@@ -413,7 +411,6 @@ export class TaintAnalyzer {
 
     // Find tainted sinks and create issues
     const nodes = this.graph.getNodes();
-    const sinks = nodes.filter((n) => n.kind === "sink");
 
     for (const sink of nodes) {
       if (sink.kind !== "sink") continue;

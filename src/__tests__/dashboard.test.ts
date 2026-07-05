@@ -55,6 +55,7 @@ describe("console command", () => {
     const result = await execAsync(`node ${CLI_PATH} console --json`, {
       cwd: TMP_DIR,
       timeout: 15000,
+      env: { ...process.env, NEXUS_CHILD: "1" },
     });
 
     const data = JSON.parse(result.stdout);

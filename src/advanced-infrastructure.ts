@@ -107,8 +107,8 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
 function migratePayload(
   type: NexusEventType,
   payload: unknown,
-  fromVersion: EventVersion,
-  toVersion: EventVersion
+  _fromVersion: EventVersion,
+  _toVersion: EventVersion
 ): unknown {
   // Future: add migration logic here
   // For now, return payload as-is (version 1 → 1)

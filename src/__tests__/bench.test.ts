@@ -55,6 +55,7 @@ describe("bench command", () => {
     const result = await execAsync(`node ${CLI_PATH} bench --json --iterations 1`, {
       cwd: TMP_DIR,
       timeout: 30000,
+      env: { ...process.env, NEXUS_CHILD: "1" },
     });
 
     const data = JSON.parse(result.stdout);

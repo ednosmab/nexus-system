@@ -22,6 +22,7 @@ async function runNexus(
     const result = await execAsync(`node ${CLI_PATH} ${args}`, {
       cwd: cwd || process.cwd(),
       timeout: 15000,
+      env: { ...process.env, NEXUS_CHILD: "1" },
     });
     return { stdout: result.stdout, stderr: result.stderr, exitCode: 0 };
   } catch (error: any) {
@@ -312,7 +313,7 @@ describe("CLI Integration Tests", () => {
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Health Audit");
       expect(stdout).toContain("Health Audit Results");
-      expect(stdout).toContain("Health Score");
+      expect(stdout).toContain("Code Health");
     });
 
     it("should show health score out of 100", async () => {

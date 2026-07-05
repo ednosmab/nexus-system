@@ -2,8 +2,12 @@
  * console-components.test.ts — Tests for console UI components
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import React from "react";
+
+vi.mock("@ink-tools/ink-mouse", () => ({
+  useOnClick: () => {},
+}));
 import { render } from "ink-testing-library";
 import { HealthBar, MiniBar, ScoreGauge } from "../console/components/health-bar.js";
 import { SectionBox, DataRow, TreeView } from "../console/components/section-box.js";

@@ -1773,7 +1773,6 @@ function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
     "governance/agents/AI-CONTRACT-executor-v1.yaml",
   ];
 
-  const SUPPORTED_EXTENSIONS = [".md", ".ts", ".js", ".yaml", ".json", ".txt"];
   const EXTENSION_SWAP: Record<string, string> = {
     ".ts": ".json",
     ".json": ".ts",

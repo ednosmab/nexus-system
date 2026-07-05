@@ -133,7 +133,7 @@ export function detectKnowledgeDebt(
   parts.push(`${gaps.length} knowledge gap(s) detected.`);
   if (critical > 0) parts.push(`${critical} critical.`);
   if (high > 0) parts.push(`${high} high.`);
-  parts.push(`Health score: ${healthScore}/100.`);
+  parts.push(`Debt Health: ${healthScore}/100.`);
 
   return {
     generatedAt: now,

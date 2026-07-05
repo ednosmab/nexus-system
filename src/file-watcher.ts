@@ -152,7 +152,7 @@ function handleFileChange(
 
   // Read file content for size calculation
   let newContent: string;
-  let oldContent: string | null = null;
+  const oldContent: string | null = null;
   try {
     newContent = readFileSync(filePath, "utf-8");
   } catch {

@@ -17,8 +17,7 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { resolve } from "node:path";
-import { existsSync } from "node:fs";
+
 import { guardNotInitialized } from "../shared.js";
 import { GoalEngine, type GoalStatus, type GoalPriority, FileGoalRepository } from "../goal-engine.js";
 import { outputJson } from "../formatting.js";
@@ -235,7 +234,6 @@ export function goalCommand(): Command {
       if (opts.title) {
         goal!.title = opts.title as string;
         goal!.updatedAt = new Date().toISOString();
-        const engine2 = getEngine(ctx.projectRoot);
         // Re-save via repo
         const repo = new FileGoalRepository(join(ctx.projectRoot, "nexus-system"));
         repo.save(goal!);

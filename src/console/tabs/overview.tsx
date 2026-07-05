@@ -28,7 +28,7 @@ export function OverviewTab({ data, scrollOffset = 0 }: OverviewTabProps): React
     <Box flexDirection="column" gap={1}>
       {/* Row 1: Health + Maturity */}
       <Box gap={2}>
-        <SectionBox title="Health Score" width="45%">
+        <SectionBox title="Session Score" width="45%">
           <HealthBar label="Overall" value={health.overall} />
           <HealthBar label="Debt" value={health.knowledgeDebt} />
           <HealthBar label="Graph" value={health.knowledgeGraph} />

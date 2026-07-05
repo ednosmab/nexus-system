@@ -9,6 +9,7 @@ export default defineConfig({
   sourcemap: false,
   minify: false,
   splitting: false,
+  external: ["typescript"],
   loader: {
     ".tsx": "tsx",
     ".ts": "ts",

@@ -235,7 +235,6 @@ export function updateProfileFromSession(
   followedRecommendations: boolean,
   durationMinutes: number | undefined
 ): UserProfile {
-  const profile = loadUserProfile(nexusDir);
   const behaviorData: SessionBehaviorData = {
     totalSessions: 1,
     successRate: outcome === "success" ? 1 : outcome === "partial" ? 0.5 : 0,

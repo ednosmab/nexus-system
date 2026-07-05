@@ -256,7 +256,7 @@ export function runDoctorAnalysis(
   else if (healthScore < 70) overallHealth = "warning";
   else if (healthScore < 85) overallHealth = "attention";
 
-  const summary = `${allFindings.length} finding(s) — health score: ${healthScore}/100 — ${overallHealth}`;
+  const summary = `${allFindings.length} finding(s) — risk health: ${healthScore}/100 — ${overallHealth}`;
 
   return {
     findings: allFindings,

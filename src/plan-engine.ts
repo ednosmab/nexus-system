@@ -10,7 +10,7 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
-import { ActionEngine, type ActionRequest, type ExecutionRecord } from "./action-engine.js";
+import { ActionEngine, type ActionRequest } from "./action-engine.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

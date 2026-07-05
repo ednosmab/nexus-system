@@ -11,7 +11,7 @@
 import { existsSync, mkdirSync, appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "./logger.js";
-import type { EventPayloadMap, CorrelationId, TraceId } from "./event-payloads.js";
+import type { CorrelationId, TraceId } from "./event-payloads.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

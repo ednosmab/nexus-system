@@ -105,7 +105,7 @@ function displayConsole(
     (summary.tokenEconomy.cacheHitRate * 30) +
     (summary.totalSessions > 0 ? 30 : 0)
   );
-  console.log(chalk.bold("  🏥 Health Score"));
+  console.log(chalk.bold("  🏥 Session Score"));
   console.log(`     Score: ${healthBar(healthScore, 100)} ${healthScore}/100`);
   console.log("");
 

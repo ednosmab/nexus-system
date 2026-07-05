@@ -6,7 +6,7 @@
  */
 
 import { Command } from "commander";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
@@ -119,7 +119,6 @@ function applyUpdates(
   }
 
   // Apply changes
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let filesUpdated = 0;
 
   // Copy new/changed files

@@ -25,6 +25,7 @@ function initGit(dir: string) {
   execSync("git init && git config user.email 'test@test.com' && git config user.name 'Test'", {
     cwd: dir,
     stdio: "ignore",
+    timeout: 10000,
   });
 }
 
@@ -33,6 +34,7 @@ function commitFile(dir: string, filename: string, content: string) {
   execSync(`git add ${filename} && git commit -m "add ${filename}"`, {
     cwd: dir,
     stdio: "ignore",
+    timeout: 10000,
   });
 }
 

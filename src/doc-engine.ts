@@ -66,7 +66,7 @@ function generateSystemMap(state: EngineeringState): string {
     "# System Map",
     "",
     `> Generated: ${new Date().toISOString()}`,
-    `> Health Score: ${state.healthScores.overall}/100`,
+    `> Session Score: ${state.healthScores.overall}/100`,
     "",
     "## Overview",
     "",
