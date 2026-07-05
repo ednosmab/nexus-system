@@ -8,8 +8,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { join } from "node:path";
 import { mkdirSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { DocEngine, type DocMetadata, type DocType } from "../doc-engine.js";
-import type { EngineeringState, EngineeringAsset } from "../engineering-state.js";
+import { DocEngine, DocType } from "../doc-engine.js";
+import type { EngineeringState } from "../engineering-state.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

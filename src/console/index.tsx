@@ -5,8 +5,8 @@
  * mouse events, and screen reader accessibility.
  */
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Box, Text, useInput, useStdin } from "ink";
+import React, { useRef } from "react";
+import { Box, Text, useInput } from "ink";
 import { MouseProvider, useOnWheel } from "@ink-tools/ink-mouse";
 import { TabBar } from "./components/tab-bar.js";
 import { Footer, DEFAULT_HINTS } from "./components/footer.js";
@@ -24,7 +24,7 @@ import { EventsTab } from "./tabs/events.js";
 import { LifecycleTab } from "./tabs/lifecycle.js";
 import { CommandsTab } from "./tabs/commands.js";
 import { ErrorBoundary } from "./components/error-boundary.js";
-import type { ConsoleData } from "./data-collector.js";
+
 
 // ── Tab Definitions ────────────────────────────────────────────────────────
 
@@ -61,9 +61,9 @@ function NexusConsoleInner({
   refreshInterval,
   isScreenReaderEnabled,
 }: NexusConsoleProps): React.ReactElement {
-  const { data, refresh, lastRefresh } = useRefresh(projectRoot, nexusDir, refreshInterval);
+  const { data, refresh, } = useRefresh(projectRoot, nexusDir, refreshInterval);
   const nav = useNavigate(TABS.length);
-  const { isRawModeSupported } = useStdin();
+
   const contentRef = useRef(null);
 
   // Mouse wheel scroll

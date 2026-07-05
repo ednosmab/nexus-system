@@ -5,7 +5,7 @@
  * Used by `nexus update` to detect changes in templates.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
@@ -89,7 +89,6 @@ export function scanTemplateHashes(nexusDir: string): Record<string, string> {
   const hashes: Record<string, string> = {};
 
   function walkDir(dir: string, prefix: string): void {
-    const { readdirSync } = require("node:fs") as typeof import("node:fs");
     const entries = readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {

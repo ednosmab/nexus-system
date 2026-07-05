@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, mkdirSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem, type ScaffoldResult } from "../scaffolder.js";
+import { scaffoldNexusSystem, } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
 

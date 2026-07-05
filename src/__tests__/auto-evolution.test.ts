@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import {
   analyzeEvolution,
-  type EvolutionReport,
 } from "../auto-evolution.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

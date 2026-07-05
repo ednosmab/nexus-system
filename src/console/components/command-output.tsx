@@ -43,8 +43,6 @@ function truncateOutput(raw: string, maxLines: number): { text: string; truncate
 
 export function CommandOutput({
   execution,
-  onBack,
-  onRerun,
 }: CommandOutputProps): React.ReactElement {
   const { label, status, output, error, duration } = execution;
 

@@ -9,7 +9,6 @@ import {
   calculateGrowthCapacity,
   calculateChallengeLevel,
   detectGrowthPatterns,
-  type GrowthProfile,
 } from "../growth-profile.js";
 
 let tempDir: string;

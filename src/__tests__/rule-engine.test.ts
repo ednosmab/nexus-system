@@ -14,7 +14,6 @@ import {
   saveRule,
   executeRules,
   getDefaultRules,
-  initializeRuleEngine,
   type Rule,
   type RuleContext,
 } from "../rule-engine.js";

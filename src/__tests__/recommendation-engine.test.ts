@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import {
   runRecommendationEngine,
-  saveRecommendationResult,
-  loadRecommendationResult,
   recommendationEngineToText,
   type RecommendationEngineResult,
 } from "../recommendation-engine.js";

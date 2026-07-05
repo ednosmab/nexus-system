@@ -7,9 +7,9 @@ import {
   calculateKnowledgeGap,
   detectParadigmShift,
   ensureFlowState,
-  type DualPath,
+
 } from "../challenge-generator.js";
-import { loadGrowthProfile, recordPathChoice, type GrowthProfile } from "../growth-profile.js";
+import { loadGrowthProfile, } from "../growth-profile.js";
 import type { EvolutionRecommendation } from "../auto-evolution.js";
 import type { NexusState } from "../state-manager.js";
 
@@ -26,11 +26,6 @@ afterEach(() => {
 });
 
 describe("Challenge Generator", () => {
-  const defaultContext = {
-    command: "evolve",
-    recommendationType: "capability_install",
-    maturityScore: 50,
-  };
 
   const mockRecommendation: EvolutionRecommendation = {
     id: "EVO-001",

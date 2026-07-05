@@ -12,13 +12,11 @@ import {
   CapabilityLifecycleTracker,
   EventSourcedState,
   IncrementalConsolidator,
-  type StateEvent,
-  type CapabilityLifecycleState,
   type StateDelta,
 } from "../engineering-state-evolved.js";
 import type { EngineeringState, EngineeringAsset, AssetType } from "../engineering-state.js";
 import type { NexusLifecycleState } from "../nexus-state-machine.js";
-import { resetEventBus, getEventBus } from "../event-bus.js";
+import { resetEventBus } from "../event-bus.js";
 
 // ── CapabilityLifecycleTracker Tests ───────────────────────────────────────
 

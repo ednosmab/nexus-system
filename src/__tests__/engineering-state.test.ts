@@ -4,7 +4,6 @@ import {
   saveEngineeringState,
   loadEngineeringState,
   engineeringStateToText,
-  type EngineeringState,
 } from "../engineering-state.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

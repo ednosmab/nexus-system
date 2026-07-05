@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
-import { generateDigest, type DigestData } from "../commands/digest.js";
+import { generateDigest, } from "../commands/digest.js";
 
 let tempDir: string;
 let nexusDir: string;

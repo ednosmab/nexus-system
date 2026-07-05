@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { collectConsoleData, type ConsoleData } from "../console/data-collector.js";
-import { execSync } from "child_process";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "fs";
+import { collectConsoleData, } from "../console/data-collector.js";
+
+import { mkdtempSync, rmSync, mkdirSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 

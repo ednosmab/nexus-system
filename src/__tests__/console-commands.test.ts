@@ -5,7 +5,6 @@
 import { describe, it, expect } from "vitest";
 import {
   COMMAND_DEFINITIONS,
-  type CommandDefinition,
 } from "../console/hooks/use-command.js";
 
 describe("Command Definitions", () => {

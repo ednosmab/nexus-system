@@ -6,9 +6,8 @@ import {
   formatDualPath,
   formatDualPathJson,
   formatGrowthProgress,
-  type DualPathJson,
 } from "../dual-path-presenter.js";
-import { loadGrowthProfile, type GrowthProfile } from "../growth-profile.js";
+import { loadGrowthProfile, } from "../growth-profile.js";
 import type { EvolutionRecommendation } from "../auto-evolution.js";
 
 let tempDir: string;

@@ -134,13 +134,6 @@ export class TaintAnalyzer {
     return `n${this.nodeCounter++}`;
   }
 
-  /** Get a human-readable location string */
-  private getLocation(node: ts.Node): string {
-    const sourceFile = node.getSourceFile();
-    const { line, character } = ts.getLineAndCharacterOfPosition(sourceFile, node.getStart());
-    const fileName = sourceFile.fileName.replace(this.options.projectRoot + "/", "");
-    return `${fileName}:${line + 1}:${character + 1}`;
-  }
 
   /** Extract the full name of a property access expression (e.g., "req.body.user") */
   private getPropertyAccessName(node: ts.PropertyAccessExpression): string {

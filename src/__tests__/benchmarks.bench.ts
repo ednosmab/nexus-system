@@ -98,7 +98,7 @@ function createFixture(
   }
 
   // Scaffold nexus-system
-  const result = scaffoldNexusSystem(dir, BASE_ANSWERS, SENIOR_CAPS);
+  scaffoldNexusSystem(dir, BASE_ANSWERS, SENIOR_CAPS);
   const nexusDir = join(dir, "nexus-system");
 
   // Create history entries

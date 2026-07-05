@@ -14,8 +14,6 @@ import {
   createVersionedEvent,
   migrateEvent,
   getEventVersion,
-  type VersionedEvent,
-  type DeadLetterEvent,
 } from "../advanced-infrastructure.js";
 import { getEventBus, resetEventBus } from "../event-bus.js";
 

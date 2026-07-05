@@ -413,8 +413,8 @@ function generateSuccessStrengths(
 }
 
 function generateFailureStrengths(
-  record: SessionFeedbackRecord,
-  profile: UserProfile,
+  _record: SessionFeedbackRecord,
+  _profile: UserProfile,
   tone: FeedbackTone
 ): FeedbackItem[] {
   const items: FeedbackItem[] = [];
@@ -443,8 +443,8 @@ function generateFailureStrengths(
 }
 
 function generatePartialStrengths(
-  record: SessionFeedbackRecord,
-  profile: UserProfile,
+  _record: SessionFeedbackRecord,
+  _profile: UserProfile,
   tone: FeedbackTone
 ): FeedbackItem[] {
   const items: FeedbackItem[] = [];
@@ -470,7 +470,7 @@ function generatePartialStrengths(
 
 function generateFailureImprovements(
   record: SessionFeedbackRecord,
-  profile: UserProfile,
+  _profile: UserProfile,
   tone: FeedbackTone
 ): FeedbackItem[] {
   const items: FeedbackItem[] = [];
@@ -513,8 +513,8 @@ function generateFailureImprovements(
 }
 
 function generatePartialImprovements(
-  record: SessionFeedbackRecord,
-  profile: UserProfile,
+  _record: SessionFeedbackRecord,
+  _profile: UserProfile,
   tone: FeedbackTone
 ): FeedbackItem[] {
   const items: FeedbackItem[] = [];
