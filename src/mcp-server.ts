@@ -114,7 +114,7 @@ const TOOLS = [
 
 // ── Tool Handlers ──────────────────────────────────────────────────────────
 
-function handleGetBriefing(
+export function handleGetBriefing(
   projectRoot: string,
   nexusDir: string,
   args: Record<string, unknown>
@@ -184,7 +184,7 @@ function handleGetBriefing(
   };
 }
 
-function handleGetRiskMap(
+export function handleGetRiskMap(
   projectRoot: string,
   nexusDir: string,
   args: Record<string, unknown>
@@ -228,7 +228,7 @@ function handleGetRiskMap(
   };
 }
 
-function handleGetRules(
+export function handleGetRules(
   projectRoot: string,
   nexusDir: string,
   args: Record<string, unknown>
