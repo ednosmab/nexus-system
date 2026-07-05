@@ -258,14 +258,234 @@ roda até o fim sem OOM, com heap padrão (sem precisar de
 
 ---
 
-## Fase 1 — `require()` no resto do código (bloqueadores adicionais)
+## Fase 1 — Corrigir os `require()` restantes em módulos ESM
 
-Mesma classe de bug da Fase 0.1, em outros arquivos ESM:
-`digest.ts`, `goal.ts`, `update.ts`, `engineering-state-evolved.ts`,
-`doc-lifecycle-auditor.ts`, `goal-engine.ts`. Trocar cada `require()` por
-`import` estático (ou `await import()` se houver ciclo real). Validar com
-`grep -rn "require(" src --include="*.ts" | grep -v __tests__` retornando
-vazio.
+Todos os casos abaixo seguem o mesmo padrão do `manifest.ts` já corrigido:
+módulos nativos do Node (`node:fs`, `node:path`, `node:child_process`,
+`node:url`) importados via `require()` dentro de um pacote `"type": "module"`.
+Zero risco de dependência circular em qualquer um deles — são todos módulos
+nativos ou (no caso de `goal.ts`) uma classe que já é importada estaticamente
+no mesmo arquivo.
+
+---
+
+### 1.1 `src/commands/digest.ts` — quebra 2 pontos, um deles **sem try/catch** (comando inteiro morre)
+
+```diff
+  import { getEventBus } from "../event-bus.js";
++ import { execSync } from "node:child_process";
++ import { readFileSync, existsSync } from "node:fs";
++ import { join } from "node:path";
+```
+
+```diff
+  function analyzeRecentChanges(projectRoot: string): DigestData["recentChanges"] {
+    try {
+-     const { execSync } = require("child_process");
+      const output = execSync(
+```
+
+```diff
+  export function generateDigest(projectRoot: string, nexusDir: string): DigestData {
+-   const { readFileSync, existsSync } = require("node:fs");
+-   const { join } = require("node:path");
+-
+    // Read maturity profile
+```
+
+**Critério de aceite:** `nexus digest` roda até o fim e imprime o resumo,
+sem `ReferenceError`.
+
+---
+
+### 1.2 `src/commands/goal.ts` — `require()` redundante (a classe já está importada)
+
+O arquivo já tem `import { ..., FileGoalRepository } from "../goal-engine.js";`
+no topo — o `require()` só está reimportando a mesma coisa por um caminho
+que não funciona em ESM.
+
+```diff
+        if (opts.title) {
+          goal!.title = opts.title as string;
+          goal!.updatedAt = new Date().toISOString();
+          const engine2 = getEngine(ctx.projectRoot);
+          // Re-save via repo
+-         const repo = new (require("../goal-engine.js").FileGoalRepository)(join(ctx.projectRoot, "nexus-system"));
++         const repo = new FileGoalRepository(join(ctx.projectRoot, "nexus-system"));
+          repo.save(goal!);
+        }
+```
+
+**Critério de aceite:** `nexus goal update <id> --title "Novo título"` roda
+sem erro e o título é persistido (`nexus goal show <id>` reflete a mudança).
+
+---
+
+### 1.3 `src/commands/update.ts` — 2 pontos, ambos sem proteção (comando inteiro morre)
+
+```diff
+  import { Command } from "commander";
+  import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+  import { join, resolve } from "node:path";
++ import { fileURLToPath } from "node:url";
++ import { dirname } from "node:path";
+```
+> Já existe `readFileSync` importado no topo — o segundo `require` de
+> `node:fs` (linha 192) é redundante, dá pra usar o mesmo import.
+
+```diff
+  function getTemplatesDir(): string {
+    // Templates are in src/templates/base/ relative to the CLI package
+-   const { fileURLToPath } = require("node:url") as typeof import("node:url");
+-   const { dirname } = require("node:path") as typeof import("node:path");
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    return join(__dirname, "..", "templates", "base");
+  }
+```
+
+```diff
+    // Get current CLI version
+-   const { readFileSync: readFS } = require("node:fs") as typeof import("node:fs");
+    const packageJsonPath = join(__dirname, "..", "package.json");
+    let currentCliVersion = "unknown";
+    try {
+-     const pkg = JSON.parse(readFS(packageJsonPath, "utf-8"));
++     const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+```
+
+> Atenção: `dirname` já teria sido importado no bloco anterior — como
+> `join, resolve` de `node:path` já estão no topo, basta adicionar `dirname`
+> na mesma linha de import em vez de uma nova:
+> `import { join, resolve, dirname } from "node:path";`
+
+**Critério de aceite:** `nexus update` roda até o fim e mostra a comparação
+de versão/templates, sem `ReferenceError`.
+
+---
+
+### 1.4 `src/engineering-state-evolved.ts` — falha silenciosa (persistência de eventos nunca funciona)
+
+```diff
+  import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
++ import { appendFileSync as fsAppendFileSync } from "node:fs";
+  import { join } from "node:path";
+```
+> Ou, mais simples, só adicionar `appendFileSync` na lista já existente:
+> `import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, appendFileSync as fsAppendFileSync } from "node:fs";`
+> (renomeado com `as` porque o arquivo já declara sua própria função local
+> chamada `appendFileSync` — ver abaixo.)
+
+```diff
+- function appendFileSync(filePath: string, content: string, encoding: BufferEncoding): void {
+-   const { appendFileSync: fsAppend } = require("node:fs");
+-   fsAppend(filePath, content, encoding);
+- }
++ function appendFileSync(filePath: string, content: string, encoding: BufferEncoding): void {
++   fsAppendFileSync(filePath, content, encoding);
++ }
+```
+
+**Critério de aceite:** depois do fix, rodar qualquer comando que dispare
+`persistEvent()` (ex.: `nexus decide` ou `nexus evolve`) e confirmar que um
+arquivo `state-events-<data>.jsonl` é criado/atualizado em
+`nexus-system/.../events` — hoje esse arquivo nunca é escrito.
+
+---
+
+### 1.5 `src/doc-lifecycle-auditor.ts` — falha silenciosa (checagem de doc obsoleto sempre retorna "não obsoleto")
+
+```diff
+  import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
+  import { join, relative, dirname, basename } from "node:path";
++ import { execSync } from "node:child_process";
+  import { logger } from "./logger.js";
+```
+
+```diff
+  function hasRecentCommits(filePath: string, days: number): boolean {
+    try {
+-     const { execSync } = require("node:child_process");
+      const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+```
+
+```diff
+  function getLastModified(filePath: string): string {
+    try {
+-     const { execSync } = require("node:child_process");
+      const result = execSync(
+```
+
+**Critério de aceite:** com um repositório git de teste, alterar um arquivo
+doc, esperar > N dias simulados (ou usar `--since` manipulado), e confirmar
+que `hasRecentCommits`/`getLastModified` retornam valores reais baseados em
+`git log`, não sempre `false`/data atual.
+
+---
+
+### 1.6 `src/goal-engine.ts` — falha silenciosa (delete nunca funciona de verdade)
+
+```diff
+  import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
++ import { unlinkSync } from "node:fs";
+  import { join } from "node:path";
+```
+> Ou simplesmente adicionar `unlinkSync` à lista já existente de `node:fs`.
+
+```diff
+    delete(id: string): boolean {
+      const filepath = join(this.dir, `${id}.json`);
+      if (!existsSync(filepath)) return false;
+      try {
+-       const { unlinkSync } = require("node:fs");
+        unlinkSync(filepath);
+        return true;
+      } catch {
+        return false;
+```
+
+**Critério de aceite:** `nexus goal delete <id>` remove o arquivo de verdade
+e `nexus goal list` deixa de mostrar a goal.
+
+---
+
+## Fase 1.7 — Investigar separadamente: `goal delete` retorna "Goal not found" pra goal existente
+
+Esse bug **não é do `require()`** — apareceu mesmo antes de chegar na linha
+do `unlinkSync`, então a lógica de resolução do goal (`getEngine` /
+lookup por ID) está com outro problema. Sugestão de investigação pro agente,
+não um fix pronto (não tive tempo de rastrear a causa raiz nesta sessão):
+
+1. Comparar o `projectRoot`/`dir` usado por `goal list` vs. o usado no
+   handler de `goal delete` — suspeita principal é `getEngine(ctx.projectRoot)`
+   sendo chamado com um path diferente do que `list` usa (ex.: resolvido
+   relativo ao cwd em vez de `ctx.projectRoot`, ou cache de engine
+   desatualizado entre comandos).
+2. Adicionar um teste E2E (não unitário) que faz `create` → `list` → `delete`
+   → `list` no mesmo processo de CLI, pra pegar esse tipo de divergência de
+   estado entre comandos — é exatamente o tipo de bug que só aparece
+   testando o fluxo real, não unidades isoladas (mesmo padrão dos bugs do
+   `TaintAnalyzer`).
+
+---
+
+## Checklist final da Fase 1 (para o agente rodar depois de cada fix)
+
+```bash
+# 1. Nenhum require() deve sobrar fora de exceções documentadas
+grep -rn "require(" src --include="*.ts" | grep -v __tests__
+
+# 2. Cada comando afetado deve rodar sem erro
+nexus digest
+nexus update
+nexus goal create "smoke test"
+nexus goal update <id> --title "renamed"
+nexus goal delete <id>
+nexus goal list   # confirmar que sumiu
+
+# 3. Typecheck limpo
+npx tsc --noEmit
+```
 
 ---
 
