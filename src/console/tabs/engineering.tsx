@@ -7,7 +7,7 @@
 import React from "react";
 import { Box, Text } from "ink";
 import { HealthBar, MiniBar } from "../components/health-bar.js";
-import { SectionBox, DataRow } from "../components/section-box.js";
+import { SectionBox } from "../components/section-box.js";
 import type { ConsoleData } from "../data-collector.js";
 
 interface EngineeringTabProps {
@@ -35,7 +35,7 @@ const DIMENSION_LABELS: Record<string, string> = {
   observability: "Observability",
 };
 
-export function EngineeringTab({ data, scrollOffset = 0 }: EngineeringTabProps): React.ReactElement {
+export function EngineeringTab({ data }: EngineeringTabProps): React.ReactElement {
   const { maturity, capabilityEntities, engineering } = data;
 
   const dimensions = maturity?.dimensions ?? {};

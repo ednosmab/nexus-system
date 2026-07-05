@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { join } from "node:path";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import {
   GoalEngine,
@@ -311,7 +311,7 @@ describe("GoalEngine", () => {
     });
 
     it("filters by status", () => {
-      const g1 = engine.create({ title: "Draft" });
+
       engine.create({ title: "Another Draft" });
       const g2 = engine.create({ title: "To Activate" });
       engine.activate(g2.id);

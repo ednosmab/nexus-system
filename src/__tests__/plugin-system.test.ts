@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { HookBus, getHookBus, resetHookBus, type NexusPlugin } from "../plugin-system.js";
+import { getHookBus, resetHookBus, type NexusPlugin } from "../plugin-system.js";
 
 describe("PluginSystem", () => {
   beforeEach(() => {

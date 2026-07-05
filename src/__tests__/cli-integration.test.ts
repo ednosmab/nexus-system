@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { scaffoldNexusSystem, type ScaffoldResult } from "../scaffolder.js";

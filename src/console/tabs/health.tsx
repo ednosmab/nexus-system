@@ -15,7 +15,7 @@ interface HealthTabProps {
   scrollOffset?: number;
 }
 
-export function HealthTab({ data, scrollOffset = 0 }: HealthTabProps): React.ReactElement {
+export function HealthTab({ data }: HealthTabProps): React.ReactElement {
   const { health, entropy } = data;
 
   return (

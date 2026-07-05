@@ -76,7 +76,7 @@ export interface KnowledgeDebtReport {
 
 /** Detecta lacunas de conhecimento no projecto. */
 export function detectKnowledgeDebt(
-  projectRoot: string,
+  _projectRoot: string,
   nexusDir: string
 ): KnowledgeDebtReport {
   const gaps: KnowledgeGap[] = [];

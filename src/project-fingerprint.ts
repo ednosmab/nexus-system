@@ -107,7 +107,7 @@ function detectScale(analysis: ProjectAnalysis): ProjectScale {
 // ── Fingerprint Generation ─────────────────────────────────────────────────
 
 export function generateProjectFingerprint(
-  projectRoot: string,
+  _projectRoot: string,
   analysis: ProjectAnalysis,
   maturityScore?: number
 ): ProjectFingerprint {

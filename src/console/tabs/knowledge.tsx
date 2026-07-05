@@ -7,7 +7,7 @@
 import React from "react";
 import { Box, Text } from "ink";
 import { HealthBar } from "../components/health-bar.js";
-import { SectionBox, DataRow } from "../components/section-box.js";
+import { SectionBox } from "../components/section-box.js";
 import type { ConsoleData } from "../data-collector.js";
 
 interface KnowledgeTabProps {
@@ -22,8 +22,8 @@ const SEVERITY_COLORS: Record<string, string> = {
   low: "gray",
 };
 
-export function KnowledgeTab({ data, scrollOffset = 0 }: KnowledgeTabProps): React.ReactElement {
-  const { debt, graph } = data;
+export function KnowledgeTab({ data }: KnowledgeTabProps): React.ReactElement {
+  const { debt, } = data;
 
   if (!debt) {
     return (

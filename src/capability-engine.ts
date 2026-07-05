@@ -174,14 +174,14 @@ function checkCapabilityRules(capability: Capability, nexusDir: string): boolean
   return false;
 }
 
-function checkCapabilitySkills(capability: Capability, nexusDir: string): boolean {
+function checkCapabilitySkills(_capability: Capability, nexusDir: string): boolean {
   const skillsDir = join(nexusDir, "docs", "skills");
   if (!existsSync(skillsDir)) return false;
 
   return readdirSync(skillsDir).filter((f) => f.endsWith(".md")).length > 0;
 }
 
-function checkCapabilityTemplates(capability: Capability, nexusDir: string): boolean {
+function checkCapabilityTemplates(_capability: Capability, nexusDir: string): boolean {
   const templatesDir = join(nexusDir, "templates");
   if (!existsSync(templatesDir)) return false;
 
@@ -190,7 +190,7 @@ function checkCapabilityTemplates(capability: Capability, nexusDir: string): boo
   ).length > 0;
 }
 
-function checkCapabilityMetrics(capability: Capability, nexusDir: string): boolean {
+function checkCapabilityMetrics(_capability: Capability, nexusDir: string): boolean {
   const reportsDir = join(nexusDir, "reports");
   if (!existsSync(reportsDir)) return false;
 
@@ -281,7 +281,7 @@ function collectCapabilityPolicies(capability: Capability, nexusDir: string): st
   return policies;
 }
 
-function collectCapabilitySkills(capability: Capability, nexusDir: string): string[] {
+function collectCapabilitySkills(_capability: Capability, nexusDir: string): string[] {
   const skills: string[] = [];
   const skillsDir = join(nexusDir, "docs", "skills");
   if (!existsSync(skillsDir)) return skills;
@@ -293,7 +293,7 @@ function collectCapabilitySkills(capability: Capability, nexusDir: string): stri
   return skills;
 }
 
-function collectCapabilityTemplates(capability: Capability, nexusDir: string): string[] {
+function collectCapabilityTemplates(_capability: Capability, nexusDir: string): string[] {
   const templates: string[] = [];
   const templatesDir = join(nexusDir, "templates");
   if (!existsSync(templatesDir)) return templates;

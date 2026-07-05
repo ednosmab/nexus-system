@@ -6,7 +6,7 @@
 
 import React from "react";
 import { Box, Text } from "ink";
-import { HealthBar, ScoreGauge } from "../components/health-bar.js";
+import { HealthBar } from "../components/health-bar.js";
 import { SectionBox, DataRow } from "../components/section-box.js";
 import { Sparkline } from "../components/sparkline.js";
 import type { ConsoleData } from "../data-collector.js";
@@ -16,8 +16,8 @@ interface OverviewTabProps {
   scrollOffset?: number;
 }
 
-export function OverviewTab({ data, scrollOffset = 0 }: OverviewTabProps): React.ReactElement {
-  const { health, maturity, lifecycle, capabilities, engineering, stats } = data;
+export function OverviewTab({ data }: OverviewTabProps): React.ReactElement {
+  const { health, maturity, capabilities, engineering, stats } = data;
 
   // Maturity history for sparkline
   const maturityHistory = data.maturity?.overallScore

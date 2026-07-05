@@ -827,7 +827,7 @@ function countSkills(nexusDir: string): number {
 // ── Scoring Logic ────────────────────────────────────────────────────────────
 
 function scoreProject(
-  analysis: ProjectAnalysis,
+  _analysis: ProjectAnalysis,
   staticMetrics: StaticMetric[],
   behavioralMetrics: BehavioralMetric[],
   areaScores: AreaScore[]

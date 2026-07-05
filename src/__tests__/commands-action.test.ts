@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { Command } from "commander";
+
 import { cleanCommand } from "../commands/clean.js";
 import { doctorCommand } from "../commands/doctor.js";
 import { reportCommand } from "../commands/report.js";
@@ -99,7 +99,7 @@ describe("clean command action handler", () => {
 
 describe("doctor command action handler", () => {
   it("outputs JSON with health report structure", () => {
-    const nexusDir = setupNexusDir(tempDir);
+
 
     doctorCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -171,7 +171,7 @@ describe("report command action handler", () => {
 
 describe("assess command action handler", () => {
   it("outputs JSON with assessment structure", () => {
-    const nexusDir = setupNexusDir(tempDir);
+
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -182,7 +182,7 @@ describe("assess command action handler", () => {
   });
 
   it("newProfile has dimensions and scores", () => {
-    const nexusDir = setupNexusDir(tempDir);
+
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -225,7 +225,7 @@ describe("evolve command action handler", () => {
   });
 
   it("accept records feedback", () => {
-    const nexusDir = setupNexusDirGoverned(tempDir);
+
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--accept", "EVO-001", "--comfortable"],
@@ -237,7 +237,7 @@ describe("evolve command action handler", () => {
   });
 
   it("reject records feedback with reason", () => {
-    const nexusDir = setupNexusDirGoverned(tempDir);
+
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--reject", "EVO-002", "--reason", "Not now"],

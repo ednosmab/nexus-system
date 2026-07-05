@@ -6,7 +6,7 @@
 
 import React from "react";
 import { Box, Text } from "ink";
-import { SectionBox, DataRow } from "../components/section-box.js";
+import { SectionBox } from "../components/section-box.js";
 import type { ConsoleData } from "../data-collector.js";
 
 interface EventsTabProps {
@@ -14,7 +14,7 @@ interface EventsTabProps {
   scrollOffset?: number;
 }
 
-export function EventsTab({ data, scrollOffset = 0 }: EventsTabProps): React.ReactElement {
+export function EventsTab({ data }: EventsTabProps): React.ReactElement {
   const { recentEvents } = data;
 
   // Group events by type

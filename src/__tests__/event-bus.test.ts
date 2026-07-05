@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { getEventBus, resetEventBus } from "../event-bus.js";
-import type { NexusEventType } from "../event-bus.js";
+
 import type { CorrelationId, TraceId } from "../event-payloads.js";
 
 describe("EventBus", () => {

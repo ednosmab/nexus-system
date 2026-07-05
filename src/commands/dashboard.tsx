@@ -81,7 +81,7 @@ export function dashboardCommand(): Command {
 // ── Static Fallback ────────────────────────────────────────────────────────
 
 function displayStaticDashboard(data: ReturnType<typeof collectConsoleData>): void {
-  const { health, maturity, lifecycle, capabilities, stats, entropy, graph } = data;
+  const { health, maturity, lifecycle, capabilities, stats, graph } = data;
 
   console.log(chalk.bold.cyan("  ┌─ Health Score ─────────────────────────────────┐"));
   console.log(`  │ Overall:   ${healthBar(health.overall)}  ${health.overall}/100  │`);

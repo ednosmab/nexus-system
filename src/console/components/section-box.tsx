@@ -77,7 +77,7 @@ export function TreeView({ items, ariaLabel }: TreeViewProps): React.ReactElemen
 
 function TreeNode({ item, depth, isLast }: { item: TreeItem; depth: number; isLast: boolean }): React.ReactElement {
   const prefix = depth === 0 ? "" : isLast ? "└── " : "├── ";
-  const connector = depth === 0 ? "" : isLast ? "    " : "│   ";
+
 
   const nameColor = item.isOrphan ? "yellow" : item.isHub ? "cyan" : undefined;
   const suffix = item.isOrphan ? " ⚠" : item.isHub ? " 🔗" : "";

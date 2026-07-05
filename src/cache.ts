@@ -177,7 +177,7 @@ function writeCache(projectRoot: string, cache: NexusCache): void {
  */
 export function getCached<T>(
   projectRoot: string,
-  nexusDir: string,
+  _nexusDir: string,
   key: "complexity" | "patterns" | "health",
   computeChecksumsFn: () => Record<string, string>
 ): T | null {
@@ -198,7 +198,7 @@ export function getCached<T>(
  */
 export function setCache<T>(
   projectRoot: string,
-  nexusDir: string,
+  _nexusDir: string,
   key: "complexity" | "patterns" | "health",
   data: T,
   checksums: Record<string, string>

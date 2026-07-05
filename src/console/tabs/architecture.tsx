@@ -15,7 +15,7 @@ interface ArchitectureTabProps {
   scrollOffset?: number;
 }
 
-export function ArchitectureTab({ data, scrollOffset = 0 }: ArchitectureTabProps): React.ReactElement {
+export function ArchitectureTab({ data }: ArchitectureTabProps): React.ReactElement {
   const { graph } = data;
 
   // Build tree structure from artifacts and relations
@@ -150,7 +150,7 @@ function buildGraphTree(graph: ConsoleData["graph"]): TreeItem[] {
   }
 
   // Add any remaining orphans
-  const rootPrefixes = rootNames.join("|");
+
   const remainingOrphans = graph.orphanArtifacts.filter(
     (a) => !rootNames.some((r) => a.path.startsWith(r))
   );

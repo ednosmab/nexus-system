@@ -310,7 +310,7 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
 
     const report = generatePerformanceReport(tempDir, nexusDir);
-    for (const [dim, data] of Object.entries(report.dimensions)) {
+    for (const [_dim, data] of Object.entries(report.dimensions)) {
       expect(data.score).toBeGreaterThanOrEqual(0);
       expect(data.score).toBeLessThanOrEqual(100);
       expect(["improving", "stable", "declining"]).toContain(data.trend);

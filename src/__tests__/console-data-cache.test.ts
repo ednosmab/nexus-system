@@ -22,7 +22,7 @@ describe("Console Data Cache", () => {
   });
 
   it("should return fresh data after cache is cleared", () => {
-    const data1 = getOrCollectConsoleData("/tmp", "/tmp/.nexus", 5000);
+
     clearConsoleDataCache();
     const data2 = getOrCollectConsoleData("/tmp", "/tmp/.nexus", 5000);
     expect(data2).toBeDefined();

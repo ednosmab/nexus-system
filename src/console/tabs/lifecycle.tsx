@@ -6,8 +6,8 @@
 
 import React from "react";
 import { Box, Text } from "ink";
-import { HealthBar, MiniBar } from "../components/health-bar.js";
-import { SectionBox, DataRow } from "../components/section-box.js";
+import { HealthBar } from "../components/health-bar.js";
+import { SectionBox } from "../components/section-box.js";
 import type { ConsoleData } from "../data-collector.js";
 
 interface LifecycleTabProps {
@@ -17,7 +17,7 @@ interface LifecycleTabProps {
 
 const STATE_ORDER = ["uninitialized", "discovered", "assessed", "governed", "evolved", "operational"];
 
-export function LifecycleTab({ data, scrollOffset = 0 }: LifecycleTabProps): React.ReactElement {
+export function LifecycleTab({ data }: LifecycleTabProps): React.ReactElement {
   const { lifecycle, growth, capabilityEntities } = data;
 
   const currentIndex = STATE_ORDER.indexOf(lifecycle);

@@ -340,7 +340,7 @@ export interface EventPayloadMap {
  * Use this when publishing events to ensure consistent metadata.
  */
 export function createEventPayload<T extends NexusEventType>(
-  eventType: T,
+
   data: Omit<EventPayloadMap[T], "timestamp" | "traceId" | "correlationId">,
   options?: { correlationId?: CorrelationId; traceId?: TraceId }
 ): EventPayloadMap[T] {

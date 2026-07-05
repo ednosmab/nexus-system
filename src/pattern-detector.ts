@@ -293,7 +293,7 @@ function proposeRules(patterns: DetectedPattern[]): CandidateRule[] {
  * @returns Relatório de detecção com padrões e regras candidatas
  */
 export function detectPatterns(
-  projectRoot: string,
+  _projectRoot: string,
   nexusDir: string
 ): PatternDetectionReport {
   // 1. Read history entries

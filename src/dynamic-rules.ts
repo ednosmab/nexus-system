@@ -102,7 +102,7 @@ function detectGitIncidents(projectRoot: string): DynamicRule[] {
 
 // ── History Analysis ───────────────────────────────────────────────────────
 
-function detectHistoryIncidents(projectRoot: string, nexusDir: string): DynamicRule[] {
+function detectHistoryIncidents(_projectRoot: string, nexusDir: string): DynamicRule[] {
   const rules: DynamicRule[] = [];
   const historyDir = join(nexusDir, "docs", "history");
 
