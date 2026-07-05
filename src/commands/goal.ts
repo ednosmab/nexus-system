@@ -237,7 +237,7 @@ export function goalCommand(): Command {
         goal!.updatedAt = new Date().toISOString();
         const engine2 = getEngine(ctx.projectRoot);
         // Re-save via repo
-        const repo = new (require("../goal-engine.js").FileGoalRepository)(join(ctx.projectRoot, "nexus-system"));
+        const repo = new FileGoalRepository(join(ctx.projectRoot, "nexus-system"));
         repo.save(goal!);
       }
 

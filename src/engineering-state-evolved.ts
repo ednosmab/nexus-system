@@ -10,7 +10,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, appendFileSync as fsAppendFileSync } from "node:fs";
 import { join } from "node:path";
 import { getEventBus } from "./event-bus.js";
 import type { EngineeringState, EngineeringAsset, AssetType } from "./engineering-state.js";
@@ -351,6 +351,5 @@ export class IncrementalConsolidator {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function appendFileSync(filePath: string, content: string, encoding: BufferEncoding): void {
-  const { appendFileSync: fsAppend } = require("node:fs");
-  fsAppend(filePath, content, encoding);
+  fsAppendFileSync(filePath, content, encoding);
 }

@@ -7,7 +7,8 @@
 
 import { Command } from "commander";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import ora from "ora";
 import fse from "fs-extra";
@@ -41,8 +42,6 @@ interface UpdateOptions {
 
 function getTemplatesDir(): string {
   // Templates are in src/templates/base/ relative to the CLI package
-  const { fileURLToPath } = require("node:url") as typeof import("node:url");
-  const { dirname } = require("node:path") as typeof import("node:path");
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   return join(__dirname, "..", "templates", "base");
@@ -189,11 +188,10 @@ export const updateCommand = new Command("update")
     }
 
     // Get current CLI version
-    const { readFileSync: readFS } = require("node:fs") as typeof import("node:fs");
     const packageJsonPath = join(__dirname, "..", "package.json");
     let currentCliVersion = "unknown";
     try {
-      const pkg = JSON.parse(readFS(packageJsonPath, "utf-8"));
+      const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
       currentCliVersion = pkg.version || "unknown";
     } catch {
       // Skip

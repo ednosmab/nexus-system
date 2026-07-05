@@ -13,6 +13,9 @@ import ora from "ora";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
+import { execSync } from "node:child_process";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -52,7 +55,6 @@ function getMaturityLevel(score: number | null): string {
 
 function analyzeRecentChanges(projectRoot: string): DigestData["recentChanges"] {
   try {
-    const { execSync } = require("child_process");
     const output = execSync(
       `git log --since="1 day ago" --shortstat --format="" 2>/dev/null`,
       { cwd: projectRoot, encoding: "utf-8", timeout: 5000 }
@@ -68,9 +70,9 @@ function analyzeRecentChanges(projectRoot: string): DigestData["recentChanges"] 
       const addedMatch = line.match(/(\d+) insertions?/);
       const removedMatch = line.match(/(\d+) deletions?/);
 
-      if (filesMatch) filesModified += parseInt(filesMatch[1], 10);
-      if (addedMatch) linesAdded += parseInt(addedMatch[1], 10);
-      if (removedMatch) linesRemoved += parseInt(removedMatch[1], 10);
+      if (filesMatch?.[1]) filesModified += parseInt(filesMatch[1], 10);
+      if (addedMatch?.[1]) linesAdded += parseInt(addedMatch[1], 10);
+      if (removedMatch?.[1]) linesRemoved += parseInt(removedMatch[1], 10);
     }
 
     // Get top changed files
@@ -95,9 +97,6 @@ function analyzeRecentChanges(projectRoot: string): DigestData["recentChanges"] 
 }
 
 export function generateDigest(projectRoot: string, nexusDir: string): DigestData {
-  const { readFileSync, existsSync } = require("node:fs");
-  const { join } = require("node:path");
-
   // Read maturity profile
   let maturityScore: number | null = null;
   const profilePath = join(nexusDir, "maturity-profile.json");

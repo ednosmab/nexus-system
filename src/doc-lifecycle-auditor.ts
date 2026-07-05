@@ -13,6 +13,7 @@
 
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
 import { join, relative, dirname, basename } from "node:path";
+import { execSync } from "node:child_process";
 import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -537,7 +538,6 @@ function discoverDocuments(projectRoot: string, nexusDir: string): DocumentInfo[
  */
 function hasRecentCommits(filePath: string, days: number): boolean {
   try {
-    const { execSync } = require("node:child_process");
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     const result = execSync(
       `git log --since="${cutoff}" --oneline -- "${filePath}" 2>/dev/null`,
@@ -557,7 +557,6 @@ function hasRecentCommits(filePath: string, days: number): boolean {
  */
 function getLastModified(filePath: string): string {
   try {
-    const { execSync } = require("node:child_process");
     const result = execSync(
       `git log -1 --format="%aI" -- "${filePath}" 2>/dev/null`,
       { encoding: "utf-8", timeout: 5000 }

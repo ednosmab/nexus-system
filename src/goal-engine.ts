@@ -7,7 +7,7 @@
  * Architecture: GoalRepository (interface) → FileGoalRepository (JSON) → GoalEngine (logic)
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 
@@ -109,13 +109,12 @@ export class FileGoalRepository implements GoalRepository {
     return goals;
   }
 
-  delete(id: string): boolean {
-    const filepath = join(this.dir, `${id}.json`);
-    if (!existsSync(filepath)) return false;
-    try {
-      const { unlinkSync } = require("node:fs");
-      unlinkSync(filepath);
-      return true;
+    delete(id: string): boolean {
+      const filepath = join(this.dir, `${id}.json`);
+      if (!existsSync(filepath)) return false;
+      try {
+        unlinkSync(filepath);
+        return true;
     } catch {
       return false;
     }
