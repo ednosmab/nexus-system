@@ -35,6 +35,7 @@ import { shellInitCommand } from "../src/commands/shell-init.js";
 import { consoleCommand } from "../src/commands/console.js";
 import { docsAuditCommand } from "../src/commands/docs-audit.js";
 import { updateCommand } from "../src/commands/update.js";
+import { mcpCommand } from "../src/commands/mcp.js";
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
 import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
@@ -95,7 +96,7 @@ if (isInitialized) {
 /**
  * Show a brief session summary in the terminal.
  */
-function showBriefingSummary(projectRoot: string, nexusDir: string): void {
+function showBriefingSummary(_projectRoot: string, nexusDir: string): void {
   try {
     const briefingPath = join(nexusDir, "BRIEFING.md");
     if (!existsSync(briefingPath)) return;
@@ -155,7 +156,7 @@ program
 
 program.configureHelp({
   sortSubcommands: false,
-  formatHelp(cmd, helper) {
+  formatHelp(_cmd, _helper) {
     let output = "";
     output += `${chalk.bold.cyan("nexus")} ${chalk.gray("— AI governance ecosystem")}\n\n`;
 
@@ -264,6 +265,7 @@ program.addCommand(consoleCommand());
 program.addCommand(shellInitCommand);
 program.addCommand(docsAuditCommand);
 program.addCommand(updateCommand);
+program.addCommand(mcpCommand());
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 
