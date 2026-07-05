@@ -151,9 +151,9 @@ describe("handleGetBriefing", () => {
     const result = handleGetBriefing("/project", "/project/nexus-system", {});
 
     expect(result.content).toHaveLength(1);
-    expect(result.content[0].type).toBe("text");
+    expect(result.content[0]!.type).toBe("text");
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("project");
     expect(json).toHaveProperty("risks");
     expect(json).toHaveProperty("tests");
@@ -166,7 +166,7 @@ describe("handleGetBriefing", () => {
       depth: "minimal",
     });
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.project).toBeDefined();
     expect(json.risks).toBeDefined();
     expect(json.recommendations).toBeInstanceOf(Array);
@@ -181,7 +181,7 @@ describe("handleGetBriefing", () => {
       depth: "full",
     });
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.quickBoard).toBeDefined();
     expect(json.quickBoard.currentTask).toBe("Improve test coverage");
     // tokenEconomy is only included in full depth via briefingToJson
@@ -190,7 +190,7 @@ describe("handleGetBriefing", () => {
   it("returns standard depth by default", () => {
     const result = handleGetBriefing("/project", "/project/nexus-system", {});
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     // Standard includes all main sections but not extended fields
     expect(json.project).toBeDefined();
     expect(json.risks).toBeDefined();
@@ -201,9 +201,9 @@ describe("handleGetBriefing", () => {
       format: "markdown",
     });
 
-    expect(result.content[0].type).toBe("text");
-    expect(result.content[0].text).toContain("#");
-    expect(result.content[0].text).toContain("Pre-Session Briefing");
+    expect(result.content[0]!.type).toBe("text");
+    expect(result.content[0]!.text).toContain("#");
+    expect(result.content[0]!.text).toContain("Pre-Session Briefing");
   });
 
   it("returns summary format", () => {
@@ -211,9 +211,9 @@ describe("handleGetBriefing", () => {
       format: "summary",
     });
 
-    expect(result.content[0].type).toBe("text");
-    expect(typeof result.content[0].text).toBe("string");
-    expect(result.content[0].text.length).toBeGreaterThan(0);
+    expect(result.content[0]!.type).toBe("text");
+    expect(typeof result.content[0]!.text).toBe("string");
+    expect(result.content[0]!.text.length).toBeGreaterThan(0);
   });
 
   it("calls collectContext with correct arguments", () => {
@@ -232,7 +232,7 @@ describe("handleGetRiskMap", () => {
   it("returns valid JSON structure with overallRisk and areas", () => {
     const result = handleGetRiskMap("/project", "/project/nexus-system", {});
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("overallRisk");
     expect(json).toHaveProperty("overallScore");
     expect(json).toHaveProperty("areas");
@@ -242,7 +242,7 @@ describe("handleGetRiskMap", () => {
   it("each area has required fields", () => {
     const result = handleGetRiskMap("/project", "/project/nexus-system", {});
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     for (const area of json.areas) {
       expect(area).toHaveProperty("path");
       expect(area).toHaveProperty("riskLevel");
@@ -257,8 +257,8 @@ describe("handleGetRiskMap", () => {
       format: "summary",
     });
 
-    expect(result.content[0].text).toContain("Overall Risk:");
-    expect(result.content[0].text).toContain("Areas analysed:");
+    expect(result.content[0]!.text).toContain("Overall Risk:");
+    expect(result.content[0]!.text).toContain("Areas analysed:");
   });
 
   it("summary includes high/critical areas", () => {
@@ -266,8 +266,8 @@ describe("handleGetRiskMap", () => {
       format: "summary",
     });
 
-    expect(result.content[0].text).toContain("Overall Risk:");
-    expect(result.content[0].text).toContain("src/auth");
+    expect(result.content[0]!.text).toContain("Overall Risk:");
+    expect(result.content[0]!.text).toContain("src/auth");
   });
 
   it("summary shows acceptable risk when no critical areas", () => {
@@ -283,7 +283,7 @@ describe("handleGetRiskMap", () => {
       format: "summary",
     });
 
-    expect(result.content[0].text).toContain(
+    expect(result.content[0]!.text).toContain(
       "All areas within acceptable risk levels."
     );
   });
@@ -304,7 +304,7 @@ describe("handleGetRules", () => {
   it("returns all rule types by default", () => {
     const result = handleGetRules("/project", "/project/nexus-system", {});
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("contextRules");
     expect(json).toHaveProperty("dynamicRules");
     expect(json).toHaveProperty("engineRules");
@@ -315,7 +315,7 @@ describe("handleGetRules", () => {
       type: "context",
     });
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.contextRules).toBeInstanceOf(Array);
     for (const rule of json.contextRules) {
       expect(rule).toHaveProperty("id");
@@ -334,7 +334,9 @@ describe("handleGetRules", () => {
         rule: "Watch for regressions in auth module",
         severity: "high",
         evidence: "3 recent failures",
-        source: "git-history",
+        source: "git-incident",
+        generatedAt: new Date().toISOString(),
+        incidentCount: 3,
       },
     ]);
 
@@ -342,7 +344,7 @@ describe("handleGetRules", () => {
       type: "dynamic",
     });
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.dynamicRules).toHaveLength(1);
     expect(json.dynamicRules[0].id).toBe("DYN-001");
     expect(json.dynamicRules[0].severity).toBe("high");
@@ -353,11 +355,13 @@ describe("handleGetRules", () => {
       {
         id: "RULE-001",
         description: "Run tests before commit",
-        trigger: "pre-commit",
+        trigger: "git_commit",
         priority: 1,
         enabled: true,
         conditions: [],
         actions: [],
+        dependencies: [],
+        tags: [],
       },
     ]);
 
@@ -365,7 +369,7 @@ describe("handleGetRules", () => {
       type: "engine",
     });
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.engineRules).toHaveLength(1);
     expect(json.engineRules[0].id).toBe("RULE-001");
     expect(json.engineRules[0].enabled).toBe(true);
@@ -376,7 +380,7 @@ describe("handleGetRules", () => {
       format: "markdown",
     });
 
-    expect(result.content[0].text).toContain("# Governance Rules");
+    expect(result.content[0]!.text).toContain("# Governance Rules");
   });
 
   it("calls loadRules for engine rules", () => {
@@ -428,7 +432,7 @@ describe("Error Handling", () => {
       { type: "engine" }
     );
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.engineRules).toEqual([]);
   });
 
@@ -441,7 +445,7 @@ describe("Error Handling", () => {
       { type: "dynamic" }
     );
 
-    const json = JSON.parse(result.content[0].text);
+    const json = JSON.parse(result.content[0]!.text);
     expect(json.dynamicRules).toEqual([]);
   });
 });

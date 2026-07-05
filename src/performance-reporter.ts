@@ -124,7 +124,7 @@ function detectTrend(current: number, previous: number): "improving" | "stable" 
 
 /** Generate a full performance report for the user. */
 export function generatePerformanceReport(
-  projectRoot: string,
+  _projectRoot: string,
   nexusDir: string,
   options?: { days?: number }
 ): PerformanceReport {
@@ -232,7 +232,7 @@ export function generatePerformanceReport(
   );
 
   // Generate next steps
-  const nextSteps = generateNextSteps(insights, dimensions, growthProfile);
+  const nextSteps = generateNextSteps(insights, growthProfile);
 
   // Generate summary
   const summary = generateSummary(
@@ -412,7 +412,7 @@ function generateInsights(
 
 function generateNextSteps(
   insights: Insight[],
-  dimensions: Record<PerformanceMetric, DimensionReport>,
+
   growthProfile: GrowthProfile
 ): string[] {
   const steps: string[] = [];

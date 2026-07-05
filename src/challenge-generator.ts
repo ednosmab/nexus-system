@@ -248,12 +248,14 @@ export function detectParadigmShift(
 
 /** Ensure the challenge is in flow state (not too easy, not too hard). */
 export function ensureFlowState(
-  challenge: number,
+  challengeLevel: number,
   capacity: number
 ): number {
   // Flow state: challenge slightly above capacity
   // Csikszentmihalyi's flow channel
-  const flowChallenge = capacity * 1.2;
+  const targetChallenge = capacity * 1.2;
+  // Blend current challenge with target
+  const flowChallenge = (challengeLevel + targetChallenge) / 2;
 
   // Clamp to 0-1
   return Math.max(0.0, Math.min(1.0, flowChallenge));

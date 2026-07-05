@@ -95,7 +95,7 @@ function displayDiff(diff: ManifestDiff, isJson: boolean): void {
 function applyUpdates(
   targetDir: string,
   diff: ManifestDiff,
-  currentManifest: Manifest,
+
   options: UpdateOptions
 ): void {
   const templatesDir = getTemplatesDir();
@@ -258,7 +258,7 @@ export const updateCommand = new Command("update")
       // Apply updates
       const applySpinner = ora("Applying updates...").start();
       try {
-        applyUpdates(targetDir, diff, currentManifest, options);
+        applyUpdates(targetDir, diff, options);
 
         // Update manifest
         const updatedManifest = updateManifest(

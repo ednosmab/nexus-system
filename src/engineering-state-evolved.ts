@@ -247,7 +247,10 @@ export class EventSourcedState {
 
 export class IncrementalConsolidator {
   private version = 0;
-  private lastConsolidated: string | null = null;
+  private _lastConsolidated: string = "";
+
+  /** Get the timestamp of the last consolidation. */
+  getLastConsolidated(): string { return this._lastConsolidated; }
   private pendingDeltas: StateDelta[] = [];
 
   /** Compute delta between two states. */
@@ -307,7 +310,7 @@ export class IncrementalConsolidator {
     delta: StateDelta
   ): { state: EngineeringState; version: number } {
     this.version++;
-    this.lastConsolidated = delta.timestamp;
+    this._lastConsolidated = delta.timestamp;
     this.pendingDeltas.push(delta);
 
     // Apply asset additions

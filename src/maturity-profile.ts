@@ -196,7 +196,7 @@ export function calculateMaturityProfile(
   const overallScore = calculateOverallScore(dimensions);
   const installed: Capability[] = nexusDir ? detectInstalledCapabilities(nexusDir) : ["core"];
   const recommended = recommendCapabilities(dimensions, installed);
-  const future = getFutureCapabilities(dimensions, installed, recommended);
+  const future = getFutureCapabilities(installed, recommended);
 
   return {
     dimensions,
@@ -411,7 +411,7 @@ function recommendCapabilities(
 }
 
 function getFutureCapabilities(
-  dimensions: MaturityDimensions,
+
   installed: Capability[],
   recommended: Capability[]
 ): Capability[] {
