@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-07-04 — 60 testes health-auditor, 33 detectores, P0 doc-sync adicionado
+> **Ultima atualizacao:** 2026-07-04 — feedback user-rating e nexus update adicionados ao P2
 
 ---
 
@@ -290,6 +290,36 @@
 | **Descricao** | `detectPatterns()` gera `candidateRules` com status "proposed" mas nao existe mecanismo para aprovar/rejeitar. |
 | **Correcao** | Criar `nexus detect --approve RULE-001` e `nexus detect --reject RULE-001`. Persistir decisoes em `nexus-system/governance/rules-decisions.json`. |
 
+### 2.2 Feedback do utilizador (user rating + comment)
+
+| Campo | Valor |
+|---|---|
+| **Status** | Backlog |
+| **Severidade** | Medio |
+| **Owner** | unassigned |
+| **Prioridade** | P2 |
+| **Data** | 2026-07-04 |
+| **Fonte** | Sessao 2026-07-04 — feedback so regista outcome do agente |
+| **Arquivos** | `src/session-feedback.ts`, `src/commands/feedback.ts`, `src/__tests__/session-feedback.test.ts` |
+| **Descricao** | O `nexus feedback` so regista outcome do agente (success/failure/partial). O utilizador nao pode avaliar a sessao. Falta: `--user-rating <1-5>`, `--user-comment <text>`, `--user-tags <list>`. Schema `SessionFeedbackRecord` sem campos de user feedback. |
+| **Correcao** | (1) Adicionar campos `userRating?: 1-5`, `userComment?: string`, `userTags?: string[]` ao schema. (2) Adicionar flags CLI `--user-rating`, `--user-comment`, `--user-tags`. (3) Actualizar `recordOutcome()` para aceitar user feedback. (4) Actualizar `--summary` para mostrar rating medio. (5) Adicionar testes. |
+| **Plano** | `plans/2026-07-04-feedback-and-update.md` (Parte 1) |
+
+### 2.3 Nexus update — comando de actualizacao com change detection
+
+| Campo | Valor |
+|---|---|
+| **Status** | Backlog |
+| **Severidade** | Medio |
+| **Owner** | unassigned |
+| **Prioridade** | P2 |
+| **Data** | 2026-07-04 |
+| **Fonte** | Sessao 2026-07-04 — nao existe `nexus update`, templates congelados no install time |
+| **Arquivos** | `src/commands/update.ts` (novo), `src/manifest.ts` (novo), `src/commands/init.ts`, `src/commands/upgrade.ts`, `bin/nexus.ts` |
+| **Descricao** | Nao existe `nexus update`. O `nexus upgrade` so adiciona capabilities novas, nunca actualiza existentes. Templates estao congelados no install time. Nexus-system precisa saber que houve mudanças no nexus-cli. |
+| **Correcao** | (1) Criar `src/manifest.ts` — tipo `Manifest` com `cliVersion`, `installedAt`, `templateHashes` (SHA-256). (2) Integrar manifest no `init` — escrever apos scaffolding. (3) Integrar manifest no `upgrade` — actualizar apos install. (4) Criar `nexus update` — detecta mudanças via `npm view nexus-system version` + hash comparison. (5) Flags: `--dry-run`, `--apply`, `--backup`, `--force`. (6) Registar comando no `bin/nexus.ts`. (7) Adicionar testes. |
+| **Plano** | `plans/2026-07-04-feedback-and-update.md` (Parte 2) |
+
 ### 2.2 Feedback ↔ capability-engine
 
 | Campo | Valor |
@@ -560,6 +590,7 @@
 | 3.35 | Plugin sandboxing | Baixo | Isolar plugins em workers para seguranca |
 | 3.36 | Decidir nome do produto | Baixo | Nexus Gaude, Prism, Codex, ou outro — decisao estrategica pendente |
 | 3.37 | Refinamento do logo | Baixo | Vetorizacao, variações, assets finais — logo atual e AI-generated com watermark |
+| 3.38 | Optimizar economia de tokens na abertura de sessão | Baixo | Reduzir consumo actual de 12% por sessão. Ficheiros alvo: opencode-context.md (3.8KB→1.5KB), quick-board-enforcement.md (3.4KB→1.5KB), AGENTS.md (8.8KB→5KB), BRIEFING.md (1.7KB→0.8KB). Potencial: ~50% redução |
 
 ---
 
