@@ -111,12 +111,14 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | In Progress |
+| **Status** | Fase 1 Done / Fase 2 pendente |
 | **Severidade** | Critico |
 | **Owner** | Edson |
 | **Descricao** | Dois problemas combinados: (A) A documentacao (AGENTS.md, SYSTEM_MAP.md) descreve a arquitetura completa como se tudo estivesse presente, mas o sistema ja suporta entrega incremental por capacidades. A documentacao nao indica claramente o que esta instalado vs disponivel vs futuro. (B) O AGENTS.md nao inclui regras que obriguem o agente a detectar gaps proativamente e informar ao usuario. A capacidade tecnica ja existe (auto-evolution.ts, doctor.ts, status.ts, knowledge-debt.ts) mas nao esta acionada pelas regras do time. |
 | **Resolucao parcial** | (2026-07-01) `nexus init` agora re-analisa complexidade quando projeto ja inicializado. `nexus assess` mostra proximo passo claro com `nexus upgrade --accept-recommended`. |
-| **Correcao** | **Fase 1 — Documentacao dinamica:** (1) AGENTS.md com secoes condicionais por capacidade: `<!-- CAPABILITY: governance -->...<!-- /CAPABILITY -->`. (2) SYSTEM_MAP.md com legenda: ✅ instalado, 📋 disponivel, 🔮 futuro. (3) `docs/capabilities.md` com mapeamento capacidade→regras→arquivos. (4) Scaffolder copia apenas secoes das capacidades instaladas. (5) `upgrade.ts` ativa novas secoes ao adicionar capacidade. **Fase 2 — Regra proativa no AGENTS.md:** (6) Adicionar regra: "Quando uma regra referencia infraestrutura ausente, o agente DEVE informar ao usuario que `nexus upgrade --capability <name>` desbloqueia essa funcionalidade". (7) Adicionar regra: "O agente DEVE executar `nexus status` ou `nexus doctor` para detectar gaps antes de iniciar tarefa". (8) Adicionar regra: "O usuario NAO deve precisar descobrir manualmente o que falta — o sistema recomenda". **Fase 3 — Validacao:** (9) Testar: init com core apenas → documentacao minima + recomenda upgrade. (10) Testar: upgrade governance → documentacao expandida + novas regras ativadas. (11) Testar: regra #11 detecta WORKFLOW.md ausente e sugere `nexus upgrade --capability governance`. |
+| **Fase 1** | ✅ Done (2026-07-05) — SYSTEM_MAP.md com legenda ✅/📋/🔮 + CAPABILITY_STATUS dinamico, `docs/capabilities.md` com mapeamento capacidade→regras→arquivos, `scaffolder.ts` com `updateSystemMapCapabilityStatus()`, 9 novos testes (24/24 passing). AGENTS.md condicional ja existia. Regras 23-25 (proactivas) ja existiam. |
+| **Fase 2 pendente** | upgrade.ts nao actualiza SYSTEM_MAP.md status ao adicionar capacidade. Validacao: init core-only → docs minimos + recomenda upgrade, upgrade governance → SYSTEM_MAP actualizado |
+| **Commits** | `3070cc1` (P0.6 Phase 1) |
 
 ### 0.7 Actualizar documentação desactualizada (6 ficheiros)
 
