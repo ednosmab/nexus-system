@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { auditHealth, writeHealthReport } from "../health-auditor.js";
+import { auditHealth, writeHealthReport, collectSourceFiles, detectHardcodedSecrets, detectSQLInjection, detectXSS, detectUnsafeEval, detectConsoleSecrets, detectWeakCrypto, detectInsecureHTTP, detectPrototypePollution, detectPathTraversal, detectRegexDos, detectUnsafeDeserialization, detectDependencyConfusion } from "../health-auditor.js";
 import { TaintAnalyzer } from "../audit/taint/index.js";
 
 let tempDir: string;
@@ -1243,8 +1243,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `const DB_PASSWORD = "supersecret123";\n` +
       `export const apiKey = "sk-1234567890abcdef1234";\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const secrets = report.issues.filter((i) => i.type === "hardcoded_secret");
+    const files = collectSourceFiles(projectRoot);
+    const secrets = detectHardcodedSecrets(projectRoot, files);
     expect(secrets.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1253,8 +1253,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `// password = "notreal"\n` +
       `// This is just a comment\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const secrets = report.issues.filter((i) => i.type === "hardcoded_secret" && i.location.includes("safe.ts"));
+    const files = collectSourceFiles(projectRoot);
+    const secrets = detectHardcodedSecrets(projectRoot, files);
     expect(secrets.length).toBe(0);
   });
 
@@ -1263,8 +1263,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `db.query("SELECT * FROM users WHERE id = " + userId);\n` +
       `db.execute(\`SELECT * FROM orders WHERE name = \${name}\`);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const sqli = report.issues.filter((i) => i.type === "sql_injection");
+    const files = collectSourceFiles(projectRoot);
+    const sqli = detectSQLInjection(projectRoot, files);
     expect(sqli.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1273,8 +1273,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `element.innerHTML = userInput;\n` +
       `document.write(unsafeContent);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const xss = report.issues.filter((i) => i.type === "xss_risk");
+    const files = collectSourceFiles(projectRoot);
+    const xss = detectXSS(projectRoot, files);
     expect(xss.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1283,8 +1283,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `eval(userCode);\n` +
       `new Function(params, body);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const evalIssues = report.issues.filter((i) => i.type === "unsafe_eval");
+    const files = collectSourceFiles(projectRoot);
+    const evalIssues = detectUnsafeEval(projectRoot, files);
     expect(evalIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1293,8 +1293,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `console.log("password:", req.body.password);\n` +
       `console.log("token:", req.headers.authorization);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const consoleIssues = report.issues.filter((i) => i.type === "console_secret");
+    const files = collectSourceFiles(projectRoot);
+    const consoleIssues = detectConsoleSecrets(projectRoot, files);
     expect(consoleIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1303,8 +1303,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `crypto.createHash("md5");\n` +
       `crypto.createHash("sha1");\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const cryptoIssues = report.issues.filter((i) => i.type === "weak_crypto");
+    const files = collectSourceFiles(projectRoot);
+    const cryptoIssues = detectWeakCrypto(projectRoot, files);
     expect(cryptoIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1312,8 +1312,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "safe-crypto.ts"),
       `crypto.createCipheriv("aes-256-gcm", key, iv);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const cryptoIssues = report.issues.filter((i) => i.type === "weak_crypto" && i.location.includes("safe-crypto.ts"));
+    const files = collectSourceFiles(projectRoot);
+    const cryptoIssues = detectWeakCrypto(projectRoot, files);
     expect(cryptoIssues.length).toBe(0);
   });
 
@@ -1321,8 +1321,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "api.ts"),
       `const url = "http://api.example.com/data";\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const httpIssues = report.issues.filter((i) => i.type === "insecure_http");
+    const files = collectSourceFiles(projectRoot);
+    const httpIssues = detectInsecureHTTP(projectRoot, files);
     expect(httpIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1330,8 +1330,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "dev.ts"),
       `const url = "http://localhost:3000/api";\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const httpIssues = report.issues.filter((i) => i.type === "insecure_http" && i.location.includes("dev.ts"));
+    const files = collectSourceFiles(projectRoot);
+    const httpIssues = detectInsecureHTTP(projectRoot, files);
     expect(httpIssues.length).toBe(0);
   });
 
@@ -1339,8 +1339,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "merge.ts"),
       `Object.assign(target, req.body);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const protoIssues = report.issues.filter((i) => i.type === "proto_pollution");
+    const files = collectSourceFiles(projectRoot);
+    const protoIssues = detectPrototypePollution(projectRoot, files);
     expect(protoIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1349,8 +1349,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `readFile(req.query.path);\n` +
       `writeFileSync(req.body.filename, data);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const pathIssues = report.issues.filter((i) => i.type === "path_traversal");
+    const files = collectSourceFiles(projectRoot);
+    const pathIssues = detectPathTraversal(projectRoot, files);
     expect(pathIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1358,8 +1358,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "parse.ts"),
       `JSON.parse(req.body.data);\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const deserIssues = report.issues.filter((i) => i.type === "unsafe_deserialize");
+    const files = collectSourceFiles(projectRoot);
+    const deserIssues = detectUnsafeDeserialization(projectRoot, files);
     expect(deserIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1368,13 +1368,22 @@ describe("SEC-* Security Pattern Detectors", () => {
       `export const x = 42;\n` +
       `export function add(a: number, b: number) { return a + b; }\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const secIssues = report.issues.filter((i) =>
-      ["hardcoded_secret", "sql_injection", "xss_risk", "unsafe_eval",
-       "console_secret", "weak_crypto", "insecure_http", "proto_pollution",
-       "path_traversal", "regex_dos", "unsafe_deserialize", "dep_confusion"].includes(i.type)
-    );
-    expect(secIssues.length).toBe(0);
+    const files = collectSourceFiles(projectRoot);
+    const allSecIssues = [
+      ...detectHardcodedSecrets(projectRoot, files),
+      ...detectSQLInjection(projectRoot, files),
+      ...detectXSS(projectRoot, files),
+      ...detectUnsafeEval(projectRoot, files),
+      ...detectConsoleSecrets(projectRoot, files),
+      ...detectWeakCrypto(projectRoot, files),
+      ...detectInsecureHTTP(projectRoot, files),
+      ...detectPrototypePollution(projectRoot, files),
+      ...detectPathTraversal(projectRoot, files),
+      ...detectRegexDos(projectRoot, files),
+      ...detectUnsafeDeserialization(projectRoot, files),
+      ...detectDependencyConfusion(projectRoot, files),
+    ];
+    expect(allSecIssues.length).toBe(0);
   });
 
   it("SEC-10: detectRegexDos detects ReDoS patterns", () => {
@@ -1382,8 +1391,8 @@ describe("SEC-* Security Pattern Detectors", () => {
       `const bad = new RegExp("(a+)+$");\n` +
       `const also = new RegExp("\\w+\\s*=\\s*\\w+");\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const regexIssues = report.issues.filter((i) => i.type === "regex_dos");
+    const files = collectSourceFiles(projectRoot);
+    const regexIssues = detectRegexDos(projectRoot, files);
     expect(regexIssues.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -1391,8 +1400,8 @@ describe("SEC-* Security Pattern Detectors", () => {
     writeFileSync(join(projectRoot, "src", "import.ts"),
       `import { something } from "nonexistent-package-xyz";\n`
     );
-    const report = auditHealth(projectRoot, nexusDir, "full");
-    const depIssues = report.issues.filter((i) => i.type === "dep_confusion");
+    const files = collectSourceFiles(projectRoot);
+    const depIssues = detectDependencyConfusion(projectRoot, files);
     expect(depIssues.length).toBeGreaterThanOrEqual(1);
   });
 });

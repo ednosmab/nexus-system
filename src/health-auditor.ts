@@ -26,7 +26,7 @@ const OVERSIZED_INFO_THRESHOLD = 500;
 const MISSING_TEST_WARNING_THRESHOLD = 10;
 const ANY_TYPE_SEVERITY_THRESHOLD = 10;
 
-interface SourceFileInfo {
+export interface SourceFileInfo {
   fullPath: string;
   relPath: string;
   basename: string;
@@ -36,7 +36,7 @@ interface SourceFileInfo {
 
 const SOURCE_SKIP_PATTERNS = [/\.test\.ts$/, /\.bench\.ts$/, /index\.ts$/];
 
-function collectSourceFiles(projectRoot: string): SourceFileInfo[] {
+export function collectSourceFiles(projectRoot: string): SourceFileInfo[] {
   const srcDir = join(projectRoot, "src");
   if (!existsSync(srcDir)) return [];
 
@@ -3088,7 +3088,7 @@ function isDetectorDefinitionFile(relPath: string): boolean {
 /**
  * SEC-01: Detecta chaves/tokens hardcoded em código.
  */
-function detectHardcodedSecrets(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectHardcodedSecrets(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const secretPatterns = [
     { regex: /(?:password|passwd|pwd)\s*[=:]\s*["'][^"']{3,}["']/gi, name: "password" },
@@ -3128,7 +3128,7 @@ function detectHardcodedSecrets(projectRoot: string, files: SourceFileInfo[]): H
 /**
  * SEC-02: Detecta concatenação em queries SQL.
  */
-function detectSQLInjection(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectSQLInjection(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const sqlPatterns = [
     /\.query\s*\(\s*[`"'].*\$\{/, /\.execute\s*\(\s*[`"'].*\$\{/,
@@ -3158,7 +3158,7 @@ function detectSQLInjection(projectRoot: string, files: SourceFileInfo[]): Healt
 /**
  * SEC-03: Detecta padrões XSS.
  */
-function detectXSS(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectXSS(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const xssPatterns = [
     /\.innerHTML\s*[=+]/, /dangerouslySetInnerHTML/, /document\.write\s*\(/,
@@ -3188,7 +3188,7 @@ function detectXSS(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] 
 /**
  * SEC-04: Detecta uso de eval() e Function().
  */
-function detectUnsafeEval(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectUnsafeEval(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const evalPatterns = [
     /eval\s*\(/, /new\s+Function\s*\(/, /setTimeout\s*\(\s*["']/,
@@ -3219,7 +3219,7 @@ function detectUnsafeEval(projectRoot: string, files: SourceFileInfo[]): HealthI
 /**
  * SEC-05: Detecta dados sensíveis em console.log.
  */
-function detectConsoleSecrets(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectConsoleSecrets(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const sensitivePatterns = [
     /console\.(log|info|warn|error|debug)\s*\(.*\b(?:password|api[_-]?key|access[_-]?token|auth[_-]?token|secret|credential)s?\b/i,
@@ -3250,7 +3250,7 @@ function detectConsoleSecrets(projectRoot: string, files: SourceFileInfo[]): Hea
 /**
  * SEC-06: Detecta uso de criptografia fraca.
  */
-function detectWeakCrypto(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectWeakCrypto(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const weakPatterns = [
     /\.createHash\s*\(\s*["'](?:md5|sha1)["']\)/i,
@@ -3279,7 +3279,7 @@ function detectWeakCrypto(projectRoot: string, files: SourceFileInfo[]): HealthI
 /**
  * SEC-07: Detecta URLs http:// em código de produção.
  */
-function detectInsecureHTTP(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectInsecureHTTP(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const httpPattern = /["']http:\/\/[^"']{5,}["']/g;
   const skipFiles = [/\.test\.ts$/, /\.spec\.ts$/, /README/, /CHANGELOG/];
@@ -3312,7 +3312,7 @@ function detectInsecureHTTP(projectRoot: string, files: SourceFileInfo[]): Healt
 /**
  * SEC-08: Detecta prototype pollution.
  */
-function detectPrototypePollution(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectPrototypePollution(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const pollPatterns = [
     /Object\.assign\s*\([^)]*req\./, /\.\[\s*["']__proto__["']\s*\]/,
@@ -3341,7 +3341,7 @@ function detectPrototypePollution(projectRoot: string, files: SourceFileInfo[]):
 /**
  * SEC-09: Detecta path traversal.
  */
-function detectPathTraversal(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectPathTraversal(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const traversalPatterns = [
     /readFile(?:Sync)?\s*\([^)]*\+/, /writeFile(?:Sync)?\s*\([^)]*\+/,
@@ -3377,7 +3377,7 @@ function detectPathTraversal(projectRoot: string, files: SourceFileInfo[]): Heal
 /**
  * SEC-10: Detecta regex com risco de ReDoS.
  */
-function detectRegexDos(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectRegexDos(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const redosPatterns = [
     /new\s+RegExp\s*\([^)]*\+[^)]*\+/, /new\s+RegExp\s*\([^)]*\*[^)]*\*/,
@@ -3405,7 +3405,7 @@ function detectRegexDos(projectRoot: string, files: SourceFileInfo[]): HealthIss
 /**
  * SEC-11: Detecta JSON.parse sem validação.
  */
-function detectUnsafeDeserialization(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectUnsafeDeserialization(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const deserPatterns = [
     /JSON\.parse\s*\(.*req\./,
@@ -3433,7 +3433,7 @@ function detectUnsafeDeserialization(projectRoot: string, files: SourceFileInfo[
 /**
  * SEC-12: Detecta imports de pacotes inexistentes (dependency confusion).
  */
-function detectDependencyConfusion(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+export function detectDependencyConfusion(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const pkgPath = join(projectRoot, "package.json");
   if (!existsSync(pkgPath)) return issues;
