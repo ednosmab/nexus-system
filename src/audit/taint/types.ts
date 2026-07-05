@@ -59,7 +59,7 @@ export type TaintIssueType =
 /** Source definition */
 export interface TaintSourceDef {
   pattern: string | RegExp;
-  kind: "property" | "global" | "call";
+  kind: "property" | "global" | "call" | "parameter";
   description: string;
 }
 

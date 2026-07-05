@@ -50,6 +50,12 @@ export const FS_SOURCES: TaintSourceDef[] = [
   { pattern: /^readFile$/, kind: "call", description: "readFile() — File content (async)" },
 ];
 
+/** Commander.js CLI sources */
+export const CLI_SOURCES: TaintSourceDef[] = [
+  { pattern: /^opts$/, kind: "parameter", description: "opts — Commander.js parsed CLI options" },
+  { pattern: /^options$/, kind: "parameter", description: "options — Commander.js parsed CLI options" },
+];
+
 /** All sources combined */
 export const ALL_SOURCES: TaintSourceDef[] = [
   ...HTTP_SOURCES,
@@ -58,6 +64,7 @@ export const ALL_SOURCES: TaintSourceDef[] = [
   ...WS_SOURCES,
   ...DB_SOURCES,
   ...FS_SOURCES,
+  ...CLI_SOURCES,
 ];
 
 /** Check if a variable/expression matches any taint source */

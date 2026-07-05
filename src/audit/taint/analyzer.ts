@@ -143,6 +143,15 @@ export class TaintAnalyzer {
 
   /** Get the symbol name for a variable reference */
   private getSymbolName(node: ts.Node): string | undefined {
+    if (ts.isAsExpression(node) || ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) {
+      return this.getSymbolName(node.expression);
+    }
+    if (ts.isPropertyAccessExpression(node)) {
+      return this.getPropertyAccessName(node);
+    }
+    if (ts.isElementAccessExpression(node)) {
+      return this.getSymbolName(node.expression);
+    }
     const symbol = this.checker.getSymbolAtLocation(node);
     if (symbol) {
       return symbol.getName();
@@ -155,6 +164,10 @@ export class TaintAnalyzer {
 
   /** Visit a node and perform taint analysis */
   private visit(node: ts.Node, sourceFile: ts.SourceFile): void {
+    // Post-order: visit children first so that nested sources (e.g. process.argv
+    // inside eval(process.argv[2])) are registered before we check the parent.
+    ts.forEachChild(node, (child) => this.visit(child, sourceFile));
+
     // 1. Detect taint sources
     if (ts.isPropertyAccessExpression(node)) {
       const fullName = this.getPropertyAccessName(node);
@@ -208,7 +221,7 @@ export class TaintAnalyzer {
             const varInfo = this.variableTaint.get(argName);
             if (varInfo?.tainted) {
               isTainted = true;
-              sourceVar = varInfo.source?.description ?? argName;
+              sourceVar = argName;
               break;
             }
           }
@@ -228,12 +241,50 @@ export class TaintAnalyzer {
 
         // Create edge from variable to sink if tainted
         if (isTainted && sourceVar) {
-          // Find the source node
           const sourceNode = this.graph.getNodes().find(
-            (n) => n.kind === "source" && n.variableName === sourceVar,
+            (n) => (n.kind === "source" || n.kind === "assignment") && n.variableName === sourceVar,
           );
           if (sourceNode) {
             this.graph.addEdge({ from: sourceNode.id, to: nodeId, kind: "parameter" });
+          }
+        }
+      }
+
+      // 2b. Propagate taint to function parameters at call sites
+      const signature = this.checker.getResolvedSignature(node);
+      const declaration = signature?.getDeclaration();
+      if (declaration && (ts.isFunctionDeclaration(declaration) || ts.isArrowFunction(declaration) || ts.isMethodDeclaration(declaration) || ts.isFunctionExpression(declaration))) {
+        node.arguments.forEach((arg, index) => {
+          const argName = this.getSymbolName(arg);
+          const argInfo = argName ? this.variableTaint.get(argName) : undefined;
+          if (argInfo?.tainted) {
+            const param = declaration.parameters[index];
+            if (param) {
+              const paramName = param.name.getText();
+              this.variableTaint.set(paramName, {
+                name: paramName,
+                tainted: true,
+                source: argInfo.source,
+                declarations: [param],
+              });
+            }
+          }
+        });
+      }
+
+      // 2c. Commander.js .action() callback — mark first param as tainted
+      if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "action") {
+        const callback = node.arguments[0];
+        if (callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback))) {
+          const param = callback.parameters[0];
+          if (param) {
+            const paramName = param.name.getText();
+            this.variableTaint.set(paramName, {
+              name: paramName,
+              tainted: true,
+              source: { pattern: /^opts$/, kind: "parameter", description: "Commander .action() callback parameter" },
+              declarations: [param],
+            });
           }
         }
       }
@@ -282,14 +333,6 @@ export class TaintAnalyzer {
       }
     }
 
-    // 4. Track function parameters (functions that receive tainted data)
-    if (ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isMethodDeclaration(node)) {
-      for (const param of node.parameters) {
-        const paramName = param.name.getText();
-        // Check if this parameter is called with tainted data (handled in call sites)
-      }
-    }
-
     // 5. Track let/var reassignments
     if (ts.isVariableDeclaration(node) && node.initializer) {
       const varName = this.getSymbolName(node.name);
@@ -318,12 +361,16 @@ export class TaintAnalyzer {
             text: `const ${varName} = ${initName}`,
           };
           this.graph.addNode(taintNode);
+
+          const initNode = this.graph.getNodes().find(
+            (n) => (n.kind === "source" || n.kind === "assignment") && n.variableName === initName,
+          );
+          if (initNode) {
+            this.graph.addEdge({ from: initNode.id, to: nodeId, kind: "assignment" });
+          }
         }
       }
     }
-
-    // Recurse into children
-    ts.forEachChild(node, (child) => this.visit(child, sourceFile));
   }
 
   /** Run taint analysis on all source files */
