@@ -15,6 +15,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "
 import { execSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { logger } from "./logger.js";
+import { TaintAnalyzer } from "./audit/taint/index.js";
 import type { TaintIssue } from "./audit/taint/types.js";
 
 // ── Engineering Audit Constants ───────────────────────────────────────────────
@@ -3778,10 +3779,7 @@ export function auditHealth(
     // Taint analysis detector
     detectTaintFlow: () => {
       try {
-        // Lazy import to avoid circular dependency and ESM compatibility
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const taint = require("./audit/taint/index.js") as typeof import("./audit/taint/index.js");
-        const analyzer = new taint.TaintAnalyzer({ projectRoot });
+        const analyzer = new TaintAnalyzer({ projectRoot });
         const taintIssues = analyzer.analyze();
         return taintIssues.map((ti: TaintIssue) => ({
           type: ("tainted_input" as const),
