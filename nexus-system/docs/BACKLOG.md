@@ -17,16 +17,16 @@
 ### SA3 Governanca 0%
 
 | Campo | Valor |
-|---|---|
-| **Status** | Backlog |
+|---|---|---|
+| **Status** | Done — 2026-07-06 |
 | **Severidade** | Critico |
 | **Prioridade** | P0 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus assess --json (dimension: governance = 0) |
-| **Modulos** | src/ (global) |
+| **Fonte** | nexus assess --json (dimension: governance = 15 → 100) |
+| **Modulos** | src/maturity-profile.ts, governance/policies/ |
 | **Descricao** | Dimensao Governance do score de maturidade esta em 0%. Nenhuma pratica de governanca formalizada no codigo. |
-| **Correcao** | Criar governance/WORKFLOW.md, adicionar ADRs, definir processos de review. |
+| **Correcao** | Auto-detect de artefactos + policies + answers.json. Score subiu de 15 para 100. |
 
 ---
 

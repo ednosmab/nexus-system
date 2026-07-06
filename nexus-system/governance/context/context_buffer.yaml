@@ -97,3 +97,12 @@ completed_tasks:
       - "nexus-system/docs/CONCEPTUAL_MODEL.md"
       - "nexus-system/governance/SYSTEM_MAP.md"
       - "CHANGELOG.md"
+  - id: "SA3"
+    description: "Governance score 0% → auto-detect artifacts + policies + answers validation"
+    completed_at: "2026-07-06T13:03:00Z"
+    files_modified:
+      - "src/maturity-profile.ts"
+      - "nexus-system/answers.json"
+      - "nexus-system/governance/policies/BRANCH-POLICY.md"
+      - "nexus-system/governance/policies/COMMIT-POLICY.md"
+      - "nexus-system/governance/policies/REVIEW-POLICY.md"

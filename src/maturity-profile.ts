@@ -192,7 +192,7 @@ export function calculateMaturityProfile(
   analysis: ProjectAnalysis,
   nexusDir?: string
 ): MaturityProfile {
-  const dimensions = calculateDimensions(answers, analysis);
+  const dimensions = calculateDimensions(answers, analysis, nexusDir);
   const overallScore = calculateOverallScore(dimensions);
   const installed: Capability[] = nexusDir ? detectInstalledCapabilities(nexusDir) : ["core"];
   const recommended = recommendCapabilities(dimensions, installed);
@@ -210,7 +210,8 @@ export function calculateMaturityProfile(
 
 function calculateDimensions(
   answers: MaturityAnswers,
-  analysis: ProjectAnalysis
+  analysis: ProjectAnalysis,
+  nexusDir?: string
 ): MaturityDimensions {
   // Arquitetura (0-100)
   let architecture = 0;
@@ -222,6 +223,13 @@ function calculateDimensions(
 
   // Governança (0-100)
   let governance = 0;
+
+  // Auto-detected governance artifacts from filesystem
+  if (nexusDir) {
+    governance += detectGovernanceArtifactsScore(nexusDir);
+  }
+
+  // Questionnaire-based scoring
   if (answers.hasDefinedPatterns) governance += 25;
   if (answers.hasReviewProcess) governance += 25;
   if (answers.hasDecisionControl) governance += 25;
@@ -276,6 +284,51 @@ function calculateDimensions(
     documentation: Math.min(100, Math.max(0, documentation)),
     observability: Math.min(100, Math.max(0, observability)),
   };
+}
+
+/**
+ * Detecta artefactos de governança no filesystem e retorna pontos (0-55).
+ */
+export function detectGovernanceArtifactsScore(nexusDir: string): number {
+  if (!existsSync(nexusDir)) return 0;
+
+  let score = 0;
+
+  if (existsSync(join(nexusDir, "governance", "WORKFLOW.md"))) score += 10;
+  if (existsSync(join(nexusDir, "governance", "SYSTEM_MAP.md"))) score += 5;
+  if (existsSync(join(nexusDir, "governance", "context", "context_buffer.yaml"))) score += 5;
+  if (existsSync(join(nexusDir, "docs", "FORBIDDEN_OPERATIONS.md"))) score += 5;
+  if (existsSync(join(nexusDir, "docs", "DESDO.md"))) score += 5;
+  if (existsSync(join(nexusDir, "docs", "adrs"))) score += 5;
+
+  const agentsDir = join(nexusDir, "governance", "agents");
+  if (existsSync(agentsDir)) {
+    try {
+      const agentFiles = readdirSync(agentsDir).filter(f => f.endsWith(".yaml"));
+      if (agentFiles.length >= 3) score += 5;
+      else if (agentFiles.length >= 1) score += 3;
+    } catch { /* skip unreadable directory */ }
+  }
+
+  const rulesDir = join(nexusDir, "governance", "rules");
+  if (existsSync(rulesDir)) {
+    try {
+      const ruleFiles = readdirSync(rulesDir).filter(f => f.endsWith(".json"));
+      if (ruleFiles.length >= 2) score += 5;
+      else if (ruleFiles.length >= 1) score += 3;
+    } catch { /* skip unreadable directory */ }
+  }
+
+  const policiesDir = join(nexusDir, "governance", "policies");
+  if (existsSync(policiesDir)) {
+    try {
+      const policyFiles = readdirSync(policiesDir).filter(f => f.endsWith(".md") && f !== "POLICY-TEMPLATE.md");
+      if (policyFiles.length >= 3) score += 10;
+      else if (policyFiles.length >= 1) score += 5;
+    } catch { /* skip unreadable directory */ }
+  }
+
+  return score;
 }
 
 function calculateOverallScore(dimensions: MaturityDimensions): number {

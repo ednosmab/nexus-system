@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   calculateMaturityProfile,
+  detectGovernanceArtifactsScore,
   detectInstalledCapabilities,
   saveMaturityProfile,
   loadMaturityProfile,
@@ -253,6 +254,155 @@ describe("detectInstalledCapabilities", () => {
   it("returns only core for empty directory", () => {
     const caps = detectInstalledCapabilities(tempDir);
     expect(caps).toEqual(["core"]);
+  });
+});
+
+// ── Governance Artifact Detection ─────────────────────────────────────────
+
+describe("detectGovernanceArtifactsScore", () => {
+  it("returns 0 for empty directory", () => {
+    expect(detectGovernanceArtifactsScore(tempDir)).toBe(0);
+  });
+
+  it("returns 0 for non-existent directory", () => {
+    expect(detectGovernanceArtifactsScore("/nonexistent/path")).toBe(0);
+  });
+
+  it("awards 10 for WORKFLOW.md", () => {
+    mkdirSync(join(tempDir, "governance"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "WORKFLOW.md"), "# Workflow");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBe(10);
+  });
+
+  it("awards 5 for SYSTEM_MAP.md", () => {
+    mkdirSync(join(tempDir, "governance"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "SYSTEM_MAP.md"), "# System Map");
+    const score = detectGovernanceArtifactsScore(tempDir);
+    expect(score).toBe(5);
+  });
+
+  it("awards 5 for context_buffer.yaml", () => {
+    mkdirSync(join(tempDir, "governance", "context"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "context", "context_buffer.yaml"), "session: {}", "utf-8");
+    const score = detectGovernanceArtifactsScore(tempDir);
+    expect(score).toBeGreaterThanOrEqual(5);
+  });
+
+  it("awards 5 for FORBIDDEN_OPERATIONS.md and 5 for DESDO.md", () => {
+    mkdirSync(join(tempDir, "docs"), { recursive: true });
+    writeFileSync(join(tempDir, "docs", "FORBIDDEN_OPERATIONS.md"), "# Forbidden");
+    writeFileSync(join(tempDir, "docs", "DESDO.md"), "# Desdo");
+    const score = detectGovernanceArtifactsScore(tempDir);
+    expect(score).toBeGreaterThanOrEqual(10);
+  });
+
+  it("awards 5 for ADRs directory", () => {
+    mkdirSync(join(tempDir, "docs", "adrs"), { recursive: true });
+    writeFileSync(join(tempDir, "docs", "adrs", "ADR-001.md"), "# ADR 1");
+    const score = detectGovernanceArtifactsScore(tempDir);
+    expect(score).toBeGreaterThanOrEqual(5);
+  });
+
+  it("awards 3 for 1 agent contract and 5 for 3+", () => {
+    mkdirSync(join(tempDir, "governance", "agents"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "agents", "contract-1.yaml"), "name: agent1");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBeGreaterThanOrEqual(3);
+
+    writeFileSync(join(tempDir, "governance", "agents", "contract-2.yaml"), "name: agent2");
+    const scoreWith2 = detectGovernanceArtifactsScore(tempDir);
+    expect(scoreWith2).toBeGreaterThanOrEqual(3);
+
+    writeFileSync(join(tempDir, "governance", "agents", "contract-3.yaml"), "name: agent3");
+    const scoreWith3 = detectGovernanceArtifactsScore(tempDir);
+    expect(scoreWith3).toBeGreaterThanOrEqual(5);
+  });
+
+  it("awards only 0 for 0 agent files (only non-yaml files)", () => {
+    mkdirSync(join(tempDir, "governance", "agents"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "agents", "README.md"), "# Agents");
+    const score = detectGovernanceArtifactsScore(tempDir);
+    expect(score).toBe(0);
+  });
+
+  it("awards 3 for 1 rule and 5 for 2+", () => {
+    mkdirSync(join(tempDir, "governance", "rules"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "rules", "RULE-001.json"), "{}");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBeGreaterThanOrEqual(3);
+
+    writeFileSync(join(tempDir, "governance", "rules", "RULE-002.json"), "{}");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBeGreaterThanOrEqual(5);
+  });
+
+  it("ignores non-.json files in rules directory", () => {
+    mkdirSync(join(tempDir, "governance", "rules"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "rules", "RULE-001.md"), "# Rule description");
+    writeFileSync(join(tempDir, "governance", "rules", "readme.txt"), "...");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBe(0);
+  });
+
+  it("ignores TEMPLATE files in policies count", () => {
+    mkdirSync(join(tempDir, "governance", "policies"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "policies", "POLICY-TEMPLATE.md"), "# Template");
+    const scoreOnlyTemplate = detectGovernanceArtifactsScore(tempDir);
+    expect(scoreOnlyTemplate).toBe(0);
+
+    writeFileSync(join(tempDir, "governance", "policies", "REAL-POLICY.md"), "# Real");
+    const scoreWithReal = detectGovernanceArtifactsScore(tempDir);
+    expect(scoreWithReal).toBeGreaterThanOrEqual(5);
+  });
+
+  it("awards 5 for 1 policy and 10 for 3+", () => {
+    mkdirSync(join(tempDir, "governance", "policies"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "policies", "POLICY-A.md"), "# A");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBeGreaterThanOrEqual(5);
+
+    writeFileSync(join(tempDir, "governance", "policies", "POLICY-B.md"), "# B");
+    writeFileSync(join(tempDir, "governance", "policies", "POLICY-C.md"), "# C");
+    expect(detectGovernanceArtifactsScore(tempDir)).toBeGreaterThanOrEqual(10);
+  });
+
+  it("sums all artifact points correctly", () => {
+    // Create all governance artifacts
+    mkdirSync(join(tempDir, "governance", "context"), { recursive: true });
+    mkdirSync(join(tempDir, "docs", "adrs"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "WORKFLOW.md"), "# W");            // +10
+    writeFileSync(join(tempDir, "governance", "SYSTEM_MAP.md"), "# S");          // +5
+    writeFileSync(join(tempDir, "governance", "context", "context_buffer.yaml"), "k: v"); // +5
+    writeFileSync(join(tempDir, "docs", "FORBIDDEN_OPERATIONS.md"), "# F");      // +5
+    writeFileSync(join(tempDir, "docs", "DESDO.md"), "# D");                     // +5
+    writeFileSync(join(tempDir, "docs", "adrs", "ADR-001.md"), "# A");           // +5
+    // agents: 3 yaml files
+    mkdirSync(join(tempDir, "governance", "agents"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "agents", "a1.yaml"), "a1");
+    writeFileSync(join(tempDir, "governance", "agents", "a2.yaml"), "a2");
+    writeFileSync(join(tempDir, "governance", "agents", "a3.yaml"), "a3");       // +5
+    // rules: 2 json files
+    mkdirSync(join(tempDir, "governance", "rules"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "rules", "r1.json"), "{}");
+    writeFileSync(join(tempDir, "governance", "rules", "r2.json"), "{}");         // +5
+    // policies: 3 md files (no TEMPLATE)
+    mkdirSync(join(tempDir, "governance", "policies"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "policies", "p1.md"), "# P");
+    writeFileSync(join(tempDir, "governance", "policies", "p2.md"), "# P");
+    writeFileSync(join(tempDir, "governance", "policies", "p3.md"), "# P");       // +10
+
+    expect(detectGovernanceArtifactsScore(tempDir)).toBe(55);
+  });
+});
+
+describe("governance integration with calculateMaturityProfile", () => {
+  it("adds artifact score to governance dimension", () => {
+    mkdirSync(join(tempDir, "governance"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "WORKFLOW.md"), "# W");
+    const profile = calculateMaturityProfile(EMPTY_ANSWERS, BASE_ANALYSIS, tempDir);
+    expect(profile.dimensions.governance).toBeGreaterThanOrEqual(10);
+  });
+
+  it("does not add artifact score when nexusDir is undefined", () => {
+    mkdirSync(join(tempDir, "governance"), { recursive: true });
+    writeFileSync(join(tempDir, "governance", "WORKFLOW.md"), "# W");
+    const profile = calculateMaturityProfile(EMPTY_ANSWERS, BASE_ANALYSIS);
+    expect(profile.dimensions.governance).toBe(0);
   });
 });
 
