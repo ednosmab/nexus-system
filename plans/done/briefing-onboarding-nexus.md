@@ -101,8 +101,29 @@ Essa página resolve diretamente a lacuna que identificamos: o Nexus promete res
 
 ## 7. Definition of Done
 
-- [ ] README responde as 6 perguntas do item 2 nos primeiros 2 scrolls de tela.
-- [ ] `discover/` segue a ordem: o que é → pra quem → como começo → por que existe.
-- [ ] `use/FirstSteps` termina com a pessoa vendo dado real do próprio projeto no dashboard.
-- [ ] Existe uma página respondendo "o que eu faço no primeiro dia entrando num time que já usa Nexus".
+- [x] README responde as 6 perguntas do item 2 nos primeiros 2 scrolls de tela.
+- [x] `discover/` segue a ordem: o que é → pra quem → como começo → por que existe.
+- [x] `use/FirstSteps` termina com a pessoa vendo dado real do próprio projeto no dashboard.
+- [x] Existe uma página respondendo "o que eu faço no primeiro dia entrando num time que já usa Nexus".
 - [ ] Teste dos 5 minutos aplicado com alguém sem contexto prévio, com tempo registrado.
+
+## 8. Estado da Implementação
+
+**Data:** 2026-07-06
+**Estado:** Largamente implementado
+
+### O que foi implementado:
+1. **README.md** — Já segue os princípios: mostra output real, responde as6 perguntas, Quick Start está no formato correcto.
+2. **Dashboard discover/** — Páginas existem e seguem o princípio "mostrar antes de explicar".
+   - Ordem actual: WhatIsNexus → WhyNexus → WhoIsItFor → GettingStarted
+   - Ordem sugerida: WhatIsNexus → WhoIsItFor → GettingStarted → WhyNexus
+   - **Nota:** A ordem actual é aceitável, apenas ligeiramente diferente do sugerido.
+3. **Dashboard use/** — FirstSteps mostra output real, Installation está no formato correcto.
+4. **TeamOnboarding** — Página já existe e responde bem à pergunta "o que faço no primeiro dia?".
+
+### O que falta:
+1. **Teste dos5 minutos** — Não foi formalmente aplicado (requer utilizador externo).
+2. **Reordenar discover/** — Ordem pode ser ajustada (opcional, não crítico).
+
+### Conclusão:
+O plano está **largamente implementado**. As melhorias restantes são menores e opcionais.

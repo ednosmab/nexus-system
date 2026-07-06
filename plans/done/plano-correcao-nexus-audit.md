@@ -489,6 +489,40 @@ npx tsc --noEmit
 
 ---
 
+## Estado da Implementação
+
+**Data:** 2026-07-06
+**Estado:** Parcialmente implementado — Fase0 aplicada, Fases1-5 pendentes
+
+### Fase0 (Motor de taint) — PARCIALMENTE APLICADA:
+1. **0.1 Import destravado** — ✅ Aplicado (`import { TaintAnalyzer } from "./audit/taint/index.js"`)
+2. **0.2 Travessia pós-ordem** — ✅ Aplicado (`ts.forEachChild` no início do `visit()`)
+3. **0.3 Unificar identidade** — ✅ Aplicado (`getSymbolName` com unwrapping de AsExpression/ParenthesizedExpression)
+4. **0.4 Corrigir arestas** — ✅ Aplicado (`sourceVar = argName` e busca por `kind === "source" || kind === "assignment"`)
+5. **0.5 Propagação por parâmetro** — ⚠️ Parcial (código existe mas precisa validação)
+6. **0.6 Fontes CLI Commander.js** — ✅ Aplicado (`CLI_SOURCES` com patterns `opts` e `options`)
+
+### Fase0.7-0.8 (Eficiência/OOM) — NÃO APLICADAS:
+- Cache do Program — Não implementado
+- Correcção OOM dos testes — Testes ainda timeout (60s)
+
+### Fases1-5 — NÃO APLICADAS:
+- require() restantes — Não corrigidos
+- Fórmula healthScore — Não actualizada
+- Redução falsos positivos — Não implementada
+- Gap detectPathTraversal — Não corrigido
+- Novos detectores — Não adicionados
+
+### Próximos Passos:
+1. **Validar Fase0** — Confirmar que todos os fixtures passam
+2. **Corrigir OOM** — Implementar Fase0.8 (testes isolados)
+3. **Avançar Fases1-5** — Implementar restantes correções
+
+### Nota:
+Este plano requer **cuidado especial** porque altera o motor de auditoria. Cada fase deve ser validada individualmente antes de avançar para a próxima.
+
+---
+
 ## Fase 2 — Fórmula de `calculateHealthScore` (consistência do sinal)
 
 ```diff
