@@ -34,7 +34,7 @@ const CAPABILITY_MAPPINGS: Record<Capability, CapabilityMapping> = {
       "nexus-system/core/complexity",
       "nexus-system/governance",
       "nexus-system/governance/agents",
-      "nexus-profile",
+      "nexus-system/profile",
       "nexus-system/docs/feedback",
     ],
     files: [

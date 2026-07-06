@@ -81,7 +81,7 @@ interface ProjectProfile {
 // ── Profile Loader ───────────────────────────────────────────────────────────
 
 function loadProjectProfile(projectRoot: string): ProjectProfile | null {
-  const profileDir = join(projectRoot, "nexus-profile");
+  const profileDir = join(projectRoot, "nexus-system", "profile");
   if (!existsSync(profileDir)) return null;
 
   const files = readdirSync(profileDir).filter(

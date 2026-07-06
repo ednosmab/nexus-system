@@ -677,7 +677,7 @@
 - **Objetivo:** Carregar e registrar plugins de extensão
 - **Pré-condições:** Diretórios de plugin existem
 - **Fluxo principal:**
-  1. Sistema busca plugins em: `nexus-plugins/` (projeto) e `~/.config/nexus/plugins/` (global)
+  1. Sistema busca plugins em: `nexus-system/plugins/` (projeto) e `~/.config/nexus/plugins/` (global)
   2. Sistema valida manifesto: nome, versão, descrição, hooks
   3. Sistema registra plugins com HookBus
 - **Pós-condições:** Plugins carregados

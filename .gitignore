@@ -33,20 +33,10 @@ coverage/
 
 # Nexus
 .nexus-cache.json
-opencode.json
 
-# Nexus System — runtime data (not versioned)
-nexus-profile/
+# Nexus System — dados privados
 nexus-system/docs/feedback/
-nexus-system/reports/
 nexus-system/telemetry/
 nexus-system/session-feedback/
-nexus-system/maturity-profile.json
 nexus-system/user-profile.json
-nexus-system/fingerprint.json
 nexus-system/BRIEFING.md
-
-# Feedback (privado)
-#docs/feedback/
-
-#image*.png

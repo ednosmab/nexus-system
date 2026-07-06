@@ -114,7 +114,7 @@ nexus-system/
 
 ---
 
-## nexus-profile/ ProjectProfile
+## nexus-system/profile/ ProjectProfile
 
 Defines how Nexus adapts to your project type.
 
@@ -159,7 +159,7 @@ Override with `loading_profile` field in `opencode.json`.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `NEXUS_HOME` | Nexus home directory | `~/.nexus` |
-| `NEXUS_PLUGINS` | Plugin directory | `nexus-plugins/` |
+| `NEXUS_PLUGINS` | Plugin directory | `nexus-system/plugins/` |
 | `NEXUS_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
 
 ---
@@ -169,7 +169,7 @@ Override with `loading_profile` field in `opencode.json`.
 1. CLI flags (`--dir`, `--json`, `--force`)
 2. Environment variables
 3. `opencode.json`
-4. `nexus-profile.json`
+4. `nexus-system/profile/<project>.config.ts`
 5. Defaults
 
 ---

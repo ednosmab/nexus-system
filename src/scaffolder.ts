@@ -179,7 +179,7 @@ export function scaffoldNexusSystem(
 
   // Generate ProjectProfile
   const profileTemplate = readFileSync(
-    join(baseDir, "nexus-profile", "_template.config.ts"), "utf-8"
+    join(baseDir, "nexus-system", "profile", "_template.config.ts"), "utf-8"
   );
   const dirName = targetDir.split(/[/\\]/).pop() || "my-project";
   const projectName = dirName.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
@@ -188,12 +188,12 @@ export function scaffoldNexusSystem(
   const profileContent = profileTemplate
     .replace(/\[PROJECT_NAME\]/g, projectName)
     .replace(/areas: \[.*?\]/s, `areas: [\n${areasStr}\n  ]`);
-  const profilePath = join(targetDir, "nexus-profile", `${projectName}.config.ts`);
+  const profilePath = join(targetDir, "nexus-system", "profile", `${projectName}.config.ts`);
   writeFileSync(profilePath, profileContent, "utf-8");
-  result.filesCreated.push(`nexus-profile/${projectName}.config.ts`);
+  result.filesCreated.push(`nexus-system/profile/${projectName}.config.ts`);
 
   // Remove template file
-  const templatePath = join(targetDir, "nexus-profile", "_template.config.ts");
+  const templatePath = join(targetDir, "nexus-system", "profile", "_template.config.ts");
   if (existsSync(templatePath)) {
     removeSync(templatePath);
   }

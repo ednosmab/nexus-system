@@ -104,8 +104,8 @@ export function computeKeyChecksums(projectRoot: string, nexusDir: string): Reco
   const opencodeHash = fileChecksum(join(projectRoot, "opencode.json"));
   if (opencodeHash) checksums["opencode.json"] = opencodeHash;
 
-  // 4. nexus-profile/ (area config)
-  checksums["nexus-profile/"] = dirChecksum(join(projectRoot, "nexus-profile"));
+  // 4. nexus-system/profile/ (area config)
+  checksums["nexus-system/profile/"] = dirChecksum(join(projectRoot, "nexus-system", "profile"));
 
   // 5. nexus-system/ — aggregate hash of the whole governance directory
   checksums["nexus-system/"] = dirChecksum(nexusDir);

@@ -8,7 +8,7 @@
  * e os contratos de agente (governance/agents/).
  */
 
-import type { ProjectProfile } from "../core/complexity/types";
+import type { ProjectProfile } from "../../core/complexity/types";
 
 export const profile: ProjectProfile = {
   /** Nome legível do projecto (detectado de package.json). */

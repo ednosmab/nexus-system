@@ -1,0 +1,16 @@
+{
+  "hash": "00cf0602ed40",
+  "detectedAt": "2026-06-30T15:06:52.188Z",
+  "domain": "monorepo",
+  "stack": [],
+  "scale": "medium",
+  "tooling": {
+    "typescript": true,
+    "tests": true,
+    "ci": true,
+    "linter": true,
+    "monorepo": true
+  },
+  "maturityScore": 49,
+  "version": 1
+}

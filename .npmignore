@@ -3,7 +3,7 @@ src/
 bin/
 docs/
 plans/
-nexus-plugins/
+nexus-system/plugins/
 .github/
 
 # Config

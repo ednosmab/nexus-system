@@ -150,7 +150,7 @@ export async function loadPlugins(projectRoot: string): Promise<NexusPlugin[]> {
   const plugins: NexusPlugin[] = [];
 
   // Project-level plugins
-  const projectPluginsDir = join(projectRoot, "nexus-plugins");
+  const projectPluginsDir = join(projectRoot, "nexus-system", "plugins");
   plugins.push(...(await loadPluginsFromDir(projectPluginsDir)));
 
   // Global plugins

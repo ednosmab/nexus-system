@@ -7,7 +7,7 @@ Esta skill é portável — copiável para qualquer projeto que use o Nexus, sem
 | Se a tarefa toca... | Então... |
 |---|---|
 | `core/**` | Zero referência a projeto específico é permitida. Pare se sentir a tentação de hardcodar um nome de pasta. |
-| `nexus-profile/<projeto>.config.ts` | Aqui SIM nomes reais de pasta do projeto são esperados e corretos. |
+| `nexus-system/profile/<projeto>.config.ts` | Aqui SIM nomes reais de pasta do projeto são esperados e corretos. |
 | `reports/**` | Apenas leitura/escrita de relatório gerado. Nunca edição manual de um relatório já gravado — ele é histórico, não rascunho. |
 | `docs/ROADMAP.md` | Só editar com decisão explícita do Tech Lead sobre mudança de fase ou escopo. |
 | ADR de qualquer fase | **Não escreva aqui.** ADR é registrada no repositório do projeto consumidor, nunca dentro do Nexus. Se a tarefa pedir uma ADR, confirme em qual projeto ela deveria nascer antes de criar o arquivo. |

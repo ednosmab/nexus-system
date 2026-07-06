@@ -32,7 +32,7 @@ nexus init [--dir <path>] [--answers-file <path>] [--force]
 - Analyzes project structure (stack, packages, apps, TypeScript, tests, CI)
 - Runs interactive questionnaire to assess maturity (or loads from `--answers-file`)
 - Calculates maturity profile across 7 dimensions
-- Scaffolds governance structure: `nexus-system/`, `opencode.json`, `nexus-profile/`
+- Scaffolds governance structure: `nexus-system/`, `opencode.json`, `nexus-system/profile/`
 - Installs core capability + recommended capabilities based on maturity
 
 **Exit codes:** 0 (success), 1 (error)

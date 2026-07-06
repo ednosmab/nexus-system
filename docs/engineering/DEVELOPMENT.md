@@ -46,7 +46,7 @@ nexus-cli/
 │   ├── __tests__/         # Test suite (484 tests)
 │   └── templates/         # Scaffold templates
 ├── docs/                  # Documentation
-├── nexus-plugins/         # Plugin ecosystem
+├── nexus-system/          # Nexus system (governance, plugins, profile)
 └── package.json
 ```
 

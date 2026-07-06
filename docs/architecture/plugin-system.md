@@ -74,12 +74,13 @@ Plugins are discovered from two locations:
 
 ```
 project-root/
-├── nexus-plugins/
-│   ├── my-custom-check/
-│   │   └── plugin.ts
-│   └── my-scoring-metric/
-│       └── plugin.ts
-└── opencode.json
+└── nexus-system/
+    ├── plugins/
+    │   ├── my-custom-check/
+    │   │   └── plugin.ts
+    │   └── my-scoring-metric/
+    │   │   └── plugin.ts
+    └── opencode.json
 ```
 
 ### 2. Global Plugins
@@ -99,7 +100,7 @@ function loadPlugins(projectRoot: string): NexusPlugin[] {
   const plugins: NexusPlugin[] = [];
   
   // Load project-level plugins
-  const projectPluginsDir = join(projectRoot, "nexus-plugins");
+  const projectPluginsDir = join(projectRoot, "nexus-system", "plugins");
   if (existsSync(projectPluginsDir)) {
     const dirs = readdirSync(projectPluginsDir, { withFileTypes: true })
       .filter(d => d.isDirectory());
@@ -156,7 +157,7 @@ class HookBus {
 ### Custom Health Check Plugin
 
 ```typescript
-// nexus-plugins/my-check/plugin.ts
+// nexus-system/plugins/my-check/plugin.ts
 import type { NexusPlugin } from "nexus-system";
 
 const plugin: NexusPlugin = {
@@ -190,7 +191,7 @@ export default plugin;
 ### Custom Scoring Metric Plugin
 
 ```typescript
-// nexus-plugins/my-metric/plugin.ts
+// nexus-system/plugins/my-metric/plugin.ts
 const plugin: NexusPlugin = {
   name: "my-scoring-metric",
   version: "1.0.0",

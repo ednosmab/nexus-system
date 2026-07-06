@@ -307,10 +307,10 @@ describe("calculateComplexityScore", () => {
     expect(report.suggestions.some((s) => s.includes("upgrade"))).toBe(true);
   });
 
-  // ── Area Scoring (with nexus-profile) ────────────────────────────────────
+  // ── Area Scoring (with nexus-system/profile) ──────────────────────────────
 
-  it("calculates area scores when nexus-profile exists", async () => {
-    const profileDir = join(tempDir, "nexus-profile");
+  it("calculates area scores when nexus-system/profile exists", async () => {
+    const profileDir = join(tempDir, "nexus-system", "profile");
     mkdirSync(profileDir, { recursive: true });
     writeFileSync(
       join(profileDir, "project.config.ts"),
@@ -331,7 +331,7 @@ describe("calculateComplexityScore", () => {
     expect(report.areaScores[0]?.area).toBe("src");
   });
 
-  it("returns empty areaScores without nexus-profile", async () => {
+  it("returns empty areaScores without nexus-system/profile", async () => {
     const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
     expect(report.areaScores).toHaveLength(0);
   });

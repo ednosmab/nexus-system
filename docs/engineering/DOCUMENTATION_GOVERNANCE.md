@@ -43,7 +43,7 @@
 | Domain glossary | docs/domain/ubiquitous-language.md |
 | Engineering principles | docs/philosophy/principles.md |
 | Module validation | docs/architecture/validation-matrix.md |
-| Active work | docs/BACKLOG.md |
+| Active work | nexus-system/docs/BACKLOG.md |
 
 ## Quality Gates
 

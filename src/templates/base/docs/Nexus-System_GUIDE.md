@@ -27,12 +27,13 @@ Todo conhecimento tácito (regras, convenções, decisões arquitecturais, padr�
 │                    PROJECTO DO UTILIZADOR                    │
 │                                                             │
 │  opencode.json          ← Configuração (project root)       │
-│  nexus-profile.json     ← Perfil do projecto                │
 │  nexus-system/          ← Framework de governança           │
 │    ├── docs/            ← Documentação e skills             │
 │    ├── governance/      ← Contratos, contextos, políticas   │
 │    ├── scripts/         ← Scripts de validação              │
-│    └── cognition/       ← Memória e hierarquia              │
+│    ├── cognition/       ← Memória e hierarquia              │
+│    ├── plugins/         ← Plugins do projecto               │
+│    └── profile/         ← Config do projecto                │
 └─────────────────────────────────────────────────────────────┘
                           ▲
                           │ nexus init / nexus upgrade
@@ -56,7 +57,7 @@ Todo conhecimento tácito (regras, convenções, decisões arquitecturais, padr�
 │  governance/agents/   ← 4 contratos de papel IA             │
 │  core/complexity/     ← Contratos tipados de scoring        │
 │  scripts/             ← Scripts de sessão                   │
-│  nexus-profile/       ← Template de ProjectProfile          │
+│  profile/             ← Template de ProjectProfile          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -313,8 +314,6 @@ O Nexus System calcula complexidade do projecto usando dois eixos:
 ```
 projecto/
 ├── opencode.json                    ← Configuração (project root)
-├── nexus-profile/
-│   └── <project-name>.config.ts     ← Perfil auto-detectado
 └── nexus-system/
     ├── docs/
     │   ├── AGENTS.md                ← Regras do time (P0)
@@ -371,7 +370,7 @@ projecto/
 
 ## 11. ProjectProfile
 
-O `nexus-profile/<project-name>.config.ts` define o perfil do projecto:
+O `nexus-system/profile/<project-name>.config.ts` define o perfil do projecto:
 
 ```typescript
 export const profile: ProjectProfile = {
