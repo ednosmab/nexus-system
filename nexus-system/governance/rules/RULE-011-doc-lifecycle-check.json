@@ -1,0 +1,18 @@
+{
+  "id": "RULE-011",
+  "description": "Doc Lifecycle — check Plans + ADRs for staleness at session start",
+  "trigger": "session_start",
+  "conditions": [],
+  "actions": [
+    {
+      "type": "run_nexus_command",
+      "params": {
+        "command": "docs-audit"
+      }
+    }
+  ],
+  "priority": 2,
+  "dependencies": [],
+  "enabled": true,
+  "tags": ["docs", "lifecycle", "plans", "adrs"]
+}

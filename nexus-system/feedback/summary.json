@@ -1,0 +1,107 @@
+{
+  "maturity-architecture": {
+    "recommendationId": "maturity-architecture",
+    "acceptCount": 0,
+    "rejectCount": 2,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 0,
+    "lastAction": "rejected",
+    "lastTimestamp": "2026-07-01T12:55:11.558Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-governance": {
+    "recommendationId": "maturity-governance",
+    "acceptCount": 0,
+    "rejectCount": 2,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 0,
+    "lastAction": "rejected",
+    "lastTimestamp": "2026-07-01T12:55:11.559Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-quality": {
+    "recommendationId": "maturity-quality",
+    "acceptCount": 2,
+    "rejectCount": 0,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 1,
+    "lastAction": "accepted",
+    "lastTimestamp": "2026-07-01T12:55:11.572Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-automation": {
+    "recommendationId": "maturity-automation",
+    "acceptCount": 2,
+    "rejectCount": 0,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 1,
+    "lastAction": "accepted",
+    "lastTimestamp": "2026-07-01T12:55:11.572Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-ai": {
+    "recommendationId": "maturity-ai",
+    "acceptCount": 2,
+    "rejectCount": 0,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 1,
+    "lastAction": "accepted",
+    "lastTimestamp": "2026-07-01T12:55:11.573Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-documentation": {
+    "recommendationId": "maturity-documentation",
+    "acceptCount": 0,
+    "rejectCount": 2,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 0,
+    "lastAction": "rejected",
+    "lastTimestamp": "2026-07-01T12:55:11.573Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  },
+  "maturity-observability": {
+    "recommendationId": "maturity-observability",
+    "acceptCount": 2,
+    "rejectCount": 0,
+    "deferCount": 0,
+    "totalInteractions": 2,
+    "acceptanceRate": 1,
+    "lastAction": "accepted",
+    "lastTimestamp": "2026-07-01T12:55:11.574Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
+  }
+}

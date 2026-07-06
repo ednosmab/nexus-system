@@ -1,0 +1,18 @@
+{
+  "id": "RULE-012",
+  "description": "Session Briefing — show project summary at session start",
+  "trigger": "session_start",
+  "conditions": [],
+  "actions": [
+    {
+      "type": "run_nexus_command",
+      "params": {
+        "command": "briefing"
+      }
+    }
+  ],
+  "priority": 1,
+  "dependencies": [],
+  "enabled": true,
+  "tags": ["session", "briefing"]
+}

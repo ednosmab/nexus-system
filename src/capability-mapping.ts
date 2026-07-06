@@ -45,7 +45,7 @@ const CAPABILITY_MAPPINGS: Record<Capability, CapabilityMapping> = {
       { src: "docs/KNOWLEDGE_LIFECYCLE.md", dest: "nexus-system/docs/KNOWLEDGE_LIFECYCLE.md" },
       { src: "docs/FORBIDDEN_OPERATIONS.md", dest: "nexus-system/docs/FORBIDDEN_OPERATIONS.md" },
       { src: "docs/DESDO.md", dest: "nexus-system/docs/DESDO.md" },
-      { src: "docs/BACKLOG.md", dest: "nexus-system/docs/BACKLOG.md" },
+      { src: "nexus-system/docs/BACKLOG.md", dest: "docs/BACKLOG.md" },
       { src: "docs/capabilities.md", dest: "nexus-system/docs/capabilities.md", customize: true },
       { src: "core/complexity/types.ts", dest: "nexus-system/core/complexity/types.ts" },
       { src: "docs/feedback/README.md", dest: "nexus-system/docs/feedback/README.md" },
