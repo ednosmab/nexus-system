@@ -41,6 +41,7 @@ export const RULE_SCRIPT_TIMEOUT = 30000;
 
 /** Valid action types for rule engine. */
 export const VALID_ACTION_TYPES = [
+  "update_context_buffer",
   "create_reminder",
   "update_quick_board",
   "log_event",

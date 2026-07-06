@@ -75,7 +75,7 @@ export function getCurrentStatus(
 
     if (inTargetItem) {
       const statusMatch = trimmed.match(
-        /^\*\*Status\*\*\s*\|\s*(.+?)\s*$/
+        /^\|?\s*\*\*Status\*\*\s*\|\s*(.+?)\s*\|?\s*$/
       );
       if (statusMatch && statusMatch[1]) {
         const raw = statusMatch[1].trim();
@@ -151,7 +151,7 @@ export function transitionBacklogStatus(
       }
 
       if (inTargetItem) {
-        const statusMatch = line.match(/^(\s*\*\*Status\*\*\s*\|\s*).+?(\s*)$/);
+        const statusMatch = line.match(/^(\s*\|\s*\*\*Status\*\*\s*\|\s*).+?(\s*)$/);
         if (statusMatch) {
           const statusLabel =
             newStatus === "concluído"

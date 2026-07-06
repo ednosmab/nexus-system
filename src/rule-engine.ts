@@ -64,7 +64,7 @@ interface ValidationResult {
 }
 
 const VALID_ACTION_TYPES = [
-  "create_reminder", "update_quick_board", "log_event",
+  "update_context_buffer", "create_reminder", "update_quick_board", "log_event",
   "trigger_assessment", "trigger_health_check", "update_backlog",
   "run_local_script", "run_script", "run_nexus_command",
 ];
@@ -126,6 +126,7 @@ export type TriggerType =
   | "knowledge_debt_detected"
   | "pattern_detected"
   | "pipeline_complete"
+  | "task_completed"
   | "manual";
 
 /** Operadores para condições. */
@@ -362,6 +363,33 @@ function executeAction(
   context: RuleContext
 ): { success: boolean; message: string } {
   switch (action.type) {
+    case "update_context_buffer": {
+      const bufferPath = join(context.nexusDir, "governance", "context", "context_buffer.yaml");
+      if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
+
+      try {
+        let content = readFileSync(bufferPath, "utf-8");
+        const field = String(action.params.field || "");
+        const value = String(action.params.value || "");
+
+        if (field && value) {
+          const keys = field.split(".");
+          const lastKey = keys[keys.length - 1]!;
+          const escapedKey = lastKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const pattern = new RegExp(`(${escapedKey}:\\s*").*?(")`);
+          if (pattern.test(content)) {
+            content = content.replace(pattern, `$1${value}$2`);
+            writeFileSync(bufferPath, content, "utf-8");
+            return { success: true, message: `Updated ${field} = ${value}` };
+          }
+          return { success: false, message: `Field "${lastKey}" not found in buffer` };
+        }
+        return { success: false, message: "No field or value specified" };
+      } catch {
+        return { success: false, message: "Failed to update context buffer" };
+      }
+    }
+
     case "create_reminder": {
       const bufferPath = join(context.nexusDir, "governance", "context", "context_buffer.yaml");
       if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
@@ -846,6 +874,7 @@ const EVENT_TO_TRIGGER: Partial<Record<NexusEventType, TriggerType>> = {
 
   // Validation events
   "validation.completed": "validation_pass",
+  "task.completed": "task_completed",
 
   // Pipeline events
   "pipeline.stage.start": "file_change",

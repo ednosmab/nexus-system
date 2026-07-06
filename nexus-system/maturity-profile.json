@@ -1,14 +1,14 @@
 {
   "dimensions": {
-    "architecture": 15,
-    "governance": 15,
-    "quality": 100,
-    "automation": 100,
-    "ai": 75,
-    "documentation": 25,
-    "observability": 85
+    "architecture": 90,
+    "governance": 100,
+    "quality": 55,
+    "automation": 30,
+    "ai": 100,
+    "documentation": 100,
+    "observability": 35
   },
-  "overallScore": 59,
+  "overallScore": 73,
   "recommendedCapabilities": [],
   "installedCapabilities": [
     "core",
@@ -22,5 +22,5 @@
     "compliance"
   ],
   "futureCapabilities": [],
-  "computedAt": "2026-07-01T12:55:11.557Z"
+  "computedAt": "2026-07-06T13:02:50.936Z"
 }

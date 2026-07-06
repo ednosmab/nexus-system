@@ -148,6 +148,15 @@ export interface ValidationCompletedPayload extends EventMeta {
   duration: number;
 }
 
+// ── Task Pipeline Events ───────────────────────────────────────────────────
+
+export interface TaskCompletedPayload extends EventMeta {
+  taskId: string;
+  source: string;
+  affectedFiles: string[];
+  gates: { name: string; passed: boolean }[];
+}
+
 // ── Pipeline Events ────────────────────────────────────────────────────────
 
 export interface PipelineStageStartPayload extends EventMeta {
@@ -313,6 +322,7 @@ export interface EventPayloadMap {
   "adr.created": AdrCreatedPayload;
   "skill.created": SkillCreatedPayload;
   "validation.completed": ValidationCompletedPayload;
+  "task.completed": TaskCompletedPayload;
   "pipeline.stage.start": PipelineStageStartPayload;
   "pipeline.stage.complete": PipelineStageCompletePayload;
   "pipeline.complete": PipelineCompletePayload;

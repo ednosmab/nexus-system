@@ -1,7 +1,7 @@
 {
-  "auditedAt": "2026-07-06T03:47:06.891Z",
+  "auditedAt": "2026-07-06T15:17:23.152Z",
   "totalPlans": 22,
-  "totalAdrs": 3,
+  "totalAdrs": 4,
   "classifications": [
     {
       "path": "/media/edson-ubuntu/Data2/projeto-formação_tech/nexus-cli/plans/done/2026-07-02-init-audit-dashboard.md",
@@ -297,6 +297,17 @@
         "**Status:** Accepted"
       ],
       "suggestedDestination": "adrs"
+    },
+    {
+      "path": "/media/edson-ubuntu/Data2/projeto-formação_tech/nexus-cli/nexus-system/docs/adrs/ADR-005-automated-task-completion-pipeline.md",
+      "relativePath": "nexus-system/docs/adrs/ADR-005-automated-task-completion-pipeline.md",
+      "docType": "adr",
+      "status": "planned",
+      "confidence": 0.9,
+      "evidence": [
+        "**Status:** Proposed"
+      ],
+      "suggestedDestination": "adrs"
     }
   ],
   "proposedMoves": [
@@ -411,7 +422,14 @@
       "docType": "adr",
       "status": "completed",
       "reason": "**Status:** Accepted"
+    },
+    {
+      "source": "nexus-system/docs/adrs/ADR-005-automated-task-completion-pipeline.md",
+      "destination": "nexus-system/docs/adrs/ADR-005-automated-task-completion-pipeline.md",
+      "docType": "adr",
+      "status": "planned",
+      "reason": "**Status:** Proposed"
     }
   ],
-  "summary": "Analysed 22 plan(s) and 3 ADR(s). Found: 8 planned, 1 in progress, 6 completed, 1 superseded, 9 stale. 16 move(s) proposed."
+  "summary": "Analysed 22 plan(s) and 4 ADR(s). Found: 9 planned, 1 in progress, 6 completed, 1 superseded, 9 stale. 17 move(s) proposed."
 }

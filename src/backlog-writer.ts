@@ -9,6 +9,9 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { logger } from "./logger.js";
+import type { BacklogStatus } from "./backlog-transitions.js";
+export type { BacklogStatus };
+export { getCurrentStatus, transitionBacklogStatus, isValidTransition as validateTransition } from "./backlog-transitions.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -260,6 +263,8 @@ export function issueToBacklogItem(
     correction: issue.recommendation,
   };
 }
+
+
 
 /**
  * Convert a maturity dimension gap to a backlog item.

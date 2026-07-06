@@ -108,6 +108,28 @@ function checkBuild() {
   }
 }
 
+// ── 7. Completion Gate (Rule #21) ─────────────────────────────────────────
+async function checkCompletionGate() {
+  try {
+    const mod = await import(resolve(ROOT, 'dist', 'task-completion.js'));
+    const result = mod.validateCompletionGate({
+      projectRoot: ROOT,
+      nexusDir: resolve(ROOT, 'nexus-system'),
+      taskId: 'session-close',
+    });
+    if (result.passed) {
+      pass('COMPLETION_GATE', 'All 4 gates passed (tests, lint, docs, backlog)');
+    } else {
+      const failures = result.gates
+        .filter((g: { passed: boolean }) => !g.passed)
+        .map((g: { name: string; message: string }) => `${g.name}: ${g.message}`);
+      fail('COMPLETION_GATE', `Gate(s) failed: ${failures.join('; ')}`);
+    }
+  } catch {
+    warn('COMPLETION_GATE', 'Completion gate module not available — skipping (run pnpm build first)');
+  }
+}
+
 // ── Execute ───────────────────────────────────────────────────────────────
 console.log('\n🔒 CLOSE SESSION — Closing session checklist\n');
 
@@ -117,6 +139,7 @@ checkBuffer();
 checkBacklog();
 checkCommit();
 checkBuild();
+await checkCompletionGate();
 
 console.log(`\n${exitCode === 0 ? '✅ Session ready to close' : '❌ Session has issues to resolve'}`);
 if (warnings.length > 0) {

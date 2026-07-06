@@ -4,11 +4,11 @@ session:
   status: "completed"
 
 current_task:
-  id: null
-  description: "Nenhuma tarefa activa"
-  status: "idle"
-  started_at: null
-  completed_at: null
+  id: "ADR-005-PIPELINE"
+  description: "Implementar ADR-005: Automated Task Completion Pipeline (Camada 1+2+3)"
+  status: "completed"
+  started_at: "2026-07-06T03:30:00Z"
+  completed_at: "2026-07-06T15:21:47.723Z"
 
 next_p0: "Nenhum P0 activo — todos concluídos"
 

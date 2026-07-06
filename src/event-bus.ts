@@ -31,6 +31,7 @@ export type NexusEventType =
   | "adr.created"
   | "skill.created"
   | "validation.completed"
+  | "task.completed"
   | "pipeline.stage.start"
   | "pipeline.stage.complete"
   | "pipeline.complete"

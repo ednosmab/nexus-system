@@ -83,6 +83,7 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
   "adr.created": 1,
   "skill.created": 1,
   "validation.completed": 1,
+  "task.completed": 1,
   "pipeline.stage.start": 1,
   "pipeline.stage.complete": 1,
   "pipeline.complete": 1,

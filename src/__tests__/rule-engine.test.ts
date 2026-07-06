@@ -245,6 +245,49 @@ describe("rule-engine", () => {
       const result = executeRules([rule], context);
       expect(result.summary).toContain("rules executed");
     });
+
+    it("executes update_context_buffer action", () => {
+      const bufPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+      mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
+      writeFileSync(bufPath, "current_task:\n  id: null\n  description: \"idle\"\n  status: \"in_progress\"\n", "utf-8");
+
+      const rule = createMockRule({
+        trigger: "session_start",
+        conditions: [],
+        actions: [
+          { type: "update_context_buffer", params: { field: "current_task.status", value: "completed" } },
+        ],
+      });
+      const context = createMockContext({ trigger: "session_start", nexusDir });
+
+      const result = executeRules([rule], context);
+      expect(result.rulesExecuted).toBe(1);
+      expect(result.rulesFailed).toBe(0);
+
+      const updated = readFileSync(bufPath, "utf-8");
+      expect(updated).toContain('status: "completed"');
+    });
+
+    it("executes update_backlog action", () => {
+      const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+      mkdirSync(join(nexusDir, "docs"), { recursive: true });
+      writeFileSync(backlogPath, "# BACKLOG\n\nExisting items\n", "utf-8");
+
+      const rule = createMockRule({
+        trigger: "session_start",
+        conditions: [],
+        actions: [
+          { type: "update_backlog", params: { item: "Test item added by rule" } },
+        ],
+      });
+      const context = createMockContext({ trigger: "session_start", nexusDir });
+
+      const result = executeRules([rule], context);
+      expect(result.rulesExecuted).toBe(1);
+
+      const backlog = readFileSync(backlogPath, "utf-8");
+      expect(backlog).toContain("Test item added by rule");
+    });
   });
 
   describe("getDefaultRules", () => {
