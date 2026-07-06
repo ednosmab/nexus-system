@@ -29,7 +29,8 @@
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "prepare": "husky",
     "sync:docs": "tsx nexus-system/scripts/sync-docs.ts",
-    "validate:docs": "tsx nexus-system/scripts/sync-docs.ts"
+    "validate:docs": "tsx nexus-system/scripts/sync-docs.ts",
+    "backlog": "tsx nexus-system/scripts/backlog.ts"
   },
   "keywords": [
     "ai",
