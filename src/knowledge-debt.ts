@@ -11,6 +11,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "./logger.js";
+import { calculateHealthPenalty } from "./formatting.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -427,20 +428,7 @@ function calculateDebtHealth(gaps: KnowledgeGap[]): number {
   let score = 100;
 
   for (const gap of gaps) {
-    switch (gap.severity) {
-      case "critical":
-        score -= 25;
-        break;
-      case "high":
-        score -= 15;
-        break;
-      case "medium":
-        score -= 8;
-        break;
-      case "low":
-        score -= 3;
-        break;
-    }
+    score -= calculateHealthPenalty(gap.severity);
   }
 
   return Math.max(0, Math.min(100, score));

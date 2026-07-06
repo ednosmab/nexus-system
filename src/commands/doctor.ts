@@ -17,7 +17,7 @@ import { logger } from "../logger.js";
 import ora from "ora";
 import { consolidateState, type NexusState } from "../state-manager.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "../knowledge-debt.js";
-import { healthBar, outputJson } from "../formatting.js";
+import { healthBar, outputJson, calculateHealthPenalty } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { recordFeedback } from "../feedback-loops.js";
@@ -243,10 +243,7 @@ export function runDoctorAnalysis(
   let healthScore = 100;
   for (const f of allFindings) {
     if (f.category === "risk") {
-      if (f.severity === "critical") healthScore -= 25;
-      else if (f.severity === "high") healthScore -= 15;
-      else if (f.severity === "medium") healthScore -= 8;
-      else healthScore -= 3;
+      healthScore -= calculateHealthPenalty(f.severity);
     }
   }
   healthScore = Math.max(0, Math.min(100, healthScore));

@@ -6,6 +6,21 @@
 
 import chalk from "chalk";
 
+// ── Health Score Constants ──────────────────────────────────────────────────
+
+/** Severity-to-penalty mapping for health score calculations. */
+export const HEALTH_SCORE_DEDUCTIONS = {
+  critical: 25,
+  high: 15,
+  medium: 8,
+  low: 3,
+} as const;
+
+/** Calculate health penalty for a given severity. */
+export function calculateHealthPenalty(severity: "critical" | "high" | "medium" | "low"): number {
+  return HEALTH_SCORE_DEDUCTIONS[severity];
+}
+
 /**
  * Render an ASCII health bar for a score.
  *

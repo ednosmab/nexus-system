@@ -65,8 +65,8 @@ interface ValidationResult {
 
 const VALID_ACTION_TYPES = [
   "create_reminder", "update_quick_board", "log_event",
-  "trigger_assessment", "trigger_health_check", "update_backlog", "run_script",
-  "run_nexus_command",
+  "trigger_assessment", "trigger_health_check", "update_backlog",
+  "run_local_script", "run_script", "run_nexus_command",
 ];
 
 function validateRule(rule: unknown): ValidationResult {
@@ -153,6 +153,7 @@ export type ActionType =
   | "trigger_assessment"
   | "trigger_health_check"
   | "update_backlog"
+  | "run_local_script"
   | "run_script"
   | "run_nexus_command"
   | "update_file"
@@ -454,7 +455,33 @@ function executeAction(
       }
     }
 
+    case "run_local_script": {
+      const script = String(action.params.script || "");
+      if (!script) return { success: false, message: "No script specified" };
+
+      if (!isScriptAllowed(script)) {
+        return {
+          success: false,
+          message: `Script "${script}" not in allowlist. Allowed: ${Object.keys(ALLOWED_SCRIPTS).join(", ")}`,
+        };
+      }
+
+      try {
+        const command = ALLOWED_SCRIPTS[script]!;
+        execSync(command, {
+          cwd: context.projectRoot,
+          timeout: 30000,
+          encoding: "utf-8",
+          stdio: "pipe",
+        });
+        return { success: true, message: `Script executed: ${script}` };
+      } catch (error) {
+        return { success: false, message: `Script failed: ${error instanceof Error ? error.message : String(error)}` };
+      }
+    }
+
     case "run_script": {
+      logger.warn("rule-engine", "'run_script' is deprecated, use 'run_local_script'");
       const script = String(action.params.script || "");
       if (!script) return { success: false, message: "No script specified" };
 

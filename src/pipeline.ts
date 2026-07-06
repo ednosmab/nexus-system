@@ -9,7 +9,7 @@
  * The state drives all decisions.
  */
 
-import { getEventBus, type NexusEventType } from "./event-bus.js";
+import { getEventBus } from "./event-bus.js";
 import { getHookBus } from "./plugin-system.js";
 import type { ProjectAnalysis } from "./analyser.js";
 import type { ComplexityReport } from "./scorer.js";
@@ -72,7 +72,7 @@ export class Pipeline {
     const bus = getEventBus();
     let current = { ...context };
 
-    bus.publish("pipeline.complete" as NexusEventType, {
+    bus.publish("pipeline.complete", {
       stages: this.stages.map((s) => s.name),
       startedAt: current.startedAt,
     });
@@ -80,7 +80,7 @@ export class Pipeline {
     for (const stage of this.stages) {
       const stageStart = Date.now();
 
-      bus.publish("pipeline.stage.start" as NexusEventType, {
+      bus.publish("pipeline.stage.start", {
         stage: stage.name,
         description: stage.description,
       });
@@ -102,7 +102,7 @@ export class Pipeline {
         // Execute post-analysis hooks
         current = await hookBus.executeHook("post-analysis", current, (_plugin, ctx) => ctx);
 
-        bus.publish("pipeline.stage.complete" as NexusEventType, {
+        bus.publish("pipeline.stage.complete", {
           stage: stage.name,
           duration,
           success: true,
@@ -118,7 +118,7 @@ export class Pipeline {
           success: false,
         });
 
-        bus.publish("pipeline.stage.complete" as NexusEventType, {
+        bus.publish("pipeline.stage.complete", {
           stage: stage.name,
           duration,
           success: false,
@@ -131,7 +131,7 @@ export class Pipeline {
 
     current.completedAt = new Date().toISOString();
 
-    bus.publish("pipeline.complete" as NexusEventType, {
+    bus.publish("pipeline.complete", {
       stages: this.stages.map((s) => s.name),
       startedAt: current.startedAt,
       completedAt: current.completedAt,

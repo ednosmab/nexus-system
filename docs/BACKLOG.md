@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-07-04 — feedback user-rating e nexus update adicionados ao P2
+> **Ultima atualizacao:** 2026-07-05 — auditoria completa concluida (items de baixo risco)
 
 ---
 
@@ -54,6 +54,11 @@
 | BACKLOG-0.7 | Critico | Actualizar documentação desactualizada (6 ficheiros) — 2026-07-05 |
 | SA2 | Critico | Resolvido import de node:fs em src/commands/digest.ts — 2026-07-05 |
 | 2.3 | Medio | Criado src/commands/update.ts e src/manifest.ts — 2026-07-05 |
+| AUDIT-CLEANUP-01 | Baixo | Testes knowledge-debt.test.ts e state-manager.test.ts criados — 2026-07-05 |
+| AUDIT-CLEANUP-02 | Baixo | Health score deductions extraidos para formatting.ts (HEALTH_SCORE_DEDUCTIONS) — 2026-07-05 |
+| AUDIT-CLEANUP-03 | Baixo | Removidos 4 casts as NexusEventType em pipeline.ts — 2026-07-05 |
+| AUDIT-CLEANUP-04 | Baixo | run_script → run_local_script (deprecated fallback) — 2026-07-05 |
+| AUDIT-CLEANUP-05 | Baixo | Planos de auditoria movidos para plans/done/ — 2026-07-05 |
 
 ---
 
