@@ -37,6 +37,12 @@ export interface SessionFeedbackRecord {
   notes?: string;
   /** Whether the session followed the briefing recommendations. */
   followedRecommendations?: boolean;
+  /** User-provided rating (1-5). */
+  userRating?: 1 | 2 | 3 | 4 | 5;
+  /** User-provided comment about the session. */
+  userComment?: string;
+  /** User-provided tags for categorization. */
+  userTags?: string[];
   /** Token economy metrics for this session */
   tokenEconomy?: {
     /** Tokens saved by using briefing vs manual discovery */
@@ -59,6 +65,10 @@ export interface SessionFeedbackSummary {
   avgSuccessDuration: number | null;
   /** Areas with most failures. */
   failureHotspots: string[];
+  /** Average user rating across sessions that have ratings. */
+  avgUserRating: number | null;
+  /** Total sessions with user ratings. */
+  ratedSessions: number;
   /** Token economy aggregated metrics */
   tokenEconomy: {
     /** Total tokens saved across all sessions */
@@ -176,6 +186,8 @@ export function computeFeedbackSummary(
   let totalDuration = 0;
   let successDurationCount = 0;
   const failureAreas: Record<string, number> = {};
+  let totalUserRating = 0;
+  let ratedSessions = 0;
 
   // Token economy aggregation
   let totalTokensSaved = 0;
@@ -201,6 +213,11 @@ export function computeFeedbackSummary(
       if (record.tokenEconomy.cacheHit) cacheHits++;
       tokenSessions++;
     }
+
+    if (record.userRating) {
+      totalUserRating += record.userRating;
+      ratedSessions++;
+    }
   }
 
   const totalSessions = records.length;
@@ -214,6 +231,10 @@ export function computeFeedbackSummary(
     .slice(0, 5)
     .map(([area]) => area);
 
+  const avgUserRating = ratedSessions > 0
+    ? Math.round((totalUserRating / ratedSessions) * 10) / 10
+    : null;
+
   const avgTokensSaved = tokenSessions > 0 ? Math.round(totalTokensSaved / tokenSessions) : 0;
   const cacheHitRate = tokenSessions > 0 ? cacheHits / tokenSessions : 0;
   const monthlyProjection = avgTokensSaved * 10; // 10 sessions/month
@@ -224,6 +245,8 @@ export function computeFeedbackSummary(
     successRate,
     avgSuccessDuration,
     failureHotspots,
+    avgUserRating,
+    ratedSessions,
     tokenEconomy: {
       totalTokensSaved,
       avgTokensSaved,

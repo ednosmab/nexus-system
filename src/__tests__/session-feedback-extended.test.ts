@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { recordOutcome, type SessionFeedbackRecord } from "../session-feedback.js";
+import { recordOutcome, computeFeedbackSummary, type SessionFeedbackRecord } from "../session-feedback.js";
 
 describe("session-feedback extended functions", () => {
   describe("getFeedbackForSession", () => {
@@ -98,6 +98,107 @@ describe("session-feedback extended functions", () => {
       });
 
       expect(result.sessionId).toBeUndefined();
+    });
+  });
+
+  describe("user feedback fields", () => {
+    it("records userRating when provided", () => {
+      const appended: SessionFeedbackRecord[] = [];
+      const storage = {
+        append: (r: SessionFeedbackRecord) => { appended.push(r); },
+        read: () => appended,
+      };
+
+      const result = recordOutcome(storage, {
+        outcome: "success",
+        briefingHash: "a",
+        briefingTimestamp: "t1",
+        userRating: 4,
+      });
+
+      expect(result.userRating).toBe(4);
+    });
+
+    it("records userComment when provided", () => {
+      const appended: SessionFeedbackRecord[] = [];
+      const storage = {
+        append: (r: SessionFeedbackRecord) => { appended.push(r); },
+        read: () => appended,
+      };
+
+      const result = recordOutcome(storage, {
+        outcome: "success",
+        briefingHash: "a",
+        briefingTimestamp: "t1",
+        userComment: "Great session, very productive",
+      });
+
+      expect(result.userComment).toBe("Great session, very productive");
+    });
+
+    it("records userTags when provided", () => {
+      const appended: SessionFeedbackRecord[] = [];
+      const storage = {
+        append: (r: SessionFeedbackRecord) => { appended.push(r); },
+        read: () => appended,
+      };
+
+      const result = recordOutcome(storage, {
+        outcome: "success",
+        briefingHash: "a",
+        briefingTimestamp: "t1",
+        userTags: ["refactor", "audit"],
+      });
+
+      expect(result.userTags).toEqual(["refactor", "audit"]);
+    });
+
+    it("omits user feedback fields when not provided", () => {
+      const appended: SessionFeedbackRecord[] = [];
+      const storage = {
+        append: (r: SessionFeedbackRecord) => { appended.push(r); },
+        read: () => appended,
+      };
+
+      const result = recordOutcome(storage, {
+        outcome: "success",
+        briefingHash: "a",
+        briefingTimestamp: "t1",
+      });
+
+      expect(result.userRating).toBeUndefined();
+      expect(result.userComment).toBeUndefined();
+      expect(result.userTags).toBeUndefined();
+    });
+  });
+
+  describe("computeFeedbackSummary with user ratings", () => {
+    it("calculates average user rating", () => {
+      const records: SessionFeedbackRecord[] = [
+        { id: "1", timestamp: "t1", outcome: "success", briefingHash: "a", briefingTimestamp: "t1", userRating: 4 },
+        { id: "2", timestamp: "t2", outcome: "success", briefingHash: "b", briefingTimestamp: "t2", userRating: 5 },
+        { id: "3", timestamp: "t3", outcome: "failure", briefingHash: "c", briefingTimestamp: "t3" },
+      ];
+
+      const summary = computeFeedbackSummary(records);
+      expect(summary.avgUserRating).toBe(4.5);
+      expect(summary.ratedSessions).toBe(2);
+    });
+
+    it("returns null avgUserRating when no ratings", () => {
+      const records: SessionFeedbackRecord[] = [
+        { id: "1", timestamp: "t1", outcome: "success", briefingHash: "a", briefingTimestamp: "t1" },
+      ];
+
+      const summary = computeFeedbackSummary(records);
+      expect(summary.avgUserRating).toBeNull();
+      expect(summary.ratedSessions).toBe(0);
+    });
+
+    it("returns null avgUserRating for empty records", () => {
+      const summary = computeFeedbackSummary([]);
+      expect(summary.avgUserRating).toBeNull();
+      expect(summary.ratedSessions).toBe(0);
     });
   });
 });

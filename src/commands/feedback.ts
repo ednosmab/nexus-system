@@ -8,6 +8,7 @@
  *   nexus feedback --outcome success
  *   nexus feedback --outcome failure --notes "Type error in auth module"
  *   nexus feedback --outcome partial --areas src/auth,src/payments
+ *   nexus feedback --outcome success --user-rating 4 --user-comment "Great session"
  *   nexus feedback --json
  *   nexus feedback --summary
  *   nexus feedback --personalized
@@ -40,6 +41,9 @@ export function feedbackCommand(): Command {
     .option("--notes <text>", "Optional notes about the session")
     .option("--duration <minutes>", "Session duration in minutes")
     .option("--session-id <id>", "Link feedback to a session-tracker session")
+    .option("--user-rating <1-5>", "User rating for the session (1-5)")
+    .option("--user-comment <text>", "User comment about the session")
+    .option("--user-tags <list>", "Comma-separated user tags for categorization")
     .option("--json", "Output as JSON")
     .option("--summary", "Show feedback summary statistics")
     .option("--personalized", "Generate personalized feedback based on user profile")
@@ -128,6 +132,10 @@ export function feedbackCommand(): Command {
           console.log(`     Avg duration:   ${chalk.cyan(`${summary.avgSuccessDuration}min`)}`);
         }
 
+        if (summary.avgUserRating !== null) {
+          console.log(`     Avg rating:     ${chalk.cyan(`${summary.avgUserRating}/5`)} (${summary.ratedSessions} rated)`);
+        }
+
         if (summary.failureHotspots.length > 0) {
           console.log("");
           console.log(chalk.bold("  🔥 Failure Hotspots"));
@@ -170,6 +178,18 @@ export function feedbackCommand(): Command {
       const briefingHash = cache?.entry?.inputHash ?? "";
       const briefingTimestamp = cache?.entry?.computedAt ?? "";
 
+      const userTags = options["user-tags"]
+        ? String(options["user-tags"]).split(",").map((t: string) => t.trim()).filter(Boolean)
+        : undefined;
+
+      const userRating = options["user-rating"]
+        ? Math.min(5, Math.max(1, parseInt(String(options["user-rating"]), 10)))
+        : undefined;
+
+      const userComment = options["user-comment"]
+        ? String(options["user-comment"])
+        : undefined;
+
       const storage = createFileStorage(ctx.nexusDir);
       const record = recordOutcome(storage, {
         outcome: outcome as "success" | "failure" | "partial",
@@ -179,6 +199,9 @@ export function feedbackCommand(): Command {
         notes: options.notes ? String(options.notes) : undefined,
         durationMinutes: Number.isFinite(durationMinutes) ? durationMinutes : undefined,
         sessionId: options["session-id"] ? String(options["session-id"]) : undefined,
+        userRating: userRating as 1 | 2 | 3 | 4 | 5 | undefined,
+        userComment,
+        userTags,
       });
 
       // Update user profile based on session outcome
@@ -205,6 +228,15 @@ export function feedbackCommand(): Command {
 
       console.log("");
       console.log(`${icon} ${color(`Session outcome: ${outcome}`)}`);
+      if (userRating) {
+        console.log(chalk.gray(`   Rating: ${userRating}/5`));
+      }
+      if (userComment) {
+        console.log(chalk.gray(`   Comment: ${userComment}`));
+      }
+      if (userTags && userTags.length > 0) {
+        console.log(chalk.gray(`   Tags: ${userTags.join(", ")}`));
+      }
       if (modifiedAreas && modifiedAreas.length > 0) {
         console.log(chalk.gray(`   Areas: ${modifiedAreas.join(", ")}`));
       }
