@@ -45,7 +45,7 @@ export function KnowledgeTab({ data }: KnowledgeTabProps): React.ReactElement {
       {/* Debt Overview */}
       <SectionBox title="Debt Overview">
         <Box>
-          <Text bold>Health Score: </Text>
+          <Text bold>Debt Health: </Text>
           <Text bold color="cyan">{debt.healthScore}/100</Text>
         </Box>
         <HealthBar label="" value={debt.healthScore} width={30} />

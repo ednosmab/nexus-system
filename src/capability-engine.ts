@@ -201,7 +201,7 @@ function getCapabilityFilesForEngine(capability: Capability): string[] {
   const fileMap: Record<Capability, string[]> = {
     core: ["docs/BACKLOG.md", "docs/AGENTS.md"],
     knowledge: ["docs/skills/", "docs/AGENTS.md"],
-    architecture: ["docs/adr/", "docs/plans/"],
+    architecture: ["docs/adrs/", "docs/plans/"],
     governance: ["governance/WORKFLOW.md", "governance/context/"],
     ai: ["governance/agents/", "cognition/"],
     quality: ["scripts/validate-session.ts"],
