@@ -195,11 +195,10 @@ export const assessCommand = new Command("assess")
 
     // Publish event
     getEventBus().publish("maturity.changed", {
-      projectRoot: ctx.projectRoot,
-      previousScore: previousProfile?.overallScore,
+      dimension: "overall",
+      previousScore: previousProfile?.overallScore ?? newProfile.overallScore,
       newScore: newProfile.overallScore,
-      scoreDelta,
-      recommendedCapabilities: newProfile.recommendedCapabilities,
+      delta: scoreDelta ?? 0,
     });
 
     // Record feedback for recommended capabilities

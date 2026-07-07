@@ -140,7 +140,12 @@ export const upgradeCommand = new Command("upgrade")
 
       // Publish event
       for (const cap of toInstall) {
-        getEventBus().publish("capability.installed", { capability: cap, projectRoot: ctx.projectRoot });
+        const capInfo = CAPABILITIES.find((c) => c.id === cap);
+        getEventBus().publish("capability.installed", {
+          capabilityId: cap,
+          capabilityName: capInfo?.name ?? cap,
+          version: cliVersion,
+        });
         recordFeedback(ctx.nexusDir, {
           recommendationId: `cap-${cap}`,
           action: "accepted",
@@ -270,7 +275,11 @@ export const upgradeCommand = new Command("upgrade")
         invalidateCache(targetDir);
 
       // Publish event
-      getEventBus().publish("capability.installed", { capability: targetCapability, projectRoot: ctx.projectRoot });
+      getEventBus().publish("capability.installed", {
+        capabilityId: targetCapability,
+        capabilityName: capInfo.name,
+        version: cliVersion,
+      });
       recordFeedback(ctx.nexusDir, {
         recommendationId: `cap-${targetCapability}`,
         action: "accepted",

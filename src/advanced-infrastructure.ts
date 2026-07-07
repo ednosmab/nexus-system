@@ -71,6 +71,7 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
   "session.start": 1,
   "session.end": 1,
   "analysis.complete": 1,
+  "command.completed": 1,
   "score.calculated": 1,
   "pattern.detected": 1,
   "health.checked": 1,

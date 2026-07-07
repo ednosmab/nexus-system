@@ -19,6 +19,7 @@ export type NexusEventType =
   | "session.start"
   | "session.end"
   | "analysis.complete"
+  | "command.completed"
   | "score.calculated"
   | "pattern.detected"
   | "health.checked"

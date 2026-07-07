@@ -3,7 +3,7 @@ import chalk from "chalk";
 import ora from "ora";
 import { detectPatterns, writePatternReport, type PatternDetectionReport } from "../pattern-detector.js";
 import { getCached, setCache, computeKeyChecksums } from "../cache.js";
-import { outputJson } from "../formatting.js";
+import { outputJson, banner } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { recordFeedback } from "../feedback-loops.js";
@@ -20,9 +20,7 @@ export const detectCommand = new Command("detect")
 
     if (!isJson) {
       console.log("");
-      console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      console.log(chalk.bold.cyan("  ║   nexus detect — Pattern Detection   ║"));
-      console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+      banner("nexus detect", "Pattern Detection");
       console.log("");
     }
 
@@ -157,10 +155,17 @@ export const detectCommand = new Command("detect")
       console.log("");
 
       // Publish event
+      const avgConfidence = report.patterns.length > 0
+        ? report.patterns.reduce((sum, p) => sum + (p.severity / 5), 0) / report.patterns.length
+        : 0;
       getEventBus().publish("pattern.detected", {
-        projectRoot: ctx.projectRoot,
-        patterns: report.patterns.length,
-        candidateRules: report.candidateRules.length,
+        patternType: report.patterns[0]?.type ?? "unknown",
+        confidence: avgConfidence,
+        patterns: report.patterns.map((p) => ({
+          type: p.type,
+          description: p.description,
+          severity: p.severity,
+        })),
       });
 
       // Record feedback for candidate rules

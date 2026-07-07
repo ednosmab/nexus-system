@@ -19,6 +19,8 @@ import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { recordOutcome, createFileStorage, getFeedbackRecords, computeFeedbackSummary } from "../session-feedback.js";
+import { trackFeedback } from "../session-tracker.js";
+import { getSessionId } from "../session-context.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
 import { readCache } from "../briefing-cache.js";
@@ -29,6 +31,7 @@ import {
   updateProfileFromSession,
   saveUserProfile,
 } from "../feedback-engine.js";
+import { parseUserRating, parseUserTags } from "../feedback-utils.js";
 
 // ── Command ────────────────────────────────────────────────────────────────
 
@@ -178,14 +181,8 @@ export function feedbackCommand(): Command {
       const briefingHash = cache?.entry?.inputHash ?? "";
       const briefingTimestamp = cache?.entry?.computedAt ?? "";
 
-      const userTags = options["user-tags"]
-        ? String(options["user-tags"]).split(",").map((t: string) => t.trim()).filter(Boolean)
-        : undefined;
-
-      const userRating = options["user-rating"]
-        ? Math.min(5, Math.max(1, parseInt(String(options["user-rating"]), 10)))
-        : undefined;
-
+      const userTags = parseUserTags(options["user-tags"] as string | undefined);
+      const userRating = parseUserRating(options["user-rating"] as string | undefined);
       const userComment = options["user-comment"]
         ? String(options["user-comment"])
         : undefined;
@@ -246,11 +243,23 @@ export function feedbackCommand(): Command {
       console.log(chalk.gray(`   Recorded: ${record.id}`));
       console.log("");
 
+      // Track feedback in session
+      const sessionId = options["session-id"] ? String(options["session-id"]) : getSessionId();
+      if (sessionId) {
+        trackFeedback(
+          ctx.nexusDir,
+          sessionId,
+          outcome as "accepted" | "rejected" | "deferred"
+        );
+      }
+
       // ── Event ────────────────────────────────────────────────────
-      getEventBus().publish("analysis.complete", {
+      const eventType = outcome === "success" ? "recommendation.accepted" : "recommendation.rejected";
+      getEventBus().publish(eventType, {
         type: "session_feedback",
         outcome,
         areas: modifiedAreas,
+        sessionId,
       });
     });
 

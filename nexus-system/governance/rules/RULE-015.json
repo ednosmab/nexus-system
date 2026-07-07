@@ -1,0 +1,13 @@
+{
+  "id": "RULE-015",
+  "description": "Verify active plans on session end",
+  "trigger": "session_end",
+  "conditions": [],
+  "actions": [
+    { "type": "log_event", params: { "event": "session_end_check", "message": "Session ended — verify no pending plans" } }
+  ],
+  "priority": 3,
+  "dependencies": [],
+  "enabled": true,
+  "tags": ["session", "plans", "verification"]
+}

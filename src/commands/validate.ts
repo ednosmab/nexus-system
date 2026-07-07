@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from 
 import { join } from "node:path";
 import chalk from "chalk";
 import { execSync } from "node:child_process";
-import { outputJson, statusIcon } from "../formatting.js";
+import { outputJson, statusIcon, banner } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 
@@ -23,9 +23,7 @@ export const validateCommand = new Command("validate")
 
     if (!isJson) {
       console.log("");
-      console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      console.log(chalk.bold.cyan("  ║    nexus validate — Session Check    ║"));
-      console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+      banner("nexus validate", "Session Check");
       console.log("");
     }
 
@@ -40,11 +38,15 @@ export const validateCommand = new Command("validate")
     const passCount = results.filter((r) => r.status === "pass").length;
     const warnCount = results.filter((r) => r.status === "warn").length;
     const failCount = results.filter((r) => r.status === "fail").length;
+    const passed = failCount === 0;
+    const issues = results
+      .filter((r) => r.status !== "pass")
+      .map((r) => `${r.name}: ${r.message}`);
     getEventBus().publish("validation.completed", {
-      projectRoot: ctx.projectRoot,
-      passCount,
-      warnCount,
-      failCount,
+      validatorType: "session",
+      passed,
+      issues,
+      duration: 0,
     });
 
     // JSON output

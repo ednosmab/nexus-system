@@ -4,7 +4,7 @@ import ora from "ora";
 import { join } from "node:path";
 import { auditHealth, writeHealthReport, type HealthAuditReport } from "../health-auditor.js";
 import { getCached, setCache, computeKeyChecksums } from "../cache.js";
-import { healthBar, outputJson } from "../formatting.js";
+import { healthBar, outputJson, banner } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { getHookBus } from "../plugin-system.js";
@@ -26,10 +26,8 @@ export const auditCommand = new Command("audit")
     if (!isJson) {
       const levelLabel = options.level === "code-review" ? "code-review" : options.level === "full" ? "full" : options.level === "quick" ? "quick" : "standard";
       console.log("");
-      console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      console.log(chalk.bold.cyan("  ║    nexus audit — Health Audit        ║"));
-      console.log(chalk.bold.cyan(`  ║    Level: ${levelLabel.padEnd(25)}║`));
-      console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+      banner("nexus audit", "Health Audit");
+      console.log(chalk.gray(`    Level: ${levelLabel}`));
       console.log("");
     }
 
@@ -323,11 +321,12 @@ export const auditCommand = new Command("audit")
       console.log("");
 
       // Publish event
+      const auditStatus = report.healthScore >= 70 ? "healthy" : report.healthScore >= 40 ? "degraded" : "critical";
       getEventBus().publish("health.checked", {
-        projectRoot: ctx.projectRoot,
+        status: auditStatus,
         healthScore: report.healthScore,
-        issues: report.issues.length,
-        optimizations: report.optimizations.length,
+        issues: report.issues.map((i) => i.description),
+        checksRun: report.totalRules,
       });
 
       // Auto-backlog: convert audit issues to backlog items

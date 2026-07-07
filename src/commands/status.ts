@@ -5,7 +5,7 @@ import chalk from "chalk";
 import { calculateComplexityScore, writeComplexityReport, type ComplexityReport } from "../scorer.js";
 import { analyseProject, type ProjectAnalysis } from "../analyser.js";
 import { getCached, setCache, computeKeyChecksums } from "../cache.js";
-import { healthBar, miniBar, outputJson, statusIcon } from "../formatting.js";
+import { healthBar, miniBar, outputJson, statusIcon, banner } from "../formatting.js";
 import { loadMaturityProfile, detectInstalledCapabilities, CAPABILITIES, type MaturityProfile } from "../maturity-profile.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
@@ -27,10 +27,7 @@ export const statusCommand = new Command("status")
     const isJson = options.json === true;
 
     if (!isJson) {
-      console.log("");
-      console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      console.log(chalk.bold.cyan("  ║      nexus status — Health Check     ║"));
-      console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+      console.log("");        banner("nexus status", "Health Check");
       console.log("");
     }
 
@@ -210,10 +207,10 @@ export const statusCommand = new Command("status")
 
     // Publish event
     getEventBus().publish("analysis.complete", {
-      projectRoot: ctx.projectRoot,
-      score: complexity.score,
-      level: complexity.level,
-      healthChecks: checks.length,
+      projectId: ctx.projectRoot,
+      maturityScore: maturityProfile?.overallScore ?? complexity.score,
+      dimensions: maturityProfile?.dimensions ?? {},
+      recommendations: complexity.suggestions,
     });
   });
 

@@ -71,23 +71,30 @@ export function installMiddleware(program: Command, ctx: MiddlewareContext): voi
     );
   });
 
+  let preActionTimestamp = 0;
+
+  program.hook("preAction", () => {
+    preActionTimestamp = Date.now();
+  });
+
   program.hook("postAction", async (thisCommand) => {
     const commandName = thisCommand.name();
+    const duration = preActionTimestamp ? Date.now() - preActionTimestamp : 0;
 
     // Execute post-analysis hook
     const hookBus = getHookBus();
     await hookBus.executeHook(
       "post-analysis",
-      { command: commandName, projectRoot: ctx.projectRoot, success: true, duration: 0 },
+      { command: commandName, projectRoot: ctx.projectRoot, success: true, duration },
       (_plugin, input) => input
     );
 
-    // Publish completion event
-    getEventBus().publish("analysis.complete", {
-      projectId: ctx.projectRoot,
-      maturityScore: 0,
-      dimensions: {},
-      recommendations: [],
+    // Publish telemetry event (command completed)
+    getEventBus().publish("command.completed", {
+      command: commandName,
+      projectRoot: ctx.projectRoot,
+      timestamp: new Date().toISOString(),
+      duration,
     });
   });
 }

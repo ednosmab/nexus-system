@@ -42,8 +42,10 @@ import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
 import { initializeKnowledgeGraph } from "../src/knowledge-graph.js";
 import { initializeCapabilityEngine } from "../src/capability-engine.js";
 import { startSession, endSession } from "../src/session-tracker.js";
+import { setSessionContext, clearSessionContext } from "../src/session-context.js";
 import { installMiddleware } from "../src/cli-middleware.js";
 import { startWatching, stopWatching } from "../src/file-watcher.js";
+import { initializeTaskPipeline } from "../src/task-pipeline.js";
 import { COMMAND_CATEGORIES, findCommand } from "../src/help-data.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -56,6 +58,7 @@ const nexusDir = join(projectRoot, "nexus-system");
 const isInitialized = existsSync(nexusDir);
 
 let currentSessionId: string | null = null;
+let currentSessionStartedAt: string | null = null;
 
 if (isInitialized) {
   enableEventPersistence(nexusDir);
@@ -63,9 +66,12 @@ if (isInitialized) {
   initializeRuleEngine(projectRoot, nexusDir);
   initializeKnowledgeGraph(nexusDir);
   initializeCapabilityEngine(projectRoot, nexusDir);
+  initializeTaskPipeline({ projectRoot, nexusDir });
 
   const session = startSession(nexusDir);
   currentSessionId = session.id;
+  currentSessionStartedAt = session.startedAt;
+  setSessionContext(session.id, session.startedAt);
 
   // Skip watcher + briefing in child processes (avoids deadlock via rule engine)
   if (!process.env.NEXUS_CHILD) {
@@ -87,6 +93,11 @@ if (isInitialized) {
     });
 
     startWatching(nexusDir);
+
+    // Ensure watcher cleanup on process exit
+    process.on("exit", () => stopWatching());
+    process.on("SIGINT", () => { stopWatching(); process.exit(0); });
+    process.on("SIGTERM", () => { stopWatching(); process.exit(0); });
 
     showBriefingSummary(projectRoot, nexusDir);
   }
@@ -280,12 +291,17 @@ program.parse();
 
 if (isInitialized && currentSessionId) {
   const bus = getEventBus();
+  const endedAt = new Date();
+  const duration = currentSessionStartedAt
+    ? Math.round((endedAt.getTime() - new Date(currentSessionStartedAt).getTime()) / 60000)
+    : 0;
   bus.publish("session.end", {
     sessionId: currentSessionId,
-    duration: 0,
+    duration,
     outcome: "success",
   });
   endSession(nexusDir, currentSessionId);
+  clearSessionContext();
   if (!process.env.NEXUS_CHILD) {
     stopWatching();
   }

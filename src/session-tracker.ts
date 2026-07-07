@@ -7,7 +7,7 @@
  * PRINCIPLE: To report on performance, we must first observe it.
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
+import { existsSync, readFileSync, mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "./logger.js";
 
@@ -26,6 +26,7 @@ export interface SessionRecord {
   pathChoices: { comfortable: number; challenging: number };
   branch?: string;
   commitCount?: number;
+  lastActivityAt?: string;
 }
 
 export interface SessionMetrics {
@@ -90,7 +91,8 @@ export function trackCommand(nexusDir: string, sessionId: string, command: strin
   if (!session) return;
 
   session.commands.push(command);
-  overwriteSessions(nexusDir, sessions);
+  session.lastActivityAt = new Date().toISOString();
+  appendSession(nexusDir, session);
 }
 
 /** Record a feedback event in the session. */
@@ -109,8 +111,8 @@ export function trackFeedback(
   if (action === "rejected") session.recommendationsRejected++;
   if (pathChoice === "comfortable") session.pathChoices.comfortable++;
   if (pathChoice === "challenging") session.pathChoices.challenging++;
-
-  overwriteSessions(nexusDir, sessions);
+  session.lastActivityAt = new Date().toISOString();
+  appendSession(nexusDir, session);
 }
 
 /** End a session and calculate duration. */
@@ -121,11 +123,12 @@ export function endSession(nexusDir: string, sessionId: string): SessionRecord |
 
   const endedAt = new Date();
   session.endedAt = endedAt.toISOString();
+  session.lastActivityAt = endedAt.toISOString();
 
   const startedAt = new Date(session.startedAt);
   session.duration = Math.round((endedAt.getTime() - startedAt.getTime()) / 60000);
 
-  overwriteSessions(nexusDir, sessions);
+  appendSession(nexusDir, session);
   logger.debug("SessionTracker", `Session ended: ${session.id} (${session.duration}min)`);
   return session;
 }
@@ -198,6 +201,14 @@ export function getSessionMetrics(nexusDir: string, days?: number): SessionMetri
 
 // ── Internal Helpers ─────────────────────────────────────────────────────────
 
+
+
+function appendSession(nexusDir: string, session: SessionRecord): void {
+  const sessionsPath = getSessionsPath(nexusDir);
+  appendFileSync(sessionsPath, JSON.stringify(session) + "\n", "utf-8");
+}
+
+/** Read all sessions and deduplicate by ID (keep latest entry per session). */
 function readAllSessions(nexusDir: string): SessionRecord[] {
   const sessionsPath = getSessionsPath(nexusDir);
   if (!existsSync(sessionsPath)) return [];
@@ -205,18 +216,37 @@ function readAllSessions(nexusDir: string): SessionRecord[] {
   try {
     const content = readFileSync(sessionsPath, "utf-8").trim();
     if (!content) return [];
-    return content.split("\n").map((line) => JSON.parse(line));
+
+    const entries = content.split("\n")
+      .map((line) => {
+        try {
+          const parsed = JSON.parse(line) as Record<string, unknown>;
+          if (
+            typeof parsed === "object" && parsed !== null &&
+            typeof parsed.id === "string" &&
+            typeof parsed.startedAt === "string" &&
+            Array.isArray(parsed.commands)
+          ) {
+            return parsed as unknown as SessionRecord;
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })
+      .filter((r): r is SessionRecord => r !== null);
+
+    // Deduplicate: keep the latest entry for each session ID
+    const latestById = new Map<string, SessionRecord>();
+    for (const entry of entries) {
+      const existing = latestById.get(entry.id);
+      if (!existing || new Date(entry.startedAt) >= new Date(existing.startedAt)) {
+        latestById.set(entry.id, entry);
+      }
+    }
+
+    return Array.from(latestById.values());
   } catch {
     return [];
   }
-}
-
-function appendSession(nexusDir: string, session: SessionRecord): void {
-  const sessionsPath = getSessionsPath(nexusDir);
-  appendFileSync(sessionsPath, JSON.stringify(session) + "\n", "utf-8");
-}
-
-function overwriteSessions(nexusDir: string, sessions: SessionRecord[]): void {
-  const sessionsPath = getSessionsPath(nexusDir);
-  writeFileSync(sessionsPath, sessions.map((s) => JSON.stringify(s)).join("\n") + "\n", "utf-8");
 }

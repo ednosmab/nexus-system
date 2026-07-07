@@ -43,6 +43,12 @@ export interface SessionEndPayload extends EventMeta {
 
 // ── Analysis Events ────────────────────────────────────────────────────────
 
+export interface CommandCompletedPayload extends EventMeta {
+  command: string;
+  projectRoot: string;
+  duration: number;
+}
+
 export interface AnalysisCompletePayload extends EventMeta {
   projectId: string;
   maturityScore: number;
@@ -310,6 +316,7 @@ export interface EventPayloadMap {
   "session.start": SessionStartPayload;
   "session.end": SessionEndPayload;
   "analysis.complete": AnalysisCompletePayload;
+  "command.completed": CommandCompletedPayload;
   "score.calculated": ScoreCalculatedPayload;
   "pattern.detected": PatternDetectedPayload;
   "health.checked": HealthCheckedPayload;

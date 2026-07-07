@@ -31,10 +31,11 @@ import {
   type MaturityProfile,
   type Capability,
 } from "../maturity-profile.js";
-import { healthBar } from "../formatting.js";
+import { healthBar, banner } from "../formatting.js";
 import { saveUserProfile } from "../feedback-engine.js";
 import { initializeRules } from "../rule-engine.js";
 import { createManifest, writeManifest } from "../manifest.js";
+import { getEventBus } from "../event-bus.js";
 import type { ProjectAnalysis } from "../analyser.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
@@ -125,9 +126,7 @@ export const initCommand = new Command("init")
   .option("--force", "Force creation inside nexus-cli (not recommended)")
   .action(async (options) => {
     console.log("");
-    console.log(chalk.bold.cyan("  ╔══════════════════════════════════════════╗"));
-    console.log(chalk.bold.cyan("  ║  nexus init — Maturity-Based Discovery   ║"));
-    console.log(chalk.bold.cyan("  ╚══════════════════════════════════════════╝"));
+    banner("nexus init", "Maturity-Based Discovery");
     console.log("");
 
     // Determine project root
@@ -240,6 +239,8 @@ export const initCommand = new Command("init")
 
     // Step 5: Scaffold by capabilities
     const scaffoldSpinner = ora("Installing governance ecosystem...").start();
+    const nexusDirForEvents = resolve(targetDir, "nexus-system");
+    const previousProfile = existsSync(nexusDirForEvents) ? loadMaturityProfile(nexusDirForEvents) : null;
     try {
       // Determine which capabilities to install (recommended + selected)
       const capsToInstall: Capability[] = ["core", ...profile.recommendedCapabilities];
@@ -357,6 +358,37 @@ export const initCommand = new Command("init")
         console.log(chalk.gray("  As your project grows, run 'nexus assess' to discover new capabilities."));
       }
       console.log("");
+
+      // Publish events for init completion
+      const bus = getEventBus();
+
+      // Asset created events for scaffolding files
+      for (const file of result.filesCreated) {
+        bus.publish("asset.created", {
+          assetId: file,
+          assetType: "governance",
+          path: file,
+        });
+      }
+
+      // Capability installed events
+      for (const cap of capsToInstall) {
+        bus.publish("capability.installed", {
+          capabilityId: cap,
+          capabilityName: cap,
+          version: cliVersion,
+        });
+      }
+
+      // Maturity changed event (initial score)
+      if (previousProfile) {
+        bus.publish("maturity.changed", {
+          dimension: "overall",
+          previousScore: previousProfile.overallScore,
+          newScore: profile.overallScore,
+          delta: profile.overallScore - previousProfile.overallScore,
+        });
+      }
     } catch (error) {
       scaffoldSpinner.fail("Failed to install ecosystem");
       console.error(chalk.red(`  Error: ${error}`));

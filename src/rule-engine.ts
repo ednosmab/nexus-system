@@ -481,11 +481,39 @@ function executeAction(
     }
 
     case "trigger_assessment": {
-      return { success: true, message: "Assessment triggered (manual action required)" };
+      const assessBin = join(context.projectRoot, "dist", "nexus.js");
+      if (!existsSync(assessBin)) {
+        return { success: true, message: "Assessment skipped: nexus binary not found (dev environment)" };
+      }
+      try {
+        execSync("NEXUS_CHILD=1 node dist/nexus.js assess", {
+          cwd: context.projectRoot,
+          timeout: 60000,
+          encoding: "utf-8",
+          stdio: "pipe",
+        });
+        return { success: true, message: "Assessment triggered successfully" };
+      } catch (error) {
+        return { success: false, message: `Assessment failed: ${error instanceof Error ? error.message : String(error)}` };
+      }
     }
 
     case "trigger_health_check": {
-      return { success: true, message: "Health check triggered (manual action required)" };
+      const doctorBin = join(context.projectRoot, "dist", "nexus.js");
+      if (!existsSync(doctorBin)) {
+        return { success: true, message: "Health check skipped: nexus binary not found (dev environment)" };
+      }
+      try {
+        execSync("NEXUS_CHILD=1 node dist/nexus.js doctor", {
+          cwd: context.projectRoot,
+          timeout: 60000,
+          encoding: "utf-8",
+          stdio: "pipe",
+        });
+        return { success: true, message: "Health check triggered successfully" };
+      } catch (error) {
+        return { success: false, message: `Health check failed: ${error instanceof Error ? error.message : String(error)}` };
+      }
     }
 
     case "update_backlog": {
@@ -964,8 +992,15 @@ export function initializeRuleEngine(
         return;
       }
 
+      // Determine actual trigger based on payload
+      let actualTrigger = trigger;
+      if (eventType === "validation.completed") {
+        const p = payload as Record<string, unknown>;
+        actualTrigger = p.passed === false ? "validation_fail" : "validation_pass";
+      }
+
       const context: RuleContext = {
-        trigger,
+        trigger: actualTrigger,
         eventData: payload as Record<string, unknown>,
         projectRoot,
         nexusDir,

@@ -22,7 +22,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { analyseProject, type ProjectAnalysis } from "./analyser.js";
-import { detectPatterns, type DetectedPattern } from "./pattern-detector.js";
+import { detectPatterns as _detectPatterns, type PatternDetectionReport, type DetectedPattern } from "./pattern-detector.js";
 import { getFeedbackRecords, computeFeedbackSummary } from "./session-feedback.js";
 import { logger } from "./logger.js";
 import { computeInputHash } from "./briefing-cache.js";
@@ -41,6 +41,7 @@ export interface ContextDeps {
   generateContextRules: (fp: ProjectFingerprint, risk: RiskMap) => ContextRule[];
   generateDynamicRules: (root: string, nexusDir: string) => DynamicRule[];
   generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }) => Briefing;
+  detectPatterns: (projectRoot: string, nexusDir: string) => PatternDetectionReport;
 }
 
 /** The collected context snapshot. */
@@ -77,6 +78,7 @@ export const defaultDeps: ContextDeps = {
   generateContextRules,
   generateDynamicRules,
   generateBriefing,
+  detectPatterns: _detectPatterns,
 };
 
 // ── Main Collector ─────────────────────────────────────────────────────────
@@ -122,7 +124,7 @@ export function collectContext(
   const briefing = deps.generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined, quickBoard);
 
   // 7. Enrich briefing with detected patterns (Gap 4+5: feedback hotspots + pattern-detector)
-  const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, nexusDir);
+  const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, nexusDir, deps);
 
   // 8. Compute input hash for cache invalidation
   const inputHash = computeInputHash({
@@ -158,7 +160,8 @@ function enrichBriefingWithPatterns(
   briefing: Briefing,
   projectRoot: string,
   nexusDir: string,
-  existingPatternReport?: ReturnType<typeof detectPatterns>
+  deps: ContextDeps,
+  existingPatternReport?: PatternDetectionReport
 ): Briefing {
   // Gap 4: Populate recurringErrors from feedback failure hotspots
   let recurringErrors: string[] = [];
@@ -175,7 +178,7 @@ function enrichBriefingWithPatterns(
   // Gap 5: Populate detected patterns from pattern-detector
   let detected: Briefing["patterns"]["detected"] = [];
   try {
-    const patternReport = existingPatternReport ?? detectPatterns(projectRoot, nexusDir);
+    const patternReport = existingPatternReport ?? deps.detectPatterns(projectRoot, nexusDir);
     detected = patternReport.patterns.map((p: DetectedPattern) => ({
       type: p.type,
       description: p.description,

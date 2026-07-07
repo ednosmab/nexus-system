@@ -99,6 +99,40 @@ export class Pipeline {
           success: true,
         });
 
+        // Publish stage-specific events
+        if (stage.name === "pattern_detection" && current.patternReport) {
+          bus.publish("pattern.detected", {
+            patternType: current.patternReport.patterns[0]?.type ?? "unknown",
+            confidence: current.patternReport.patterns.length > 0
+              ? current.patternReport.patterns.reduce((sum, p) => sum + (p.severity / 5), 0) / current.patternReport.patterns.length
+              : 0,
+            patterns: current.patternReport.patterns.map((p) => ({
+              type: p.type,
+              description: p.description,
+              severity: p.severity,
+            })),
+          });
+        }
+
+        if (stage.name === "knowledge_debt" && current.knowledgeDebtReport) {
+          bus.publish("knowledge_debt.detected", {
+            gapCount: current.knowledgeDebtReport.totalGaps,
+            gaps: current.knowledgeDebtReport.gaps.map((g) => ({
+              source: g.location,
+              gap: g.description,
+              severity: g.severity,
+            })),
+          });
+        }
+
+        if (stage.name === "engineering_state" && current.engineeringState) {
+          bus.publish("engineering_state.consolidated", {
+            totalDimensions: 7,
+            changedDimensions: [],
+            overallHealth: current.engineeringState.healthScores.overall,
+          });
+        }
+
         // Execute post-analysis hooks
         current = await hookBus.executeHook("post-analysis", current, (_plugin, ctx) => ctx);
 
