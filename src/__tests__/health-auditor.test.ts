@@ -360,7 +360,7 @@ describe("detectBrokenRefs - template filtering", () => {
     mkdirSync(join(nexusDir, "governance"), { recursive: true });
     writeFileSync(
       join(nexusDir, "governance", "WORKFLOW.md"),
-      "# Workflow\nSee `docs/plans/YYYY-MM-DD-<slug>.md`"
+      "# Workflow\nSee `governance/plans/YYYY-MM-DD-<slug>.md`"
     );
 
     const report = auditHealth(tempDir, nexusDir);
@@ -374,7 +374,7 @@ describe("detectBrokenRefs - template filtering", () => {
     mkdirSync(join(nexusDir, "governance"), { recursive: true });
     writeFileSync(
       join(nexusDir, "governance", "WORKFLOW.md"),
-      "# Workflow\nSee `docs/plans/YYYY-MM-DD-<task>.md`"
+      "# Workflow\nSee `governance/plans/YYYY-MM-DD-<task>.md`"
     );
 
     const report = auditHealth(tempDir, nexusDir);
@@ -518,14 +518,14 @@ describe("detectBrokenDirRefs - expanded scan", () => {
   it("detects broken directory reference in capabilities.md", () => {
     mkdirSync(join(nexusDir, "docs"), { recursive: true });
     mkdirSync(join(nexusDir, "governance"), { recursive: true });
-    writeFileSync(join(nexusDir, "docs", "capabilities.md"), "# Capabilities\n- Planos em `docs/plans/`");
+    writeFileSync(join(nexusDir, "docs", "capabilities.md"), "# Capabilities\n- Planos em `governance/plans/`");
     writeFileSync(join(nexusDir, "governance", "WORKFLOW.md"), "# Workflow");
     writeFileSync(join(nexusDir, "governance", "SYSTEM_MAP.md"), "# Map");
     writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "# Agents");
 
     const report = auditHealth(tempDir, nexusDir);
     const dirRefIssue = report.issues.find(
-      (i) => i.type === "broken_ref" && i.description.includes("docs/plans/"),
+      (i) => i.type === "broken_ref" && i.description.includes("governance/plans/"),
     );
     expect(dirRefIssue).toBeDefined();
   });

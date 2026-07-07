@@ -62,14 +62,14 @@ const CAPABILITY_MAPPINGS: Record<Capability, CapabilityMapping> = {
     directories: [
       "nexus-system/docs/adrs",
       "nexus-system/docs/sdr",
-      "nexus-system/docs/plans",
+      "nexus-system/governance/plans",
       "nexus-system/docs/session-template",
       "nexus-system/docs/layers",
     ],
     files: [
       { src: "docs/adrs/ADR-TEMPLATE.md", dest: "nexus-system/docs/adrs/ADR-TEMPLATE.md" },
       { src: "docs/sdr/SDR-TEMPLATE.md", dest: "nexus-system/docs/sdr/SDR-TEMPLATE.md" },
-      { src: "docs/plans/TEMPLATE.md", dest: "nexus-system/docs/plans/TEMPLATE.md" },
+      { src: "docs/plans/TEMPLATE.md", dest: "nexus-system/governance/plans/TEMPLATE.md" },
       { src: "docs/session-template.md", dest: "nexus-system/docs/session-template.md" },
     ],
   },

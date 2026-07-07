@@ -259,8 +259,8 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  // Plans
-  const plansDir = join(nexusDir, "docs", "plans");
+  // Plans (markdown execution plans)
+  const plansDir = join(nexusDir, "governance", "plans");
   if (existsSync(plansDir)) {
     const files = readdirSync(plansDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("TEMPLATE")
@@ -270,7 +270,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
         id: `plan-${file.replace(".md", "")}`,
         type: "plan",
         name: file.replace(".md", "").replace(/-/g, " "),
-        path: `docs/plans/${file}`,
+        path: `governance/plans/${file}`,
         description: `Execution plan: ${file}`,
         tags: ["plan", "execution"],
         createdAt: now,

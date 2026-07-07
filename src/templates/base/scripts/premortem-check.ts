@@ -37,7 +37,7 @@ if (existsSync(ADR_DIR)) {
 
 // ── 3. Insufficient context? ──────────────────────────────────────────────
 warn('CONTEXT', 'Verifique se o plano cobre todos os cenários e se há ambiguidades');
-warn('CONTEXT', 'Consulte context_buffer.yaml e o plano activo em nexus-system/docs/plans/');
+warn('CONTEXT', 'Consulte context_buffer.yaml e o plano activo em nexus-system/governance/plans/');
 
 // ── 4. Regression risk? ───────────────────────────────────────────────────
 warn('REGRESSION', 'Identifique testes existentes que podem falhar');

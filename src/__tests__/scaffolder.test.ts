@@ -212,7 +212,7 @@ describe("scaffoldNexusSystem", () => {
         "nexus-system/docs/sdr/SDR-TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/docs/plans/TEMPLATE.md"
+        "nexus-system/governance/plans/TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
         "nexus-system/docs/session-template.md"
