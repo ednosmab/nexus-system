@@ -66,7 +66,7 @@ Utilizador envia tarefa
 
 ### FEATURE
 1. Ler WORKFLOW.md → context_buffer → premortem
-2. Criar plano em `docs/plans/YYYY-MM-DD-<task>.md`
+2. Criar plano em `governance/plans/YYYY-MM-DD-<task>.md`
 3. Ler skill da camada (P2)
 4. Implementar cirurgicamente
 5. Testar, validar, consolidar
@@ -102,7 +102,7 @@ Utilizador envia tarefa
 | 1 | Ler WORKFLOW.md | `governance/WORKFLOW.md` |
 | 2 | Ler buffer | `governance/context/context_buffer.yaml` |
 | 3 | Premortem | `npx tsx scripts/premortem-check.ts` |
-| 4 | Planear | Criar `docs/plans/YYYY-MM-DD-<task>.md` |
+| 4 | Planear | Criar `governance/plans/YYYY-MM-DD-<task>.md` |
 | 5 | Implementar | Código na pasta permitida |
 | 6 | Testar | `pnpm run test` |
 | 7 | Validar | `npx tsx scripts/validate-session.ts` |

@@ -60,7 +60,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Decisões arquiteturais, planos e templates |
 | **Regras AGENTS.md** | #12 (review mode), #15-16 (plan/build mode) |
-| **Directórios** | `nexus-system/docs/adrs/`, `nexus-system/docs/plans/` |
+| **Directórios** | `nexus-system/docs/adrs/`, `nexus-system/governance/plans/` |
 | **Arquivos-chave** | ADR-TEMPLATE.md, SDR-TEMPLATE.md, TEMPLATE.md |
 | **Depende de** | core |
 

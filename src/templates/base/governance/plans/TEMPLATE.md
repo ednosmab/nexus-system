@@ -1,9 +1,11 @@
 # Plano: <NOME DA TAREFA>
 
 **Data:** YYYY-MM-DD
+**Status:** In Progress
 **Autor do plano:** <plan agent>
 **Executor previsto:** <build agent>
 **Reviewer:** <review agent>
+**Updated_at:** YYYY-MM-DD
 
 ## 🎯 Objectivo
 

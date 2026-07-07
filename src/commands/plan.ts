@@ -23,6 +23,7 @@ import {
   FilePlanRepository,
   type PlanStatus,
 } from "../plan-engine.js";
+import { MarkdownPlanEngine, type MarkdownPlanStatus } from "../markdown-plan-engine.js";
 import { ActionEngine, FileExecutionRepository } from "../action-engine.js";
 import { outputJson } from "../formatting.js";
 
@@ -346,6 +347,197 @@ export function planCommand(): Command {
         outputJson({ deleted: true, id });
       } else {
         console.log(chalk.green(`  ✓ Plan deleted: ${id}`));
+      }
+    });
+
+  // ── md subcommand (markdown plans) ───────────────────────────────────────
+  const mdCmd = cmd
+    .command("md")
+    .description("Manage markdown execution plans");
+
+  // ── md list ──────────────────────────────────────────────────────────────
+  mdCmd
+    .command("list")
+    .description("List active markdown plans")
+    .option("--done", "Include done plans")
+    .option("--json", "Output as JSON")
+    .action((opts: Record<string, unknown>) => {
+      const isJson = opts.json === true;
+      const ctx = guardNotInitialized(opts, isJson);
+      if (!ctx) return;
+
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      let plans = engine.list();
+
+      if (opts.done) {
+        plans = [...plans, ...engine.listDone()];
+      }
+
+      if (isJson) {
+        outputJson(plans as unknown as Record<string, unknown>);
+        return;
+      }
+
+      if (plans.length === 0) {
+        console.log(chalk.dim("  No markdown plans found."));
+        return;
+      }
+
+      console.log("");
+      console.log(chalk.bold(`  Markdown Plans (${plans.length})`));
+      console.log(chalk.dim("  " + "─".repeat(50)));
+      for (const plan of plans) {
+        const status = plan.status === "done" ? chalk.green("done") :
+                       plan.status === "parado" ? chalk.yellow("parado") :
+                       chalk.cyan("andamento");
+        console.log(`  ${chalk.bold(plan.id)}  ${status.padEnd(12)}  ${plan.title}`);
+      }
+      console.log("");
+    });
+
+  // ── md show ──────────────────────────────────────────────────────────────
+  mdCmd
+    .command("show")
+    .description("Show markdown plan details")
+    .argument("<id>", "Plan ID (filename without .md)")
+    .option("--json", "Output as JSON")
+    .action((id: string, opts: Record<string, unknown>) => {
+      const isJson = opts.json === true;
+      const ctx = guardNotInitialized(opts, isJson);
+      if (!ctx) return;
+
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const plan = engine.getById(id);
+
+      if (!plan) {
+        if (isJson) {
+          outputJson({ error: "Plan not found" });
+        } else {
+          console.log(chalk.red(`  Plan not found: ${id}`));
+        }
+        return;
+      }
+
+      if (isJson) {
+        outputJson(plan as unknown as Record<string, unknown>);
+        return;
+      }
+
+      console.log("");
+      console.log(chalk.bold(`  Plan: ${plan.title}`));
+      console.log(chalk.dim("  " + "─".repeat(50)));
+      console.log(`  ID:       ${plan.id}`);
+      console.log(`  Status:   ${plan.status}`);
+      console.log(`  Created:  ${plan.createdAt || "N/A"}`);
+      console.log(`  Updated:  ${plan.updatedAt || "N/A"}`);
+      console.log(`  Path:     ${plan.relativePath}`);
+      console.log("");
+    });
+
+  // ── md status ────────────────────────────────────────────────────────────
+  mdCmd
+    .command("status")
+    .description("Update markdown plan status")
+    .argument("<id>", "Plan ID")
+    .argument("<status>", "New status: andamento, parado, done")
+    .option("--json", "Output as JSON")
+    .action((id: string, status: string, opts: Record<string, unknown>) => {
+      const isJson = opts.json === true;
+      const ctx = guardNotInitialized(opts, isJson);
+      if (!ctx) return;
+
+      const validStatuses: MarkdownPlanStatus[] = ["andamento", "parado", "done"];
+      if (!validStatuses.includes(status as MarkdownPlanStatus)) {
+        if (isJson) {
+          outputJson({ error: `Invalid status. Must be: ${validStatuses.join(", ")}` });
+        } else {
+          console.log(chalk.red(`  Invalid status: ${status}. Must be: ${validStatuses.join(", ")}`));
+        }
+        return;
+      }
+
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      try {
+        const updated = engine.updateStatus(id, status as MarkdownPlanStatus);
+
+        if (isJson) {
+          outputJson(updated as unknown as Record<string, unknown>);
+        } else {
+          console.log(chalk.green(`  ✓ Plan status updated: ${id} → ${status}`));
+          if (status === "done") {
+            console.log(chalk.dim(`    Moved to done/ directory`));
+          }
+        }
+      } catch (error) {
+        if (isJson) {
+          outputJson({ error: error instanceof Error ? error.message : String(error) });
+        } else {
+          console.log(chalk.red(`  Error: ${error instanceof Error ? error.message : String(error)}`));
+        }
+      }
+    });
+
+  // ── md done ──────────────────────────────────────────────────────────────
+  mdCmd
+    .command("done")
+    .description("Mark markdown plan as done and move to done/")
+    .argument("<id>", "Plan ID")
+    .option("--json", "Output as JSON")
+    .action((id: string, opts: Record<string, unknown>) => {
+      const isJson = opts.json === true;
+      const ctx = guardNotInitialized(opts, isJson);
+      if (!ctx) return;
+
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      try {
+        const updated = engine.updateStatus(id, "done");
+
+        if (isJson) {
+          outputJson(updated as unknown as Record<string, unknown>);
+        } else {
+          console.log(chalk.green(`  ✓ Plan marked as done: ${id}`));
+          console.log(chalk.dim(`    Moved to done/ directory`));
+        }
+      } catch (error) {
+        if (isJson) {
+          outputJson({ error: error instanceof Error ? error.message : String(error) });
+        } else {
+          console.log(chalk.red(`  Error: ${error instanceof Error ? error.message : String(error)}`));
+        }
+      }
+    });
+
+  // ── md create ────────────────────────────────────────────────────────────
+  mdCmd
+    .command("create")
+    .description("Create a new markdown plan")
+    .argument("<title>", "Plan title")
+    .option("--description <text>", "Plan description")
+    .option("--priority <level>", "Priority (P0, P1, P2)", "P1")
+    .option("--time <estimate>", "Estimated time")
+    .option("--owner <name>", "Plan owner", "AI Agent")
+    .option("--json", "Output as JSON")
+    .action((title: string, opts: Record<string, unknown>) => {
+      const isJson = opts.json === true;
+      const ctx = guardNotInitialized(opts, isJson);
+      if (!ctx) return;
+
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const plan = engine.create({
+        title,
+        description: opts.description as string,
+        priority: opts.priority as string,
+        estimatedTime: opts.time as string,
+        owner: opts.owner as string,
+      });
+
+      if (isJson) {
+        outputJson(plan as unknown as Record<string, unknown>);
+      } else {
+        console.log(chalk.green(`  ✓ Plan created: ${chalk.bold(plan.id)}`));
+        console.log(`    ${plan.title}`);
+        console.log(`    Path: ${plan.relativePath}`);
+        console.log("");
       }
     });
 
