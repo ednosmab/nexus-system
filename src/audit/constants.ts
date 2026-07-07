@@ -28,7 +28,7 @@ export const BLOCKED_LICENSES = ["GPL-3.0", "AGPL-3.0", "SSPL-1.0", "EUPL-1.1"];
 
 // ── Security Detector Self-Paths ─────────────────────────────────────────────
 
-export const SECURITY_DETECTOR_SELF_PATHS = ["src/health-auditor.ts", "src/audit/taint/"];
+export const SECURITY_DETECTOR_SELF_PATHS = ["src/health-auditor.ts", "src/audit/taint/", "src/audit/engineering-detectors.ts"];
 
 // ── Complexity Thresholds ────────────────────────────────────────────────────
 

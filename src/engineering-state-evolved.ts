@@ -119,6 +119,19 @@ export class CapabilityLifecycleTracker {
       timestamp: new Date().toISOString(),
     });
 
+    // Publish capability.unlocked if this is an upgrade
+    const stateOrder: CapabilityLifecycleState[] = ["detected", "installed", "configured", "validated", "healthy"];
+    const prevIdx = stateOrder.indexOf(previous);
+    const newIdx = stateOrder.indexOf(newState);
+    if (prevIdx >= 0 && newIdx > prevIdx) {
+      bus.publish("capability.unlocked", {
+        capabilityId,
+        previousLevel: previous,
+        newLevel: newState,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     return { previous, current: newState };
   }
 

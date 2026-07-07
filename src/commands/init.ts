@@ -33,8 +33,6 @@ import {
 import { healthBar } from "../formatting.js";
 import { saveUserProfile } from "../feedback-engine.js";
 import { initializeRules } from "../rule-engine.js";
-import { auditHealth, type HealthAuditReport } from "../health-auditor.js";
-import { discoverArtifacts, discoverRelations, analyzeGraph, type GraphAnalysis } from "../knowledge-graph.js";
 import { createManifest, writeManifest } from "../manifest.js";
 import type { ProjectAnalysis } from "../analyser.js";
 
@@ -108,54 +106,6 @@ export function isStarterProject(analysis: ProjectAnalysis): boolean {
   return analysis.sourceFileCount < 10 && analysis.totalCommits < 1;
 }
 
-// ── Mini Dashboard Display ─────────────────────────────────────────────────
-
-function displayMiniDashboard(
-  auditReport: HealthAuditReport,
-  graphAnalysis: GraphAnalysis,
-): void {
-  const score = auditReport.healthScore;
-  const scoreColor = score >= 70 ? chalk.green : score >= 40 ? chalk.yellow : chalk.red;
-
-  console.log(chalk.bold.green("  ═══ Governance Health ═══"));
-  console.log("");
-
-  // Health Score
-  console.log(`    Health Score:  ${scoreColor(String(score) + "/100")}  ${healthBar(score, 100)}`);
-  console.log(`    Rules:         ${chalk.bold(String(auditReport.totalRules))} active`);
-  console.log(`    History:       ${auditReport.historyEntries} session(s) analyzed`);
-
-  // Issues summary
-  const critical = auditReport.issues.filter((i) => i.severity === 3).length;
-  const warning = auditReport.issues.filter((i) => i.severity === 2).length;
-  const info = auditReport.issues.filter((i) => i.severity === 1).length;
-  console.log(`    Issues:        ${auditReport.issues.length} (${critical} critical, ${warning} warning, ${info} info)`);
-
-  // Knowledge Graph
-  const graphScore = graphAnalysis.healthScore;
-  const graphColor = graphScore >= 70 ? chalk.green : graphScore >= 40 ? chalk.yellow : chalk.red;
-  console.log("");
-  console.log(chalk.bold("  Knowledge Graph:"));
-  console.log(`    Artifacts:   ${graphAnalysis.totalArtifacts}`);
-  console.log(`    Relations:   ${graphAnalysis.totalRelations}`);
-  console.log(`    Health:      ${graphColor(String(graphScore) + "/100")}  ${healthBar(graphScore, 100)}`);
-  console.log(`    Orphans:     ${graphAnalysis.orphanArtifacts.length}`);
-
-  // Top issues (max 3)
-  if (auditReport.issues.length > 0) {
-    console.log("");
-    console.log(chalk.bold("  Top Issues:"));
-    const topIssues = auditReport.issues.slice(0, 3);
-    for (const issue of topIssues) {
-      const icon = issue.severity === 3 ? chalk.red("✘") : issue.severity === 2 ? chalk.yellow("⚠") : chalk.gray("ℹ");
-      console.log(`    ${icon} ${issue.description}`);
-    }
-  }
-
-  console.log("");
-  console.log(chalk.gray("  Next: nexus audit --json for full report"));
-  console.log("");
-}
 
 // ── Safety Guard ───────────────────────────────────────────────────────────
 
@@ -194,7 +144,7 @@ export const initCommand = new Command("init")
     }
 
     // Check if already initialized
-    if (existsSync(resolve(targetDir, "opencode.json"))) {
+    if (existsSync(resolve(targetDir, "nexus-system"))) {
       console.log(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
       console.log("");
       console.log(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
@@ -228,63 +178,8 @@ export const initCommand = new Command("init")
         console.log("");
       }
 
-      // Get fresh answers
-      console.log(chalk.bold("  Answer a few questions to re-evaluate your maturity:"));
+      console.log(chalk.gray("  Or:  nexus init --accept-recommended"));
       console.log("");
-      const answers = await askQuestions(analysis);
-
-      // Calculate new maturity profile
-      const profileSpinner = ora("Calculating maturity profile...").start();
-      const profile = calculateMaturityProfile(answers.maturity, analysis, nexusDir);
-      profileSpinner.succeed("Maturity profile calculated");
-
-      // Display new profile
-      console.log("");
-      console.log(chalk.bold.green("  ═══ Updated Maturity Profile ═══"));
-      console.log("");
-      displayMaturityDimensions(profile);
-      console.log("");
-      displayCapabilities(profile);
-
-      // Check if there are new capabilities to install
-      const recommended = profile.recommendedCapabilities;
-
-      if (recommended.length > 0) {
-        console.log(chalk.bold.cyan("  🎯 New capabilities available:"));
-        for (const cap of recommended) {
-          const info = CAPABILITIES.find((c) => c.id === cap);
-          console.log(chalk.cyan(`    → ${info?.name || cap} — ${info?.description || ""}`));
-          console.log(chalk.gray(`      Install with: nexus upgrade --capability ${cap}`));
-        }
-        console.log("");
-        console.log(chalk.gray("  Or install all recommended: nexus upgrade --accept-recommended"));
-      } else {
-        console.log(chalk.green("  ✔ Your project is well-equipped! No new capabilities recommended."));
-      }
-      console.log("");
-
-      // Run audit for active projects (not starters)
-      if (isStarterProject(analysis)) {
-        console.log(chalk.bold("  Project appears to be a starter (minimal code detected)."));
-        console.log(chalk.gray("  Run 'nexus audit' once you have implementation code."));
-        console.log("");
-      } else {
-        const auditSpinner = ora("Running governance audit...").start();
-        try {
-          const auditReport = auditHealth(targetDir, nexusDir);
-          const artifacts = discoverArtifacts(nexusDir);
-          const relations = discoverRelations(artifacts);
-          const graphAnalysis = analyzeGraph(artifacts, relations);
-          auditSpinner.succeed("Audit complete");
-          console.log("");
-          displayMiniDashboard(auditReport, graphAnalysis);
-        } catch (error) {
-          auditSpinner.fail("Audit failed");
-          console.log(chalk.gray(`  ${error instanceof Error ? error.message : "Unknown error"}`));
-          console.log(chalk.gray("  Run 'nexus audit' manually for details."));
-          console.log("");
-        }
-      }
 
       return;
     }

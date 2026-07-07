@@ -23,7 +23,6 @@ export const COMMAND_GATES: Record<string, string> = {
   assess: "discovered",
   doctor: "discovered",
   run: "assessed",
-  sync: "governed",
   clean: "governed",
   evolve: "governed",
   briefing: "discovered",

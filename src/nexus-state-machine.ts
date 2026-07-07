@@ -55,13 +55,10 @@ export function isValidTransition(
 
 /** Detect the current lifecycle state from filesystem. */
 export function detectLifecycleState(
-  projectRoot: string,
+  _projectRoot: string,
   nexusDir: string
 ): NexusLifecycleState {
   // Check: uninitialized
-  if (!existsSync(join(projectRoot, "opencode.json"))) {
-    return "uninitialized";
-  }
   if (!existsSync(nexusDir)) {
     return "uninitialized";
   }

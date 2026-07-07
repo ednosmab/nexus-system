@@ -8,7 +8,6 @@ import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 
 import { initCommand } from "../src/commands/init.js";
-import { syncCommand } from "../src/commands/sync.js";
 import { statusCommand } from "../src/commands/status.js";
 import { upgradeCommand } from "../src/commands/upgrade.js";
 import { validateCommand } from "../src/commands/validate.js";
@@ -238,7 +237,6 @@ const helpCmd = new Command("help")
 program.addCommand(helpCmd);
 
 program.addCommand(initCommand);
-program.addCommand(syncCommand);
 program.addCommand(statusCommand);
 program.addCommand(upgradeCommand);
 program.addCommand(validateCommand);

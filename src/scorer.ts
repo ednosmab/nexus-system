@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
 import { walkSourceFiles, FileContentCache } from "./utils.js";
 import { logger } from "./logger.js";
+import { getEventBus } from "./event-bus.js";
 
 // ── Types (aligned with nexus-system/core/complexity/types.ts) ───────────────
 
@@ -871,7 +872,7 @@ function scoreProject(
     );
   }
 
-  return {
+  const report = {
     score: totalScore,
     level,
     staticScore,
@@ -883,6 +884,14 @@ function scoreProject(
     computedAt: new Date().toISOString(),
     areaScores,
   };
+
+  getEventBus().publish("score.calculated", {
+    projectId: "",
+    score: totalScore,
+    timestamp: new Date().toISOString(),
+  });
+
+  return report;
 }
 
 // ── Report Writer ────────────────────────────────────────────────────────────

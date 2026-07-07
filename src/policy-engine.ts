@@ -10,6 +10,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
+import { getEventBus } from "./event-bus.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -336,6 +337,16 @@ export class PolicyEngine {
           ? `Policy violated: ${policy.description}`
           : `Policy matched: ${policy.description}`,
         actionsTriggered,
+      });
+
+      // Publish governance.policy_applied
+      const action = violated && policy.mode === "enforce" ? "violated" : violated ? "advisory" : "enforced";
+      getEventBus().publish("governance.policy_applied", {
+        policyId: policy.id,
+        policyName: policy.name,
+        action,
+        details: violated ? policy.description : undefined,
+        timestamp: new Date().toISOString(),
       });
     }
 

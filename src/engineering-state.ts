@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { analyseProject } from "./analyser.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "./knowledge-debt.js";
+import { getEventBus } from "./event-bus.js";
 import { logger } from "./logger.js";
 import {
   detectInstalledCapabilities,
@@ -572,6 +573,18 @@ export function consolidateEngineeringState(
   const knowledgeGraphScore = graphAnalysis?.healthScore ?? 100;
   const overall = calculateOverallHealth(knowledgeDebtScore, knowledgeGraphScore, entropy.score);
 
+  // Publish entropy.calculated
+  getEventBus().publish("entropy.calculated", {
+    projectId: projectRoot.split("/").pop() || "",
+    entropyScore: entropy.score,
+    factors: {
+      orphaned: entropy.orphanedAssets,
+      stale: entropy.staleAssets,
+      missingDeps: entropy.missingDependencies,
+    },
+    timestamp: new Date().toISOString(),
+  });
+
   // Build summary
   const parts: string[] = [];
   parts.push(`${assets.length} assets.`);
@@ -581,7 +594,7 @@ export function consolidateEngineeringState(
   if (debtReport && debtReport.totalGaps > 0) parts.push(`${debtReport.totalGaps} knowledge gaps.`);
   parts.push(`Lifecycle: ${lifecycle}.`);
 
-  return {
+  const state = {
     consolidatedAt: new Date().toISOString(),
     lifecycle,
     project: {
@@ -620,6 +633,16 @@ export function consolidateEngineeringState(
     entropy,
     summary: parts.join(" "),
   };
+
+  // Publish engineering_state.consolidated
+  getEventBus().publish("engineering_state.consolidated", {
+    totalDimensions: 7,
+    changedDimensions: [],
+    overallHealth: overall,
+    timestamp: new Date().toISOString(),
+  });
+
+  return state;
 }
 
 // ── Persistence ────────────────────────────────────────────────────────────

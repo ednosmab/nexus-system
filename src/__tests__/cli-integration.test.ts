@@ -130,7 +130,6 @@ describe("CLI Integration Tests", () => {
       expect(stdout).toContain("upgrade");
       expect(stdout).toContain("validate");
       expect(stdout).toContain("run");
-      expect(stdout).toContain("sync");
     });
 
     it("should show version", async () => {
@@ -157,10 +156,7 @@ describe("CLI Integration Tests", () => {
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      writeFileSync(
-        join(dir, "opencode.json"),
-        JSON.stringify({ model: "test", agent: { planner: {} } })
-      );
+      mkdirSync(join(dir, "nexus-system"), { recursive: true });
 
       const { stdout } = await runNexus("init", dir);
       expect(stdout).toContain("already initialized");
@@ -197,13 +193,14 @@ describe("CLI Integration Tests", () => {
       expect(stdout).toContain("not initialized");
     });
 
-    it("should show 'not initialized' when only nexus-system exists", async () => {
+    it("should treat nexus-system/ alone as initialized", async () => {
       const dir = join(tmpdir(), `nexus-e2e-status-partial-${Date.now()}`);
       mkdirSync(join(dir, "nexus-system"), { recursive: true });
       dirs.push(dir);
 
-      const { stdout } = await runNexus("status", dir);
-      expect(stdout).toContain("not initialized");
+      const { stdout, exitCode } = await runNexus("status", dir);
+      expect(exitCode).toBe(0);
+      expect(stdout).not.toContain("not initialized");
     });
 
     it("should show health check for a scaffolded junior project", async () => {

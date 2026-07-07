@@ -29,12 +29,8 @@ describe("COMMAND_GATES", () => {
     expect(COMMAND_GATES.upgrade).toBe("assessed");
   });
 
-  it("maps sync to governed", () => {
-    expect(COMMAND_GATES.sync).toBe("governed");
-  });
-
-  it("has at least 15 command entries", () => {
-    expect(Object.keys(COMMAND_GATES).length).toBeGreaterThanOrEqual(15);
+  it("has at least 14 command entries", () => {
+    expect(Object.keys(COMMAND_GATES).length).toBeGreaterThanOrEqual(14);
   });
 });
 

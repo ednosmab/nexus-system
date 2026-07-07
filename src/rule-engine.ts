@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from 
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 import { logger } from "./logger.js";
+import { type Capability, detectInstalledCapabilities } from "./maturity-profile.js";
 
 // ── Security: Allowed Scripts ────────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ function validateRule(rule: unknown): ValidationResult {
   if (!Array.isArray(r.actions)) errors.push("'actions' must be an array");
   if (typeof r.priority !== "number") errors.push("'priority' must be a number");
   if (r.tags !== undefined && !Array.isArray(r.tags)) errors.push("'tags' must be an array");
+  if (r.requiredCapability !== undefined && typeof r.requiredCapability !== "string") errors.push("'requiredCapability' must be a string");
 
   if (Array.isArray(r.actions)) {
     for (const action of r.actions) {
@@ -181,6 +183,8 @@ export interface Rule {
   enabled: boolean;
   /** Tags para filtragem. */
   tags: string[];
+  /** Capability necessária para a regra executar. Se ausente, a regra roda sempre. */
+  requiredCapability?: Capability;
 }
 
 /** Condição de uma regra. */
@@ -213,6 +217,8 @@ export interface RuleContext {
   nexusDir: string;
   /** Timestamp. */
   timestamp: string;
+  /** Capabilities instaladas no projecto. */
+  installedCapabilities?: Capability[];
 }
 
 /** Resultado da execução de uma regra. */
@@ -365,7 +371,11 @@ function executeAction(
   switch (action.type) {
     case "update_context_buffer": {
       const bufferPath = join(context.nexusDir, "governance", "context", "context_buffer.yaml");
-      if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
+      if (!existsSync(bufferPath)) {
+        const bufferDir = join(context.nexusDir, "governance", "context");
+        mkdirSync(bufferDir, { recursive: true });
+        writeFileSync(bufferPath, "session:\n  status: idle\n", "utf-8");
+      }
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -392,7 +402,11 @@ function executeAction(
 
     case "create_reminder": {
       const bufferPath = join(context.nexusDir, "governance", "context", "context_buffer.yaml");
-      if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
+      if (!existsSync(bufferPath)) {
+        const bufferDir = join(context.nexusDir, "governance", "context");
+        mkdirSync(bufferDir, { recursive: true });
+        writeFileSync(bufferPath, "reminders:\n", "utf-8");
+      }
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -415,7 +429,11 @@ function executeAction(
 
     case "update_quick_board": {
       const bufferPath = join(context.nexusDir, "governance", "context", "context_buffer.yaml");
-      if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
+      if (!existsSync(bufferPath)) {
+        const bufferDir = join(context.nexusDir, "governance", "context");
+        mkdirSync(bufferDir, { recursive: true });
+        writeFileSync(bufferPath, "quick_board:\n  em_curso: null\n", "utf-8");
+      }
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -438,7 +456,9 @@ function executeAction(
 
     case "log_event": {
       const historyDir = join(context.nexusDir, "docs", "history");
-      if (!existsSync(historyDir)) return { success: false, message: "history/ not found" };
+      if (!existsSync(historyDir)) {
+        mkdirSync(historyDir, { recursive: true });
+      }
 
       try {
         const date = new Date().toISOString().slice(0, 10);
@@ -580,7 +600,17 @@ export function executeRules(
 
   // Filtrar regras para este trigger, ordenar por prioridade
   const applicableRules = rules
-    .filter((r) => r.enabled && r.trigger === context.trigger)
+    .filter((r) => {
+      if (!r.enabled) return false;
+      if (r.trigger !== context.trigger) return false;
+      if (r.requiredCapability && context.installedCapabilities) {
+        if (!context.installedCapabilities.includes(r.requiredCapability)) {
+          logger.debug("rule-engine", `Skipping ${r.id}: requires capability "${r.requiredCapability}" (not installed)`);
+          return false;
+        }
+      }
+      return true;
+    })
     .sort((a, b) => a.priority - b.priority);
 
   for (const rule of applicableRules) {
@@ -679,6 +709,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["session", "logging"],
+      requiredCapability: "metrics",
     },
     {
       id: "RULE-002",
@@ -692,6 +723,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["session", "logging"],
+      requiredCapability: "metrics",
     },
     {
       id: "RULE-003",
@@ -708,6 +740,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["validation", "health"],
+      requiredCapability: "governance",
     },
     {
       id: "RULE-004",
@@ -723,6 +756,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["maturity", "upgrade"],
+      requiredCapability: "governance",
     },
     {
       id: "RULE-005",
@@ -739,6 +773,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["knowledge", "debt", "backlog"],
+      requiredCapability: "governance",
     },
     {
       id: "RULE-006",
@@ -754,6 +789,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["pattern", "logging"],
+      requiredCapability: "metrics",
     },
     {
       id: "RULE-007",
@@ -769,6 +805,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["health", "reminder", "pipeline"],
+      requiredCapability: "governance",
     },
     {
       id: "RULE-008",
@@ -782,6 +819,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["adr", "skill", "logging"],
+      requiredCapability: "metrics",
     },
     {
       id: "RULE-009",
@@ -797,6 +835,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["validation", "logging", "success"],
+      requiredCapability: "metrics",
     },
     {
       id: "RULE-010",
@@ -813,6 +852,7 @@ export function getDefaultRules(): Rule[] {
       dependencies: [],
       enabled: true,
       tags: ["knowledge", "debt", "session"],
+      requiredCapability: "governance",
     },
   ];
 }
@@ -927,6 +967,7 @@ export function initializeRuleEngine(
         projectRoot,
         nexusDir,
         timestamp: new Date().toISOString(),
+        installedCapabilities: detectInstalledCapabilities(nexusDir),
       };
 
       executeRules(rules, context);

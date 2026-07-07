@@ -15,6 +15,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, rename
 import { join, relative, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
 import { logger } from "./logger.js";
+import { getEventBus } from "./event-bus.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -688,6 +689,15 @@ export function applyMoves(report: DocLifecycleReport, nexusDir: string, dryRun:
       mkdirSync(destDir, { recursive: true });
       renameSync(sourcePath, destPath);
       result.movesApplied++;
+
+      // Publish asset.archived
+      getEventBus().publish("asset.archived", {
+        assetId: basename(move.source),
+        assetType: move.docType,
+        path: move.source,
+        reason: move.reason,
+        timestamp: new Date().toISOString(),
+      });
 
       // Write CHANGELOG entry
       const changelogPath = join(nexusDir, "docs", "_archive", "CHANGELOG.md");

@@ -28,8 +28,7 @@ export function resolveProjectContext(options: { dir?: string }): ProjectContext
   const projectRoot = options.dir || process.cwd();
   const nexusDir = join(projectRoot, "nexus-system");
 
-  const isInitialized =
-    existsSync(join(projectRoot, "opencode.json")) && existsSync(nexusDir);
+  const isInitialized = existsSync(nexusDir);
 
   const hasMaturityProfile = existsSync(join(nexusDir, "maturity-profile.json"));
 

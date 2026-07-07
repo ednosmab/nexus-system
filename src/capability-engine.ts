@@ -199,7 +199,7 @@ function checkCapabilityMetrics(_capability: Capability, nexusDir: string): bool
 
 function getCapabilityFilesForEngine(capability: Capability): string[] {
   const fileMap: Record<Capability, string[]> = {
-    core: ["opencode.json", "docs/AGENTS.md"],
+    core: ["docs/BACKLOG.md", "docs/AGENTS.md"],
     knowledge: ["docs/skills/", "docs/AGENTS.md"],
     architecture: ["docs/adr/", "docs/plans/"],
     governance: ["governance/WORKFLOW.md", "governance/context/"],

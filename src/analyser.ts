@@ -40,7 +40,7 @@ export function analyseProject(rootDir: string): ProjectAnalysis {
     rootDir,
     hasGit: existsSync(join(rootDir, ".git")),
     hasPackageJson: existsSync(join(rootDir, "package.json")),
-    hasNexus: existsSync(join(rootDir, "opencode.json")),
+    hasNexus: existsSync(join(rootDir, "nexus-system")),
     stack: detectStack(rootDir),
     packageManager: detectPackageManager(rootDir),
     monorepo: detectMonorepo(rootDir),

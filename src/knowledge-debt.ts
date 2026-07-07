@@ -12,6 +12,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "./logger.js";
 import { calculateHealthPenalty } from "./formatting.js";
+import { getEventBus } from "./event-bus.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -135,6 +136,24 @@ export function detectKnowledgeDebt(
   if (critical > 0) parts.push(`${critical} critical.`);
   if (high > 0) parts.push(`${high} high.`);
   parts.push(`Debt Health: ${healthScore}/100.`);
+
+  // Publish per-gap events
+  for (const gap of gaps) {
+    getEventBus().publish("debt.detected", {
+      debtType: "knowledge",
+      severity: gap.severity,
+      source: gap.location || "unknown",
+      description: gap.description,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Publish batch event
+  getEventBus().publish("knowledge_debt.detected", {
+    gapCount: gaps.length,
+    gaps: gaps.map((g) => ({ source: g.location || "unknown", gap: g.description, severity: g.severity })),
+    timestamp: new Date().toISOString(),
+  });
 
   return {
     generatedAt: now,

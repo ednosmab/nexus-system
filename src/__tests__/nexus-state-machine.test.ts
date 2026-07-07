@@ -60,8 +60,7 @@ describe("NexusStateMachine", () => {
       expect(state).toBe("uninitialized");
     });
 
-    it("returns discovered when opencode.json exists", () => {
-      writeFileSync(join(tempDir, "opencode.json"), "{}");
+    it("returns discovered when nexus-system/ exists", () => {
       const nexusDir = join(tempDir, "nexus-system");
       mkdirSync(nexusDir, { recursive: true });
 
@@ -70,7 +69,6 @@ describe("NexusStateMachine", () => {
     });
 
     it("returns assessed when maturity-profile.json exists", () => {
-      writeFileSync(join(tempDir, "opencode.json"), "{}");
       const nexusDir = join(tempDir, "nexus-system");
       mkdirSync(nexusDir, { recursive: true });
       writeFileSync(join(nexusDir, "maturity-profile.json"), "{}");
@@ -80,7 +78,6 @@ describe("NexusStateMachine", () => {
     });
 
     it("returns governed when WORKFLOW.md exists", () => {
-      writeFileSync(join(tempDir, "opencode.json"), "{}");
       const nexusDir = join(tempDir, "nexus-system");
       mkdirSync(nexusDir, { recursive: true });
       writeFileSync(join(nexusDir, "maturity-profile.json"), "{}");
@@ -92,7 +89,6 @@ describe("NexusStateMachine", () => {
     });
 
     it("returns evolved when evolution report exists", () => {
-      writeFileSync(join(tempDir, "opencode.json"), "{}");
       const nexusDir = join(tempDir, "nexus-system");
       mkdirSync(nexusDir, { recursive: true });
       writeFileSync(join(nexusDir, "maturity-profile.json"), "{}");
