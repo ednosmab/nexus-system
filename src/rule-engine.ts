@@ -131,6 +131,7 @@ export type TriggerType =
   | "pattern_detected"
   | "pipeline_complete"
   | "task_completed"
+  | "plan_archived"
   | "manual";
 
 /** Operadores para condições. */
@@ -165,7 +166,8 @@ export type ActionType =
   | "create_file"
   | "remove_file"
   | "update_backlog_status"
-  | "archive_plan";
+  | "archive_plan"
+  | "auto_populate_next_p0";
 
 /** Uma regra declarativa. */
 export interface Rule {
@@ -653,6 +655,40 @@ async function executeAction(
       }
     }
 
+    case "auto_populate_next_p0": {
+      try {
+        const nexusDir = join(context.projectRoot, "nexus-system");
+        const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+        const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+
+        if (!existsSync(backlogPath) || !existsSync(bufferPath)) {
+          return { success: false, message: "BACKLOG.md or context_buffer.yaml not found" };
+        }
+
+        const backlogContent = readFileSync(backlogPath, "utf-8");
+        const bufferContent = readFileSync(bufferPath, "utf-8");
+
+        // Find first unchecked P0 item
+        const p0Match = backlogContent.match(/^- \[ \] \((P0|high)\)\s+(.+)/m);
+        if (!p0Match) {
+          return { success: true, message: "No P0 items in backlog to populate" };
+        }
+
+        const taskDesc = p0Match[2]!.trim();
+
+        // Update buffer next_p0 field
+        const updatedBuffer = bufferContent.replace(
+          /^(next_p0:).*/m,
+          `$1 ${taskDesc}`
+        );
+
+        writeFileSync(bufferPath, updatedBuffer, "utf-8");
+        return { success: true, message: `next_p0 set to: ${taskDesc}` };
+      } catch (error) {
+        return { success: false, message: `auto_populate_next_p0 failed: ${error instanceof Error ? error.message : String(error)}` };
+      }
+    }
+
     default:
       return { success: false, message: `Unknown action type: ${action.type}` };
   }
@@ -928,6 +964,144 @@ export function getDefaultRules(): Rule[] {
       tags: ["knowledge", "debt", "session"],
       requiredCapability: "governance",
     },
+    {
+      id: "RULE-011",
+      description: "Auto-audit when health status is critical",
+      trigger: "health_check",
+      conditions: [
+        { field: "eventData.status", operator: "equals", value: "critical" },
+      ],
+      actions: [
+        { type: "run_nexus_command", params: { command: "validate" } },
+        { type: "create_reminder", params: { message: "Health status is CRITICAL — immediate action required" } },
+      ],
+      priority: 1,
+      dependencies: [],
+      enabled: true,
+      tags: ["health", "critical", "auto-audit"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-012",
+      description: "Update context buffer on significant maturity change",
+      trigger: "maturity_change",
+      conditions: [
+        { field: "eventData.delta", operator: "greater_than", value: 5 },
+      ],
+      actions: [
+        { type: "update_context_buffer", params: { field: "current_task.description", value: "Maturity changed significantly" } },
+        { type: "log_event", params: { event: "maturity_shift", message: "Significant maturity change detected" } },
+      ],
+      priority: 2,
+      dependencies: [],
+      enabled: true,
+      tags: ["maturity", "context", "tracking"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-013",
+      description: "Create backlog item when knowledge debt gaps exceed threshold",
+      trigger: "knowledge_debt_detected",
+      conditions: [
+        { field: "eventData.gapCount", operator: "greater_than", value: 3 },
+      ],
+      actions: [
+        { type: "update_backlog", params: { item: "Address critical knowledge debt (3+ gaps detected)" } },
+        { type: "create_reminder", params: { message: "High knowledge debt detected — create ADRs and skills" } },
+      ],
+      priority: 1,
+      dependencies: [],
+      enabled: true,
+      tags: ["knowledge", "debt", "backlog", "critical"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-014",
+      description: "Create reminder when validation fails",
+      trigger: "validation_fail",
+      conditions: [],
+      actions: [
+        { type: "create_reminder", params: { message: "Validation failed — review issues and fix" } },
+        { type: "update_quick_board", params: { item: "Fix validation failures", section: "parado" } },
+      ],
+      priority: 2,
+      dependencies: [],
+      enabled: true,
+      tags: ["validation", "reminder", "fix"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-015",
+      description: "Archive active plans on session end",
+      trigger: "session_end",
+      conditions: [],
+      actions: [
+        { type: "log_event", params: { event: "session_end_plans", message: "Session ended — run 'nexus plan md lifecycle' to archive active plans" } },
+      ],
+      priority: 3,
+      dependencies: [],
+      enabled: true,
+      tags: ["session", "plans", "verification"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-016",
+      description: "Auto-transition backlog to em validacao on task completion",
+      trigger: "task_completed",
+      conditions: [],
+      actions: [
+        { type: "update_backlog_status", params: { taskId: "${eventData.taskId}", fromState: "em implementação", toState: "em validação" } },
+      ],
+      priority: 1,
+      dependencies: [],
+      enabled: true,
+      tags: ["backlog", "automation", "completion"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-017",
+      description: "Update context buffer on task completion",
+      trigger: "task_completed",
+      conditions: [],
+      actions: [
+        { type: "update_context_buffer", params: { field: "current_task.status", value: "completed" } },
+      ],
+      priority: 1,
+      dependencies: [],
+      enabled: true,
+      tags: ["buffer", "automation", "completion"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-018",
+      description: "Update context buffer when a plan is archived",
+      trigger: "plan_archived",
+      conditions: [],
+      actions: [
+        { type: "update_context_buffer", params: { field: "current_task.status", value: "completed" } },
+        { type: "update_context_buffer", params: { field: "session.status", value: "completed" } },
+        { type: "log_event", params: { event: "plan_archived", message: "Plan archived — buffer updated automatically" } },
+      ],
+      priority: 1,
+      dependencies: [],
+      enabled: true,
+      tags: ["buffer", "automation", "plan", "completion"],
+      requiredCapability: undefined,
+    },
+    {
+      id: "RULE-019",
+      description: "Auto-populate next_p0 from BACKLOG.md when a plan is archived",
+      trigger: "plan_archived",
+      conditions: [],
+      actions: [
+        { type: "auto_populate_next_p0", params: {} },
+      ],
+      priority: 2,
+      dependencies: ["RULE-018"],
+      enabled: true,
+      tags: ["buffer", "automation", "plan", "backlog", "next_p0"],
+      requiredCapability: undefined,
+    },
   ];
 }
 
@@ -997,6 +1171,9 @@ const EVENT_TO_TRIGGER: Partial<Record<NexusEventType, TriggerType>> = {
 
   // Lifecycle events
   "lifecycle.state_changed": "file_change",
+
+  // Plan events
+  "plan.archived": "plan_archived",
 
   // Knowledge events
   "knowledge.analyzed": "file_change",

@@ -290,6 +290,18 @@ export const initCommand = new Command("init")
       const fingerprint = generateProjectFingerprint(targetDir, analysis, profile.overallScore);
       saveFingerprint(nexusDir, fingerprint);
 
+      // Generate initial BRIEFING.md
+      try {
+        const { generateRiskMap } = await import("../risk-map.js");
+        const { generateBriefing, briefingToMarkdown } = await import("../briefing.js");
+        const riskMap = generateRiskMap(targetDir, nexusDir);
+        const briefing = generateBriefing(fingerprint, riskMap, [], [], profile);
+        const briefingPath = join(nexusDir, "BRIEFING.md");
+        writeFileSync(briefingPath, briefingToMarkdown(briefing), "utf-8");
+      } catch {
+        // Non-critical: briefing can be regenerated via `nexus briefing`
+      }
+
       // Display results
       console.log("");
       console.log(chalk.bold.green("  ✓ Nexus System Framework installed!"));

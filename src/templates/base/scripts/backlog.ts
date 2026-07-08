@@ -1,0 +1,182 @@
+import { readFileSync, existsSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT = resolve(__dirname, '..', '..');
+const BACKLOG = resolve(ROOT, 'nexus-system', 'docs', 'BACKLOG.md');
+
+// CLI Flags
+
+const args = process.argv.slice(2);
+const ALL = args.includes('--all') || args.includes('-a');
+const JSON_OUTPUT = args.includes('--json') || args.includes('-j');
+const PRIORITY = args.includes('--priority') || args.includes('-p');
+const priorityValue = PRIORITY ? args[args.indexOf('--priority') + 1] || args[args.indexOf('-p') + 1] : undefined;
+
+// Types
+
+interface BacklogItem {
+  id: string;
+  title: string;
+  status: string;
+  severity: string;
+  priority: string;
+  owner: string;
+  description: string;
+}
+
+// Parser
+
+function parseBacklog(content: string): BacklogItem[] {
+  const items: BacklogItem[] = [];
+  const lines = content.split('\n');
+
+  let currentSection = '';
+  let currentItem: Partial<BacklogItem> | null = null;
+
+  for (const line of lines) {
+    const sectionMatch = line.match(/^## (P[0-9]+)\s/);
+    if (sectionMatch) {
+      currentSection = sectionMatch[1];
+      continue;
+    }
+
+    const itemMatch = line.match(/^### (.+)/);
+    if (itemMatch) {
+      if (currentItem?.id) {
+        items.push(currentItem as BacklogItem);
+      }
+
+      const title = itemMatch[1];
+      const id = title.split(' ')[0];
+      currentItem = {
+        id,
+        title,
+        status: '',
+        severity: '',
+        priority: currentSection,
+        owner: '',
+        description: '',
+      };
+      continue;
+    }
+
+    if (currentItem && line.startsWith('| **')) {
+      const match = line.match(/\*\*(\w+)\*\*\s*\|\s*(.+?)\s*\|?\s*$/);
+      if (match) {
+        const [, key, value] = match;
+        const val = value.trim().replace(/\|$/, '').trim();
+
+        switch (key) {
+          case 'Status':
+            currentItem.status = val;
+            break;
+          case 'Severity':
+            currentItem.severity = val;
+            break;
+          case 'Priority':
+            currentItem.priority = val;
+            break;
+          case 'Owner':
+            currentItem.owner = val;
+            break;
+          case 'Descricao':
+            currentItem.description = val;
+            break;
+        }
+      }
+    }
+  }
+
+  if (currentItem?.id) {
+    items.push(currentItem as BacklogItem);
+  }
+
+  return items;
+}
+
+// Output Formatters
+
+function formatTable(items: BacklogItem[]): string {
+  if (items.length === 0) {
+    return 'Nenhum item encontrado.';
+  }
+
+  const header = '| ID | Prioridade | Severidade | Status | Titulo | Owner |';
+  const separator = '|---|---|---|---|---|---|';
+  const rows = items.map(item =>
+    `| ${item.id} | ${item.priority} | ${item.severity} | ${item.status} | ${item.title} | ${item.owner} |`
+  );
+
+  return [header, separator, ...rows].join('\n');
+}
+
+function formatJson(items: BacklogItem[]): string {
+  return JSON.stringify(items, null, 2);
+}
+
+function formatCompact(items: BacklogItem[]): string {
+  if (items.length === 0) {
+    return 'Nenhum item encontrado.';
+  }
+
+  const byPriority = items.reduce((acc, item) => {
+    const p = item.priority || 'P?';
+    if (!acc[p]) acc[p] = [];
+    acc[p].push(item);
+    return acc;
+  }, {} as Record<string, BacklogItem[]>);
+
+  const lines: string[] = [];
+  const priorities = ['P0', 'P1', 'P2', 'P3'];
+
+  for (const p of priorities) {
+    const pItems = byPriority[p];
+    if (pItems && pItems.length > 0) {
+      lines.push(`\n${p} (${pItems.length} itens):`);
+      for (const item of pItems) {
+        const icon = item.severity === 'Critico' ? 'RED' :
+                     item.severity === 'Alto' ? 'ORANGE' :
+                     item.severity === 'Medio' ? 'YELLOW' : 'GREEN';
+        lines.push(`  ${icon} ${item.id} - ${item.title}`);
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// Main
+
+function main() {
+  if (!existsSync(BACKLOG)) {
+    console.error('BACKLOG.md nao encontrado:', BACKLOG);
+    process.exit(1);
+  }
+
+  const content = readFileSync(BACKLOG, 'utf-8');
+  let items = parseBacklog(content);
+
+  if (!ALL) {
+    items = items.filter(item => item.status !== 'Done');
+  }
+
+  if (priorityValue) {
+    const p = priorityValue.toUpperCase();
+    items = items.filter(item => item.priority === p);
+  }
+
+  if (JSON_OUTPUT) {
+    console.log(formatJson(items));
+  } else if (ALL) {
+    console.log(formatTable(items));
+  } else {
+    console.log(`BACKLOG - ${items.length} itens activos\n`);
+    console.log(formatCompact(items));
+    console.log(`\nUse --all para ver todos os itens, --json para formato JSON, --priority P1 para filtrar.`);
+  }
+}
+
+main();

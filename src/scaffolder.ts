@@ -54,11 +54,14 @@ function selectSkills(capabilities: Capability[]): string[] {
   // Architecture skills
   const archSkills = [
     "ddd_patterns",
+    "domain_driven_design_(ddd)",
   ];
 
   // Governance skills
   const govSkills = [
     "operacao_no_nexus",
+    "quick-board-enforcement",
+    "system-first",
   ];
 
   // AI skills

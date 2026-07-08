@@ -43,11 +43,10 @@
     "health-audit"
   ],
   "author": "Edson Ramos <edson.ramos@nexus-system.com>",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "workspaces": [
     "apps/*"
   ],
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/ednosmab/nexus-system.git"
