@@ -19,6 +19,24 @@ import type { MaturityProfile } from "./maturity-profile.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+/** Reminder priority levels. */
+export type ReminderPriority = "high" | "medium" | "low";
+
+/** Reminder categories for filtering and display. */
+export type ReminderCategory = "bug" | "feature" | "debt" | "security" | "docs" | "infra";
+
+/** A single reminder with metadata. */
+export interface Reminder {
+  /** The reminder message */
+  message: string;
+  /** Priority level (high/medium/low) */
+  priority: ReminderPriority;
+  /** Category for filtering */
+  category: ReminderCategory;
+  /** When the reminder was created */
+  createdAt: string;
+}
+
 export interface Briefing {
   /** When the briefing was generated */
   generatedAt: string;
@@ -84,7 +102,7 @@ export interface Briefing {
     lastSessionStatus: string;
   };
   /** Active reminders from context_buffer.yaml */
-  reminders: string[];
+  reminders: Reminder[];
 }
 
 // ── Briefing Generation ────────────────────────────────────────────────────
@@ -102,7 +120,7 @@ export function generateBriefing(
     impediments: string;
     lastSessionStatus: string;
   },
-  reminders?: string[]
+  reminders?: Reminder[]
 ): Briefing {
   // Extract risk information
   const criticalAreas = riskMap.areas
@@ -185,6 +203,22 @@ export function generateBriefing(
     },
     reminders: reminders ?? [],
   };
+}
+
+// ── Helper Functions ──────────────────────────────────────────────────────
+
+/** Get priority icon for markdown display. */
+function getPriorityIcon(priority: ReminderPriority): string {
+  switch (priority) {
+    case "high": return "🔴 **HIGH**";
+    case "medium": return "🟡 **MEDIUM**";
+    case "low": return "🟢 **LOW**";
+  }
+}
+
+/** Get category label for display. */
+function getCategoryLabel(category: ReminderCategory): string {
+  return `[${category}]`;
 }
 
 // ── Output Formats ────────────────────────────────────────────────────────
@@ -353,8 +387,17 @@ export function briefingToMarkdown(briefing: Briefing): string {
   if (briefing.reminders && briefing.reminders.length > 0) {
     lines.push("## Active Reminders");
     lines.push("");
-    for (const reminder of briefing.reminders) {
-      lines.push(`- ${reminder}`);
+
+    // Sort reminders by priority: high → medium → low
+    const priorityOrder: Record<ReminderPriority, number> = { high: 0, medium: 1, low: 2 };
+    const sortedReminders = [...briefing.reminders].sort(
+      (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
+    );
+
+    for (const reminder of sortedReminders) {
+      const priority = getPriorityIcon(reminder.priority);
+      const category = getCategoryLabel(reminder.category);
+      lines.push(`- ${priority} — ${reminder.message} ${category}`);
     }
     lines.push("");
   }

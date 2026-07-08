@@ -15,7 +15,7 @@ import { generateProjectFingerprint, loadFingerprint, saveFingerprint, isFingerp
 import { generateRiskMap, type RiskMap } from "./risk-map.js";
 import { generateContextRules, type ContextRule } from "./context-rules.js";
 import { generateDynamicRules, type DynamicRule } from "./dynamic-rules.js";
-import { generateBriefing, type Briefing } from "./briefing.js";
+import { generateBriefing, type Briefing, type Reminder, type ReminderPriority, type ReminderCategory } from "./briefing.js";
 import { loadMaturityProfile, type MaturityProfile } from "./maturity-profile.js";
 
 import { existsSync, readFileSync } from "node:fs";
@@ -42,7 +42,7 @@ export interface ContextDeps {
   generateRiskMap: (root: string, nexusDir: string) => RiskMap;
   generateContextRules: (fp: ProjectFingerprint, risk: RiskMap) => ContextRule[];
   generateDynamicRules: (root: string, nexusDir: string) => DynamicRule[];
-  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }, reminders?: string[]) => Briefing;
+  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }, reminders?: Reminder[]) => Briefing;
   detectPatterns: (projectRoot: string, nexusDir: string) => PatternDetectionReport;
   /** Optional: compute checksums for snapshot cache invalidation. */
   computeKeyChecksums?: (projectRoot: string, nexusDir: string) => Record<string, string>;
@@ -149,7 +149,18 @@ export function collectContext(
   const quickBoard = loadQuickBoard(nexusDir);
 
   // 7. Generate Briefing
-  const briefing = deps.generateBriefing(fingerprint, riskMap, contextRules, dynamicRules, maturityProfile ?? undefined, quickBoard);
+  const briefing = deps.generateBriefing(
+    fingerprint, riskMap, contextRules, dynamicRules,
+    maturityProfile ?? undefined,
+    {
+      currentTask: quickBoard.currentTask,
+      nextP0: quickBoard.nextP0,
+      p1Debts: quickBoard.p1Debts,
+      impediments: quickBoard.impediments,
+      lastSessionStatus: quickBoard.lastSessionStatus,
+    },
+    quickBoard.reminders
+  );
 
   // 7. Enrich briefing with detected patterns (Gap 4+5: feedback hotspots + pattern-detector)
   const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, nexusDir, deps);
@@ -257,7 +268,7 @@ function loadQuickBoard(nexusDir: string): {
   p1Debts: string;
   impediments: string;
   lastSessionStatus: string;
-  reminders: string[];
+  reminders: Reminder[];
 } {
   const defaultQuickBoard = {
     currentTask: "Nenhuma",
@@ -265,7 +276,7 @@ function loadQuickBoard(nexusDir: string): {
     p1Debts: "Nenhuma",
     impediments: "Nenhum",
     lastSessionStatus: "Desconhecido",
-    reminders: [] as string[],
+    reminders: [] as Reminder[],
   };
 
   try {
@@ -302,10 +313,28 @@ function loadQuickBoard(nexusDir: string): {
           .join(", ") || "Nenhuma"
       : "Nenhuma";
 
-    // Extract reminders
-    const reminders = Array.isArray(data?.reminders)
-      ? data.reminders.map(String)
-      : [];
+    // Extract reminders - support both old string[] and new Reminder[] formats
+    let reminders: Reminder[] = [];
+    if (Array.isArray(data?.reminders)) {
+      reminders = data.reminders.map((r: string | Reminder) => {
+        // Handle old format (string) - migrate to new format
+        if (typeof r === "string") {
+          return {
+            message: r,
+            priority: "medium" as ReminderPriority,
+            category: "feature" as ReminderCategory,
+            createdAt: new Date().toISOString(),
+          };
+        }
+        // Handle new format (Reminder object)
+        return {
+          message: r.message || "",
+          priority: (r.priority as ReminderPriority) || "medium",
+          category: (r.category as ReminderCategory) || "feature",
+          createdAt: r.createdAt || new Date().toISOString(),
+        };
+      });
+    }
 
     return {
       currentTask,

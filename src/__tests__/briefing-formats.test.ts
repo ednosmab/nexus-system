@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { briefingToJson, briefingToSummary, generateDiff, type Briefing } from "../briefing.js";
+import { briefingToJson, briefingToSummary, generateDiff, type Briefing, type Reminder } from "../briefing.js";
+
+function makeReminder(overrides?: Partial<Reminder>): Reminder {
+  return {
+    message: "Test reminder",
+    priority: "medium",
+    category: "feature",
+    createdAt: "2024-01-01T00:00:00Z",
+    ...overrides,
+  };
+}
 
 function makeBriefing(overrides?: Partial<Briefing>): Briefing {
   return {
@@ -150,6 +160,25 @@ describe("briefing output formats", () => {
       const new_ = makeBriefing({ recommendations: ["Old rec", "New rec"] });
       const diff = generateDiff(old, new_);
       expect(diff).toContain("+ New recommendation: New rec");
+    });
+  });
+
+  describe("reminders with priority and category", () => {
+    it("includes reminders in briefing", () => {
+      const reminders: Reminder[] = [
+        makeReminder({ message: "Fix bug", priority: "high", category: "bug" }),
+        makeReminder({ message: "Add feature", priority: "low", category: "feature" }),
+      ];
+      const briefing = makeBriefing({ reminders });
+      expect(briefing.reminders).toHaveLength(2);
+      expect(briefing.reminders[0]!.message).toBe("Fix bug");
+      expect(briefing.reminders[0]!.priority).toBe("high");
+      expect(briefing.reminders[0]!.category).toBe("bug");
+    });
+
+    it("handles empty reminders", () => {
+      const briefing = makeBriefing({ reminders: [] });
+      expect(briefing.reminders).toHaveLength(0);
     });
   });
 });

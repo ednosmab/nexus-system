@@ -1,24 +1,50 @@
 /**
  * reminders.ts — Reminders Management Command
  *
- * The `nexus reminders` command. List, add, remove, and manage reminders.
+ * The `nexus reminders` command. List, add, remove, and manage reminders
+ * with priority levels and categories.
  *
  * Usage:
- *   nexus reminders              # List all active reminders
- *   nexus reminders add "msg"    # Add a new reminder
- *   nexus reminders rm <index>   # Remove reminder by index
- *   nexus reminders rm --message "partial match"  # Remove by message
- *   nexus reminders clear        # Remove all reminders
- *   nexus reminders --json       # Output as JSON
+ *   nexus reminders                                  # List all active reminders
+ *   nexus reminders add "msg"                        # Add reminder (default: medium, feature)
+ *   nexus reminders add "msg" --priority high        # Add with priority
+ *   nexus reminders add "msg" --category bug         # Add with category
+ *   nexus reminders add "msg" --notify               # Add with desktop notification
+ *   nexus reminders rm <index>                       # Remove by index
+ *   nexus reminders rm --message "partial match"     # Remove by message
+ *   nexus reminders clear                            # Remove all
+ *   nexus reminders --json                           # Output as JSON
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { parse as parseYaml } from "yaml";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+import { execSync } from "node:child_process";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
+import type { Reminder, ReminderPriority, ReminderCategory } from "../briefing.js";
+
+// ── Constants ─────────────────────────────────────────────────────────────
+
+const VALID_PRIORITIES: ReminderPriority[] = ["high", "medium", "low"];
+const VALID_CATEGORIES: ReminderCategory[] = ["bug", "feature", "debt", "security", "docs", "infra"];
+
+const PRIORITY_ICONS: Record<ReminderPriority, string> = {
+  high: "🔴",
+  medium: "🟡",
+  low: "🟢",
+};
+
+const CATEGORY_ICONS: Record<ReminderCategory, string> = {
+  bug: "🐛",
+  feature: "✨",
+  debt: "🔧",
+  security: "🔒",
+  docs: "📝",
+  infra: "⚙️",
+};
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -41,7 +67,7 @@ function ensureBuffer(projectRoot: string): string {
   return bufferPath;
 }
 
-function loadReminders(projectRoot: string): string[] {
+function loadReminders(projectRoot: string): Reminder[] {
   const bufferPath = getBufferPath(projectRoot);
 
   if (!existsSync(bufferPath)) {
@@ -53,7 +79,24 @@ function loadReminders(projectRoot: string): string[] {
     const data = parseYaml(content);
 
     if (Array.isArray(data?.reminders)) {
-      return data.reminders.map(String);
+      return data.reminders.map((r: string | Reminder) => {
+        // Handle old format (string) - migrate to new format
+        if (typeof r === "string") {
+          return {
+            message: r,
+            priority: "medium" as ReminderPriority,
+            category: "feature" as ReminderCategory,
+            createdAt: new Date().toISOString(),
+          };
+        }
+        // Handle new format (Reminder object)
+        return {
+          message: r.message || "",
+          priority: (r.priority as ReminderPriority) || "medium",
+          category: (r.category as ReminderCategory) || "feature",
+          createdAt: r.createdAt || new Date().toISOString(),
+        };
+      });
     }
     return [];
   } catch {
@@ -61,29 +104,38 @@ function loadReminders(projectRoot: string): string[] {
   }
 }
 
-function saveReminders(projectRoot: string, reminders: string[]): void {
+function saveReminders(projectRoot: string, reminders: Reminder[]): void {
   const bufferPath = ensureBuffer(projectRoot);
-  let content = readFileSync(bufferPath, "utf-8");
+  const content = readFileSync(bufferPath, "utf-8");
+  let data: Record<string, unknown>;
 
-  // Remove existing reminders section
-  content = content.replace(/^reminders:\s*\n(?:\s+-\s+.*\n?)*/m, "");
-
-  // Add new reminders
-  if (reminders.length > 0) {
-    const remindersBlock = `reminders:\n${reminders.map(r => `  - "${r}"`).join("\n")}\n`;
-    content = remindersBlock + content;
-  } else {
-    content = "reminders: []\n" + content;
+  try {
+    data = parseYaml(content) || {};
+  } catch {
+    data = {};
   }
 
-  writeFileSync(bufferPath, content, "utf-8");
+  data.reminders = reminders;
+  writeFileSync(bufferPath, stringifyYaml(data, { indent: 2, lineWidth: 0 }), "utf-8");
+}
+
+function sendDesktopNotification(title: string, message: string, priority: ReminderPriority): void {
+  try {
+    const urgency = priority === "high" ? "critical" : "normal";
+    execSync(`notify-send "${title}" "${message}" --urgency=${urgency}`, {
+      stdio: "pipe",
+      timeout: 2000,
+    });
+  } catch {
+    // notify-send not available or failed - silent fail
+  }
 }
 
 // ── Command ────────────────────────────────────────────────────────────────
 
 export function remindersCommand(): Command {
   const cmd = new Command("reminders")
-    .description("List, add, remove, and manage reminders")
+    .description("List, add, remove, and manage reminders with priority and category")
     .option("-d, --dir <path>", "Project directory")
     .option("--json", "Output as JSON");
 
@@ -106,9 +158,19 @@ export function remindersCommand(): Command {
       console.log(chalk.dim("  Use 'nexus reminders add \"message\"' to create one."));
     } else {
       console.log(chalk.bold(`  Active Reminders (${reminders.length})`));
-      console.log(chalk.dim("  " + "─".repeat(50)));
-      for (let i = 0; i < reminders.length; i++) {
-        console.log(`  ${chalk.cyan(`${i + 1}.`)} ${reminders[i]}`);
+      console.log(chalk.dim("  " + "─".repeat(60)));
+
+      // Sort by priority: high → medium → low
+      const priorityOrder: Record<ReminderPriority, number> = { high: 0, medium: 1, low: 2 };
+      const sortedReminders = [...reminders].sort(
+        (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
+      );
+
+      for (let i = 0; i < sortedReminders.length; i++) {
+        const r = sortedReminders[i]!;
+        const icon = PRIORITY_ICONS[r.priority];
+        const categoryIcon = CATEGORY_ICONS[r.category];
+        console.log(`  ${chalk.cyan(`${i + 1}.`)} ${icon} ${r.message} ${chalk.dim(`${categoryIcon} ${r.category}`)}`);
       }
     }
     console.log("");
@@ -117,22 +179,61 @@ export function remindersCommand(): Command {
   // ── add ─────────────────────────────────────────────────────────────────
   cmd
     .command("add")
-    .description("Add a new reminder")
+    .description("Add a new reminder with optional priority and category")
     .argument("<message>", "Reminder message")
+    .option("--priority <level>", "Priority level: high, medium, low", "medium")
+    .option("--category <type>", "Category: bug, feature, debt, security, docs, infra", "feature")
+    .option("--notify", "Send desktop notification")
     .option("--json", "Output as JSON")
     .action((message: string, opts: Record<string, unknown>) => {
       const isJson = opts.json === true;
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
+      const priority = String(opts.priority) as ReminderPriority;
+      const category = String(opts.category) as ReminderCategory;
+
+      // Validate priority
+      if (!VALID_PRIORITIES.includes(priority)) {
+        if (isJson) {
+          outputJson({ error: `Invalid priority: ${priority}. Must be: ${VALID_PRIORITIES.join(", ")}` });
+        } else {
+          console.log(chalk.red(`  Invalid priority: ${priority}. Must be: ${VALID_PRIORITIES.join(", ")}`));
+        }
+        return;
+      }
+
+      // Validate category
+      if (!VALID_CATEGORIES.includes(category)) {
+        if (isJson) {
+          outputJson({ error: `Invalid category: ${category}. Must be: ${VALID_CATEGORIES.join(", ")}` });
+        } else {
+          console.log(chalk.red(`  Invalid category: ${category}. Must be: ${VALID_CATEGORIES.join(", ")}`));
+        }
+        return;
+      }
+
       const reminders = loadReminders(ctx.projectRoot);
-      reminders.push(message);
+      const newReminder: Reminder = {
+        message,
+        priority,
+        category,
+        createdAt: new Date().toISOString(),
+      };
+      reminders.push(newReminder);
       saveReminders(ctx.projectRoot, reminders);
 
+      // Send desktop notification if requested
+      if (opts.notify) {
+        sendDesktopNotification("Nexus Reminder Added", message, priority);
+      }
+
       if (isJson) {
-        outputJson({ added: message, count: reminders.length });
+        outputJson({ added: newReminder, count: reminders.length });
       } else {
-        console.log(chalk.green(`  ✓ Reminder added: ${message}`));
+        const icon = PRIORITY_ICONS[priority];
+        const categoryIcon = CATEGORY_ICONS[category];
+        console.log(chalk.green(`  ✓ Reminder added: ${icon} ${message} ${chalk.dim(`${categoryIcon} ${category}`)}`));
         console.log(chalk.dim(`  Total reminders: ${reminders.length}`));
       }
     });
@@ -161,12 +262,12 @@ export function remindersCommand(): Command {
       }
 
       let removedIndex = -1;
-      let removedMessage = "";
+      let removedReminder: Reminder | null = null;
 
       if (opts.message) {
         // Remove by message match
         const message = String(opts.message);
-        removedIndex = reminders.findIndex(r => r.includes(message));
+        removedIndex = reminders.findIndex(r => r.message.includes(message));
         if (removedIndex === -1) {
           if (isJson) {
             outputJson({ error: `Reminder not found: ${message}` });
@@ -195,14 +296,15 @@ export function remindersCommand(): Command {
         return;
       }
 
-      removedMessage = reminders[removedIndex]!;
+      removedReminder = reminders[removedIndex]!;
       reminders.splice(removedIndex, 1);
       saveReminders(ctx.projectRoot, reminders);
 
       if (isJson) {
-        outputJson({ removed: removedMessage, index: removedIndex + 1, count: reminders.length });
+        outputJson({ removed: removedReminder, index: removedIndex + 1, count: reminders.length });
       } else {
-        console.log(chalk.green(`  ✓ Reminder removed: ${removedMessage}`));
+        const icon = PRIORITY_ICONS[removedReminder.priority];
+        console.log(chalk.green(`  ✓ Reminder removed: ${icon} ${removedReminder.message}`));
         console.log(chalk.dim(`  Remaining reminders: ${reminders.length}`));
       }
     });

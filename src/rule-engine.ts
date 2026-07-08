@@ -428,12 +428,15 @@ async function executeAction(
           .replace(/"/g, '\\"')
           .replace(/\n/g, "\\n")
           .substring(0, 200);
+        const priority = String(action.params.priority || "medium");
+        const category = String(action.params.category || "feature");
+        const createdAt = new Date().toISOString();
         content = content.replace(
           /^reminders:\s*\n/,
-          `reminders:\n  - "${reminder}"\n`
+          `reminders:\n  - message: "${reminder}"\n    priority: "${priority}"\n    category: "${category}"\n    createdAt: "${createdAt}"\n`
         );
         writeFileSync(bufferPath, content, "utf-8");
-        return { success: true, message: `Created reminder: ${reminder}` };
+        return { success: true, message: `Created reminder: ${reminder} [${priority}/${category}]` };
       } catch {
         return { success: false, message: "Failed to create reminder" };
       }
