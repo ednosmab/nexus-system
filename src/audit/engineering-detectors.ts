@@ -24,6 +24,9 @@ import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 function detectTestHealth(projectRoot: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
+  const pkgPath = join(projectRoot, "package.json");
+  if (!existsSync(pkgPath)) return issues;
+
   try {
     execSync("npx vitest run 2>&1", {
       cwd: projectRoot,
@@ -209,6 +212,9 @@ function detectTypeSafetyIssues(projectRoot: string, files: SourceFileInfo[]): H
       recommendation: "Substituir \`any\` por tipos adequados para melhorar type safety",
     });
   }
+
+  const tsconfigPath = join(projectRoot, "tsconfig.json");
+  if (!existsSync(tsconfigPath)) return issues;
 
   try {
     execSync("npx tsc --noEmit 2>&1", {
