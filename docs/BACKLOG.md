@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-07-08 — quick wins (2.5, 2.6, 2.8, 2.9, 2.10, 2.15b, SA8) marcados Done, event-driven plan arquivado
+> **Ultima atualizacao:** 2026-07-08 — 12 itens marcados Done (quick wins + SA5, SA9, SA13, 2.2a, 2.18), BACKLOG reconciliado
 
 ---
 
@@ -76,6 +76,11 @@
 | 2.10 | Medio | AGENTS.md template actualizado com lista completa de 20+ comandos — 2026-07-08 |
 | 2.15b | Medio | Cache intermediario no collectContext via getCached/setCache injectaveis — 2026-07-08 |
 | SA8 | Alto | context_buffer.yaml movido para core + ensureContextBuffer() — 2026-07-08 |
+| SA5 | Alto | 4 ADRs criados (ADR-001 a ADR-005) — 2026-07-08 |
+| SA9 | Alto | 4 agent contracts (planner, executor, reviewer, orchestrator) — 2026-07-08 |
+| SA13 | Baixo | ADRs documentados (resolvido pelo SA5) — 2026-07-08 |
+| 2.2a | Medio | Feedback CLI flags (--user-rating, --user-comment) + testes — 2026-07-08 |
+| 2.18 | Medio | Dashboard cliques do mouse funcionais — 2026-07-08 |
 
 ---
 
@@ -325,17 +330,12 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Done (schema + campos) |
-| **Resolucao** | userRating, userComment, userTags ja existem em session-feedback.ts. CLI flags ainda nao implementadas. |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Prioridade** | P2 |
-| **Data** | 2026-07-04 |
-| **Fonte** | Sessao 2026-07-04 — feedback so regista outcome do agente |
-| **Arquivos** | `src/session-feedback.ts`, `src/commands/feedback.ts`, `src/__tests__/session-feedback.test.ts` |
-| **Descricao** | O `nexus feedback` so regista outcome do agente (success/failure/partial). O utilizador nao pode avaliar a sessao. Falta: `--user-rating <1-5>`, `--user-comment <text>`, `--user-tags <list>`. Schema `SessionFeedbackRecord` sem campos de user feedback. |
-| **Correcao** | (1) Adicionar campos `userRating?: 1-5`, `userComment?: string`, `userTags?: string[]` ao schema. (2) Adicionar flags CLI `--user-rating`, `--user-comment`, `--user-tags`. (3) Actualizar `recordOutcome()` para aceitar user feedback. (4) Actualizar `--summary` para mostrar rating medio. (5) Adicionar testes. |
-| **Plano** | `plans/2026-07-04-feedback-and-update.md` (Parte 1) |
+| **Owner** | Edson |
+| **Resolucao** | Schema + campos + CLI flags (--user-rating, --user-comment, --user-tags) + testes — 2026-07-08 |
+| **Arquivos** | `src/session-feedback.ts`, `src/commands/feedback.ts` |
+| **Descricao** | Feedback completo com user ratings e comment. |
 
 ### 2.3 Nexus update — comando de actualizacao com change detection
 
@@ -436,19 +436,17 @@
 | **Arquivos** | `src/formatting.ts`, 7 commands |
 | **Resolucao** | banner()/section()/kv() extraidos para formatting.ts, 7 commands actualizados — 2026-07-08 |
 
-### 2.18 Dashboard: cliques do mouse nas abas nao funcionam
+### 2.18 Dashboard: cliques do mouse nas abas
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
-| **Data** | 2026-07-02 |
-| **Fonte** | Teste manual do usuario |
-| **Modulos** | `src/console/components/tab-bar.tsx`, `src/console/index.tsx` |
-| **Descricao** | As abas do dashboard interativo nao respondem a cliques do mouse. Apenas navegacao por setas do teclado funciona. O componente TabItem tem `useOnClick` configurado mas nao esta funcionando. |
-| **Correcao** | Verificar se `MouseProvider` esta correto no root do Ink. Testar se `useOnClick` detecta cliques. Possivelmente o problema e que os refs dos TabItem nao estao recebendo eventos. |
+| **Owner** | Edson |
+| **Resolucao** | useOnClick implementado em tab-bar.tsx — 2026-07-08 |
+| **Modulos** | `src/console/components/tab-bar.tsx` |
+| **Descricao** | Cliques do mouse nas abas do dashboard funcionais. |
 
 ### 2.19 Dashboard: responsividade do layout
 
@@ -933,15 +931,13 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
-| **Data** | 2026-06-30 |
-| **Fonte** | nexus assess --json (dimension: documentation = 10) |
-| **Modulos** | src/, docs/ |
-| **Descricao** | Dimensao Documentation do score de maturidade esta em 10%. Docs internos fracos, sem ADRs, sem session templates. |
-| **Correcao** | Criar ADRs para decisoes arquiteturais, documentar decisoes de design. |
+| **Owner** | Edson |
+| **Resolucao** | 4 ADRs criados (ADR-001 a ADR-005) + template — 2026-07-08 |
+| **Modulos** | `nexus-system/docs/adrs/` |
+| **Descricao** | ADRs de arquitetura documentados: Single Agent, Event-Driven, Knowledge Graph, Orphan Events. |
 
 ### SA6 15 artifacts orfaos no knowledge graph
 
@@ -983,19 +979,17 @@
 | **Modulos** | `src/capability-mapping.ts` |
 | **Descricao** | Arquivo context_buffer.yaml movido de governance para core. |
 
-### SA9 Nenhum agent contract configurado
+### SA9 Agent contracts configurados
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
-| **Data** | 2026-06-30 |
-| **Fonte** | nexus status --json (agent contracts = warn) |
-| **Modulos** | nexus-system/governance/agents/ |
-| **Descricao** | Nenhum agent contract encontrado. Necessario para definir papeis e responsabilidades de agents IA. |
-| **Correcao** | Criar AI-CONTRACT-planner-v1.yaml, AI-CONTRACT-executor-v1.yaml, AI-CONTRACT-reviewer-v1.yaml. |
+| **Owner** | Edson |
+| **Resolucao** | 4 contracts criados: planner, executor, reviewer, orchestrator — 2026-07-08 |
+| **Modulos** | `nexus-system/governance/agents/` |
+| **Descricao** | Agent contracts com papeis e responsabilidades definidos. |
 
 ### SA10 Clean Architecture violado
 
@@ -1039,19 +1033,17 @@
 | **Descricao** | Knowledge graph nao inicializado. Impossivel rastrear como conhecimento flui pelo projeto. |
 | **Correcao** | Executar `nexus audit` para popular knowledge graph automaticamente. |
 
-### SA13 Falta ADRs
+### SA13 ADRs criados
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done (resolvido pelo SA5) |
 | **Severidade** | Baixo |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
-| **Data** | 2026-06-30 |
-| **Fonte** | nexus doctor --json (teaching moment) |
-| **Modulos** | nexus-system/docs/adrs/ |
-| **Descricao** | Nenhuma ADR (Architecture Decision Record) criada. Decisoes arquiteturais nao documentadas. |
-| **Correcao** | Criar ADRs para decisoes principais: por que TypeScript, por que Commander, por que ESM. |
+| **Owner** | Edson |
+| **Resolucao** | 4 ADRs documentados (ADR-001 a ADR-005) — 2026-07-08 |
+| **Modulos** | `nexus-system/docs/adrs/` |
+| **Descricao** | ADRs de arquitetura: Single Agent, Event-Driven, Knowledge Graph, Orphan Events. |
 
 ### SA14 docs/session-template.md faltando
 
@@ -1135,9 +1127,9 @@ Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 67 | Desacoplamento, quick wins (2.5, 2.6, 2.8, 2.9, 2.10, 2.15b, SA8), event-driven, MCP, pipeline, testes |
+| **Done** | 72 | Desacoplamento, quick wins, event-driven, MCP, pipeline, ADRs, contracts, feedback, dashboard |
 | **P0** (≤ 7d) | 0 | Nenhum P0 activo |
-| **P1** (≤ 30d) | 10 | AI Agent Integration (MCP, OpenCode, Cursor, Git hooks, skills), arquitetura, docs, knowledge graph |
-| **P2** (≤ 90d) | 18 | Features (detect approve, bench compare, dashboard UX), docs, performance, developer experience, security |
+| **P1** (≤ 30d) | 7 | Arquitetura (Clean/SOLID), AI agents (OpenCode, Cursor, Git hooks, skills) |
+| **P2** (≤ 90d) | 16 | Features (detect approve, bench compare), docs, performance, developer experience, security |
 | **P3** (sem SLA) | 31 | Nice-to-have, ecosystem, observability, i18n, dashboard responsividade |
 | **Total** | **126** | |

@@ -4,6 +4,7 @@ import {
   miniBar,
   outputJson,
   statusIcon,
+  banner,
 } from "../formatting.js";
 
 // ── healthBar ────────────────────────────────────────────────────────────────
@@ -129,5 +130,28 @@ describe("statusIcon", () => {
     expect(typeof statusIcon("pass").color).toBe("function");
     expect(typeof statusIcon("warn").color).toBe("function");
     expect(typeof statusIcon("fail").color).toBe("function");
+  });
+});
+
+// ── banner ───────────────────────────────────────────────────────────────────
+
+describe("banner", () => {
+  it("prints a 3-line box containing the title and subtitle", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    banner("nexus status", "Health Check");
+    const output = spy.mock.calls.map((c) => c[0]).join("\n");
+    expect(output).toContain("nexus status — Health Check");
+    expect(spy).toHaveBeenCalledTimes(3);
+    spy.mockRestore();
+  });
+
+  it("box width adapts to content length", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    banner("nexus init", "Setup");
+    const lines = spy.mock.calls.map((c) => c[0] as string);
+    const label = "nexus init — Setup";
+    const expectedWidth = label.length + 4;
+    expect(lines[0]).toContain("═".repeat(expectedWidth));
+    spy.mockRestore();
   });
 });

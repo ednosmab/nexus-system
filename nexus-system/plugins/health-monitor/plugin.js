@@ -9,19 +9,18 @@ const healthMonitorPlugin = {
   version: "1.0.0",
   description: "Logs analysis completion and runs additional health checks",
   hooks: {
-    "post-analysis": (input: unknown) => {
-      const ctx = input as Record<string, unknown>;
+    "post-analysis": (input) => {
+      const ctx = input || {};
       const command = ctx.command || "unknown";
       const timestamp = new Date().toISOString();
 
-      // Log analysis completion
       console.log(`  [health-monitor] Analysis completed for command: ${command} at ${timestamp}`);
 
       return input;
     },
-    "custom-check": async (input: unknown) => {
-      const ctx = input as Record<string, unknown>;
-      const nexusDir = ctx.nexusDir as string;
+    "custom-check": async (input) => {
+      const ctx = input || {};
+      const nexusDir = ctx.nexusDir;
 
       if (!nexusDir) return null;
 

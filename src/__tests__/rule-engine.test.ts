@@ -142,7 +142,7 @@ describe("rule-engine", () => {
   });
 
   describe("executeRules", () => {
-    it("executes matching rules", () => {
+    it("executes matching rules", async () => {
       const rule = createMockRule({
         trigger: "session_start",
         conditions: [],
@@ -152,12 +152,12 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start" });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
       expect(result.rulesSkipped).toBe(0);
     });
 
-    it("skips rules with non-matching trigger", () => {
+    it("skips rules with non-matching trigger", async () => {
       const rule = createMockRule({
         trigger: "session_end",
         conditions: [],
@@ -167,12 +167,12 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start" });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(0);
       expect(result.rulesSkipped).toBe(0);
     });
 
-    it("skips disabled rules", () => {
+    it("skips disabled rules", async () => {
       const rule = createMockRule({
         enabled: false,
         conditions: [],
@@ -182,11 +182,11 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start" });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(0);
     });
 
-    it("evaluates conditions", () => {
+    it("evaluates conditions", async () => {
       const rule = createMockRule({
         conditions: [
           { field: "eventData.count", operator: "greater_than", value: 5 },
@@ -198,16 +198,16 @@ describe("rule-engine", () => {
 
       // Condition not met
       const context1 = createMockContext({ eventData: { count: 3 } });
-      const result1 = executeRules([rule], context1);
+      const result1 = await executeRules([rule], context1);
       expect(result1.rulesSkipped).toBe(1);
 
       // Condition met
       const context2 = createMockContext({ eventData: { count: 10 } });
-      const result2 = executeRules([rule], context2);
+      const result2 = await executeRules([rule], context2);
       expect(result2.rulesExecuted).toBe(1);
     });
 
-    it("checks dependencies", () => {
+    it("checks dependencies", async () => {
       const rule1 = createMockRule({
         id: "RULE-001",
         trigger: "session_start",
@@ -228,12 +228,12 @@ describe("rule-engine", () => {
 
       // When RULE-001 is executed first, RULE-002 should also execute
       const context = createMockContext({ trigger: "session_start" });
-      const result = executeRules([rule1, rule2], context);
+      const result = await executeRules([rule1, rule2], context);
       // Both should execute since RULE-001 is in the same batch and executed first
       expect(result.rulesExecuted).toBeGreaterThanOrEqual(1);
     });
 
-    it("returns correct summary", () => {
+    it("returns correct summary", async () => {
       const rule = createMockRule({
         conditions: [],
         actions: [
@@ -242,11 +242,11 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start" });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.summary).toContain("rules executed");
     });
 
-    it("executes update_context_buffer action", () => {
+    it("executes update_context_buffer action", async () => {
       const bufPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
       mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
       writeFileSync(bufPath, "current_task:\n  id: null\n  description: \"idle\"\n  status: \"in_progress\"\n", "utf-8");
@@ -260,7 +260,7 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start", nexusDir });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
       expect(result.rulesFailed).toBe(0);
 
@@ -268,7 +268,7 @@ describe("rule-engine", () => {
       expect(updated).toContain('status: "completed"');
     });
 
-    it("executes update_backlog action", () => {
+    it("executes update_backlog action", async () => {
       const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
       mkdirSync(join(nexusDir, "docs"), { recursive: true });
       writeFileSync(backlogPath, "# BACKLOG\n\nExisting items\n", "utf-8");
@@ -282,7 +282,7 @@ describe("rule-engine", () => {
       });
       const context = createMockContext({ trigger: "session_start", nexusDir });
 
-      const result = executeRules([rule], context);
+      const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
 
       const backlog = readFileSync(backlogPath, "utf-8");

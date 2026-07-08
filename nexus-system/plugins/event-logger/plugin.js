@@ -12,11 +12,11 @@ const eventLoggerPlugin = {
   version: "1.0.0",
   description: "Logs metrics for each command execution",
   hooks: {
-    "custom-metric": async (input: unknown) => {
-      const ctx = input as Record<string, unknown>;
-      const nexusDir = ctx.nexusDir as string;
-      const command = ctx.command as string || "unknown";
-      const duration = (ctx.duration as number) || 0;
+    "custom-metric": async (input) => {
+      const ctx = input || {};
+      const nexusDir = ctx.nexusDir;
+      const command = ctx.command || "unknown";
+      const duration = ctx.duration || 0;
 
       if (!nexusDir) return null;
 

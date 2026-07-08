@@ -311,7 +311,9 @@ export function updateSystemMapCapabilityStatus(
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function fillPlaceholders(content: string, answers: UserAnswers): string {
-  const stackStr = answers.stack.join(", ") || "a definir";
+  const stackStr = Array.isArray(answers.stack) && answers.stack.length > 0
+    ? answers.stack.join(", ")
+    : "a definir";
   const dbStr = answers.database || "a definir";
   const stylingStr = answers.styling || "a definir";
 
@@ -329,8 +331,8 @@ function fillPlaceholders(content: string, answers: UserAnswers): string {
     .replace(/\[PERSONALIZAR: ex: peer \(par a par\)\]/g, "peer")
     .replace(/\[PERSONALIZAR: ex: mentor \(explicativo\)\]/g, answers.maturity?.isFirstProject ? "mentor" : "peer")
     .replace(/\[PERSONALIZAR: ex: calibrado por camada\]/g, "calibrado por camada")
-    .replace(/opencode\/\[modelo-principal\]/g, `opencode/${answers.principalModel.replace(/^opencode\//, "")}`)
-    .replace(/opencode\/\[modelo-executor\]/g, `opencode/${answers.executorModel.replace(/^opencode\//, "")}`)
+    .replace(/opencode\/\[modelo-principal\]/g, `opencode/${(answers.principalModel || "model").replace(/^opencode\//, "")}`)
+    .replace(/opencode\/\[modelo-executor\]/g, `opencode/${(answers.executorModel || "model").replace(/^opencode\//, "")}`)
     .replace(/\[PERSONALIZAR: comando de testes\]/g, "pnpm run test");
 }
 

@@ -1,4 +1,9 @@
 {
+  "principalModel": "opencode/mimo-v2.5-free",
+  "executorModel": "opencode/mimo-v2.5-free",
+  "stack": ["typescript", "node"],
+  "database": "postgresql",
+  "styling": "tailwind",
   "maturity": {
     "usedNexusBefore": true,
     "isFirstProject": false,
