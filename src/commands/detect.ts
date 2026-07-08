@@ -15,8 +15,10 @@ export const detectCommand = new Command("detect")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("--no-cache", "Skip cache and recalculate")
   .option("--json", "Output results as JSON")
+  .option("--format <type>", "Output format: text, json, or markdown (default: text)")
   .action(async (options) => {
     const isJson = options.json === true;
+    const format = isJson ? "json" : (String(options.format || "text"));
 
     if (!isJson) {
       console.log("");
@@ -58,7 +60,7 @@ export const detectCommand = new Command("detect")
       }
 
       // JSON output
-      if (isJson) {
+      if (format === "json") {
         const growthProfile = loadGrowthProfile(ctx.nexusDir);
         outputJson({
           projectRoot: ctx.projectRoot,
@@ -77,6 +79,56 @@ export const detectCommand = new Command("detect")
             totalChoices: growthProfile.pathHistory.length,
           },
         });
+        return;
+      }
+
+      // Markdown output
+      if (format === "markdown") {
+        const lines: string[] = [];
+        lines.push(`# Pattern Detection Report`);
+        lines.push(``);
+        lines.push(`**Date:** ${report.detectedAt}`);
+        lines.push(`**History entries:** ${report.historyEntriesAnalyzed}`);
+        lines.push(`**Reports analyzed:** ${report.reportsAnalyzed}`);
+        lines.push(``);
+
+        if (report.patterns.length === 0) {
+          lines.push(`✔ No significant patterns detected. System is healthy.`);
+        } else {
+          lines.push(`## Patterns (${report.patterns.length})`);
+          lines.push(``);
+          for (const p of report.patterns) {
+            lines.push(`### ${p.description}`);
+            lines.push(`- **Type:** ${p.type}`);
+            lines.push(`- **Severity:** ${p.severity}/5`);
+            lines.push(`- **Occurrences:** ${p.occurrences}`);
+            lines.push(`- **Affected:** ${p.affectedArea}`);
+            if (p.evidence.length > 0) {
+              lines.push(`- **Evidence:**`);
+              for (const ev of p.evidence) {
+                lines.push(`  - ${ev}`);
+              }
+            }
+            lines.push(``);
+          }
+        }
+
+        if (report.candidateRules.length > 0) {
+          lines.push(`## Candidate Rules (${report.candidateRules.length})`);
+          lines.push(``);
+          for (const r of report.candidateRules) {
+            lines.push(`- **${r.id}:** ${r.title}`);
+            lines.push(`  - Target: ${r.target}`);
+            lines.push(`  - ${r.description}`);
+          }
+          lines.push(``);
+        }
+
+        lines.push(`## Summary`);
+        lines.push(`${report.summary}`);
+        lines.push(``);
+
+        console.log(lines.join("\n"));
         return;
       }
 

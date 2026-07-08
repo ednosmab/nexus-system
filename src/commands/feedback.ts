@@ -243,6 +243,26 @@ export function feedbackCommand(): Command {
         console.log(chalk.gray(`   Notes: ${options.notes}`));
       }
       console.log(chalk.gray(`   Recorded: ${record.id}`));
+
+      // Auto-link: suggest areas on failure
+      if (outcome === "failure" && (!modifiedAreas || modifiedAreas.length === 0)) {
+        try {
+          const records = getFeedbackRecords(ctx.nexusDir);
+          if (records.length > 1) {
+            const summary = computeFeedbackSummary(records);
+            if (summary.failureHotspots.length > 0) {
+              console.log("");
+              console.log(chalk.bold("  🔥 Failure hotspots from past sessions:"));
+              for (const area of summary.failureHotspots.slice(0, 5)) {
+                console.log(chalk.red(`     • ${area}`));
+              }
+              console.log(chalk.gray("     Tip: use --areas to specify which areas were affected."));
+            }
+          }
+        } catch {
+          // Non-blocking: ignore if feedback data unavailable
+        }
+      }
       console.log("");
 
       // Track feedback in session

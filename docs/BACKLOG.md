@@ -593,13 +593,13 @@
 | 3.11 | nexus init --dry-run | Baixo | Preview do que seria criado sem criar |
 | 3.12 | nexus upgrade --dry-run | Baixo | Preview do que seria instalado sem instalar |
 | 3.13 | nexus audit --fix | Medio | Auto-fix para problemas de governance detectados |
-| 3.14 | Changelog automatico | Baixo | Gerar CHANGELOG.md a partir de commit messages |
+| ~~3.14~~ | ~~Changelog automatico~~ | ~~Baixo~~ | ~~Done: nexus-system/scripts/generate-changelog.ts — conventional commits~~ |
 | 3.15 | Version bumping automatizado | Baixo | Semver automatico baseado em conventional commits |
 | 3.16 | Metrics export (Prometheus/OpenTelemetry) | Baixo | Exportar metricas de uso para observabilidade |
 | 3.17 | Structured logging | Baixo | JSON logs em vez de console.log para parsing |
 | 3.18 | Plugin versioning e dependency resolution | Baixo | Versao minima de plugins, dependencias entre plugins |
 | 3.19 | nexus detect --approve/--reject | Medio | Aprovar ou rejeitar regras candidatas do pattern-detector |
-| 3.20 | nexus feedback --outcome failure auto-link | Baixo | Ao reportar falha, sugerir areas baseado no pattern-detector |
+| ~~3.20~~ | ~~nexus feedback --outcome failure auto-link~~ | ~~Baixo~~ | ~~Done: sugere failure hotspots quando --areas nao fornecido~~ |
 | ~~3.21~~ | ~~Briefing --profile no briefingToMarkdown~~ | ~~Baixo~~ | ~~Done: --profile com minimal/standard/full em briefing.ts~~ |
 | 3.22 | HealthBar compartilhado | Baixo | dashboard.ts duplica healthBar de formatting.ts — importar |
 | 3.23 | Colorblind-friendly mode | Baixo | Usar icons/texto em vez de apenas cores |
@@ -610,7 +610,7 @@
 | 3.28 | Briefing --watch | Baixo | Regenerar briefing automaticamente a cada N segundos |
 | ~~3.29~~ | ~~Session-tracker com append-only (remover overwrite)~~ | ~~Medio~~ | ~~Done: ja usa appendFileSync (nao writeFileSync)~~ |
 | 3.30 | Validacao de schema com zod/io-ts | Baixo | Validar todos os tipos de record lidos de disco |
-| 3.31 | nexus detect --format markdown | Baixo | Saida markdown para detect (atualmente so text/json) |
+| ~~3.31~~ | ~~nexus detect --format markdown~~ | ~~Baixo~~ | ~~Done: --format text/json/markdown em detect.ts~~ |
 | 3.32 | Briefing cache com compressao | Baixo | Comprimir cache JSON para reduzir tamanho em disco |
 | 3.33 | Feedback com campo `briefingProfile` | Baixo | Registrar qual profile (minimal/standard/full) foi usado |
 | 3.34 | nexus dashboard --export csv | Baixo | Exportar dados do dashboard em CSV |
@@ -1131,9 +1131,9 @@ Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 80 | Desacoplamento, quick wins, event-driven, MCP, pipeline, ADRs, contracts, feedback, dashboard |
+| **Done** | 83 | Desacoplamento, quick wins, event-driven, MCP, pipeline, ADRs, contracts, feedback, dashboard |
 | **P0** (≤ 7d) | 0 | Nenhum P0 activo |
 | **P1** (≤ 30d) | 7 | Arquitetura (Clean/SOLID), AI agents (OpenCode, Cursor, Git hooks, skills) |
 | **P2** (≤ 90d) | 16 | Features (detect approve, bench compare), docs, performance, developer experience, security |
-| **P3** (sem SLA) | 23 | Nice-to-have, ecosystem, observability, i18n, dashboard responsividade |
+| **P3** (sem SLA) | 20 | Nice-to-have, ecosystem, observability, i18n, dashboard responsividade |
 | **Total** | **126** | |
