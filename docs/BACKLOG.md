@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-07-07 — quick wins concluidos (2.6, 2.8, 2.10, SA8, 2.5), comercializacao removida do BACKLOG
+> **Ultima atualizacao:** 2026-07-08 — quick wins (2.5, 2.6, 2.8, 2.9, 2.10, 2.15b, SA8) marcados Done, event-driven plan arquivado
 
 ---
 
@@ -69,6 +69,13 @@
 | DESOPLAMENTO B.7 | Alto | Rule engine auto-cria directories (history/, context/) — ensureContextBuffer() — 2026-07-07 |
 | MCP-SERVER | Alto | Servidor MCP com 3 tools (getBriefing, getRiskMap, getRules) — mcp-server.ts — 2026-07-07 |
 | SA3 | Critico | Governance 0% resolvido — maturity-profile.ts + policies + answers.json — 2026-07-06 |
+| 2.5 | Medio | context-collector desacoplado de pattern-detector via ContextDeps — 2026-07-08 |
+| 2.6 | Baixo | BriefingDepth tipo proprio em displayBriefingByDepth() — 2026-07-08 |
+| 2.8 | Medio | Schema validation em JSONL readers (session-feedback, session-tracker) — 2026-07-08 |
+| 2.9 | Baixo | banner()/section()/kv() extraidos para formatting.ts, 7 commands actualizados — 2026-07-08 |
+| 2.10 | Medio | AGENTS.md template actualizado com lista completa de 20+ comandos — 2026-07-08 |
+| 2.15b | Medio | Cache intermediario no collectContext via getCached/setCache injectaveis — 2026-07-08 |
+| SA8 | Alto | context_buffer.yaml movido para core + ensureContextBuffer() — 2026-07-08 |
 
 ---
 
@@ -382,23 +389,21 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
+| **Owner** | Edson |
 | **Arquivo** | `src/context-collector.ts` |
-| **Descricao** | `context-collector.ts` agora importa `pattern-detector.ts` e `session-feedback.ts`, aumentando o acoplamento. O collector deveria ser uma camada de orquestracao, nao de integracao. |
-| **Correcao** | Mover `enrichBriefingWithPatterns()` para um modulo separado (`src/briefing-enricher.ts`) ou injetar via `ContextDeps`. |
+| **Resolucao** | detectPatterns injetado via ContextDeps.detectPatterns — 2026-07-08 |
 
 ### 2.6 Type BriefingDepth como tipo proprio no briefing
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Baixo |
-| **Owner** | unassigned |
-| **Arquivo** | `src/briefing.ts`, `src/token-optimizer.ts` |
-| **Descricao** | `BriefingDepth` e definido em `token-optimizer.ts` mas re-exportado. O briefing.ts nao tem referencia ao tipo — usa `string` no display. |
-| **Correcao** | Usar `BriefingDepth` como tipo do parametro `depth` em `displayBriefingByDepth()` em vez de `string`. |
+| **Owner** | Edson |
+| **Arquivo** | `src/commands/briefing.ts`, `src/token-optimizer.ts` |
+| **Resolucao** | BriefingDepth usado como tipo em displayBriefingByDepth() — 2026-07-08 |
 
 ### 2.7 Usar differentialBriefing no --diff
 
@@ -415,23 +420,21 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
-| **Arquivos** | `src/session-feedback.ts` (createFileStorage.read), `src/session-tracker.ts` (readAllSessions) |
-| **Descricao** | Records lidos de JSONL nao tem validacao de schema. Se o arquivo estiver corrompido ou com formato antigo, `JSON.parse` retorna objetos incompletos. |
-| **Correcao** | Adicionar validacao minima: verificar campos obrigatorios (id, timestamp, outcome) apos parse. Descartar records invalidos com logger.warn. |
+| **Owner** | Edson |
+| **Arquivos** | `src/session-feedback.ts`, `src/session-tracker.ts` |
+| **Resolucao** | Schema validation com filter + type guard em ambos os readers — 2026-07-08 |
 
 ### 2.9 Extrair modulo shared de display
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Baixo |
-| **Owner** | unassigned |
-| **Arquivos** | Todos os commands/ que tem `console.log` com chalk |
-| **Descricao** | ~90 chamadas `console.log` com chalk repetidas em 18 arquivos de comando. Padrao de banner `╔══╗` duplicado em todos. |
-| **Correcao** | Extrair funcoes `banner(title)`, `section(title)`, `kv(key, value)` para `src/formatting.ts`. |
+| **Owner** | Edson |
+| **Arquivos** | `src/formatting.ts`, 7 commands |
+| **Resolucao** | banner()/section()/kv() extraidos para formatting.ts, 7 commands actualizados — 2026-07-08 |
 
 ### 2.18 Dashboard: cliques do mouse nas abas nao funcionam
 
@@ -469,12 +472,11 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
+| **Owner** | Edson |
 | **Arquivo** | `src/templates/base/docs/AGENTS.md` |
-| **Descricao** | O template menciona `nexus briefing` e `nexus feedback` mas nao menciona `nexus bench`, `nexus dashboard`, `nexus detect`, ou `nexus doctor`. |
-| **Correcao** | Adicionar secoes para: bench, dashboard, detect, doctor, profile option. |
+| **Resolucao** | Lista completa de 20+ comandos actualizada — 2026-07-08 |
 
 ### 2.11 Linkar ROI.md no README
 
@@ -543,12 +545,11 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Medio |
-| **Owner** | unassigned |
+| **Owner** | Edson |
 | **Arquivo** | `src/context-collector.ts` |
-| **Descricao** | `collectContext()` executa todas as etapas (fingerprint, risk-map, rules, briefing, enrichment) toda vez que e chamado. Em sequencias de comandos (`nexus status && nexus briefing`), o trabalho e duplicado. |
-| **Correcao** | Adicionar cache em memoria (Map<hash, snapshot>) com TTL de 60s. Ou usar o briefing-cache como intermediario. |
+| **Resolucao** | Cache via getCached/setCache injectaveis via ContextDeps — 2026-07-08 |
 
 ### 2.16 Lazy loading de modulos pesados
 
@@ -974,15 +975,13 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
-| **Data** | 2026-06-30 |
-| **Fonte** | nexus status --json (context_buffer.yaml = warn) |
-| **Modulos** | nexus-system/governance/context/ |
-| **Descricao** | Arquivo context_buffer.yaml nao encontrado. Necessario para buffer de contexto entre sessoes. |
-| **Correcao** | Criar governance/context/context_buffer.yaml a partir do template. |
+| **Owner** | Edson |
+| **Resolucao** | context_buffer.yaml movido para core capability, sempre criado no nexus init — 2026-07-08 |
+| **Modulos** | `src/capability-mapping.ts` |
+| **Descricao** | Arquivo context_buffer.yaml movido de governance para core. |
 
 ### SA9 Nenhum agent contract configurado
 
@@ -1136,9 +1135,9 @@ Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 60 | Desacoplamento (A.1-A.5, B.1-B.7), SA3, MCP server, bugs, integracao, qualidade, pipeline, testes, governance, docs-sync |
+| **Done** | 67 | Desacoplamento, quick wins (2.5, 2.6, 2.8, 2.9, 2.10, 2.15b, SA8), event-driven, MCP, pipeline, testes |
 | **P0** (≤ 7d) | 0 | Nenhum P0 activo |
 | **P1** (≤ 30d) | 10 | AI Agent Integration (MCP, OpenCode, Cursor, Git hooks, skills), arquitetura, docs, knowledge graph |
-| **P2** (≤ 90d) | 25 | Features (detect approve, bench compare, dashboard UX), docs, performance, developer experience, security |
+| **P2** (≤ 90d) | 18 | Features (detect approve, bench compare, dashboard UX), docs, performance, developer experience, security |
 | **P3** (sem SLA) | 31 | Nice-to-have, ecosystem, observability, i18n, dashboard responsividade |
 | **Total** | **126** | |
