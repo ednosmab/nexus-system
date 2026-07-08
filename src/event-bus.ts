@@ -50,6 +50,7 @@ export type NexusEventType =
   | "entropy.calculated"
   | "docs.sync.triggered"
   | "doc.lifecycle.audited"
+  | "plan.archived"
   | "system.updated";
 
 export type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;

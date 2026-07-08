@@ -37,8 +37,9 @@ function makeBriefing(overrides?: Partial<Briefing>): Briefing {
       contextRuleCount: 1,
       dynamicRuleCount: 1,
     },
+    reminders: [],
     ...overrides,
-  };
+  } as Briefing;
 }
 
 describe("briefing output formats", () => {

@@ -42,7 +42,7 @@ export interface ContextDeps {
   generateRiskMap: (root: string, nexusDir: string) => RiskMap;
   generateContextRules: (fp: ProjectFingerprint, risk: RiskMap) => ContextRule[];
   generateDynamicRules: (root: string, nexusDir: string) => DynamicRule[];
-  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }) => Briefing;
+  generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }, reminders?: string[]) => Briefing;
   detectPatterns: (projectRoot: string, nexusDir: string) => PatternDetectionReport;
   /** Optional: compute checksums for snapshot cache invalidation. */
   computeKeyChecksums?: (projectRoot: string, nexusDir: string) => Record<string, string>;
@@ -257,6 +257,7 @@ function loadQuickBoard(nexusDir: string): {
   p1Debts: string;
   impediments: string;
   lastSessionStatus: string;
+  reminders: string[];
 } {
   const defaultQuickBoard = {
     currentTask: "Nenhuma",
@@ -264,6 +265,7 @@ function loadQuickBoard(nexusDir: string): {
     p1Debts: "Nenhuma",
     impediments: "Nenhum",
     lastSessionStatus: "Desconhecido",
+    reminders: [] as string[],
   };
 
   try {
@@ -300,12 +302,18 @@ function loadQuickBoard(nexusDir: string): {
           .join(", ") || "Nenhuma"
       : "Nenhuma";
 
+    // Extract reminders
+    const reminders = Array.isArray(data?.reminders)
+      ? data.reminders.map(String)
+      : [];
+
     return {
       currentTask,
       nextP0: data?.next_p0 ?? "Verificar BACKLOG.md para próximo P0",
       p1Debts,
       impediments,
       lastSessionStatus,
+      reminders,
     };
   } catch (err) {
     logger.debug("loadQuickBoard", "Failed to load context buffer:", err instanceof Error ? err.message : err);

@@ -28,6 +28,7 @@ const mockBriefing: Briefing = {
     hotAreas: [],
     detected: [],
   },
+  reminders: [],
   recommendations: ["Add more tests"],
   tokenEconomy: {
     estimatedTokensSaved: 5000,

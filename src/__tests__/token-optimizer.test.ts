@@ -12,6 +12,7 @@ function makeBriefing(overrides?: Partial<Briefing>): Briefing {
     dynamicRules: [],
     recommendations: ["Fix tests"],
     tokenEconomy: { estimatedTokensSaved: 8400, cacheHit: false, contextRuleCount: 1, dynamicRuleCount: 0 },
+    reminders: [],
     ...overrides,
   };
 }
