@@ -7,8 +7,6 @@
  * PRINCIPLE: Every event carries a typed payload — no `unknown` at call sites.
  */
 
-import type { NexusEventType } from "./event-bus.js";
-
 // ── Correlation & Trace ────────────────────────────────────────────────────
 
 /** Unique identifier linking events within a single user action or pipeline run. */
@@ -356,7 +354,7 @@ export interface EventPayloadMap {
  * Creates a payload with automatic trace ID and optional correlation ID.
  * Use this when publishing events to ensure consistent metadata.
  */
-export function createEventPayload<T extends NexusEventType>(
+export function createEventPayload<T extends keyof EventPayloadMap>(
 
   data: Omit<EventPayloadMap[T], "timestamp" | "traceId" | "correlationId">,
   options?: { correlationId?: CorrelationId; traceId?: TraceId }
