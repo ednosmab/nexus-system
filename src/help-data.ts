@@ -311,6 +311,23 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
           "Press 'q' to quit, 'r' to refresh",
         ],
       },
+      {
+        name: "reminders",
+        description: "List, add, remove, and manage session reminders",
+        usage: "nexus reminders [options] [command]",
+        examples: [
+          "nexus reminders                      # List all active reminders",
+          'nexus reminders add "Run audit"      # Add a new reminder',
+          "nexus reminders rm 1                 # Remove reminder by index",
+          'nexus reminders rm --message "audit" # Remove by partial match',
+          "nexus reminders clear                # Remove all reminders",
+          "nexus reminders --json               # Output as JSON",
+        ],
+        tips: [
+          "Reminders appear in the briefing at session start",
+          "Use 'nexus reminders' without arguments to list all",
+        ],
+      },
     ],
   },
   {

@@ -83,6 +83,8 @@ export interface Briefing {
     /** Last session status */
     lastSessionStatus: string;
   };
+  /** Active reminders from context_buffer.yaml */
+  reminders: string[];
 }
 
 // ── Briefing Generation ────────────────────────────────────────────────────
@@ -99,7 +101,8 @@ export function generateBriefing(
     p1Debts: string;
     impediments: string;
     lastSessionStatus: string;
-  }
+  },
+  reminders?: string[]
 ): Briefing {
   // Extract risk information
   const criticalAreas = riskMap.areas
@@ -180,6 +183,7 @@ export function generateBriefing(
       impediments: "Nenhum",
       lastSessionStatus: "Desconhecido",
     },
+    reminders: reminders ?? [],
   };
 }
 
@@ -342,6 +346,16 @@ export function briefingToMarkdown(briefing: Briefing): string {
     lines.push(`| **Estado última sessão** | ${briefing.quickBoard.lastSessionStatus} |`);
     lines.push("");
     lines.push("---");
+    lines.push("");
+  }
+
+  // Reminders section
+  if (briefing.reminders && briefing.reminders.length > 0) {
+    lines.push("## Active Reminders");
+    lines.push("");
+    for (const reminder of briefing.reminders) {
+      lines.push(`- ${reminder}`);
+    }
     lines.push("");
   }
 

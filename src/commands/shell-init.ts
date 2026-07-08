@@ -22,6 +22,8 @@ const SHELL_SCRIPT = [
   "_nexus_hook_preexec() {",
   '  _nexus_session_start=$(date +%s)',
   "  command -v nexus >/dev/null 2>&1 && nexus feedback --outcome session-start 2>/dev/null &",
+  "  # Show active reminders at session start",
+  "  command -v nexus >/dev/null 2>&1 && nexus reminders 2>/dev/null &",
   "}",
   "",
   "_nexus_hook_precmd() {",

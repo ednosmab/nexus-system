@@ -36,6 +36,7 @@ import { docsAuditCommand } from "../src/commands/docs-audit.js";
 import { updateCommand } from "../src/commands/update.js";
 import { mcpCommand } from "../src/commands/mcp.js";
 import { syncCommand } from "../src/commands/sync.js";
+import { remindersCommand } from "../src/commands/reminders.js";
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
 import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
@@ -276,6 +277,7 @@ program.addCommand(docsAuditCommand);
 program.addCommand(updateCommand);
 program.addCommand(mcpCommand());
 program.addCommand(syncCommand);
+program.addCommand(remindersCommand());
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 
