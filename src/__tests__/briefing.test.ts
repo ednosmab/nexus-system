@@ -147,8 +147,11 @@ describe("generateBriefing", () => {
   });
 
   it("passes through reminders", () => {
-    const b = generateBriefing(makeFingerprint() as any, makeRiskMap() as any, [], [], undefined, undefined, ["rem1"]);
-    expect(b.reminders).toEqual(["rem1"]);
+    const reminder = { message: "rem1", priority: "medium" as const, category: "feature" as const, createdAt: "2026-07-08" };
+    const b = generateBriefing(makeFingerprint() as any, makeRiskMap() as any, [], [], undefined, undefined, [reminder]);
+    expect(b.reminders).toHaveLength(1);
+    const [first] = b.reminders;
+    expect(first?.message).toBe("rem1");
   });
 
   it("estimates token savings based on rules count", () => {
@@ -356,10 +359,11 @@ describe("briefingToMarkdown", () => {
   });
 
   it("includes reminders when present", () => {
-    const b = makeBriefing({ reminders: ["Test reminder"] });
+    const reminder = { message: "Test reminder", priority: "high" as const, category: "bug" as const, createdAt: "2026-07-08" };
+    const b = makeBriefing({ reminders: [reminder] } as any);
     const md = briefingToMarkdown(b);
     expect(md).toContain("## Active Reminders");
-    expect(md).toContain("- Test reminder");
+    expect(md).toContain("Test reminder");
   });
 
   it("omits reminders when empty", () => {
