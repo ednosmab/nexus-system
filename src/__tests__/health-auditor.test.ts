@@ -656,13 +656,13 @@ describe("AuditLevel filtering", () => {
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
     const quickReport = auditHealth(tempDir, nexusDir, "quick");
-    const fullReport = auditHealth(tempDir, nexusDir, "full");
-    expect(fullReport.level).toBe("full");
-    expect(fullReport.issues.length).toBeGreaterThanOrEqual(quickReport.issues.length);
+    const codeReviewReport = auditHealth(tempDir, nexusDir, "code-review");
+    expect(codeReviewReport.level).toBe("code-review");
+    expect(codeReviewReport.issues.length).toBeGreaterThanOrEqual(quickReport.issues.length);
   }, 40_000);
 });
 
-describe("Full-level detectors", () => {
+describe("Code-review level detectors", () => {
   it("detects triple maturity score mismatch", () => {
     mkdirSync(join(nexusDir, "docs"), { recursive: true });
     writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "# Agents");
@@ -677,7 +677,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "docs"), { recursive: true });
     writeFileSync(join(nexusDir, "BRIEFING.md"), "# Briefing\n- **Maturity:** 55/100");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const tripleIssue = report.issues.find((i) => i.type === "triple_maturity_score");
     expect(tripleIssue).toBeDefined();
   });
@@ -692,7 +692,7 @@ describe("Full-level detectors", () => {
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
     writeFileSync(join(nexusDir, "fingerprint.json"), JSON.stringify({ maturityScore: 49, stack: [] }));
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const emptyStackIssue = report.issues.find((i) => i.type === "empty_stack");
     expect(emptyStackIssue).toBeDefined();
   });
@@ -708,7 +708,7 @@ describe("Full-level detectors", () => {
     // root package.json with no validate:session script
     writeFileSync(join(tempDir, "package.json"), JSON.stringify({ scripts: { build: "tsc" } }));
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const scriptIssue = report.issues.find(
       (i) => i.type === "script_wiring" && i.description.includes("validate:session"),
     );
@@ -725,7 +725,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const typoIssues = report.issues.filter((i) => i.type === "rule_typo");
     expect(typoIssues.length).toBeGreaterThanOrEqual(2);
   });
@@ -740,7 +740,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const gapIssue = report.issues.find(
       (i) => i.type === "numbering_gap" && i.description.includes("F-3"),
     );
@@ -758,7 +758,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const emptyIssue = report.issues.find((i) => i.type === "empty_data_file");
     expect(emptyIssue).toBeDefined();
   });
@@ -773,7 +773,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const phantomIssue = report.issues.find(
       (i) => i.type === "phantom_rule_ref" && i.description.includes("G-05"),
     );
@@ -791,7 +791,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const phantomIssues = report.issues.filter((i) => i.type === "phantom_rule_ref");
     expect(phantomIssues.length).toBe(0);
   });
@@ -806,7 +806,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const extIssue = report.issues.find(
       (i) => i.type === "extension_mismatch" && i.description.includes("maturity-profile"),
     );
@@ -825,7 +825,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const brokenIssue = report.issues.find(
       (i) => i.type === "broken_ref" && i.description.includes("capability-mapping.ts"),
     );
@@ -842,7 +842,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const dirIssue = report.issues.find(
       (i) => i.type === "broken_ref" && i.description.includes("packages/types/"),
     );
@@ -863,7 +863,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const contractIssue = report.issues.find(
       (i) => i.type === "agent_contract_ref" && i.description.includes("audit/executions/"),
     );
@@ -884,7 +884,7 @@ describe("Full-level detectors", () => {
     mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
     writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), "current_task:\n  status: done\n");
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const p0Issue = report.issues.find((i) => i.type === "cross_doc_p0_contradiction");
     expect(p0Issue).toBeDefined();
   });
@@ -1050,7 +1050,7 @@ export const a = foo();`
 export const b = bar();`
     );
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const circularDep = report.issues.find(
       (i) => i.type === "circular_dep"
     );
@@ -1074,7 +1074,7 @@ export const a = foo();`
       `export const b = 1;`
     );
 
-    const report = auditHealth(tempDir, nexusDir, "full");
+    const report = auditHealth(tempDir, nexusDir, "code-review");
     const circularDep = report.issues.find(
       (i) => i.type === "circular_dep"
     );

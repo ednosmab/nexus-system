@@ -21,7 +21,7 @@ export interface HistoryEntry {
 }
 
 /** Nível de auditoria — controla quais detectors são executados. */
-export type AuditLevel = "quick" | "standard" | "full" | "code-review" | "enterprise";
+export type AuditLevel = "quick" | "standard" | "code-review" | "enterprise";
 
 /** Tipo de problema de saúde. */
 export type HealthIssueType =
