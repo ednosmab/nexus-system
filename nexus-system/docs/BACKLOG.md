@@ -824,4 +824,74 @@
 | **Total** | **114** | |
 
 ---
-*Ultima atualizacao: 2026-07-06 — backlog reestruturado. Itens concluidos movidos para BACKLOG-ARCHIVE.md*
+
+## Completed Items
+
+> Itens concluidos movidos de BACKLOG.md. Referencia historica.
+
+### Done — Tabela Resumo
+
+| Item | Severidade | Resolucao |
+|---|---|---|
+| Renomear "nexus-governance" → "nexus-system" | Critico | package.json, init.ts, audit.ts |
+| Executar Plano Estrategico (10 pilares) | Alto | conceptual model, knowledge lifecycle, capabilities, etc. |
+| Comando `evolve` com dual-path | Alto | src/commands/evolve.ts |
+| Comando `run` (pipeline) | Alto | src/commands/run.ts |
+| Auto-evolution com feedback | Alto | src/auto-evolution.ts |
+| Dual-path presenter | Alto | src/dual-path-presenter.ts |
+| Challenge generator | Alto | src/challenge-generator.ts |
+| Growth profile | Alto | src/growth-profile.ts |
+| Event bus com 10 tipos novos | Alto | src/event-bus.ts |
+| Seguranca no rule-engine | Critico | Allowlist em execSync, sanitizacao |
+| Atomic writes no cache | Medio | writeCache() usa tmp + renameSync |
+| Coverage configurado com thresholds | Alto | vitest.config.ts com @vitest/coverage-v8 |
+| Context Pipeline completo | Alto | collectContext(), briefing-cache, session-feedback |
+| Comando `feedback` | Alto | nexus feedback --outcome success/failure/partial |
+| Comando `bench` | Medio | nexus bench — token benchmark automatizado |
+| Comando `dashboard` | Medio | nexus dashboard — token economy metrics |
+| Token optimizer | Medio | suggestDepth, compressedSummary, differentialBriefing |
+| P0 0.1: Remover auto-feedback briefing | Alto | Removido recordOutcome() automatico |
+| P0 0.2: Padrao redundante eliminado | Alto | enrichBriefingWithPatterns() aceita patternReport opcional |
+| P0 0.3: Dead code briefing.ts | Medio | Removido displayBriefing() |
+| P0 0.4: Dead code dashboard.ts | Baixo | Removido trendArrow() |
+| P0 0.5: Simplificar getLatestFeedback | Baixo | Refatorado para records.at(-1) ?? null |
+| 1.12 Coverage gap: comandos CLI | Alto | 36 novos testes (580 total) |
+| Auto-backlog feature | Alto | nexus audit --auto-backlog |
+| AUDIT-EXPANSION | Alto | Expandir audit coverage 79% → ~93% |
+| SA1 | Critico | governance/WORKFLOW.md criado |
+| SA6 | Alto | Artefactos orfaos conectados via SYSTEM_MAP.md |
+| BACKLOG-0.7 | Critico | Actualizar documentacao desactualizada (6 ficheiros) |
+| SA2 | Critico | Resolvido import de node:fs em digest.ts |
+| AUDIT-CLEANUP-01 a 05 | Baixo | Varias limpezas de codigo |
+| DESOPLAMENTO A.1-A.4 | Critico | Desacoplamento de opencode.json |
+| DESOPLAMENTO A.5 | Alto | MCP multi-formato |
+| DESOPLAMENTO B.1-B.7 | Alto | Varias correccoes de estabilidade |
+| MCP-SERVER | Alto | Servidor MCP com 3 tools |
+| SA3 | Critico | Governance 0% resolvido |
+| SA5 | Alto | 4 ADRs criados |
+| SA8 | Alto | context_buffer.yaml movido para core |
+| SA9 | Alto | 4 agent contracts |
+| 2.5 | Medio | context-collector desacoplado |
+| 2.2a | Medio | Feedback CLI flags + testes |
+| 2.10 | Medio | AGENTS.md template actualizado |
+| 2.18 | Medio | Dashboard cliques do mouse funcionais |
+| 3.5 | Baixo | Plugin system com hooks |
+| 3.29 | Medio | Session-tracker append-only |
+
+### Plano de Correção Auditoria Completa — Done (2026-07-10)
+
+| Fase | Descricao |
+|---|---|
+| Fase 1 — Segurança | 8 items: allowlist, sanitizacao, ReDoS, prototype pollution, plugins |
+| Fase 0 — Quick Wins | Referencias partidas, READMEs, extensoes |
+| Fase 1.1 — Empty Catches | 52 catch blocks → logger.debug |
+| Fase 1.3 — console.log → logger | Analise: output CLI intencional, biblioteca ja usa logger |
+| Fase 1.5 — Orphan Modules | Detector reescrito para verificar exports reais |
+| Fase 2 — Qualidade | Constantes consolidadas (VIOLATION_KEYWORDS, COMMAND_GATES) |
+| Fase 3 — Infraestrutura | ESLint, tsconfig, .gitignore, cache atomic, event limits |
+| Fase 4 — CI/CD | lint/test/coverage jobs, npm audit, pinned SHAs, version verification |
+| Fase 5 — README | 32 comandos, arquitectura, seguranca documentados |
+
+---
+*Ultima atualizacao: 2026-07-10 — BACKLOG-ARCHIVE.md migrado para ca*
+
