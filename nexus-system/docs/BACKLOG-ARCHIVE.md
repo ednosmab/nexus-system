@@ -57,6 +57,134 @@
 | AUDIT-CLEANUP-03 | Baixo | Removidos 4 casts as NexusEventType em pipeline.ts — 2026-07-05 |
 | AUDIT-CLEANUP-04 | Baixo | run_script → run_local_script (deprecated fallback) — 2026-07-05 |
 | AUDIT-CLEANUP-05 | Baixo | Planos de auditoria movidos para plans/done/ — 2026-07-05 |
+| DESOPLAMENTO A.1-A.4 | Critico | Desacoplamento de opencode.json — shared.ts, nexus-state-machine.ts, analyser.ts, capability-engine.ts — 2026-07-07 |
+| DESOPLAMENTO A.5 | Alto | MCP multi-formato (.mcp.json + .cursor/mcp.json) — init.ts — 2026-07-07 |
+| DESOPLAMENTO B.1 | Alto | Path do BACKLOG.md corrigido no scaffolder — capability-mapping.ts — 2026-07-07 |
+| DESOPLAMENTO B.2 | Medio | Falso positivo de XSS eliminado — engineering-detectors.ts — 2026-07-07 |
+| DESOPLAMENTO B.3 | Medio | Sync restaurado em bin/nexus.ts, gate valido — 2026-07-07 |
+| DESOPLAMENTO B.5 | Alto | OOM em vitest resolvido — programCache no TaintAnalyzer — 2026-07-07 |
+| DESOPLAMENTO B.6 | Medio | healthScore recalibrado com sqrt e normalizacao — 2026-07-07 |
+| DESOPLAMENTO B.7 | Alto | Rule engine auto-cria directories (history/, context/) — ensureContextBuffer() — 2026-07-07 |
+| MCP-SERVER | Alto | Servidor MCP com 3 tools (getBriefing, getRiskMap, getRules) — mcp-server.ts — 2026-07-07 |
+| SA3 | Critico | Governance 0% resolvido — maturity-profile.ts + policies + answers.json — 2026-07-06 |
+| 2.5 | Medio | context-collector desacoplado de pattern-detector via ContextDeps — 2026-07-08 |
+| 2.6 | Baixo | BriefingDepth tipo proprio em displayBriefingByDepth() — 2026-07-08 |
+| 2.8 | Medio | Schema validation em JSONL readers (session-feedback, session-tracker) — 2026-07-08 |
+| 2.9 | Baixo | banner()/section()/kv() extraidos para formatting.ts, 7 commands actualizados — 2026-07-08 |
+| 2.10 | Medio | AGENTS.md template actualizado com lista completa de 20+ comandos — 2026-07-08 |
+| 2.15b | Medio | Cache intermediario no collectContext via getCached/setCache injectaveis — 2026-07-08 |
+| SA8 | Alto | context_buffer.yaml movido para core + ensureContextBuffer() — 2026-07-08 |
+| SA5 | Alto | 4 ADRs criados (ADR-001 a ADR-005) — 2026-07-08 |
+| SA9 | Alto | 4 agent contracts (planner, executor, reviewer, orchestrator) — 2026-07-08 |
+| SA13 | Baixo | ADRs documentados (resolvido pelo SA5) — 2026-07-08 |
+| 2.2a | Medio | Feedback CLI flags (--user-rating, --user-comment) + testes — 2026-07-08 |
+| 2.18 | Medio | Dashboard cliques do mouse funcionais — 2026-07-08 |
+| 3.5 | Baixo | Plugin system com registerPlugin(), hooks, validacao — 2026-07-08 |
+| 3.29 | Medio | Session-tracker ja usa appendFileSync (append-only) — 2026-07-08 |
+| 2.11 | Baixo | ROI.md linkado em README.md:133 — 2026-07-08 |
+| 3.6 | Baixo | nexus dashboard --live (--live <seconds>) — 2026-07-08 |
+| 3.21 | Baixo | Briefing --profile com minimal/standard/full — 2026-07-08 |
+| 3.24 | Baixo | Event history query API (getHistory()) — 2026-07-08 |
+| 2.14 | Baixo | KNOWN_LIMITATIONS.md ja existe com 12 limitacoes documentadas — 2026-07-09 |
+
+---
+
+## Plano de Correção Auditoria Completa — Done (2026-07-10)
+
+### Fase 1 — Segurança (Crítico)
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Critico |
+| **Owner** | Agente IA |
+| **Resolucao** | 8 items implementados: allowlist de scripts, sanitizacao de rule IDs, protecao ReDoS, sanitizacao de section/event, validacao de schema, protecao contra prototype pollution, validacao de plugins |
+
+### Fase 0 — Quick Wins
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Alto |
+| **Owner** | Agente IA |
+| **Resolucao** | Correccoes de referencias partidas, READMEs, extensoes, placeholders de data |
+
+### Fase 1.1 — Empty Catches → logger.debug
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Medio |
+| **Owner** | Agente IA |
+| **Resolucao** | 52 catch blocks vazios substituidos em engineering-detectors.ts (13) e governance-detectors.ts (39) |
+
+### Fase 1.3 — console.log → logger em biblioteca
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Medio |
+| **Owner** | Agente IA |
+| **Resolucao** | Analise revelou que todo o console.log restante e output CLI intencional. Modulos de biblioteca (scorer, session-tracker, cache) ja usam logger. |
+
+### Fase 1.5 — Orphan Modules
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Medio |
+| **Owner** | Agente IA |
+| **Resolucao** | Detector reescrito para verificar exports reais (nao apenas imports directos). Eliminacao de falsos positivos como suggestion-engine.ts. |
+
+### Fase 2 — Qualidade do Código
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Medio |
+| **Owner** | Agente IA |
+| **Resolucao** | Logger centralizado ja existia. Constantes duplicadas consolidadas (VIOLATION_KEYWORDS e COMMAND_GATES em src/constants.ts). Detector de orphan modules melhorado. |
+
+### Fase 3 — Infraestrutura e Configuração
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Medio |
+| **Owner** | Agente IA |
+| **Resolucao** | ESLint flat config, tsconfig.json melhorado, .gitignore actualizado, cache com writes atomicos, event history com MAX_HISTORY=1000, FileContentCache com MAX_ENTRIES=500 |
+
+### Fase 4 — CI/CD e Publicação
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Alto |
+| **Owner** | Agente IA |
+| **Resolucao** | ci.yml: lint/test/coverage jobs separados, npm audit, pinned SHAs. release.yml: lint+typecheck, version verification, pinned SHAs |
+
+### Fase 5 — README e Documentação
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done — 2026-07-10 |
+| **Severidade** | Alto |
+| **Owner** | Agente IA |
+| **Resolucao** | README actualizado com 32 comandos, arquitectura completa, medidas de segurança |
+
+---
+
+## Commits desta sessão (2026-07-10)
+
+| Commit | Descrição |
+|--------|-----------|
+| `1d1ab00` | fix(audit): rewrite detectOrphanModules to check real exports |
+| `822b53a` | refactor: Fase 1 — logger in action-engine + governance-detectors |
+| `7d57a4c` | refactor: consolidate VIOLATION_KEYWORDS and COMMAND_GATES |
+| `8ddf1ae` | chore: fix .npmignore reference |
+| `2612ded` | ci: harden CI/CD — pinned SHAs, permissions, npm audit |
+| `9e423ef` | ci: move npm audit to lint job |
+| `ccbb1aa` | docs: update README with all 32 commands |
 
 ---
 
@@ -119,11 +247,9 @@
 | **Status** | Done |
 | **Severidade** | Critico |
 | **Owner** | Edson |
-| **Descricao** | Dois problemas combinados: (A) A documentacao (AGENTS.md, SYSTEM_MAP.md) descreve a arquitetura completa como se tudo estivesse presente, mas o sistema ja suporta entrega incremental por capacidades. A documentacao nao indica claramente o que esta instalado vs disponivel vs futuro. (B) O AGENTS.md nao inclui regras que obriguem o agente a detectar gaps proativamente e informar ao usuario. A capacidade tecnica ja existe (auto-evolution.ts, doctor.ts, status.ts, knowledge-debt.ts) mas nao esta acionada pelas regras do time. |
-| **Resolucao parcial** | (2026-07-01) `nexus init` agora re-analisa complexidade quando projeto ja inicializado. `nexus assess` mostra proximo passo claro com `nexus upgrade --accept-recommended`. |
+| **Resolucao parcial** | (2026-07-01) `nexus init` agora re-analisa complexidade |
 | **Fase 1** | Done (2026-07-05) — SYSTEM_MAP.md com legenda + CAPABILITY_STATUS dinamico |
-| **Fase 2** | Done (2026-07-05) — upgrade.ts agora actualiza SYSTEM_MAP.md status ao adicionar capacidades |
-| **Commits** | `3070cc1` (P0.6 Phase 1), `56af5be` (P0.6 Phase 2 — upgrade.ts sync) |
+| **Fase 2** | Done (2026-07-05) — upgrade.ts agora actualiza SYSTEM_MAP.md status |
 
 ### 0.7 Actualizar documentacao desactualizada (6 ficheiros)
 
@@ -133,8 +259,6 @@
 | **Severidade** | Critico |
 | **Owner** | Agente IA |
 | **Resolucao** | Todos os 6 ficheiros actualizados (2026-07-05) |
-| **Plano** | `plans/2026-07-04-docs-sync-critical.md` |
-| **Arquivos** | README.md, docs/AGENTS.md, Nexus-System_GUIDE.md, CONCEPTUAL_MODEL.md, SYSTEM_MAP.md, CHANGELOG.md |
 
 ---
 
@@ -148,7 +272,6 @@
 | **Severidade** | Alto |
 | **Owner** | Edson |
 | **Resolucao** | Adicionado --session-id ao nexus feedback (2026-06-30) |
-| **Arquivo** | `src/commands/feedback.ts` |
 
 ### 1.2 Logging de erros no enrichment
 
@@ -158,7 +281,6 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Resolucao** | Substituido try/catch vazios por logger.debug() (2026-06-30) |
-| **Arquivo** | `src/context-collector.ts` |
 
 ### 1.3 Unificar computeInputHash
 
@@ -168,7 +290,6 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Resolucao** | Removido de context-collector.ts, importado de briefing-cache.ts (2026-06-30) |
-| **Arquivo** | `src/context-collector.ts` |
 
 ### 1.4 Dashboard correlacionar session-tracker + feedback
 
@@ -178,7 +299,6 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Resolucao** | Importado getSessionMetrics() e exibido no dashboard (2026-06-30) |
-| **Arquivo** | `src/commands/dashboard.ts` |
 
 ### 1.5 Dynamico: estimativas de tokens no bench
 
@@ -188,7 +308,6 @@
 | **Severidade** | Baixo |
 | **Owner** | Edson |
 | **Resolucao** | Calculado baseado em contagem de arquivos, regras e risk-map (2026-06-30) |
-| **Arquivo** | `src/commands/bench.ts` |
 
 ### 1.6 Corrigir writeBriefingMarkdown path
 
@@ -198,7 +317,6 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Resolucao** | Corrigido path relativo para absoluto (2026-06-30) |
-| **Arquivo** | `src/commands/briefing.ts` |
 
 ---
 
@@ -212,7 +330,6 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Resolucao** | Criado `src/manifest.ts` e `src/commands/update.ts` (2026-07-05) |
-| **Plano** | `plans/2026-07-04-feedback-and-update.md` (Parte 2) |
 
 ---
 
@@ -226,27 +343,28 @@
 | **Severidade** | Alto |
 | **Owner** | Edson |
 | **Resolucao** | Implementado feedback-engine.ts com calibragem de tom por perfil (2026-07-01). 19 testes novos. |
-| **Arquivo** | `src/feedback-engine.ts`, `src/commands/feedback.ts`, `src/commands/profile.ts`, `src/prompts.ts`, `src/commands/init.ts` |
 
 ---
 
-## Metricas de Qualidade (snapshot 2026-06-30)
+## Metricas de Qualidade (snapshot 2026-07-10)
 
 ```
 Projeto:       nexus-cli v0.1.0
-TypeScript:    strict: true, 0 erros
-Testes:        606/606 passando (43 arquivos)
+TypeScript:    strict: true, 0 erros (pre-existentes apenas)
+Testes:        1791/1791 passando (111 arquivos)
 Coverage:      ~51% (linhas) | ~82% (funcoes) | ~76% (branches)
 ESLint:        0 erros, 0 warnings
-Dependencias:  6 deps + 10 devDeps (lean)
-CI/CD:         ci.yml (Node 18/20/22 + coverage gate)
-Commands:      18 (init, status, audit, assess, detect, run, evolve,
-               report, doctor, upgrade, validate, sync, clean, digest,
-               briefing, feedback, bench, dashboard)
-Context Pipeline: collectContext → cache → briefing → feedback → dashboard
-Auto-backlog:  nexus audit --auto-backlog (detect gaps → BACKLOG.md)
-Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
+Dependencias:  11 deps + 12 devDeps
+CI/CD:         ci.yml (lint/test/coverage jobs, Node 18/20/22, npm audit, pinned SHAs)
+Commands:      32 (init, status, audit, assess, detect, run, evolve, report, doctor, 
+               upgrade, validate, sync, clean, digest, briefing, feedback, bench, 
+               dashboard, plan, goal, decide, policy, act, console, profile, 
+               context, history, reminders, mcp, update, shell-init, docs-audit)
+Architecture:  148 source files, 12 engines, 100+ audit detectors
+Security:      Script allowlist, rule ID validation, regex protection, 
+               prototype pollution guard, plugin validation, atomic cache writes,
+               cache permissions, CI/CD supply chain security
 ```
 
 ---
-*Arquivo gerado em 2026-07-06 — backup de itens concluidos e historico*
+*Ultima actualizacao: 2026-07-10 — Plano de correcção auditoria completa (Fase 0-5) concluido*
