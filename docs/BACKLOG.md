@@ -8,7 +8,7 @@
 >
 > **Owner:** Agente que assume o item. Itens sem owner sao `unassigned`.
 >
-> **Ultima atualizacao:** 2026-07-08 — 15 itens marcados Done (+3.29, 2.11, 3.5), healthBar dedup, JSDoc, KNOWN_LIMITATIONS.md
+> **Ultima atualizacao:** 2026-07-09 — gap analysis completo, 2.14 marcado Done, validacao de orphan modules e health issues
 
 ---
 
@@ -87,6 +87,7 @@
 | 3.6 | Baixo | nexus dashboard --live (--live <seconds>) — 2026-07-08 |
 | 3.21 | Baixo | Briefing --profile com minimal/standard/full — 2026-07-08 |
 | 3.24 | Baixo | Event history query API (getHistory()) — 2026-07-08 |
+| 2.14 | Baixo | KNOWN_LIMITATIONS.md ja existe com 12 limitacoes documentadas — 2026-07-09 |
 
 ---
 
@@ -517,12 +518,11 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done |
 | **Severidade** | Baixo |
-| **Owner** | unassigned |
-| **Arquivo** | `docs/` |
-| **Descricao** | Nao existe documentacao de limitacoes conhecidas: race condition no cache, projetos sem git, monorepos parciais, etc. |
-| **Correcao** | Criar `docs/KNOWN_LIMITATIONS.md` listando todas as limitacoes e workarounds. |
+| **Owner** | Edson |
+| **Arquivo** | `docs/KNOWN_LIMITATIONS.md` |
+| **Resolucao** | KNOWN_LIMITATIONS.md ja existe com 12 limitacoes documentadas: cache race condition, monorepo support, symlinks, commander state, terminal size, event bus, testing, console output — 2026-07-09 |
 
 ### 2.15 Teste manual de onboarding (5 minutos)
 
@@ -1131,9 +1131,9 @@ Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
-| **Done** | 83 | Desacoplamento, quick wins, event-driven, MCP, pipeline, ADRs, contracts, feedback, dashboard |
+| **Done** | 84 | Desacoplamento, quick wins, event-driven, MCP, pipeline, ADRs, contracts, feedback, dashboard, KNOWN_LIMITATIONS |
 | **P0** (≤ 7d) | 0 | Nenhum P0 activo |
 | **P1** (≤ 30d) | 7 | Arquitetura (Clean/SOLID), AI agents (OpenCode, Cursor, Git hooks, skills) |
-| **P2** (≤ 90d) | 16 | Features (detect approve, bench compare), docs, performance, developer experience, security |
+| **P2** (≤ 90d) | 15 | Features (detect approve, bench compare), docs, performance, developer experience, security |
 | **P3** (sem SLA) | 20 | Nice-to-have, ecosystem, observability, i18n, dashboard responsividade |
 | **Total** | **126** | |
