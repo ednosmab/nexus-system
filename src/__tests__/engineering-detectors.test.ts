@@ -401,14 +401,35 @@ describe("detectUnsafeDeserialization", () => {
 // ── detectOrphanModules ──────────────────────────────────────────────────────
 
 describe("detectOrphanModules", () => {
-  it("detects module not imported by others", () => {
+  it("does not flag module whose exports are used by others", () => {
     const files = [
       makeFile("src/a.ts", 'import { x } from "./b.js"\nexport const a = x;'),
       makeFile("src/b.ts", "export const x = 1;"),
     ];
     const issues = detectOrphanModules(tempDir, files);
     const orphanB = issues.find((i) => i.description.includes("b.ts"));
+    expect(orphanB).toBeUndefined();
+  });
+
+  it("flags module with no imports and no export usage", () => {
+    const files = [
+      makeFile("src/a.ts", 'import { y } from "./c.js"\nexport const a = y;'),
+      makeFile("src/b.ts", "export const x = 1;"),
+      makeFile("src/c.ts", "export const y = 2;"),
+    ];
+    const issues = detectOrphanModules(tempDir, files);
+    const orphanB = issues.find((i) => i.description.includes("b.ts"));
     expect(orphanB).toBeDefined();
+  });
+
+  it("does not flag module with exports used but no path import", () => {
+    const files = [
+      makeFile("src/a.ts", 'export { x } from "./b.js"'),
+      makeFile("src/b.ts", "export const x = 1;"),
+    ];
+    const issues = detectOrphanModules(tempDir, files);
+    const orphanB = issues.find((i) => i.description.includes("b.ts"));
+    expect(orphanB).toBeUndefined();
   });
 
   it("skips commands/ and console/ directories", () => {

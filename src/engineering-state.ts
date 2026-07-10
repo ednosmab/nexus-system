@@ -15,6 +15,7 @@ import { analyseProject } from "./analyser.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "./knowledge-debt.js";
 import { getEventBus } from "./event-bus.js";
 import { logger } from "./logger.js";
+import { getKnowledgeHealthScore } from "./health-score-registry.js";
 import {
   detectCapabilitySignalsFromFilesystem,
   loadMaturityProfile,
@@ -504,22 +505,6 @@ function calculateEntropy(
   };
 }
 
-// ── Health Score Calculation ────────────────────────────────────────────────
-
-function calculateOverallHealth(
-  knowledgeDebtScore: number,
-  knowledgeGraphScore: number,
-  entropyScore: number
-): number {
-  // Weighted average: knowledge debt 40%, graph 30%, entropy 30%
-  const entropyInverse = 100 - entropyScore; // Lower entropy = better health
-  return Math.round(
-    knowledgeDebtScore * 0.4 +
-    knowledgeGraphScore * 0.3 +
-    entropyInverse * 0.3
-  );
-}
-
 // ── Main Consolidation ─────────────────────────────────────────────────────
 
 /** Re-entrancy guard to prevent infinite event loops. */
@@ -619,7 +604,8 @@ export function consolidateEngineeringState(
   // Health scores
   const knowledgeDebtScore = debtReport?.healthScore ?? 100;
   const knowledgeGraphScore = graphAnalysis?.healthScore ?? 100;
-  const overall = calculateOverallHealth(knowledgeDebtScore, knowledgeGraphScore, entropy.score);
+  const knowledgeHealth = getKnowledgeHealthScore(knowledgeDebtScore, knowledgeGraphScore, entropy.score);
+  const overall = knowledgeHealth.score;
 
   // Publish entropy.calculated
   getEventBus().publish("entropy.calculated", {

@@ -19,6 +19,7 @@ import {
   BLOCKED_LICENSES,
 } from "./constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
+import { logger } from "../logger.js";
 
 // ── Engineering Audit Detectors (Dimensions 1-7) ─────────────────────────────
 
@@ -57,25 +58,64 @@ function detectOrphanModules(_projectRoot: string, files: SourceFileInfo[]): Hea
   if (files.length === 0) return issues;
 
   try {
+    // Phase 1: Extract all exports from each file
+    const exportRegex = /^export\s+(?:function|const|class|interface|type|enum)\s+(\w+)/gm;
+    const fileExports = new Map<string, Set<string>>(); // filePath -> Set of export names
+
+    for (const file of files) {
+      const exports = new Set<string>();
+      let match;
+      while ((match = exportRegex.exec(file.content)) !== null) {
+        if (match[1]) exports.add(match[1]);
+      }
+      fileExports.set(file.fullPath, exports);
+    }
+
+    // Phase 2: Build a set of all symbols referenced across all files
+    const allSymbols = new Set<string>();
+    for (const file of files) {
+      const wordRegex = /\b([A-Z]\w+)\b/g;
+      let m;
+      while ((m = wordRegex.exec(file.content)) !== null) {
+        if (m[1]) allSymbols.add(m[1]);
+      }
+    }
+
+    // Phase 3: For each file, check if it's imported by path OR if any export is used
     for (const file of files) {
       if (file.fullPath.includes("/commands/") || file.fullPath.includes("/console/")) continue;
 
-      const isImported = files.some((other) => {
+      // Check 1: Is the file imported by path from another file?
+      const isImportedByPath = files.some((other) => {
         if (other.fullPath === file.fullPath) return false;
         return other.content.includes(`/${file.basename}.js"`) || other.content.includes(`/${file.basename}"`) || other.content.includes(`/${file.basename}.ts"`);
       });
 
-      if (!isImported) {
+      // Check 2: Are any of this file's exports used by other files?
+      const exports = fileExports.get(file.fullPath) ?? new Set();
+      const hasUsedExports = exports.size > 0 && [...exports].some((symbol) => {
+        return files.some((other) => {
+          if (other.fullPath === file.fullPath) return false;
+          const wordBoundary = new RegExp(`\\b${symbol}\\b`);
+          return wordBoundary.test(other.content);
+        });
+      });
+
+      if (!isImportedByPath && !hasUsedExports) {
+        const exportCount = exports.size;
+        const exportList = exportCount > 0
+          ? ` (${exportCount} exports: ${[...exports].slice(0, 3).join(", ")}${exportCount > 3 ? "..." : ""})`
+          : "";
         issues.push({
           type: "orphan_module",
           severity: file.lineCount > ORPHAN_SEVERITY_THRESHOLD ? 2 : 1,
-          description: `Modulo orfao: "${file.relPath}" (${file.lineCount} linhas) nao e importado por nenhum outro modulo`,
+          description: `Modulo orfao: "${file.relPath}" (${file.lineCount} linhas${exportList}) — nenhum import nem export usado por outro modulo`,
           location: file.relPath,
-          recommendation: `Verificar se "${file.basename}" e necessario — remover se morto, ou adicionar imports`,
+          recommendation: `Verificar se "${file.basename}" e necessario — remover se morto, ou adicionar imports para os exports usados`,
         });
       }
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectOrphanModules:", err); }
   return issues;
 }
 
@@ -126,7 +166,7 @@ function detectTestCoverageGaps(projectRoot: string, files: SourceFileInfo[]): H
         recommendation: `Adicionar testes para: ${missingTests.slice(0, 5).map((f) => f.relPath).join(", ")}${missingTests.length > 5 ? ` (+${missingTests.length - 5} mais)` : ""}`,
       });
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectTestCoverageGaps:", err); }
   return issues;
 }
 
@@ -155,7 +195,7 @@ function detectLintIssues(projectRoot: string): HealthIssue[] {
           recommendation: "Rever warnings ESLint — execute 'npx eslint src/' para detalhes",
         });
       }
-    } catch { /* not JSON — skip */ }
+    } catch (parseErr) { logger.debug("engineering-detectors", "ESLint output not JSON:", parseErr); }
   } catch (err: unknown) {
     const e = err as { stdout?: string };
     const output = String(e.stdout || "");
@@ -184,7 +224,7 @@ function detectLintIssues(projectRoot: string): HealthIssue[] {
           recommendation: "Rever warnings ESLint — execute 'npx eslint src/' para detalhes",
         });
       }
-    } catch { /* not JSON — skip */ }
+    } catch (parseErr) { logger.debug("engineering-detectors", "ESLint error output not JSON:", parseErr); }
   }
   return issues;
 }
@@ -909,7 +949,7 @@ export function detectDependencyConfusion(projectRoot: string, files: SourceFile
         }
       }
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectDependencyConfusion:", err); }
   return issues;
 }
 
@@ -943,7 +983,7 @@ function detectUnpinnedVersions(projectRoot: string): HealthIssue[] {
         recommendation: "Fixar versões em package.json para evitar actualizações inesperadas",
       });
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectUnpinnedVersions:", err); }
   return issues;
 }
 
@@ -1000,7 +1040,7 @@ function detectLockFileDrift(projectRoot: string): HealthIssue[] {
         }
       }
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectLockFileDrift:", err); }
   return issues;
 }
 
@@ -1064,7 +1104,7 @@ function detectPhantomDependencies(projectRoot: string, files: SourceFileInfo[])
         recommendation: `Adicionar ao package.json: ${Array.from(usedPackages.keys()).slice(0, 3).join(", ")}`,
       });
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectPhantomDependencies:", err); }
   return issues;
 }
 
@@ -1107,7 +1147,7 @@ function detectDeprecatedPackages(projectRoot: string): HealthIssue[] {
         recommendation: `Substituir dependências deprecated: ${deprecated.slice(0, 2).join("; ")}`,
       });
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectDeprecatedPackages:", err); }
   return issues;
 }
 
@@ -1141,7 +1181,7 @@ function detectDependencyVulnerabilities(projectRoot: string): HealthIssue[] {
         recommendation: `Rodar "npm audit fix" ou atualizar ${name} para versão segura`,
       });
     }
-  } catch { /* npm audit returns non-zero on vulns, that's expected */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectDependencyVulnerabilities:", err); }
   return issues;
 }
 
@@ -1169,9 +1209,9 @@ function detectIncompatibleLicenses(projectRoot: string): HealthIssue[] {
             recommendation: `Verificar compatibilidade da licença ${license} ou buscar alternativa`,
           });
         }
-      } catch { /* skip malformed package.json */ }
+      } catch (parseErr) { logger.debug("engineering-detectors", "Error reading package.json for license:", parseErr); }
     }
-  } catch { /* skip */ }
+  } catch (err) { logger.debug("engineering-detectors", "Error in detectIncompatibleLicenses:", err); }
   return issues;
 }
 
@@ -1214,7 +1254,7 @@ function detectConfigSecrets(projectRoot: string): HealthIssue[] {
           }
         }
       }
-    } catch { /* skip unreadable files */ }
+    } catch (readErr) { logger.debug("engineering-detectors", "Error reading config file:", readErr); }
   }
   return issues;
 }
