@@ -83,7 +83,7 @@ Toda informação que o produto acumula ao longo do tempo. O conhecimento nasce 
 | **Vida** | Nasce, amadurece, e eventualmente se torna código/processo |
 | **Forma** | Documentos, ADRs, skills, contratos, código |
 
-> **Ver:** `KNOWLEDGE_LIFECYCLE.md` para o ciclo de vida completo.
+> **Ver:** `nexus-system/docs/KNOWLEDGE_LIFECYCLE.md` para o ciclo de vida completo.
 
 ### 4. Decisão
 
@@ -210,7 +210,7 @@ O Nexus implementa este modelo através de 9 capacidades modulares:
 
 ## Referências
 
-- `KNOWLEDGE_LIFECYCLE.md` — Ciclo de vida do conhecimento
+- `nexus-system/docs/KNOWLEDGE_LIFECYCLE.md` — Ciclo de vida do conhecimento
 - `governance/WORKFLOW.md` — Fluxos de sessão
 - `docs/AGENTS.md` — Regras do time
 - `docs/FORBIDDEN_OPERATIONS.md` — Regras vinculantes

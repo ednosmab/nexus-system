@@ -104,8 +104,8 @@
 
 **Arquivos:**
 - `docs/adrs/ADR-TEMPLATE.md`
-- `docs/sdr/SDR-TEMPLATE.md`
-- `governance/plans/TEMPLATE.md`
+- `src/templates/base/docs/sdr/SDR-TEMPLATE.md`
+- `src/templates/base/governance/plans/TEMPLATE.md`
 - `docs/session-template.md`
 - `docs/AGENTS.md` (seções: architecture)
 
@@ -153,9 +153,9 @@
 **Arquivos:**
 - `governance/agents/AI-CONTRACT-*.yaml`
 - `governance/contracts/CONTRACTS_INDEX.md`
-- `governance/handoffs/TEMPLATE.md`
+- `src/templates/base/governance/handoffs/TEMPLATE.md`
 - `governance/rules/RULE-TEMPLATE.json`
-- `governance/policies/POLICY-TEMPLATE.md`
+- `src/templates/base/governance/policies/POLICY-TEMPLATE.md`
 - `cognition/context/CONTEXT_HIERARCHY.md`
 - `cognition/memory/MEM-operational-state-v1.json`
 - `cognition/prompts/*/README.md`

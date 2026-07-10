@@ -98,7 +98,7 @@ As regras abaixo foram movidas para ficheiros separados para optimização de to
 ## 🧠 CONTEXTO DO PROJECTO (CONTEXT PIPELINE)
 
 **ANTES de iniciar qualquer tarefa:**
-1. Execute `nexus briefing` (ou leia `.nexus/BRIEFING.md` se disponível)
+1. Execute `nexus briefing` (ou leia `nexus-system/BRIEFING.md` se disponível)
 2. Verifique as áreas de risco, cobertura de testes e regras contextuais
 3. Adapte o comportamento baseado nos alertas e recomendações do briefing
 

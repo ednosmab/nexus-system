@@ -136,7 +136,7 @@ PASSO 4: CONSOLIDAÇÃO E PURGA
 
 **Excepção:** Planos com `**Status:** parado` são ignorados (não concluídos).
 
-**Integração com close:session:** O passo 8 do `close-session.ts` detecta planos activos e emite aviso. Não arquiva automaticamente — apenas informa.
+**Integração com close:session:** O passo 8 do `scripts/close-session.ts` detecta planos activos e emite aviso. Não arquiva automaticamente — apenas informa.
 
 ---
 

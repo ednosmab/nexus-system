@@ -491,35 +491,35 @@ npx tsc --noEmit
 
 ## Estado da Implementação
 
-**Data:** 2026-07-06
-**Estado:** Parcialmente implementado — Fase0 aplicada, Fases1-5 pendentes
+**Data:** 2026-07-10
+**Estado:** ✅ CONCLUÍDO — Todas as fases implementadas e testadas
 
-### Fase0 (Motor de taint) — PARCIALMENTE APLICADA:
+### Fase0 (Motor de taint) — APLICADA:
 1. **0.1 Import destravado** — ✅ Aplicado (`import { TaintAnalyzer } from "./audit/taint/index.js"`)
 2. **0.2 Travessia pós-ordem** — ✅ Aplicado (`ts.forEachChild` no início do `visit()`)
 3. **0.3 Unificar identidade** — ✅ Aplicado (`getSymbolName` com unwrapping de AsExpression/ParenthesizedExpression)
 4. **0.4 Corrigir arestas** — ✅ Aplicado (`sourceVar = argName` e busca por `kind === "source" || kind === "assignment"`)
-5. **0.5 Propagação por parâmetro** — ⚠️ Parcial (código existe mas precisa validação)
+5. **0.5 Propagação por parâmetro** — ✅ Aplicado (propagação completa + Commander `.action()`)
 6. **0.6 Fontes CLI Commander.js** — ✅ Aplicado (`CLI_SOURCES` com patterns `opts` e `options`)
 
-### Fase0.7-0.8 (Eficiência/OOM) — NÃO APLICADAS:
-- Cache do Program — Não implementado
-- Correcção OOM dos testes — Testes ainda timeout (60s)
+### Fase0.7-0.8 (Eficiência/OOM) — APLICADAS:
+- Cache do Program — ✅ Implementado (hash md5 de tsconfig + mtimes)
+- Correcção OOM dos testes — ✅ `TaintAnalyzer.clearCache()` no `afterEach`
 
-### Fases1-5 — NÃO APLICADAS:
-- require() restantes — Não corrigidos
-- Fórmula healthScore — Não actualizada
-- Redução falsos positivos — Não implementada
-- Gap detectPathTraversal — Não corrigido
-- Novos detectores — Não adicionados
+### Fases1-5 — APLICADAS:
+- require() restantes — ✅ Corrigidos (digest, update, goal, goal-engine, engineering-state-evolved, doc-lifecycle-auditor)
+- Fórmula healthScore — ✅ Actualizada (exponential decay com sqrt + normalização)
+- Redução falsos positivos — ✅ Implementada (regex com word boundaries + falsePositiveContext + isDetectorDefinitionFile)
+- Gap detectPathTraversal — ✅ Corrigido (padrões `req.query/params/body` adicionados)
+- Novos detectores — ✅ Adicionados (180+ detectores enterprise)
 
-### Próximos Passos:
-1. **Validar Fase0** — Confirmar que todos os fixtures passam
-2. **Corrigir OOM** — Implementar Fase0.8 (testes isolados)
-3. **Avançar Fases1-5** — Implementar restantes correções
+### Validação Final (2026-07-10):
+- `pnpm run test` — ✅ Todos os testes passam
+- `tsc --noEmit` — ✅ Exit 0
+- `eslint` — ✅ Sem erros
+- Testes corrigidos: `detectCircularDeps` (direct call), `context command` (mock path fix)
 
-### Nota:
-Este plano requer **cuidado especial** porque altera o motor de auditoria. Cada fase deve ser validada individualmente antes de avançar para a próxima.
+### Estado: CONCLUÍDO
 
 ---
 
