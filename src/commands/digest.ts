@@ -16,6 +16,7 @@ import { getEventBus } from "../event-bus.js";
 import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { logger } from "../logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -104,7 +105,9 @@ export function generateDigest(projectRoot: string, nexusDir: string): DigestDat
     try {
       const profile = JSON.parse(readFileSync(profilePath, "utf-8"));
       maturityScore = profile.overallScore ?? null;
-    } catch { /* ignore */ }
+    } catch (error) {
+      logger.debug("digest", "Suppressed error", { error });
+    }
   }
 
   // Read knowledge debt
@@ -114,7 +117,9 @@ export function generateDigest(projectRoot: string, nexusDir: string): DigestDat
     try {
       const debt = JSON.parse(readFileSync(debtPath, "utf-8"));
       knowledgeDebt = debt.total ?? 0;
-    } catch { /* ignore */ }
+    } catch (error) {
+      logger.debug("digest", "Suppressed error", { error });
+    }
   }
 
   // Analyze recent changes

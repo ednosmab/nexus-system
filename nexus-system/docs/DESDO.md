@@ -44,7 +44,7 @@
 
 - **JSDoc** obrigatório em todas as funções exportadas
 - **ADRs** para decisões arquitecturais (`docs/adrs/`)
-- **SDRs** para decisões de solução (`docs/sdr/`)
+- **SDRs** para decisões de solução (`docs/sdr/` — futuro)
 
 ## 5. Performance
 

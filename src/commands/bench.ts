@@ -10,16 +10,18 @@
  *   nexus bench                    # Full benchmark
  *   nexus bench --json             # JSON output
  *   nexus bench --iterations <n>   # Number of iterations (default: 5)
+ *   nexus bench --compare          # Compare with previous benchmark
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { collectContext, type ContextSnapshot } from "../context-collector.js";
 import { computeInputHash, setCachedBriefing, readCache, invalidateBriefingCache } from "../briefing-cache.js";
 import { outputJson } from "../formatting.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 // ── Benchmark Helpers ──────────────────────────────────────────────────────
 
@@ -34,7 +36,7 @@ function estimateManualTokens(projectRoot: string): number {
     for (const entry of entries) {
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (!entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== "nexus-system") {
+        if (!entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== NEXUS_DIR_NAME) {
           walkDir(fullPath);
         }
       } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".js") || entry.name.endsWith(".json")) {
@@ -135,6 +137,70 @@ function runBenchmark(
   };
 }
 
+// ── Benchmark History ──────────────────────────────────────────────────────
+
+interface BenchmarkHistory {
+  timestamp: string;
+  result: BenchmarkResult;
+}
+
+function getBenchHistoryPath(nexusDir: string): string {
+  return join(nexusDir, "reports", "bench-history.json");
+}
+
+function loadBenchHistory(nexusDir: string): BenchmarkHistory[] {
+  const path = getBenchHistoryPath(nexusDir);
+  if (!existsSync(path)) return [];
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch {
+    return [];
+  }
+}
+
+function saveBenchResult(nexusDir: string, result: BenchmarkResult): void {
+  const history = loadBenchHistory(nexusDir);
+  history.push({ timestamp: new Date().toISOString(), result });
+
+  // Keep last 20 results
+  const trimmed = history.slice(-20);
+  const dir = join(nexusDir, "reports");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(getBenchHistoryPath(nexusDir), JSON.stringify(trimmed, null, 2));
+}
+
+function displayComparison(current: BenchmarkResult, previous: BenchmarkResult): void {
+  console.log("");
+  console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
+  console.log(chalk.bold.cyan("  ║  nexus bench — Comparison            ║"));
+  console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+  console.log("");
+
+  const timeDiff = current.briefingFresh.timeMs - previous.briefingFresh.timeMs;
+  const timeImproved = timeDiff < 0;
+  const timeIcon = timeImproved ? "📈" : "📉";
+  const timeColor = timeImproved ? chalk.green : chalk.red;
+  const timeSign = timeImproved ? "" : "+";
+
+  console.log(chalk.bold("  ⏱ Performance vs Previous"));
+  console.log(`     Previous:  ${chalk.gray(`${previous.briefingFresh.timeMs}ms`)}`);
+  console.log(`     Current:   ${chalk.cyan(`${current.briefingFresh.timeMs}ms`)}`);
+  console.log(`     ${timeIcon} Delta:    ${timeColor(`${timeSign}${timeDiff.toFixed(2)}ms`)}`);
+  console.log("");
+
+  const tokenDiff = current.savings.tokens - previous.savings.tokens;
+  const tokensImproved = tokenDiff > 0;
+  const tokenIcon = tokensImproved ? "📈" : "📉";
+  const tokenColor = tokensImproved ? chalk.green : chalk.red;
+  const tokenSign = tokensImproved ? "+" : "";
+
+  console.log(chalk.bold("  💰 Token Savings vs Previous"));
+  console.log(`     Previous:  ${chalk.gray(`~${previous.savings.tokens.toLocaleString()} tokens (${previous.savings.percent}%)`)}`);
+  console.log(`     Current:   ${chalk.cyan(`~${current.savings.tokens.toLocaleString()} tokens (${current.savings.percent}%)`)}`);
+  console.log(`     ${tokenIcon} Delta:    ${tokenColor(`${tokenSign}${tokenDiff.toLocaleString()} tokens`)}`);
+  console.log("");
+}
+
 // ── Display ────────────────────────────────────────────────────────────────
 
 function displayBenchmark(result: BenchmarkResult): void {
@@ -176,6 +242,7 @@ export function benchCommand(): Command {
     .option("-d, --dir <path>", "Project directory")
     .option("--json", "Output as JSON")
     .option("--iterations <n>", "Number of benchmark iterations", "5")
+    .option("--compare", "Compare with previous benchmark result")
     .action(async function (this: Command, options: Record<string, unknown>) {
       const isJson = options.json === true;
       const iterations = parseInt(String(options.iterations || "5"), 10);
@@ -195,14 +262,33 @@ export function benchCommand(): Command {
         return;
       }
 
+      // Load previous result for comparison
+      let previousResult: BenchmarkResult | null = null;
+      if (options.compare) {
+        const history = loadBenchHistory(ctx.nexusDir);
+        if (history.length > 0) {
+          previousResult = history.at(-1)!.result;
+        }
+      }
+
       const result = runBenchmark(ctx.projectRoot, ctx.nexusDir, iterations);
 
+      // Save result
+      saveBenchResult(ctx.nexusDir, result);
+
       if (isJson) {
-        outputJson(result as unknown as Record<string, unknown>);
+        outputJson({
+          ...(result as unknown as Record<string, unknown>),
+          previous: previousResult,
+        });
         return;
       }
 
       displayBenchmark(result);
+
+      if (previousResult) {
+        displayComparison(result, previousResult);
+      }
     });
 
   return cmd;

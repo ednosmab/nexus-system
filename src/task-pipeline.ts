@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { getEventBus, type NexusEventType } from "./event-bus.js";
 import { validateCompletionGate } from "./task-completion.js";
 import { transitionBacklogStatus, type BacklogStatus } from "./backlog-transitions.js";
@@ -82,7 +83,7 @@ export function initializeTaskPipeline(config: TaskPipelineConfig): () => void {
 function updateBacklogStatus(nexusDir: string, taskId: string): void {
   const backlogPaths = [
     join(nexusDir, "docs", "BACKLOG.md"),
-    join(nexusDir, "..", "nexus-system", "docs", "BACKLOG.md"),
+    join(nexusDir, "..", NEXUS_DIR_NAME, "docs", "BACKLOG.md"),
   ];
 
   for (const path of backlogPaths) {

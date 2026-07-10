@@ -66,6 +66,26 @@ export const LOG_SINKS: TaintSinkDef[] = [
   { name: "console.log", kind: "call", severity: 1, issueType: "log_injection", description: "console.log() — Log with dynamic input" },
 ];
 
+/** SSRF sinks (OWASP A01 — Server-Side Request Forgery) */
+export const SSRF_SINKS: TaintSinkDef[] = [
+  { name: "fetch", kind: "call", severity: 3, issueType: "ssrf", description: "fetch() — HTTP request with dynamic URL" },
+  { name: "axios", kind: "call", severity: 3, issueType: "ssrf", description: "axios() — HTTP request with dynamic URL" },
+  { name: "axios.get", kind: "call", severity: 3, issueType: "ssrf", description: "axios.get() — HTTP request with dynamic URL" },
+  { name: "axios.post", kind: "call", severity: 3, issueType: "ssrf", description: "axios.post() — HTTP request with dynamic URL" },
+  { name: "request", kind: "call", severity: 2, issueType: "ssrf", description: "request() — HTTP request with dynamic URL" },
+  { name: "http.get", kind: "call", severity: 2, issueType: "ssrf", description: "http.get() — HTTP request with dynamic URL" },
+  { name: "https.get", kind: "call", severity: 2, issueType: "ssrf", description: "https.get() — HTTP request with dynamic URL" },
+  { name: "http.request", kind: "call", severity: 2, issueType: "ssrf", description: "http.request() — HTTP request with dynamic URL" },
+  { name: "https.request", kind: "call", severity: 2, issueType: "ssrf", description: "https.request() — HTTP request with dynamic URL" },
+  { name: "got", kind: "call", severity: 2, issueType: "ssrf", description: "got() — HTTP request with dynamic URL" },
+  { name: "node-fetch", kind: "call", severity: 2, issueType: "ssrf", description: "node-fetch() — HTTP request with dynamic URL" },
+  { name: "undici", kind: "call", severity: 3, issueType: "ssrf", description: "undici.fetch() — HTTP request with dynamic URL (Node 18+)" },
+  { name: "undici.fetch", kind: "call", severity: 3, issueType: "ssrf", description: "undici.fetch() — HTTP request with dynamic URL" },
+  { name: "undici.request", kind: "call", severity: 2, issueType: "ssrf", description: "undici.request() — HTTP request with dynamic URL" },
+  { name: "undici.get", kind: "call", severity: 2, issueType: "ssrf", description: "undici.get() — HTTP request with dynamic URL" },
+  { name: "undici.post", kind: "call", severity: 2, issueType: "ssrf", description: "undici.post() — HTTP request with dynamic URL" },
+];
+
 /** All sinks combined */
 export const ALL_SINKS: TaintSinkDef[] = [
   ...CODE_EXECUTION_SINKS,
@@ -75,6 +95,7 @@ export const ALL_SINKS: TaintSinkDef[] = [
   ...XSS_SINKS,
   ...REDIRECT_SINKS,
   ...LOG_SINKS,
+  ...SSRF_SINKS,
 ];
 
 /** Check if a function/property name matches any taint sink */

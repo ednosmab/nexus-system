@@ -14,6 +14,7 @@ import { findTaintSink } from "./sinks.js";
 import { isSanitizer } from "./sanitizers.js";
 import { DataFlowGraph } from "./graph.js";
 import type { TaintSourceDef } from "./types.js";
+import { logger } from "../../logger.js";
 
 export interface TaintAnalyzerOptions {
   /** Project root directory */
@@ -118,13 +119,17 @@ export class TaintAnalyzer {
       try {
         const stat = statSync(configPath);
         hash.update(String(stat.mtimeMs));
-      } catch { /* ignore */ }
+      } catch (error) {
+        logger.debug("analyzer", "Suppressed error", { error });
+      }
     }
     for (const f of fileNames) {
       try {
         const stat = statSync(f);
         hash.update(f + ":" + stat.mtimeMs);
-      } catch { /* ignore */ }
+      } catch (error) {
+        logger.debug("analyzer", "Suppressed error", { error });
+      }
     }
     return hash.digest("hex");
   }
@@ -164,6 +169,22 @@ export class TaintAnalyzer {
   private getSymbolName(node: ts.Node): string | undefined {
     if (ts.isAsExpression(node) || ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) {
       return this.getSymbolName(node.expression);
+    }
+    // NEW: string concatenation — if any operand is tainted, the result is tainted
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+      const left = this.getSymbolName(node.left);
+      const right = this.getSymbolName(node.right);
+      if (left && this.variableTaint.get(left)?.tainted) return left;
+      if (right && this.variableTaint.get(right)?.tainted) return right;
+      return undefined;
+    }
+    // NEW: template literal — check each interpolated expression
+    if (ts.isTemplateExpression(node)) {
+      for (const span of node.templateSpans) {
+        const name = this.getSymbolName(span.expression);
+        if (name && this.variableTaint.get(name)?.tainted) return name;
+      }
+      return undefined;
     }
     if (ts.isPropertyAccessExpression(node)) {
       return this.getPropertyAccessName(node);

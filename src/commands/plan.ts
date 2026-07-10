@@ -18,6 +18,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import {
   PlanEngine,
   FilePlanRepository,
@@ -30,7 +31,7 @@ import { outputJson } from "../formatting.js";
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): PlanEngine {
-  const nexusDir = join(dir, "nexus-system");
+  const nexusDir = join(dir, NEXUS_DIR_NAME);
   const actionEngine = new ActionEngine(new FileExecutionRepository(nexusDir));
   return new PlanEngine(new FilePlanRepository(nexusDir), actionEngine);
 }
@@ -366,7 +367,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
       let plans = engine.list();
 
       if (opts.done) {
@@ -406,7 +407,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
       const plan = engine.getById(id);
 
       if (!plan) {
@@ -456,7 +457,7 @@ export function planCommand(): Command {
         return;
       }
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
       try {
         const updated = engine.updateStatus(id, status as MarkdownPlanStatus);
 
@@ -488,7 +489,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
       try {
         const updated = engine.updateStatus(id, "done");
 
@@ -522,7 +523,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, "nexus-system"));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
       const plan = engine.create({
         title,
         description: opts.description as string,

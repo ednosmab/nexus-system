@@ -18,6 +18,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import {
   ActionEngine,
   FileExecutionRepository,
@@ -29,7 +30,7 @@ import { outputJson } from "../formatting.js";
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): ActionEngine {
-  const nexusDir = join(dir, "nexus-system");
+  const nexusDir = join(dir, NEXUS_DIR_NAME);
   return new ActionEngine(new FileExecutionRepository(nexusDir));
 }
 

@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { logger } from "./logger.js";
+import { NEXUS_DIR_NAME } from "./constants.js";
 
 /** Extensões de ficheiros de código fonte. */
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
@@ -77,8 +78,8 @@ export function countSourceFilesInDir(dir: string): number {
 export function detectNexusProject(startDir: string): { root: string; nexusDir: string } | null {
   let current = startDir;
   while (true) {
-    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, "nexus-system"))) {
-      return { root: current, nexusDir: join(current, "nexus-system") };
+    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, NEXUS_DIR_NAME))) {
+      return { root: current, nexusDir: join(current, NEXUS_DIR_NAME) };
     }
     const parent = dirname(current);
     if (parent === current) return null;

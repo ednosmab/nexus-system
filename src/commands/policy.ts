@@ -18,6 +18,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import {
   PolicyEngine,
   FilePolicyRepository,
@@ -30,7 +31,7 @@ import { outputJson } from "../formatting.js";
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): PolicyEngine {
-  const nexusDir = join(dir, "nexus-system");
+  const nexusDir = join(dir, NEXUS_DIR_NAME);
   return new PolicyEngine(new FilePolicyRepository(nexusDir));
 }
 

@@ -23,11 +23,12 @@ import {
   type RiskLevel,
 } from "../decision-engine.js";
 import { outputJson } from "../formatting.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): DecisionEngine {
-  const nexusDir = join(dir, "nexus-system");
+  const nexusDir = join(dir, NEXUS_DIR_NAME);
   return new DecisionEngine(new FileDecisionRepository(nexusDir));
 }
 

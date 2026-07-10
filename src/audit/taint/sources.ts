@@ -70,7 +70,11 @@ export const ALL_SOURCES: TaintSourceDef[] = [
 /** Check if a variable/expression matches any taint source */
 export function isTaintSource(name: string): TaintSourceDef | undefined {
   return ALL_SOURCES.find((s) => {
-    if (s.pattern instanceof RegExp) return s.pattern.test(name);
+    if (s.pattern instanceof RegExp) {
+      // Accept both the full object (req.query) and subproperty access (req.query.cmd)
+      const base = s.pattern.source.replace(/^\^/, "").replace(/\$$/, "");
+      return new RegExp(`^${base}(\\.\\w+)*$`).test(name);
+    }
     return s.pattern === name;
   });
 }

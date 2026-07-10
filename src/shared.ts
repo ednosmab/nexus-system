@@ -11,6 +11,7 @@ import { existsSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import chalk from "chalk";
 import { outputJson } from "./formatting.js";
+import { NEXUS_DIR_NAME } from "./constants.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ export interface ProjectContext {
 /** Resolve project context from CLI options. Replaces duplicated init guards. */
 export function resolveProjectContext(options: { dir?: string }): ProjectContext {
   const projectRoot = options.dir || process.cwd();
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
 
   const isInitialized = existsSync(nexusDir);
 

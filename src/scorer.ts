@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import type { ProjectAnalysis } from "./analyser.js";
 import { walkSourceFiles, FileContentCache } from "./utils.js";
 import { logger } from "./logger.js";
@@ -82,7 +83,7 @@ interface ProjectProfile {
 // ── Profile Loader ───────────────────────────────────────────────────────────
 
 function loadProjectProfile(projectRoot: string): ProjectProfile | null {
-  const profileDir = join(projectRoot, "nexus-system", "profile");
+  const profileDir = join(projectRoot, NEXUS_DIR_NAME, "profile");
   if (!existsSync(profileDir)) return null;
 
   const files = readdirSync(profileDir).filter(
@@ -438,7 +439,7 @@ async function calculateAreaScores(
 
 /** Measures context pressure: total size (KB) of P2 docs for a layer. */
 function countContextPressure(projectRoot: string, area: string): number {
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
   const layersDir = join(nexusDir, "docs", "layers");
   if (!existsSync(layersDir)) return 0;
 

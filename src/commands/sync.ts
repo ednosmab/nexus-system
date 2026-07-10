@@ -7,6 +7,7 @@ import fse from "fs-extra";
 import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
 import { checkLifecycleGate } from "../shared.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 const { copySync, ensureDirSync, writeFileSync } = fse;
 
@@ -29,8 +30,8 @@ export const syncCommand = new Command("sync")
     const isJson = options.json === true;
 
     // Lifecycle gate check
-    if (existsSync(resolve(targetDir, "nexus-system"))) {
-      const gateNexusDir = resolve(targetDir, "nexus-system");
+    if (existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
+      const gateNexusDir = resolve(targetDir, NEXUS_DIR_NAME);
       if (!checkLifecycleGate("sync", targetDir, gateNexusDir, isJson)) return;
     }
 
@@ -66,7 +67,7 @@ export const syncCommand = new Command("sync")
     }
 
     // Check if target project has nexus-system/ (initialized)
-    if (!existsSync(resolve(targetDir, "nexus-system"))) {
+    if (!existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
       if (isJson) {
         outputJson({ error: "not_initialized", message: "Run 'nexus init' first, then 'nexus sync' to update." });
       } else {

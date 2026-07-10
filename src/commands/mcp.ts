@@ -18,6 +18,7 @@ import { installMcpServer, updateOpenCodeJsonTimeout } from "../mcp-install.js";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { consolidateEngineeringState } from "../engineering-state.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 export function mcpCommand(): Command {
   const cmd = new Command("mcp")
@@ -27,7 +28,7 @@ export function mcpCommand(): Command {
     .option("-d, --dir <path>", "Project root directory")
     .action(async (options: Record<string, unknown>) => {
       const projectRoot = (options.dir as string) ?? process.cwd();
-      const nexusDir = join(projectRoot, "nexus-system");
+      const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
 
       try {
         consolidateEngineeringState(projectRoot, nexusDir);

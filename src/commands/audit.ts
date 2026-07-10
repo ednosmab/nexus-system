@@ -12,6 +12,7 @@ import { discoverArtifacts, discoverRelations, analyzeGraph } from "../knowledge
 import { appendBacklogSection, issueToBacklogItem, type BacklogItem } from "../backlog-writer.js";
 import { loadGrowthProfile } from "../growth-profile.js";
 import { formatGrowthProgress } from "../dual-path-presenter.js";
+import { generateFixSuggestions, prioritizeSuggestions } from "../audit/suggestion-engine.js";
 
 // ── Helper Functions for Issue Categorization ──────────────────────────────
 
@@ -455,6 +456,21 @@ export const auditCommand = new Command("audit")
             console.log(chalk.gray(`       Effort: ${win.effort} | Impact: ${win.impact}`));
           }
           console.log("");
+        }
+
+        // Fix Suggestions from Suggestion Engine
+        if (report.issues.length > 0) {
+          const suggestions = generateFixSuggestions(report.issues as Parameters<typeof generateFixSuggestions>[0], []);
+          const prioritized = prioritizeSuggestions(suggestions);
+          if (prioritized.length > 0) {
+            console.log(chalk.bold("  🔧 Top Fix Suggestions (auto-generated):"));
+            console.log("");
+            for (const s of prioritized.slice(0, 3)) {
+              console.log(chalk.cyan(`    ${s.description}`));
+              console.log(chalk.gray(`       File: ${s.file} | Confidence: ${Math.round(s.confidence * 100)}%`));
+            }
+            console.log("");
+          }
         }
 
         // Display optimizations (condensed)

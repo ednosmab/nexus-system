@@ -11,6 +11,7 @@ import { getEngineeringState } from "../engineering-state-access.js";
 import { generateForecast } from "../trend-engine.js";
 import { logger } from "../logger.js";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import { Command } from "commander";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -165,7 +166,7 @@ function loadChallenges(state: ReturnType<typeof getEngineeringState>): ContextO
  */
 export async function executeContextCommand(options: { json?: boolean; forAgent?: string }): Promise<void> {
   const projectRoot = process.cwd();
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
   let context = generateContext(nexusDir);
 
   if (!context) {

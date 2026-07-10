@@ -16,6 +16,8 @@ export const detectCommand = new Command("detect")
   .option("--no-cache", "Skip cache and recalculate")
   .option("--json", "Output results as JSON")
   .option("--format <type>", "Output format: text, json, or markdown (default: text)")
+  .option("--approve <ruleId>", "Approve a candidate rule by ID")
+  .option("--reject <ruleId>", "Reject a candidate rule by ID")
   .action(async (options) => {
     const isJson = options.json === true;
     const format = isJson ? "json" : (String(options.format || "text"));
@@ -30,6 +32,61 @@ export const detectCommand = new Command("detect")
     if (!ctx) return;
 
     if (!checkLifecycleGate("detect", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+
+    // ── Approve/Reject mode ────────────────────────────────────────
+    if (options.approve || options.reject) {
+      const ruleId = options.approve || options.reject;
+      const action = options.approve ? "approve" : "reject";
+
+      // Read existing report
+      const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.nexusDir, "patterns",
+        () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+
+      if (!cached) {
+        if (isJson) {
+          outputJson({ error: "no_report", message: "No detection report found. Run 'nexus detect' first." });
+        } else {
+          console.log(chalk.red("  ✘ No detection report found."));
+          console.log(chalk.gray("    Run 'nexus detect' first."));
+        }
+        return;
+      }
+
+      const rule = cached.candidateRules.find((r) => r.id === ruleId);
+      if (!rule) {
+        if (isJson) {
+          outputJson({ error: "rule_not_found", message: `Rule '${ruleId}' not found in candidate rules.` });
+        } else {
+          console.log(chalk.red(`  ✘ Rule '${ruleId}' not found.`));
+          console.log(chalk.gray("    Available rules:"));
+          for (const r of cached.candidateRules) {
+            console.log(chalk.gray(`      • ${r.id}: ${r.title}`));
+          }
+        }
+        return;
+      }
+
+      // Record the decision
+      recordFeedback(ctx.nexusDir, {
+        recommendationId: `rule-${ruleId}`,
+        action: action === "approve" ? "accepted" : "rejected",
+        context: { maturityScore: 0, installedCapabilities: [], knowledgeDebt: 0 },
+      });
+
+      if (isJson) {
+        outputJson({ type: "rule_decision", ruleId, action, rule });
+      } else {
+        const icon = action === "approve" ? "✅" : "❌";
+        const color = action === "approve" ? chalk.green : chalk.red;
+        console.log("");
+        console.log(`${icon} ${color(`Rule ${ruleId} ${action}d`)}`);
+        console.log(chalk.gray(`   Title: ${rule.title}`));
+        console.log(chalk.gray(`   Target: ${rule.target}`));
+        console.log("");
+      }
+
+      return;
+    }
 
     const spinner = ora("Analyzing history and reports...").start();
 

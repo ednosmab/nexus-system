@@ -272,10 +272,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Descricao** | `npm audit` automatico no CI. Bloquear builds com vulnerabilidades criticas. |
 | **Correcao** | Adicionar step `pnpm audit --audit-level=high` ao CI. |
 
@@ -287,10 +287,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Medio |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Arquivos** | `src/pattern-detector.ts` (CandidateRule), `src/commands/detect.ts` |
 | **Descricao** | `detectPatterns()` gera `candidateRules` com status "proposed" mas nao existe mecanismo para aprovar/rejeitar. |
 | **Correcao** | Criar `nexus detect --approve RULE-001` e `nexus detect --reject RULE-001`. |
@@ -323,10 +323,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Baixo |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Arquivo** | `src/commands/bench.ts` |
 | **Descricao** | Benchmark mostra resultados atuais mas nao compara com execucoes anteriores. |
 | **Correcao** | Salvar resultado em `nexus-system/reports/bench-YYYY-MM-DD.json`. Adicionar `--compare`. |
@@ -335,10 +335,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Baixo |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Arquivo** | `src/commands/feedback.ts` |
 | **Descricao** | Nao existe forma de ver os registros de feedback sem usar `--summary`. |
 | **Correcao** | Adicionar `--list` que mostra ultimos 10 registros formatados. |
@@ -431,10 +431,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 (parcial) |
 | **Severidade** | Baixo |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Arquivos** | 8 funcoes exportadas/novas sem JSDoc |
 | **Descricao** | Funcoes como `enrichBriefingWithPatterns`, `getFeedbackForSession`, etc. sem JSDoc. |
 | **Correcao** | Adicionar JSDoc com `@param`, `@returns`, e `@example`. |
@@ -443,10 +443,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Medio |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Diretorio** | `plans/` (11 arquivos) |
 | **Descricao** | 11 arquivos de plano com massiva sobreposicao. |
 | **Correcao** | Consolidar em 3 documentos: (a) Plano atual, (b) Historico, (c) Roadmap futuro. |
@@ -504,10 +504,10 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-10 |
 | **Severidade** | Baixo |
 | **Prioridade** | P2 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Arquivos** | `.github/workflows/ci.yml`, `src/__tests__/benchmarks.bench.ts` |
 | **Descricao** | O benchmark existe mas nao roda no CI. |
 | **Correcao** | Adicionar step `pnpm bench` ao CI com threshold de regressao. |
@@ -818,11 +818,11 @@
 | Prioridade | Itens | Tema Principal |
 |---|---|---|
 | **P0** | 1 | Governanca 0% |
-| **P1** | 19 | Arquitetura, docs, seguranca, monetizacao, AI integration |
-| **P2** | 37 | Features, DX, analytics, enterprise, auto-analise |
+| **P1** | 18 | Arquitetura, docs, seguranca, monetizacao, AI integration |
+| **P2** | 31 | Features, DX, analytics, enterprise, auto-analise |
 | **P3** | 57 | Nice-to-have, ecosystem, observability, i18n |
-| **Total Activo** | **114** | |
-| **Completed** | 60+ | Ver secção Completed Items abaixo |
+| **Total Activo** | **107** | |
+| **Completed** | 67+ | Ver secção Completed Items abaixo |
 
 ---
 
@@ -878,6 +878,13 @@
 | 2.18 | Medio | Dashboard cliques do mouse funcionais |
 | 3.5 | Baixo | Plugin system com hooks |
 | 3.29 | Medio | Session-tracker append-only |
+| 2.1 | Medio | nexus detect --approve/--reject |
+| 2.3 | Baixo | nexus bench --compare |
+| 2.4 | Baixo | nexus feedback --list |
+| 2.12 | Baixo | JSDoc nas funcoes novas (parcial) |
+| 2.13 | Medio | Consolidar planos |
+| 2.17 | Baixo | Benchmark suite automatizada CI |
+| S2 | Alto | Dependency auditing no CI |
 
 ### Plano de Correção Auditoria Completa — Done (2026-07-10)
 
@@ -894,5 +901,5 @@
 | Fase 5 — README | 32 comandos, arquitectura, seguranca documentados |
 
 ---
-*Ultima atualizacao: 2026-07-10 — BACKLOG-ARCHIVE.md migrado para ca*
+*Ultima atualizacao: 2026-07-10 — Fase 0-3, 5-6 do gap analysis plan concluidas*
 

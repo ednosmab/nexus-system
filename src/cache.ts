@@ -10,6 +10,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, renameSync, chmodSync } from "node:fs";
 import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -105,10 +106,10 @@ export function computeKeyChecksums(projectRoot: string, nexusDir: string): Reco
   if (opencodeHash) checksums["opencode.json"] = opencodeHash;
 
   // 4. nexus-system/profile/ (area config)
-  checksums["nexus-system/profile/"] = dirChecksum(join(projectRoot, "nexus-system", "profile"));
+  checksums[`${NEXUS_DIR_NAME}/profile/`] = dirChecksum(join(projectRoot, NEXUS_DIR_NAME, "profile"));
 
   // 5. nexus-system/ — aggregate hash of the whole governance directory
-  checksums["nexus-system/"] = dirChecksum(nexusDir);
+  checksums[`${NEXUS_DIR_NAME}/`] = dirChecksum(nexusDir);
 
   return checksums;
 }
@@ -161,7 +162,7 @@ function writeCache(projectRoot: string, cache: NexusCache): void {
     renameSync(tmpPath, cachePath);
     chmodSync(cachePath, 0o600);
   } catch {
-    try { unlinkSync(tmpPath); } catch { /* ignore cleanup error */ }
+    try { unlinkSync(tmpPath); } catch (error) { logger.debug("cache", "Suppressed error", { error }); }
   }
 }
 
@@ -234,8 +235,8 @@ export function invalidateCache(
     // Remove entire cache file
     try {
       unlinkSync(join(projectRoot, CACHE_FILENAME));
-    } catch {
-      // file may not exist
+    } catch (error) {
+      logger.debug("cache", "Suppressed error", { error });
     }
   }
 }

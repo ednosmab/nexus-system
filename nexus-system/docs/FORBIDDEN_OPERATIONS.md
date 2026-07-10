@@ -28,7 +28,7 @@
 |---|---|---|---|
 | **F-01** | Nenhuma lógica de domínio em componentes UI | Componentes UI devem apenas renderizar dados | Refactor obrigatório |
 | **F-03** | Nenhum import cruzado entre apps | Apps devem ser independentes | Correcção imediata |
-| **F-04** | Nenhum schema de validação fora da camada de contratos | Schemas ficam em `packages/types/` | Revert |
+| **F-04** | Nenhum schema de validação fora da camada de contratos | Schemas ficam em `packages/types/` (futuro) | Revert |
 
 ### S — Segurança
 

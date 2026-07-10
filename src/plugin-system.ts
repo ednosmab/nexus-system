@@ -9,6 +9,7 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -150,7 +151,7 @@ export async function loadPlugins(projectRoot: string): Promise<NexusPlugin[]> {
   const plugins: NexusPlugin[] = [];
 
   // Project-level plugins
-  const projectPluginsDir = join(projectRoot, "nexus-system", "plugins");
+  const projectPluginsDir = join(projectRoot, NEXUS_DIR_NAME, "plugins");
   plugins.push(...(await loadPluginsFromDir(projectPluginsDir)));
 
   // Global plugins

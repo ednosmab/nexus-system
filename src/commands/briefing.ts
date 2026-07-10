@@ -20,6 +20,7 @@ import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { collectContext } from "../context-collector.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import { computeInputHash, setCachedBriefing, invalidateBriefingCache, readCache } from "../briefing-cache.js";
 import { briefingToMarkdown, briefingToJson, generateDiff, type Briefing } from "../briefing.js";
 import { compressedSummary, generateOptimizationHints, suggestDepth, type BriefingDepth } from "../token-optimizer.js";
@@ -30,7 +31,7 @@ import { getEventBus } from "../event-bus.js";
 // ── Output Helpers ─────────────────────────────────────────────────────────
 
 function writeBriefingMarkdown(projectRoot: string, briefing: Briefing): string {
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
   if (!existsSync(nexusDir)) {
     mkdirSync(nexusDir, { recursive: true });
   }

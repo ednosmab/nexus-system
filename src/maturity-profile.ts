@@ -11,6 +11,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
+import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -307,7 +308,9 @@ export function detectGovernanceArtifactsScore(nexusDir: string): number {
       const agentFiles = readdirSync(agentsDir).filter(f => f.endsWith(".yaml"));
       if (agentFiles.length >= 3) score += 5;
       else if (agentFiles.length >= 1) score += 3;
-    } catch { /* skip unreadable directory */ }
+    } catch (error) {
+      logger.debug("maturity-profile", "Suppressed error", { error });
+    }
   }
 
   const rulesDir = join(nexusDir, "governance", "rules");
@@ -316,7 +319,9 @@ export function detectGovernanceArtifactsScore(nexusDir: string): number {
       const ruleFiles = readdirSync(rulesDir).filter(f => f.endsWith(".json"));
       if (ruleFiles.length >= 2) score += 5;
       else if (ruleFiles.length >= 1) score += 3;
-    } catch { /* skip unreadable directory */ }
+    } catch (error) {
+      logger.debug("maturity-profile", "Suppressed error", { error });
+    }
   }
 
   const policiesDir = join(nexusDir, "governance", "policies");
@@ -325,7 +330,9 @@ export function detectGovernanceArtifactsScore(nexusDir: string): number {
       const policyFiles = readdirSync(policiesDir).filter(f => f.endsWith(".md") && f !== "POLICY-TEMPLATE.md");
       if (policyFiles.length >= 3) score += 10;
       else if (policyFiles.length >= 1) score += 5;
-    } catch { /* skip unreadable directory */ }
+    } catch (error) {
+      logger.debug("maturity-profile", "Suppressed error", { error });
+    }
   }
 
   return score;

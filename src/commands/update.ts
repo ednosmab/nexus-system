@@ -27,6 +27,7 @@ import {
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 const { copySync, ensureDirSync, removeSync } = fse;
 
@@ -102,7 +103,7 @@ function applyUpdates(
   options: UpdateOptions
 ): void {
   const templatesDir = getTemplatesDir();
-  const nexusDir = join(targetDir, "nexus-system");
+  const nexusDir = join(targetDir, NEXUS_DIR_NAME);
 
   // Create backup if requested
   if (options.backup) {

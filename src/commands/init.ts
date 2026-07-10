@@ -37,6 +37,8 @@ import { initializeRules } from "../rule-engine.js";
 import { createManifest, writeManifest } from "../manifest.js";
 import { getEventBus } from "../event-bus.js";
 import type { ProjectAnalysis } from "../analyser.js";
+import { logger } from "../logger.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
   const dims = profile.dimensions;
@@ -144,7 +146,7 @@ export const initCommand = new Command("init")
     }
 
     // Check if already initialized
-    if (existsSync(resolve(targetDir, "nexus-system"))) {
+    if (existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
       console.log(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
       console.log("");
       console.log(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
@@ -169,7 +171,7 @@ export const initCommand = new Command("init")
       console.log("");
 
       // Load previous maturity profile
-      const nexusDir = resolve(targetDir, "nexus-system");
+      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
       const previousProfile = loadMaturityProfile(nexusDir);
 
       if (previousProfile) {
@@ -224,8 +226,7 @@ export const initCommand = new Command("init")
     }
 
     // Step 3: Calculate maturity profile
-    const profileSpinner = ora("Calculating maturity profile...").start();
-    const nexusDir = resolve(targetDir, "nexus-system");
+    const profileSpinner = ora("Calculating maturity profile...").start();      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
     const profile = calculateMaturityProfile(answers.maturity, analysis, nexusDir);
     profileSpinner.succeed("Maturity profile calculated");
 
@@ -239,7 +240,7 @@ export const initCommand = new Command("init")
 
     // Step 5: Scaffold by capabilities
     const scaffoldSpinner = ora("Installing governance ecosystem...").start();
-    const nexusDirForEvents = resolve(targetDir, "nexus-system");
+    const nexusDirForEvents = resolve(targetDir, NEXUS_DIR_NAME);
     const previousProfile = existsSync(nexusDirForEvents) ? loadMaturityProfile(nexusDirForEvents) : null;
     try {
       // Determine which capabilities to install (recommended + selected)
@@ -264,8 +265,8 @@ export const initCommand = new Command("init")
         const __dirname = dirname(__filename);
         const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8"));
         cliVersion = pkg.version || "unknown";
-      } catch {
-        // Skip
+      } catch (error) {
+        logger.debug("init", "Suppressed error", { error });
       }
       const manifest = createManifest(cliVersion, nexusDir, capsToInstall, profile.overallScore);
       writeManifest(nexusDir, manifest);
@@ -298,8 +299,8 @@ export const initCommand = new Command("init")
         const briefing = generateBriefing(fingerprint, riskMap, [], [], profile);
         const briefingPath = join(nexusDir, "BRIEFING.md");
         writeFileSync(briefingPath, briefingToMarkdown(briefing), "utf-8");
-      } catch {
-        // Non-critical: briefing can be regenerated via `nexus briefing`
+      } catch (error) {
+        logger.debug("init", "Suppressed error", { error });
       }
 
       // Display results
@@ -310,7 +311,7 @@ export const initCommand = new Command("init")
       console.log(chalk.gray("    opencode.json          ← configuration (project root)"));
       console.log(chalk.gray("    nexus-system/          ← governance ecosystem"));
       for (const dir of result.directoriesCreated) {
-        if (dir === "nexus-system") continue;
+        if (dir === NEXUS_DIR_NAME) continue;
         console.log(chalk.gray(`      ${dir.replace("nexus-system/", "")}/`));
       }
       console.log("");
@@ -406,7 +407,7 @@ export const initCommand = new Command("init")
       console.error(chalk.red(`  Error: ${error}`));
 
       // Rollback: remove partial nexus-system directory
-      const nexusDir = resolve(targetDir, "nexus-system");
+      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
       if (existsSync(nexusDir)) {
         try {
           fse.removeSync(nexusDir);

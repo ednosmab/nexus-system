@@ -12,6 +12,7 @@ import { createInterface } from "node:readline";
 import { join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import {
   MarkdownPlanEngine,
   type MarkdownPlan,
@@ -182,7 +183,7 @@ export async function runLifecycleReview(
   projectRoot: string,
   options: { auto?: boolean; dry?: boolean } = {}
 ): Promise<LifecycleResult> {
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
   const result: LifecycleResult = { active: 0, archived: 0, removed: 0, skipped: 0 };
 
   console.log("");

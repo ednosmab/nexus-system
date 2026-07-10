@@ -104,8 +104,8 @@
 
 **Arquivos:**
 - `docs/adrs/ADR-TEMPLATE.md`
-- `src/templates/base/docs/sdr/SDR-TEMPLATE.md`
-- `src/templates/base/governance/plans/TEMPLATE.md`
+- `docs/sdr/SDR-TEMPLATE.md` (futuro)
+- `governance/plans/TEMPLATE.md` (futuro)
 - `docs/session-template.md`
 - `docs/AGENTS.md` (seções: architecture)
 

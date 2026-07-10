@@ -13,6 +13,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, appendFileSync as fsAppendFileSync } from "node:fs";
 import { join } from "node:path";
 import { getEventBus } from "./event-bus.js";
+import { logger } from "./logger.js";
 import type { EngineeringState, EngineeringAsset, AssetType } from "./engineering-state.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -239,8 +240,8 @@ export class EventSourcedState {
         for (const line of lines) {
           this.events.push(JSON.parse(line) as StateEvent);
         }
-      } catch {
-        // Skip corrupt files
+      } catch (error) {
+        logger.debug("engineering-state-evolved", "Suppressed error", { error });
       }
     }
   }
@@ -250,8 +251,8 @@ export class EventSourcedState {
       const date = event.timestamp.slice(0, 10);
       const filePath = join(this.eventsDir, `state-events-${date}.jsonl`);
       appendFileSync(filePath, JSON.stringify(event) + "\n", "utf-8");
-    } catch {
-      // Best-effort persistence
+    } catch (error) {
+      logger.debug("engineering-state-evolved", "Suppressed error", { error });
     }
   }
 }

@@ -24,6 +24,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { execSync } from "node:child_process";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import type { Reminder, ReminderPriority, ReminderCategory } from "../briefing.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────
@@ -49,12 +50,12 @@ const CATEGORY_ICONS: Record<ReminderCategory, string> = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getBufferPath(projectRoot: string): string {
-  return join(projectRoot, "nexus-system", "governance", "context", "context_buffer.yaml");
+  return join(projectRoot, NEXUS_DIR_NAME, "governance", "context", "context_buffer.yaml");
 }
 
 function ensureBuffer(projectRoot: string): string {
   const bufferPath = getBufferPath(projectRoot);
-  const dir = join(projectRoot, "nexus-system", "governance", "context");
+  const dir = join(projectRoot, NEXUS_DIR_NAME, "governance", "context");
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });

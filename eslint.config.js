@@ -29,6 +29,12 @@ export default [
       "prefer-const": "warn",
       "no-var": "error",
       "no-restricted-globals": ["error", "__dirname", "__filename"],
+      // Prevent hardcoding "nexus-system" — use NEXUS_DIR_NAME from src/constants.ts
+      // Using "warn" until all 29 files are migrated, then change to "error"
+      "no-restricted-syntax": ["warn", {
+        selector: "Literal[value='nexus-system']",
+        message: "Use NEXUS_DIR_NAME from src/constants.ts instead of hardcoding 'nexus-system'.",
+      }],
     },
   },
   // Commands must not read filesystem directly — use getEngineeringState()

@@ -57,6 +57,7 @@ import { DocEngine } from "../src/doc-engine.js";
 import { consolidateEngineeringState } from "../src/engineering-state.js";
 import { initializeProactiveEngine } from "../src/proactive-engine.js";
 import { COMMAND_CATEGORIES, findCommand } from "../src/help-data.js";
+import { NEXUS_DIR_NAME } from "../src/constants.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { version } = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf-8"));
@@ -64,7 +65,7 @@ const { version } = JSON.parse(readFileSync(join(__dirname, "..", "package.json"
 // ── Event-Driven Bootstrap ──────────────────────────────────────────────────
 
 const projectRoot = process.cwd();
-const nexusDir = join(projectRoot, "nexus-system");
+const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
 const isInitialized = existsSync(nexusDir);
 
 let currentSessionId: string | null = null;

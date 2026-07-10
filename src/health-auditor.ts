@@ -110,6 +110,9 @@ import {
   detectRegexDos,
   detectUnsafeDeserialization,
   detectDependencyConfusion,
+  detectInsecureCORS,
+  detectInsecureCookies,
+  detectWeakRandomness,
 } from "./audit/engineering-detectors.js";
 
 import {
@@ -349,6 +352,10 @@ export function auditHealth(
     detectRegexDos: () => detectRegexDos(projectRoot, sourceFiles),
     detectUnsafeDeserialization: () => detectUnsafeDeserialization(projectRoot, sourceFiles),
     detectDependencyConfusion: () => detectDependencyConfusion(projectRoot, sourceFiles),
+    // Security Configuration detectors (SEC-CONF-*)
+    detectInsecureCORS: () => detectInsecureCORS(projectRoot, sourceFiles),
+    detectInsecureCookies: () => detectInsecureCookies(projectRoot, sourceFiles),
+    detectWeakRandomness: () => detectWeakRandomness(projectRoot, sourceFiles),
     // Taint analysis detector
     detectTaintFlow: () => {
       try {
@@ -361,8 +368,15 @@ export function auditHealth(
           location: ti.location,
           recommendation: ti.recommendation,
         }));
-      } catch {
-        return [] as HealthIssue[];
+      } catch (err) {
+        // Never fail silently in a security tool — report the error itself as a finding
+        return [{
+          type: "tainted_input" as const,
+          severity: 2 as const,
+          description: `Taint analysis não pôde ser executada — resultados de segurança incompletos: ${err instanceof Error ? err.message : String(err)}`,
+          location: "taint-analyzer",
+          recommendation: "Rodar com --debug para ver o erro completo",
+        }] as HealthIssue[];
       }
     },
     // Git Intelligence detectors (GIT-*)

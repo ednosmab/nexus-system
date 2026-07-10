@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import type { UserAnswers } from "./prompts.js";
 import type { Capability } from "./maturity-profile.js";
 import { logger } from "./logger.js";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { getCapabilityMapping } from "./capability-mapping.js";
 
 const { copySync, ensureDirSync, readFileSync, writeFileSync, existsSync, readdirSync, removeSync } = fse;
@@ -182,7 +183,7 @@ export function scaffoldNexusSystem(
 
   // Generate ProjectProfile
   const profileTemplate = readFileSync(
-    join(baseDir, "nexus-system", "profile", "_template.config.ts"), "utf-8"
+    join(baseDir, NEXUS_DIR_NAME, "profile", "_template.config.ts"), "utf-8"
   );
   const dirName = targetDir.split(/[/\\]/).pop() || "my-project";
   const projectName = dirName.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
@@ -191,12 +192,12 @@ export function scaffoldNexusSystem(
   const profileContent = profileTemplate
     .replace(/\[PROJECT_NAME\]/g, projectName)
     .replace(/areas: \[.*?\]/s, `areas: [\n${areasStr}\n  ]`);
-  const profilePath = join(targetDir, "nexus-system", "profile", `${projectName}.config.ts`);
+  const profilePath = join(targetDir, NEXUS_DIR_NAME, "profile", `${projectName}.config.ts`);
   writeFileSync(profilePath, profileContent, "utf-8");
   result.filesCreated.push(`nexus-system/profile/${projectName}.config.ts`);
 
   // Remove template file
-  const templatePath = join(targetDir, "nexus-system", "profile", "_template.config.ts");
+  const templatePath = join(targetDir, NEXUS_DIR_NAME, "profile", "_template.config.ts");
   if (existsSync(templatePath)) {
     removeSync(templatePath);
   }
@@ -219,7 +220,7 @@ export function scaffoldNexusSystem(
     for (const skill of selectedSkills) {
       const srcPath = join(skillsDir, `${skill}.md`);
       if (!existsSync(srcPath)) continue;
-      const destPath = join(targetDir, "nexus-system", "docs", "skills", `${skill}.md`);
+      const destPath = join(targetDir, NEXUS_DIR_NAME, "docs", "skills", `${skill}.md`);
       copySync(srcPath, destPath);
       result.filesCreated.push(`nexus-system/docs/skills/${skill}.md`);
     }

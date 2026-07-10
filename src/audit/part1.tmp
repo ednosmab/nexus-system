@@ -1,0 +1,53 @@
+function detectDeadRules(rules: string[], history: HistoryEntry[]): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  if (history.length < 10) return issues;
+
+  for (const rule of rules) {
+    const ruleWords = rule.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+    let mentionedCount = 0;
+
+    for (const entry of history) {
+      const matches = ruleWords.filter((w) => entry.content.includes(w));
+      if (matches.length >= Math.min(2, ruleWords.length)) {
+        mentionedCount++;
+      }
+    }
+
+    if (mentionedCount === 0) {
+      issues.push({
+        type: "dead_rule",
+        severity: 1,
+        description: `Regra "${rule}" nunca mencionada em ${history.length} sessões — candidata a remover ou simplificar`,
+        location: "docs/AGENTS.md",
+        recommendation: `Considerar remover "${rule}" ou convertê-la em recomendação não vinculante`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+function detectViolationHotspots(history: HistoryEntry[]): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  if (history.length < 4) return issues;
+
+  let violationCount = 0;
+  for (const entry of history) {
+    if (VIOLATION_KEYWORDS.some((kw) => entry.content.includes(kw))) {
+      violationCount++;
+    }
+  }
+
+  if (violationCount >= Math.ceil(history.length * 0.5)) {
+    issues.push({
+      type: "violation_hotspot",
+      severity: violationCount >= history.length * 0.7 ? 3 : 2,
+      description: `Alta taxa de violações: ${violationCount}/${history.length} sessões com erros — governança pode precisar de reforço`,
+      location: "docs/AGENTS.md",
+      recommendation: "Revisar regras — considerar adicionar validações automáticas (lint) para regras críticas",
+    });
+  }
+
+  return issues;
+}
+

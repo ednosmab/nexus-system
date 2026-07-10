@@ -11,6 +11,7 @@ import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { loadGrowthProfile } from "../growth-profile.js";
 import { formatGrowthProgress } from "../dual-path-presenter.js";
+import { logger } from "../logger.js";
 
 interface StatusCheck {
   name: string;
@@ -168,8 +169,8 @@ export const statusCommand = new Command("status")
         console.log(chalk.cyan(`    → ${rec}`));
       }
       console.log("");
-    } catch {
-      // Skip briefing on error
+    } catch (error) {
+      logger.debug("status", "Suppressed error", { error });
     }
 
     // Display capability engine summary
@@ -189,8 +190,8 @@ export const statusCommand = new Command("status")
         console.log(chalk.green(`    Active: ${activeCaps.join(", ")}`));
       }
       console.log("");
-    } catch {
-      // Skip capability engine on error
+    } catch (error) {
+      logger.debug("status", "Suppressed error", { error });
     }
 
     // Growth profile

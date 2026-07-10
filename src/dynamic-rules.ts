@@ -12,6 +12,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
+import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -93,8 +94,8 @@ function detectGitIncidents(projectRoot: string): DynamicRule[] {
         incidentCount: hotfixCount,
       });
     }
-  } catch {
-    // Git not available or no history
+  } catch (error) {
+    logger.debug("dynamic-rules", "Suppressed error", { error });
   }
 
   return rules;
@@ -143,8 +144,8 @@ function detectHistoryIncidents(_projectRoot: string, nexusDir: string): Dynamic
         });
       }
     }
-  } catch {
-    // History directory not readable
+  } catch (error) {
+    logger.debug("dynamic-rules", "Suppressed error", { error });
   }
 
   return rules;

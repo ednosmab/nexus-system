@@ -10,6 +10,7 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { getEventBus } from "./event-bus.js";
 import { logger } from "./logger.js";
 import type { DocsSyncTriggeredPayload } from "./event-payloads.js";
@@ -67,7 +68,7 @@ export function runDocSync(
     return { success: true, output: "skipped: minimum interval", exitCode: 0, duration: 0 };
   }
 
-  const syncScript = resolve(projectRoot, "nexus-system", "scripts", "sync-docs.ts");
+  const syncScript = resolve(projectRoot, NEXUS_DIR_NAME, "scripts", "sync-docs.ts");
   if (!existsSync(syncScript)) {
     logger.warn("doc-sync-hook", "sync-docs.ts not found, skipping");
     return { success: false, output: "sync-docs.ts not found", exitCode: 1, duration: 0 };

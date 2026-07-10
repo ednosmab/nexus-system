@@ -13,6 +13,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { getEventBus, type NexusEventType, type EventBus } from "./event-bus.js";
+import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -206,8 +207,8 @@ export class DeadLetterQueue {
       const date = dl.failedAt.slice(0, 10);
       const filePath = join(this.dir, `dead-letter-${date}.jsonl`);
       appendFileSync(filePath, JSON.stringify(dl) + "\n", "utf-8");
-    } catch {
-      // Best-effort
+    } catch (error) {
+      logger.debug("advanced-infrastructure", "Suppressed error", { error });
     }
   }
 
@@ -223,8 +224,8 @@ export class DeadLetterQueue {
         for (const line of lines) {
           this.queue.push(JSON.parse(line) as DeadLetterEvent);
         }
-      } catch {
-        // Skip corrupt files
+      } catch (error) {
+        logger.debug("advanced-infrastructure", "Suppressed error", { error });
       }
     }
   }
@@ -233,8 +234,8 @@ export class DeadLetterQueue {
     try {
       const filePath = join(this.dir, "dead-letter-current.json");
       writeFileSync(filePath, JSON.stringify(this.queue, null, 2), "utf-8");
-    } catch {
-      // Best-effort
+    } catch (error) {
+      logger.debug("advanced-infrastructure", "Suppressed error", { error });
     }
   }
 }

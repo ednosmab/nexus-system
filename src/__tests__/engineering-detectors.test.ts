@@ -382,13 +382,29 @@ describe("detectUnsafeDeserialization", () => {
     const issues = detectUnsafeDeserialization(tempDir, files);
     expect(issues.length).toBe(1);
     expect(issues[0]!.type).toBe("unsafe_deserialize");
-    expect(issues[0]!.severity).toBe(2);
+    // JSON.parse unvalidated is severity 1 (info); real RCE sinks (js-yaml.load, vm.runInNewContext) are severity 3
+    expect(issues[0]!.severity).toBe(1);
   });
 
   it("detects JSON.parse with process.argv", () => {
     const files = [makeFile("src/cli.ts", "JSON.parse(process.argv[2])")];
     const issues = detectUnsafeDeserialization(tempDir, files);
     expect(issues.length).toBe(1);
+    expect(issues[0]!.severity).toBe(1);
+  });
+
+  it("detects js-yaml.load (real RCE — severity 3)", () => {
+    const files = [makeFile("src/yaml.ts", "const data = require('js-yaml').load(req.body)")];
+    const issues = detectUnsafeDeserialization(tempDir, files);
+    expect(issues.length).toBe(1);
+    expect(issues[0]!.severity).toBe(3);
+  });
+
+  it("detects vm.runInNewContext (real RCE — severity 3)", () => {
+    const files = [makeFile("src/sandbox.ts", "vm.runInNewContext(req.body)")];
+    const issues = detectUnsafeDeserialization(tempDir, files);
+    expect(issues.length).toBe(1);
+    expect(issues[0]!.severity).toBe(3);
   });
 
   it("returns empty for safe parse", () => {

@@ -6,6 +6,7 @@ import { execSync } from "node:child_process";
 import { outputJson, statusIcon, banner } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 interface ValidationResult {
   name: string;
@@ -67,7 +68,7 @@ export const validateCommand = new Command("validate")
 
 function runValidationChecks(targetDir: string): ValidationResult[] {
   const results: ValidationResult[] = [];
-  const nexusDir = join(targetDir, "nexus-system");
+  const nexusDir = join(targetDir, NEXUS_DIR_NAME);
 
   // 1. Check context buffer
   results.push(checkContextBuffer(nexusDir));
@@ -404,7 +405,7 @@ function displayValidationResults(
 
 function attemptFixes(targetDir: string, results: ValidationResult[]): string[] {
   const fixes: string[] = [];
-  const nexusDir = join(targetDir, "nexus-system");
+  const nexusDir = join(targetDir, NEXUS_DIR_NAME);
 
   for (const result of results) {
     if (result.status !== "fail") continue;

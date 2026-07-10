@@ -12,6 +12,7 @@ import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { listSnapshots, getSnapshotAt, diffSnapshots } from "../engineering-state-history.js";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 export const historyCommand = new Command("history")
   .description("Show engineering state history")
@@ -24,7 +25,7 @@ export const historyCommand = new Command("history")
     if (result) return;
 
     const projectRoot = process.cwd();
-    const nexusDir = join(projectRoot, "nexus-system");
+    const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
 
     const range = options.from || options.to
       ? { from: options.from || "2000-01-01", to: options.to || new Date().toISOString() }

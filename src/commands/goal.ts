@@ -21,11 +21,12 @@ import chalk from "chalk";
 import { guardNotInitialized } from "../shared.js";
 import { GoalEngine, type GoalStatus, type GoalPriority, FileGoalRepository } from "../goal-engine.js";
 import { outputJson } from "../formatting.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): GoalEngine {
-  const nexusDir = join(dir, "nexus-system");
+  const nexusDir = join(dir, NEXUS_DIR_NAME);
   return new GoalEngine(new FileGoalRepository(nexusDir));
 }
 
@@ -235,7 +236,7 @@ export function goalCommand(): Command {
         goal!.title = opts.title as string;
         goal!.updatedAt = new Date().toISOString();
         // Re-save via repo
-        const repo = new FileGoalRepository(join(ctx.projectRoot, "nexus-system"));
+        const repo = new FileGoalRepository(join(ctx.projectRoot, NEXUS_DIR_NAME));
         repo.save(goal!);
       }
 

@@ -8,6 +8,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── OWASP Top 10 2025 Mapping ───────────────────────────────────────────────
@@ -150,7 +151,7 @@ const SOC2_CONTROL_FILES = [
 
 export function detectSOC2Controls(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const docsDir = join(projectRoot, "nexus-system", "docs");
+  const docsDir = join(projectRoot, NEXUS_DIR_NAME, "docs");
 
   const missingControls = SOC2_CONTROL_FILES.filter(
     (f) => !existsSync(join(docsDir, f)) && !existsSync(join(projectRoot, "docs", f)),
@@ -173,7 +174,7 @@ export function detectSOC2Controls(projectRoot: string, _files: SourceFileInfo[]
 
 export function detectNISTAlignment(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const nexusDir = join(projectRoot, "nexus-system");
+  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
 
   const hasGovernance = existsSync(join(nexusDir, "governance"));
   const hasPolicies = existsSync(join(nexusDir, "governance", "policies"));
@@ -426,8 +427,8 @@ export function detectComplianceReport(projectRoot: string, _files: SourceFileIn
   const compliancePaths = [
     join(projectRoot, "docs", "COMPLIANCE.md"),
     join(projectRoot, "docs", "compliance"),
-    join(projectRoot, "nexus-system", "docs", "COMPLIANCE.md"),
-    join(projectRoot, "nexus-system", "docs", "compliance"),
+    join(projectRoot, NEXUS_DIR_NAME, "docs", "COMPLIANCE.md"),
+    join(projectRoot, NEXUS_DIR_NAME, "docs", "compliance"),
   ];
 
   const hasComplianceReport = compliancePaths.some((p) => existsSync(p));

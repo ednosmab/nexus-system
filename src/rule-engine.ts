@@ -12,6 +12,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { InvalidRuleError } from "./errors.js";
 import { logger } from "./logger.js";
 import { type Capability, loadMaturityProfile } from "./maturity-profile.js";
@@ -664,7 +665,7 @@ async function executeAction(
 
     case "auto_populate_next_p0": {
       try {
-        const nexusDir = join(context.projectRoot, "nexus-system");
+        const nexusDir = join(context.projectRoot, NEXUS_DIR_NAME);
         const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
 
         if (!existsSync(backlogPath)) {

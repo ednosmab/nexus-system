@@ -50,6 +50,7 @@ export function feedbackCommand(): Command {
     .option("--profile <depth>", "Briefing depth profile used (minimal/standard/full)")
     .option("--json", "Output as JSON")
     .option("--summary", "Show feedback summary statistics")
+    .option("--list", "List all feedback records")
     .option("--personalized", "Generate personalized feedback based on user profile")
     .action(async function (this: Command, options: Record<string, unknown>) {
       const isJson = options.json === true;
@@ -107,6 +108,49 @@ export function feedbackCommand(): Command {
           writeFileSync(feedbackPath, markdown + "\n", "utf-8");
         }
 
+        return;
+      }
+
+      // ── List mode ─────────────────────────────────────────────────
+      if (options.list) {
+        const records = getFeedbackRecords(ctx.nexusDir);
+
+        if (records.length === 0) {
+          if (isJson) {
+            outputJson({ type: "feedback_list", records: [] });
+          } else {
+            console.log(chalk.yellow("  No feedback records found."));
+            console.log(chalk.gray("  Run 'nexus feedback --outcome <type>' to record feedback."));
+          }
+          return;
+        }
+
+        if (isJson) {
+          outputJson({ type: "feedback_list", records });
+          return;
+        }
+
+        console.log("");
+        console.log(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
+        console.log(chalk.bold.cyan("  ║   nexus feedback — Session History   ║"));
+        console.log(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
+        console.log("");
+
+        for (const record of records.slice(-20)) {
+          const icon = record.outcome === "success" ? "✅" : record.outcome === "failure" ? "❌" : "⚠️";
+          const color = record.outcome === "success" ? chalk.green : record.outcome === "failure" ? chalk.red : chalk.yellow;
+          const date = new Date(record.timestamp).toLocaleDateString();
+          const time = new Date(record.timestamp).toLocaleTimeString();
+
+          console.log(`  ${icon} ${color(record.outcome.padEnd(8))} ${chalk.gray(`${date} ${time}`)}`);
+          if (record.notes) console.log(chalk.gray(`     Notes: ${record.notes}`));
+          if (record.modifiedAreas?.length) console.log(chalk.gray(`     Areas: ${record.modifiedAreas.join(", ")}`));
+          if (record.userRating) console.log(chalk.gray(`     Rating: ${record.userRating}/5`));
+        }
+
+        console.log("");
+        console.log(chalk.gray(`  Showing last ${Math.min(records.length, 20)} of ${records.length} records`));
+        console.log("");
         return;
       }
 

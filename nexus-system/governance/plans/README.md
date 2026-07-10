@@ -1,6 +1,6 @@
 # Planos — Nexus System
 
-**Status:** In Progress
+**Status:** Concluído
 
 > Índice consolidado de todos os planos do projecto.
 > Actualizado automaticamente pelo agente ao criar/concluir planos.
@@ -11,14 +11,18 @@
 
 | Plano | Data | Estado | Descrição |
 |---|---|---|---|
-| [complete-architecture-plan](2026-07-09-complete-architecture-plan.md) | 2026-07-09 | **In Progress** | Reactive + Proactive + Histórico + Agentes IA (15 fases) |
-| [nexus-dashboard-restructure](2026-07-02-nexus-dashboard-restructure.md) | 2026-07-02 | **Em espera** | Reestruturar dashboard em 6 camadas de conhecimento progressivo |
+| [gap-analysis-coverage-plan](2026-07-09-gap-analysis-coverage-plan.md) | 2026-07-09 | **Done** | Gap analysis + coverage improvement (Fases 0-6) |
 
 ---
 
 ## Histórico (Done)
 
 Planos concluídos, organizados por data:
+
+### 2026-07-10
+| Plano | Resumo |
+|---|---|
+| [plano-correcao-nexus-audit](2026-07-09-plano-correcao-nexus-audit.md) | Correções do nexus audit (5 bugs) |
 
 ### 2026-07-09
 | Plano | Resumo |
@@ -61,6 +65,7 @@ Planos concluídos, organizados por data:
 | Plano | Resumo |
 |---|---|
 | [init-audit-dashboard](done/2026-07-02-init-audit-dashboard.md) | Init, audit e dashboard iniciais |
+| [nexus-dashboard-restructure](2026-07-02-nexus-dashboard-restructure.md) | Reestruturar dashboard em 6 camadas |
 
 ### Planos sem data (faseamento inicial)
 | Plano | Resumo |
@@ -85,15 +90,15 @@ Itens planeados mas ainda não iniciados, extraídos do BACKLOG:
 
 ### P1 — Curto prazo (≤ 30d)
 - **SA4/SA10/SA11** — Clean Architecture / SOLID (refactoring grande)
-- **A2** — OpenCode plugin (hook antes de tarefas)
-- **A3** — Cursor integration (extensão VS Code)
+- **A2** — OpenCode plugin (hook antes de tarefas) — **DESCARTADO**
+- **A3** — Cursor integration (extensão VS Code) — **DESCARTADO**
 - **A4** — Git hooks (`nexus hooks --install`)
-- **A7** — Skill template (`nexus skill:create`)
+- **A7** — Skill template (`nexus skill:create`) — **DESCARTADO**
 
 ### P2 — Médio prazo (≤ 90d)
-- **2.1** — `nexus detect --approve/--reject`
-- **2.3b** — `nexus bench --compare`
-- **2.4** — `nexus feedback --list`
+- **2.1** — `nexus detect --approve/--reject` ✅ **CONCLUÍDO**
+- **2.3b** — `nexus bench --compare` ✅ **CONCLUÍDO**
+- **2.4** — `nexus feedback --list` ✅ **CONCLUÍDO**
 - **D1** — Interactive tutorial
 - **D2** — Example projects
 
@@ -103,4 +108,4 @@ Itens planeados mas ainda não iniciados, extraídos do BACKLOG:
 
 ---
 
-*Actualizado: 2026-07-09*
+*Actualizado: 2026-07-10*

@@ -23,9 +23,11 @@ import {
 import { getCapabilityFiles } from "../capability-mapping.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import { recordFeedback } from "../feedback-loops.js";
 import { readManifest, writeManifest, updateManifest } from "../manifest.js";
 import { updateSystemMapCapabilityStatus } from "../scaffolder.js";
+import { logger } from "../logger.js";
 
 const { copySync, ensureDirSync } = fse;
 
@@ -124,8 +126,8 @@ export const upgradeCommand = new Command("upgrade")
       try {
         const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8"));
         cliVersion = pkg.version || "unknown";
-      } catch {
-        // Skip
+      } catch (error) {
+        logger.debug("upgrade", "Suppressed error", { error });
       }
       const updatedManifest = updateManifest(
         currentManifest,
@@ -260,8 +262,8 @@ export const upgradeCommand = new Command("upgrade")
         try {
           const pkg = JSON.parse(readFS(join(__dirname2, "..", "..", "package.json"), "utf-8"));
           cliVersion = pkg.version || "unknown";
-        } catch {
-          // Skip
+        } catch (error) {
+          logger.debug("upgrade", "Suppressed error", { error });
         }
         const updatedManifest = updateManifest(
           currentManifest,
@@ -322,8 +324,8 @@ export const upgradeCommand = new Command("upgrade")
           }
           console.log("");
         }
-      } catch {
-        // Skip context rules on error
+      } catch (error) {
+        logger.debug("upgrade", "Suppressed error", { error });
       }
     } catch (error) {
       if (isJson) {
@@ -346,7 +348,7 @@ function updateSystemMapStatus(
   targetDir: string,
   installedCapabilities: Capability[]
 ): void {
-  const systemMapPath = join(targetDir, "nexus-system", "governance", "SYSTEM_MAP.md");
+  const systemMapPath = join(targetDir, NEXUS_DIR_NAME, "governance", "SYSTEM_MAP.md");
   if (!existsSync(systemMapPath)) return;
 
   const templatesDir = getTemplatesDir();
@@ -371,7 +373,7 @@ function updateAgentsMdWithCapabilities(
   targetDir: string,
   installedCapabilities: Capability[]
 ): void {
-  const agentsMdPath = join(targetDir, "nexus-system", "docs", "AGENTS.md");
+  const agentsMdPath = join(targetDir, NEXUS_DIR_NAME, "docs", "AGENTS.md");
   if (!existsSync(agentsMdPath)) return;
 
   const templatesDir = getTemplatesDir();

@@ -125,6 +125,10 @@ export type HealthIssueType =
   | "unused_import"
   | "magic_numbers"
   | "long_params"
+  // Security types
+  | "insecure_cors"
+  | "insecure_cookie"
+  | "weak_randomness"
   | "deep_nesting"
   | "duplicate_code"
   | "god_function"

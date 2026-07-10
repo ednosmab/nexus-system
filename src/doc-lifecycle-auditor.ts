@@ -14,6 +14,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
 import { join, relative, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
+import { NEXUS_DIR_NAME } from "./constants.js";
 import { logger } from "./logger.js";
 import { getEventBus } from "./event-bus.js";
 
@@ -620,7 +621,7 @@ export function auditDocLifecycle(projectRoot: string, nexusDir: string): DocLif
     .filter((c) => c.confidence >= 0.5)
     .map((c) => ({
       source: c.relativePath,
-      destination: join("nexus-system", "docs", c.suggestedDestination, basename(c.path)),
+      destination: join(NEXUS_DIR_NAME, "docs", c.suggestedDestination, basename(c.path)),
       docType: c.docType,
       status: c.status,
       reason: c.evidence.join("; "),

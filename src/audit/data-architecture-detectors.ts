@@ -7,6 +7,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { NEXUS_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── 5.1 Schema Consistency ──────────────────────────────────────────────────
@@ -66,7 +67,7 @@ export function detectDataOwnership(projectRoot: string): HealthIssue[] {
 
   const dataFiles = ["CONCEPTUAL_MODEL.md", "CONCEPTUAL_MODEL.yaml"];
   for (const file of dataFiles) {
-    const path = join(projectRoot, "nexus-system", "docs", file);
+    const path = join(projectRoot, NEXUS_DIR_NAME, "docs", file);
     if (!existsSync(path)) continue;
 
     const content = readFileSync(path, "utf-8");
