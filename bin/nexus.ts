@@ -40,6 +40,7 @@ import { remindersCommand } from "../src/commands/reminders.js";
 import { historyCommand } from "../src/commands/history.js";
 import { eventsCommand } from "../src/commands/events.js";
 import { contextCommand } from "../src/commands/context.js";
+import { handbookCommand } from "../src/commands/handbook.js";
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
 import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
@@ -303,6 +304,7 @@ program.addCommand(remindersCommand());
 program.addCommand(historyCommand);
 program.addCommand(eventsCommand);
 program.addCommand(contextCommand);
+program.addCommand(handbookCommand);
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 
