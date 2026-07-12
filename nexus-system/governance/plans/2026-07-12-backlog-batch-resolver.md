@@ -1,10 +1,22 @@
 # Plano — Resolver Backlog em Lote (Itens sem Dependência Humana)
 
+**Status:** In Progress
+**Updated_at:** 2026-07-12T21:57:12.417Z
+**Date:** 2026-07-12
+
 > **Data:** 2026-07-12
 > **Objetivo:** Resolver todos os itens do BACKLOG que podem ser implementados mecanicamente, sem necessidade de decisão humana (naming, branding, design, etc.)
 > **Critério de saída:** `pnpm lint` + `pnpm test` a passar, BACKLOG.md actualizado
 
 ---
+
+
+## Checklist
+
+- [ ] `pnpm lint` passa sem erros
+- [ ] `pnpm test` passa (1898+ testes)
+- [ ] BACKLOG.md actualizado com novos Done items
+- [ ] Commit + push para origin
 
 ## Itens seleccionados (ordenados por complexidade crescente)
 

@@ -25,7 +25,7 @@ import { collectContext } from "../context-collector.js";
 import { NEXUS_DIR_NAME } from "../constants.js";
 import { computeInputHash, setCachedBriefing, invalidateBriefingCache, readCache } from "../briefing-cache.js";
 import { briefingToMarkdown, briefingToJson, generateDiff, type Briefing } from "../briefing.js";
-import { compressedSummary, generateOptimizationHints, suggestDepth, type BriefingDepth } from "../token-optimizer.js";
+import { compressedSummary, differentialBriefing, generateOptimizationHints, suggestDepth, type BriefingDepth } from "../token-optimizer.js";
 
 import { outputJson, banner } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
@@ -179,6 +179,7 @@ interface BriefingOptions {
   json?: boolean;
   write?: boolean;
   diff?: boolean;
+  compact?: boolean;
   invalidate?: boolean;
   summary?: boolean;
   profile?: string;
@@ -246,16 +247,32 @@ async function runBriefing(
     // Diff mode
     if (options.diff) {
       if (previousBriefing && previousBriefing.generatedAt !== briefing.generatedAt) {
-        const diff = generateDiff(previousBriefing, briefing);
-        if (isJson) {
-          outputJson({
-            type: "diff",
-            oldTimestamp: previousBriefing.generatedAt,
-            newTimestamp: briefing.generatedAt,
-            diff,
-          });
+        // Compact mode: use differentialBriefing (~50 tokens vs ~200)
+        if (options.compact) {
+          const compactDiff = differentialBriefing(previousBriefing, briefing);
+          if (isJson) {
+            outputJson({
+              type: "diff",
+              format: "compact",
+              oldTimestamp: previousBriefing.generatedAt,
+              newTimestamp: briefing.generatedAt,
+              diff: compactDiff,
+            });
+          } else {
+            console.log(chalk.cyan(`  Compact diff: ${compactDiff}`));
+          }
         } else {
-          console.log(diff);
+          const diff = generateDiff(previousBriefing, briefing);
+          if (isJson) {
+            outputJson({
+              type: "diff",
+              oldTimestamp: previousBriefing.generatedAt,
+              newTimestamp: briefing.generatedAt,
+              diff,
+            });
+          } else {
+            console.log(diff);
+          }
         }
       } else {
         const msg = "No previous briefing to diff against.";
@@ -351,6 +368,7 @@ export function briefingCommand(): Command {
     .option("--json", "Output as JSON")
     .option("--write", "Write nexus-system/BRIEFING.md")
     .option("--diff", "Show diff since last briefing")
+    .option("--compact", "Use compact diff format (fewer tokens)")
     .option("--invalidate", "Force cache invalidation")
     .option("--summary", "One-line summary")
     .option("--profile <depth>", "Briefing depth: minimal, standard, full (default: auto)")

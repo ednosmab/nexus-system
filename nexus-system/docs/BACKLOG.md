@@ -1064,3 +1064,61 @@
 | **Modulos** | governance/plans/ |
 | **Descricao** | Plano — Corrigir Race Condition no Retroactive Scan (`plan-backlog-sync.ts`) |
 | **Correcao** | Verificar checklist no plano `governance/plans/2026-07-12-plano-fix-retroactive-scan-race.md` |
+
+
+### BACKLOG-2026_07_12_BACKLOG_BATCH_RESOLVER — Plano — Resolver Backlog em Lote (Itens sem Dependência Humana)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-12 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano — Resolver Backlog em Lote (Itens sem Dependência Humana) |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-12-backlog-batch-resolver.md` |
+
+#### Passos do Plano
+- [ ] `pnpm lint` passa sem erros
+- [ ] `pnpm test` passa (1898+ testes)
+- [ ] BACKLOG.md actualizado com novos Done items
+- [ ] Commit + push para origin
+- [ ] `pnpm lint` passa sem erros
+- [ ] `pnpm test` passa (1898+ testes)
+- [ ] BACKLOG.md actualizado com novos Done items
+- [ ] Commit + push para origin
+
+
+### BACKLOG-2026_07_12_PLANO_CORRECAO_WATCH_LOOP_E_FASE2 — Plano de Correção — Loop do `nexus watch` + Finalizar Fase 2 (LIVING-002)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-12 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Correção — Loop do `nexus watch` + Finalizar Fase 2 (LIVING-002) |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-12-plano-correcao-watch-loop-e-fase2.md` |
+
+#### Passos do Plano
+- [ ] Os 2 testes novos acima passam.
+- [ ] `pnpm test` completo continua em verde (sem regressão nos testes existentes de
+- [ ] Teste manual: `nexus watch` rodando, editar um plano real com conteúdo que dispara sync — confirmar
+- [ ] `installReactiveHooks()` implementado, testado (5 testes acima passando).
+- [ ] `nexus init` chama o instalador automaticamente — testar em projeto novo: `.git/hooks/post-commit`
+- [ ] `scheduledCheck()` implementado e testado (simular drift alto, confirmar evento publicado; simular
+- [ ] `pnpm run lint && npx tsc --noEmit && pnpm run build && npx vitest run` — tudo verde.
+- [ ] Atualizar `nexus-system/docs/BACKLOG.md` — mudar `LIVING-002` de `Status: Backlog` para
+- [ ] Os 2 testes novos acima passam.
+- [ ] `pnpm test` completo continua em verde (sem regressão nos testes existentes de
+- [ ] Teste manual: `nexus watch` rodando, editar um plano real com conteúdo que dispara sync — confirmar
+- [ ] `installReactiveHooks()` implementado, testado (5 testes acima passando).
+- [ ] `nexus init` chama o instalador automaticamente — testar em projeto novo: `.git/hooks/post-commit`
+- [ ] `scheduledCheck()` implementado e testado (simular drift alto, confirmar evento publicado; simular
+- [ ] `pnpm run lint && npx tsc --noEmit && pnpm run build && npx vitest run` — tudo verde.
+- [ ] Atualizar `nexus-system/docs/BACKLOG.md` — mudar `LIVING-002` de `Status: Backlog` para

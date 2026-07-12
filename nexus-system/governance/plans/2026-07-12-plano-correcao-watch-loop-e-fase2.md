@@ -1,10 +1,26 @@
 # Plano de Correção — Loop do `nexus watch` + Finalizar Fase 2 (LIVING-002)
 
+**Status:** In Progress
+**Updated_at:** 2026-07-12T21:57:12.421Z
+**Date:** 2026-07-12
+
 > Gerado a partir de validação real (build/lint/test + E2E) da branch `feat/nexus-living`.
 > Todas as afirmações abaixo foram reproduzidas rodando o código, não inferidas por leitura isolada.
 > Executar as correções na ordem dada — BUG-002 é bloqueante e deve ser resolvido primeiro.
 
 ---
+
+
+## Checklist
+
+- [ ] Os 2 testes novos acima passam.
+- [ ] `pnpm test` completo continua em verde (sem regressão nos testes existentes de
+- [ ] Teste manual: `nexus watch` rodando, editar um plano real com conteúdo que dispara sync — confirmar
+- [ ] `installReactiveHooks()` implementado, testado (5 testes acima passando).
+- [ ] `nexus init` chama o instalador automaticamente — testar em projeto novo: `.git/hooks/post-commit`
+- [ ] `scheduledCheck()` implementado e testado (simular drift alto, confirmar evento publicado; simular
+- [ ] `pnpm run lint && npx tsc --noEmit && pnpm run build && npx vitest run` — tudo verde.
+- [ ] Atualizar `nexus-system/docs/BACKLOG.md` — mudar `LIVING-002` de `Status: Backlog` para
 
 ## BUG-002 (CRÍTICO, bloqueante) — `nexus watch` entra em loop de eventos
 
