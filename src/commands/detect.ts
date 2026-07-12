@@ -9,6 +9,7 @@ import { getEventBus } from "../event-bus.js";
 import { recordFeedback } from "../feedback-loops.js";
 import { loadGrowthProfile } from "../growth-profile.js";
 import { formatGrowthProgress } from "../dual-path-presenter.js";
+import { checkAndArchiveDonePlans } from "../plan-lifecycle.js";
 
 export const detectCommand = new Command("detect")
   .description("Detect patterns in history and propose candidate rules (Phase 2)")
@@ -88,6 +89,20 @@ export const detectCommand = new Command("detect")
       }
 
       return;
+    }
+
+    // Step 2.4: In --auto mode, also check for Done plans to archive
+    if (isAuto) {
+      try {
+        const result = checkAndArchiveDonePlans(ctx.nexusDir);
+        if (result.archived > 0) {
+          // Log minimal info for hooks (goes to stderr which is /dev/null usually, but good practice)
+          console.error(`[nexus detect --auto] Archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
+        }
+      } catch (err) {
+        // Don't crash the hook if archiving fails
+        console.error(`[nexus detect --auto] Plan archiving failed: ${err}`);
+      }
     }
 
     const spinner = isAuto ? null : ora("Analyzing history and reports...").start();

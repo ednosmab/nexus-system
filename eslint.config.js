@@ -84,6 +84,7 @@ export default [
       "src/commands/digest.ts",
       "src/commands/plan.ts",
       "src/commands/handbook.ts",
+      "src/commands/hooks.ts",
     ],
     rules: {
       "no-restricted-imports": "off",

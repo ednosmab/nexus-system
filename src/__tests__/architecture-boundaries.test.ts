@@ -18,6 +18,7 @@ const commandsWithFsAccess = new Set([
   "doctor.ts",
   "handbook.ts",
   "plan.ts",
+  "hooks.ts",  // Hooks installer legitimately needs fs for reading/writing hook files
 ]);
 
 describe("boundary: commands do not read filesystem directly", () => {

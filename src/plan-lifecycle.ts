@@ -317,3 +317,34 @@ export async function runLifecycleReview(
 
   return result;
 }
+
+// ── Lightweight Archive (for git hooks) ───────────────────────────────────
+
+/**
+ * Lightweight check: scan all active plans and archive any with Status: Done.
+ * No user interaction, no validation — just file move + event publish.
+ * Used by: nexus detect --auto (post-commit hook).
+ *
+ * This function is idempotent: plans already in done/ are skipped.
+ */
+export function checkAndArchiveDonePlans(nexusDir: string): { checked: number; archived: number; archivedIds: string[] } {
+  const engine = new MarkdownPlanEngine(nexusDir);
+  const archivedIds: string[] = [];
+  let checked = 0;
+  let archived = 0;
+
+  for (const plan of engine.listAll()) {
+    if (!plan.isActive) continue;
+    checked++;
+    try {
+      if (engine.archiveIfDone(plan.id)) {
+        archived++;
+        archivedIds.push(plan.id);
+      }
+    } catch {
+      // Skip plans that fail (don't crash the hook)
+    }
+  }
+
+  return { checked, archived, archivedIds };
+}

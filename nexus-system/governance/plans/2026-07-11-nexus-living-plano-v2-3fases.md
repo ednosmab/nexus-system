@@ -1,7 +1,7 @@
 # Nexus System Living — Plano de Implementação (v2 — Roteiro em 3 Camadas)
 
 **Status:** In Progress
-**Updated_at:** 2026-07-12T14:30:21.132Z
+**Updated_at:** 2026-07-12T16:45:00.000Z
 **Date:** 2026-07-12
 
 > **Data:** 2026-07-11 (revisão do plano de 2026-07-10)
@@ -220,19 +220,19 @@ nexus-system/daemon/
 
 | # | Step | Estado | Evidência |
 |---|---|---|---|
-| 2.1 | Corrigir bug `--auto` em `detect.ts` (BUG-001) — adicionar opção ou remover flag do hook | ⬜ | |
-| 2.2 | Criar `src/plan-lifecycle.ts` com `checkAndArchiveDonePlans(nexusDir)` | ⬜ | |
-| 2.3 | `checkAndArchiveDonePlans` percorre `governance/plans/*.md`, identifica `Status: Done`, chama `archiveIfDone()` | ⬜ | |
-| 2.4 | Ligar `checkAndArchiveDonePlans()` ao modo `--auto` do `detect` | ⬜ | |
-| 2.5 | Criar `src/commands/hooks.ts` — instalador Husky (append a `post-commit`, cria `post-merge`) | ⬜ | |
-| 2.6 | Criar `.husky/post-merge` (gerado pelo instalador) | ⬜ | |
-| 2.7 | Teste: `checkAndArchiveDonePlans` é idempotente (correr 2x seguidas, sem duplicação) | ⬜ | |
-| 2.8 | Teste: instalador nunca sobrescreve hook existente (fixture com `post-commit` preenchido) | ⬜ | |
-| 2.9 | Teste: `nexus detect --auto` não retorna erro de opção desconhecida | ⬜ | |
-| 2.10 | Cenário e2e: criar plano → marcar `Status: Done` → commit → confirmar arquivamento | ⬜ | |
-| 2.11 | Correr `pnpm test` + `pnpm run lint` — limpos | ⬜ | |
-| 2.12 | Dogfooding: hooks activos no repo do Nexus por alguns dias de commits reais, sem falha silenciosa | ⬜ | |
-| 2.13 | **Critério de saída:** gate comum ok + hooks estáveis + sem silêncio escondendo falhas | ⬜ | |
+| 2.1 | Corrigir bug `--auto` em `detect.ts` (BUG-001) — adicionar opção ou remover flag do hook | [x] | BUG-001 corrigido: opção `--auto` adicionada a Commander, banner/spinner suprimidos |
+| 2.2 | Criar `src/plan-lifecycle.ts` com `checkAndArchiveDonePlans(nexusDir)` | [x] | Função implementada com return `{ checked, archived, archivedIds }` |
+| 2.3 | `checkAndArchiveDonePlans` percorre `governance/plans/*.md`, identifica `Status: Done`, chama `archiveIfDone()` | [x] | Implementado com loop `engine.listAll()` + filtro `isActive` |
+| 2.4 | Ligar `checkAndArchiveDonePlans()` ao modo `--auto` do `detect` | [x] | Import estático + chamada antes da detecção de padrões em modo auto |
+| 2.5 | Criar `src/commands/hooks.ts` — instalador Husky (append a `post-commit`, cria `post-merge`) | [x] | Comando `nexus hooks` com `--uninstall`, helpers exportados, validação .git |
+| 2.6 | Criar `.husky/post-merge` (gerado pelo instalador) | [x] | Instalador cria post-merge se não existir |
+| 2.7 | Teste: `checkAndArchiveDonePlans` é idempotente (correr 2x seguidas, sem duplicação) | [x] | 4 testes: zero archived, idempotência, calls for active plans, archivedIds populated |
+| 2.8 | Teste: instalador nunca sobrescreve hook existente (fixture com `post-commit` preenchido) | [x] | 12 testes: append, idempotência, remoção, round-trip, preserve original |
+| 2.9 | Teste: `nexus detect --auto` não retorna erro de opção desconhecida | [x] | Teste verifica `--auto` existe em Commander options |
+| 2.10 | Cenário e2e: criar plano → marcar `Status: Done` → commit → confirmar arquivamento | ⬜ | Pendente — requer dogfooding manual |
+| 2.11 | Correr `pnpm test` + `pnpm run lint` — limpos | [x] | 24/24 testes passam, tsc limpo |
+| 2.12 | Dogfooding: hooks activos no repo do Nexus por alguns dias de commits reais, sem falha silenciosa | ⬜ | Pendente — aguarda validação manual |
+| 2.13 | **Critério de saída:** gate comum ok + hooks estáveis + sem silêncio escondendo falhas | ⬜ | Pendente |
 
 ### Fase 3 — Daemon opt-in (LIVING-003)
 

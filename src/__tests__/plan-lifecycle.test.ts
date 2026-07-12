@@ -3,24 +3,37 @@ import {
   detectActivePlans,
   archivePlan,
   removePlan,
+  checkAndArchiveDonePlans,
   type CompletionCheck,
   type ValidationResult,
   type LifecycleResult,
 } from "../plan-lifecycle.js";
+import { detectCommand } from "../commands/detect.js";
 
 vi.mock("../markdown-plan-engine.js", () => {
   const mockList = vi.fn().mockReturnValue([
-    { id: "plan-1", status: "active", title: "Test Plan 1" },
-    { id: "plan-2", status: "done", title: "Test Plan 2" },
-    { id: "plan-3", status: "in-progress", title: "Test Plan 3" },
+    { id: "plan-1", status: "active", title: "Test Plan 1", isActive: true },
+    { id: "plan-2", status: "done", title: "Test Plan 2", isActive: false },
+    { id: "plan-3", status: "in-progress", title: "Test Plan 3", isActive: true },
+  ]);
+  const mockListAll = vi.fn().mockReturnValue([
+    { id: "plan-1", status: "andamento", title: "Test Plan 1", isActive: true },
+    { id: "plan-2", status: "done", title: "Test Plan 2", isActive: false },
+    { id: "plan-3", status: "andamento", title: "Test Plan 3", isActive: true },
   ]);
   const mockUpdate = vi.fn();
+  const mockArchiveIfDone = vi.fn().mockImplementation((id: string) => {
+    // Only archive plan-1 if it has status done
+    return id === "plan-archive-me";
+  });
   return {
     MarkdownPlanEngine: vi.fn(function () {
-      return { list: mockList, updateStatus: mockUpdate };
+      return { list: mockList, listAll: mockListAll, updateStatus: mockUpdate, archiveIfDone: mockArchiveIfDone };
     }),
     __mockList: mockList,
+    __mockListAll: mockListAll,
     __mockUpdate: mockUpdate,
+    __mockArchiveIfDone: mockArchiveIfDone,
   };
 });
 
@@ -107,5 +120,58 @@ describe("type exports", () => {
   it("LifecycleResult type is usable", () => {
     const result: LifecycleResult = { active: 1, archived: 0, removed: 0, skipped: 0 };
     expect(result.active).toBe(1);
+  });
+});
+
+// ── checkAndArchiveDonePlans ──────────────────────────────────────────────
+
+describe("checkAndArchiveDonePlans", () => {
+  it("returns zero archived when no plans have Status: Done", () => {
+    const result = checkAndArchiveDonePlans("/nexus");
+    expect(result.checked).toBeGreaterThanOrEqual(0);
+    expect(result.archived).toBe(0);
+    expect(result.archivedIds).toHaveLength(0);
+  });
+
+  it("is idempotent: running twice does not duplicate work", () => {
+    const result1 = checkAndArchiveDonePlans("/nexus");
+    const result2 = checkAndArchiveDonePlans("/nexus");
+    expect(result1.checked).toBe(result2.checked);
+    expect(result1.archived).toBe(result2.archived);
+  });
+
+  it("calls archiveIfDone for each active plan", async () => {
+    checkAndArchiveDonePlans("/nexus");
+    const mod = await import("../markdown-plan-engine.js") as any;
+    expect(mod.__mockArchiveIfDone).toHaveBeenCalledWith("plan-1");
+    expect(mod.__mockArchiveIfDone).toHaveBeenCalledWith("plan-3");
+  });
+
+  it("skips inactive plans (already in done/)", async () => {
+    checkAndArchiveDonePlans("/nexus");
+    const mod = await import("../markdown-plan-engine.js") as any;
+    // plan-2 has isActive: false — should NOT be called
+    expect(mod.__mockArchiveIfDone).not.toHaveBeenCalledWith("plan-2");
+  });
+
+  it("populates archivedIds when archiveIfDone returns true", async () => {
+    const mod = await import("../markdown-plan-engine.js") as any;
+    // Make mockArchiveIfDone return true for plan-3
+    mod.__mockArchiveIfDone.mockImplementation((id: string) => id === "plan-3");
+
+    const result = checkAndArchiveDonePlans("/nexus");
+    expect(result.archived).toBe(1);
+    expect(result.archivedIds).toContain("plan-3");
+  });
+});
+
+// ── Step 2.9: nexus detect --auto doesn't error on unknown option ──────────
+
+describe("Step 2.9: detect --auto option", () => {
+  it("detectCommand accepts --auto option without Commander error", () => {
+    // If Commander.js rejects --auto, this would throw an error
+    // The fact that detectCommand is defined with .option("--auto", ...) means it's valid
+    const opts = detectCommand.options.map((o) => o.long || o.short);
+    expect(opts).toContain("--auto");
   });
 });
