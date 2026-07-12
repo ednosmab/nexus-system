@@ -19,8 +19,18 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { banner } from "../formatting.js";
 
+function findProjectRoot(startDir: string): string {
+  let dir = startDir;
+  while (true) {
+    if (existsSync(join(dir, "package.json"))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) throw new Error("Could not find project root");
+    dir = parent;
+  }
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const HANDBOOK_ROOT = join(__dirname, "..", "docs", "handbook");
+const HANDBOOK_ROOT = join(findProjectRoot(__dirname), "docs", "handbook");
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
