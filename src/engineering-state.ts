@@ -459,43 +459,75 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
 
 // ── Entropy Calculation ────────────────────────────────────────────────────
 
-/** Calculate organizational entropy metrics. */
-function calculateEntropy(
-  assets: EngineeringAsset[],
-  relations: Relation[]
-): { orphanedAssets: number; staleAssets: number; missingDependencies: number; score: number } {
-  const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+// ── Stale thresholds por tipo de asset ──────────────────────────────────────
+const STALE_THRESHOLDS_DAYS: Record<AssetType, number> = {
+  plan: 15,
+  checklist: 15,
+  prompt: 15,
+  decision: 15,
+  doc: 30,
+  contract: 30,
+  runbook: 30,
+  context: 30,
+  sdr: 30,
+  script: 30,
+  feedback: 30,
+  rule: 45,
+  workflow: 45,
+  skill: 45,
+  policy: 180,
+  adr: 180,
+  template: 180,
+  report: Infinity,
+};
 
-  // Find orphaned assets (no relations in or out)
+const ORPHAN_EXEMPT_TYPES = new Set<AssetType>(["report", "doc", "adr", "policy"]);
+
+function orphanWeightFor(lifecycle: NexusLifecycleState): number {
+  if (lifecycle === "uninitialized" || lifecycle === "discovered") return 20;
+  if (lifecycle === "governed" || lifecycle === "evolved") return 45;
+  return 40; // "assessed"
+}
+
+/** Calculate organizational entropy metrics. */
+export function calculateEntropy(
+  assets: EngineeringAsset[],
+  relations: Relation[],
+  lifecycle: NexusLifecycleState
+): { orphanedAssets: number; staleAssets: number; missingDependencies: number; score: number } {
+  const now = Date.now();
+
   const connectedIds = new Set<string>();
   for (const r of relations) {
     connectedIds.add(r.source);
     connectedIds.add(r.target);
   }
-  const orphanedAssets = assets.filter((a) => !connectedIds.has(a.id) && a.type !== "report" && a.type !== "doc").length;
 
-  // Find stale assets (not updated in 30+ days)
+  const orphanedAssets = assets.filter(
+    (a) => !connectedIds.has(a.id) && !ORPHAN_EXEMPT_TYPES.has(a.type)
+  ).length;
+
   const staleAssets = assets.filter((a) => {
-    const updated = new Date(a.updatedAt);
-    return updated < thirtyDaysAgo && a.status === "active";
+    const thresholdDays = STALE_THRESHOLDS_DAYS[a.type] ?? 30;
+    if (!isFinite(thresholdDays)) return false;
+    const thresholdMs = thresholdDays * 24 * 60 * 60 * 1000;
+    return now - new Date(a.updatedAt).getTime() > thresholdMs && a.status === "active";
   }).length;
 
-  // Find missing dependencies (assets referencing non-existent targets)
   const assetIds = new Set(assets.map((a) => a.id));
   const missingDependencies = assets.filter((a) =>
     a.dependencies.some((dep) => !assetIds.has(dep))
   ).length;
 
-  // Entropy score: 0 = perfect order, 100 = maximum entropy
   const totalAssets = assets.length || 1;
+  const orphanWeight = orphanWeightFor(lifecycle);
+  const staleWeight = 100 - orphanWeight - 30;
+
   const orphanRatio = orphanedAssets / totalAssets;
   const staleRatio = staleAssets / totalAssets;
   const depRatio = missingDependencies / totalAssets;
 
-  const score = Math.round(
-    (orphanRatio * 40 + staleRatio * 30 + depRatio * 30) * 100
-  );
+  const score = Math.round(orphanRatio * orphanWeight + staleRatio * staleWeight + depRatio * 30);
 
   return {
     orphanedAssets,
@@ -576,7 +608,7 @@ export function consolidateEngineeringState(
   }
 
   // Entropy
-  const entropy = calculateEntropy(assets, relations);
+  const entropy = calculateEntropy(assets, relations, lifecycle);
 
   // Asset counts
   const assetsByType = {} as Record<AssetType, number>;

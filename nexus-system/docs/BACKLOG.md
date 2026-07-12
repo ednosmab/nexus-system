@@ -926,6 +926,7 @@
 | 3.55 | I2 Locale detection | Baixo | Detectar idioma do sistema automaticamente |
 | 3.56 | I3 Translation management | Baixo | i18n framework (i18next ou similar) |
 | 3.57 | G7 Product Hunt launch | Baixo | Preparar materiais para Product Hunt |
+| 3.58 | LIVING-008 Semantic Entropy Drift | Medio | Calcular entropia de forma semantica (deriva de conteudo vs realidade do sistema) em vez de mtime via IA/correlation-engine |
 
 ---
 

@@ -286,6 +286,22 @@ describe("calculateSignificance", () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(1);
   });
+
+  it("does not trigger sync for files inside docs/generated/ (BUG-002, full pipeline)", () => {
+    const tracker = new ChangeHistoryTracker();
+    const filePath = `${NEXUS}/docs/generated/ARCHITECTURE.md`;
+
+    const result = calculateSignificance(
+      filePath,
+      NEXUS,
+      null,
+      "# Conteúdo gerado\n".repeat(50),
+      tracker.recordChange(filePath)
+    );
+
+    expect(result.shouldSync).toBe(false);
+    expect(result.level).toBe("ignore");
+  });
 });
 
 // ── ChangeHistoryTracker ───────────────────────────────────────────────────
