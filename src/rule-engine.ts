@@ -441,6 +441,14 @@ async function executeAction(
           .substring(0, 200);
         const priority = String(action.params.priority || "medium");
         const category = String(action.params.category || "feature");
+
+        // Deduplication: skip if reminder with same message already exists
+        const escapedReminder = reminder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const dedupeRegex = new RegExp(`^- message: "${escapedReminder}"`, "m");
+        if (dedupeRegex.test(content)) {
+          return { success: true, message: `Reminder already exists: ${reminder} — skipped` };
+        }
+
         const createdAt = new Date().toISOString();
         content = content.replace(
           /^reminders:\s*\n/,

@@ -33,8 +33,14 @@ Formato OBRIGATÓRIO (copiar exactamente):
 │ Dívidas P1: <lista ou "Nenhuma">                            │
 │ Impedimentos: <lista ou "Nenhum">                           │
 │ Estado última sessão: <estado>                               │
+│ 📚 Handbook: <template detectado? "Sim — X campos pendentes" ou "Nenhum template"> │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Nota sobre Handbook:** Se existir `docs/handbook/*.template.md`, mostrar:
+- `Sim — X campos semânticos por preencher`
+- Se RULE-HB-001 está activa, adicionar: `Reminder: Revisar partes filosóficas`
+- Se não existir template: `Nenhum template detectado`
 
 ### PASSO 3: Validar Exibição
 APÓS exibir o Quick Board, confirmar internamente:
@@ -68,6 +74,7 @@ Antes de enviar qualquer resposta, o agente DEVE verificar:
 - [ ] Todos os campos preenchidos? ✅/❌
 - [ ] Data correcta? ✅/❌
 - [ ] Formato exacto (sem variações)? ✅/❌
+- [ ] Secção Handbook preenchida (se template existe)? ✅/❌
 
 **Se QUALQUER item for ❌, NÃO ENVIAR A RESPOSTA. Corrigir primeiro.**
 

@@ -66,7 +66,13 @@
 │   docs/feedback/
 │   docs/feedback/README.md
 │   docs/generated/
+│   docs/generated/ARCHITECTURE.md
+│   docs/generated/ASSET_INDEX.md
+│   docs/generated/CAPABILITY_REPORT.md
+│   docs/generated/HEALTH_REPORT.md
 │   docs/generated/README.md
+│   docs/generated/SYSTEM_MAP.md
+│   docs/generated/_metadata.json
 │   docs/history/
 │   docs/history/2026-07-01-rule-session_close.md
 │   docs/history/2026-07-01.md
@@ -87,6 +93,8 @@
 │   docs/history/2026-07-10-rule-session_end_plans.md
 │   docs/history/2026-07-11-rule-session_close.md
 │   docs/history/2026-07-11-rule-session_end_plans.md
+│   docs/history/2026-07-12-rule-session_close.md
+│   docs/history/2026-07-12-rule-session_end_plans.md
 │   docs/opencode-context.md
 │   docs/rules/
 │   docs/rules/agent-modes.md
@@ -108,6 +116,7 @@
 │   docs/skills/design_patterns.md
 │   docs/skills/domain_driven_design_(ddd).md
 │   docs/skills/error_handling_observability.md
+│   docs/skills/handbook-fill.md
 │   docs/skills/nextjs_performance_seo.md
 │   docs/skills/operacao_no_nexus.md
 │   docs/skills/optimistic_ui.md
@@ -162,6 +171,12 @@
 │   feedback/records/2026-07-06-FB-1783342970951-l7wpgv.json
 │   feedback/records/2026-07-06-FB-1783342970951-xtv9jj.json
 │   feedback/records/2026-07-11-FB-1783788365197-5iveda.json
+│   feedback/records/2026-07-11-FB-1783790906179-85p420.json
+│   feedback/records/2026-07-11-FB-1783811040070-9j6fsc.json
+│   feedback/records/2026-07-11-FB-1783813017771-bcdsyv.json
+│   feedback/records/2026-07-12-FB-1783815175014-lspcyd.json
+│   feedback/records/2026-07-12-FB-1783816512487-zuddqf.json
+│   feedback/records/2026-07-12-FB-1783816816773-z56vv5.json
 │   feedback/summary.json
 │   fingerprint.json
 │   governance/
@@ -185,7 +200,10 @@
 │   governance/plans/
 │   governance/plans/2026-07-02-nexus-dashboard-restructure.md
 │   governance/plans/2026-07-11-nexus-living-plano-v2-3fases.md
+│   governance/plans/PLAN-DYNAMIC-RULE-ADAPTATION.md
+│   governance/plans/PLAN-HANDBOOK-SYNC.md
 │   governance/plans/README.md
+│   governance/plans/TEMPLATE.md
 │   governance/plans/done/
 │   governance/plans/done/2026-07-02-init-audit-dashboard.md
 │   governance/plans/done/2026-07-02-nexus-dashboard-restructure.md
@@ -218,6 +236,10 @@
 │   governance/plans/done/plano-correcao-nexus-audit.md
 │   governance/plans/done/production-readiness.md
 │   governance/plans/done/unified-execution.md
+│   governance/plans/governance/
+│   governance/plans/governance/plans/
+│   governance/plans/governance/plans/done/
+│   governance/plans/governance/plans/reference/
 │   governance/plans/pipeline/
 │   governance/plans/pipeline/_template.md
 │   governance/plans/pipeline/living-fase1-cache.md
@@ -247,6 +269,7 @@
 │   governance/rules/RULE-017.json
 │   governance/rules/RULE-018.json
 │   governance/rules/RULE-019.json
+│   governance/rules/RULE-HB-001.json
 │   governance/rules/RULE-TEMPLATE.json
 │   history/
 │   history/snapshots/
@@ -275,6 +298,7 @@
 │   reports/complexity-nexus-cli-2026-07-03-session2.json
 │   reports/complexity-nexus-cli-2026-07-03-session3.json
 │   reports/complexity-nexus-cli-2026-07-08-session1.json
+│   reports/complexity-nexus-cli-2026-07-11-session1.json
 │   reports/doc-lifecycle-2026-07-03.json
 │   reports/doc-lifecycle-2026-07-04.json
 │   reports/doc-lifecycle-2026-07-05.json
@@ -284,13 +308,16 @@
 │   reports/doc-lifecycle-2026-07-09.json
 │   reports/doc-lifecycle-2026-07-10.json
 │   reports/doc-lifecycle-2026-07-11.json
+│   reports/doc-lifecycle-2026-07-12.json
 │   reports/doc-sync-2026-07-11.json
+│   reports/doc-sync-2026-07-12.json
 │   reports/health-2026-06-30.json
 │   reports/health-2026-07-03.json
 │   reports/health-2026-07-04.json
 │   reports/health-2026-07-06.json
 │   reports/health-2026-07-09.json
 │   reports/patterns-2026-07-11.json
+│   reports/patterns-2026-07-12.json
 │   scripts/
 │   scripts/backlog.ts
 │   scripts/close-session.ts
@@ -314,6 +341,7 @@
 │   telemetry/events-2026-07-09.jsonl
 │   telemetry/events-2026-07-10.jsonl
 │   telemetry/events-2026-07-11.jsonl
+│   telemetry/events-2026-07-12.jsonl
 │   telemetry/maturity-2026-06-30.json
 │   telemetry/maturity-2026-07-01.json
 │   telemetry/maturity-2026-07-06.json
