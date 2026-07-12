@@ -1,8 +1,9 @@
 /**
- * sidebar.tsx — Tree view of handbook levels and topics
+ * sidebar.tsx — Fixed tree view of handbook levels and topics
  *
- * Displays expandable levels with nested topics.
- * Supports keyboard navigation and mouse click (via raw stdin SGR parsing).
+ * Renders a bounded list of items within a maxVisibleItems viewport.
+ * Items outside the viewport are hidden (simulated scroll).
+ * The sidebar stays fixed while content scrolls independently.
  */
 
 import { Box, Text } from "ink";
@@ -11,24 +12,43 @@ import type { NavItem } from "../hooks/use-handbook-nav.js";
 interface SidebarProps {
   items: NavItem[];
   selectedIndex: number;
+  scrollOffset: number;
+  maxVisibleItems: number;
 }
 
-export function Sidebar({ items, selectedIndex }: SidebarProps) {
+export function Sidebar({ items, selectedIndex, scrollOffset, maxVisibleItems }: SidebarProps) {
+  const visibleItems = items.slice(scrollOffset, scrollOffset + maxVisibleItems);
+  const hasMoreAbove = scrollOffset > 0;
+  const hasMoreBelow = scrollOffset + maxVisibleItems < items.length;
+
   return (
-    <Box flexDirection="column" width="40%">
+    <Box flexDirection="column" width="40%" height="100%">
       <Box marginBottom={1}>
         <Text bold color="cyan">
           Handbook
         </Text>
       </Box>
 
-      {items.map((item, index) => (
-        <SidebarItem
-          key={`${item.type}-${item.levelNumber}-${item.topic?.id}-${item.isExpanded}`}
-          item={item}
-          isSelected={index === selectedIndex}
-        />
-      ))}
+      <Box flexDirection="column" flexGrow={1}>
+        {hasMoreAbove && (
+          <Text dimColor>{`  ▲ ${scrollOffset} mais acima`}</Text>
+        )}
+
+        {visibleItems.map((item, index) => {
+          const realIndex = scrollOffset + index;
+          return (
+            <SidebarItem
+              key={`${item.type}-${item.levelNumber}-${item.topic?.id}-${item.isExpanded}`}
+              item={item}
+              isSelected={realIndex === selectedIndex}
+            />
+          );
+        })}
+
+        {hasMoreBelow && (
+          <Text dimColor>{`  ▼ ${items.length - scrollOffset - maxVisibleItems} mais abaixo`}</Text>
+        )}
+      </Box>
     </Box>
   );
 }
@@ -42,39 +62,27 @@ function SidebarItem({ item, isSelected }: SidebarItemProps) {
   if (item.type === "level") {
     const arrow = item.isExpanded ? "▼" : "▶";
     return (
-      <Box flexDirection="column">
-        <Box paddingLeft={0}>
-          <Text
-            bold
-            color={isSelected ? "blue" : undefined}
-            inverse={isSelected}
-          >
-            {` ${arrow} ${item.levelNumber} — ${item.levelName}`}
-          </Text>
-        </Box>
-        {isSelected && (
-          <Box paddingLeft={2}>
-            <Text dimColor>{item.levelName}</Text>
-          </Box>
-        )}
+      <Box paddingLeft={0}>
+        <Text
+          bold
+          color={isSelected ? "blue" : undefined}
+          inverse={isSelected}
+        >
+          {` ${arrow} ${item.levelNumber} — ${item.levelName}`}
+        </Text>
       </Box>
     );
   }
 
   if (item.type === "topic" && item.topic) {
     return (
-      <Box flexDirection="column" paddingLeft={2}>
+      <Box paddingLeft={2}>
         <Text
           color={isSelected ? "blue" : undefined}
           inverse={isSelected}
         >
           {` ▸ ${item.topic.title}`}
         </Text>
-        {isSelected && (
-          <Box paddingLeft={2}>
-            <Text dimColor>{item.topic.description}</Text>
-          </Box>
-        )}
       </Box>
     );
   }

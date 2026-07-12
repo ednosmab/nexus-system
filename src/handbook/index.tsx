@@ -1,8 +1,10 @@
 /**
  * index.tsx — Interactive Handbook TUI
  *
- * Main entry point for the interactive handbook.
- * Uses Ink (React for terminals) with mouse and keyboard support.
+ * Two-panel layout with independent scroll contexts:
+ * - Sidebar (left, 40%): tree navigation with its own scroll
+ * - Content (right, 60%): markdown content with its own scroll
+ *
  * Mouse handling via useInput — Ink passes mouse bytes through as input
  * because they don't match any key patterns.
  *
@@ -15,7 +17,7 @@
 
 import { useState, useEffect } from "react";
 import { appendFileSync } from "node:fs";
-import { Box, useInput, useApp } from "ink";
+import { Box, useInput, useApp, useWindowSize } from "ink";
 import { useHandbookNav } from "./hooks/use-handbook-nav.js";
 import { Sidebar } from "./components/sidebar.js";
 import { Content } from "./components/content.js";
@@ -29,10 +31,25 @@ function dbg(msg: string) {
 // SGR mouse regex — ESC optional because Ink strips it
 const SGR_MOUSE = /\x1b?\[<(\d+);(\d+);(\d+)([Mm])/;
 
+// Reserved lines: footer (1 line border + 1 line content)
+const FOOTER_LINES = 2;
+// Reserved lines: sidebar title (1 line text + 1 line marginBottom)
+const SIDEBAR_TITLE_LINES = 2;
+// Max scroll indicators shown in sidebar (▲ and/or ▼)
+const SIDEBAR_INDICATOR_LINES = 2;
+// Content overhead: title(1) + levelName(1) + marginBottom(1) + padding(2) + counter(2)
+const CONTENT_OVERHEAD = 7;
+
 function HandbookInner() {
   const { exit } = useApp();
   const nav = useHandbookNav();
   const [contentScrollOffset, setContentScrollOffset] = useState(0);
+  const { rows: terminalHeight } = useWindowSize();
+
+  // Sidebar: total - footer - title - scroll indicators, clamped to at least 3
+  const sidebarMaxVisible = Math.max(3, terminalHeight - FOOTER_LINES - SIDEBAR_TITLE_LINES - SIDEBAR_INDICATOR_LINES);
+  // Content: total - footer - content overhead (title, padding, counter)
+  const contentViewportHeight = Math.max(3, terminalHeight - FOOTER_LINES - CONTENT_OVERHEAD);
 
   // ── Enable mouse tracking (clicks only, no motion) ────────────────────
   useEffect(() => {
@@ -68,21 +85,24 @@ function HandbookInner() {
       if (btnNum >= 64 && btnNum <= 65 && action === "M") {
         const direction = btnNum === 64 ? -1 : 1;
         if (nav.viewMode === "content") {
+          // Content scroll
           setContentScrollOffset((p) => Math.max(0, p + direction));
         } else {
-          if (direction < 0) nav.moveUp();
-          else nav.moveDown();
+          // Sidebar: wheel moves selection, viewport follows
+          if (direction < 0) nav.moveUp(sidebarMaxVisible);
+          else nav.moveDown(sidebarMaxVisible);
         }
         return;
       }
 
       // Left click
       if (btnNum === 0 && action === "M") {
-        const HEADER_LINES = 2;
-        const rowIndex = Number(row) - HEADER_LINES - 1;
-        dbg(`CLICK: row=${row} rowIndex=${rowIndex} totalItems=${nav.totalItems}`);
-        if (rowIndex >= 0 && rowIndex < nav.totalItems) {
-          nav.selectAt(rowIndex);
+        const rowIndex = Number(row) - SIDEBAR_TITLE_LINES - 1;
+        dbg(`CLICK: row=${row} rowIndex=${rowIndex} totalItems=${nav.totalItems} sidebarScroll=${nav.sidebarScrollOffset}`);
+        // Map visible row to nav index via sidebar scroll offset
+        const navIndex = rowIndex + nav.sidebarScrollOffset;
+        if (rowIndex >= 0 && navIndex < nav.totalItems) {
+          nav.selectAt(navIndex, sidebarMaxVisible);
           setContentScrollOffset(0);
         }
       }
@@ -91,8 +111,8 @@ function HandbookInner() {
 
     // ── Tree mode keyboard navigation ─────────────────────────────────
     if (nav.viewMode === "tree") {
-      if (key.upArrow) { nav.moveUp(); return; }
-      if (key.downArrow) { nav.moveDown(); return; }
+      if (key.upArrow) { nav.moveUp(sidebarMaxVisible); return; }
+      if (key.downArrow) { nav.moveDown(sidebarMaxVisible); return; }
       if (key.return || input === " ") {
         nav.selectCurrent();
         setContentScrollOffset(0);
@@ -123,11 +143,14 @@ function HandbookInner() {
         <Sidebar
           items={nav.navItems}
           selectedIndex={nav.selectedIndex}
+          scrollOffset={nav.sidebarScrollOffset}
+          maxVisibleItems={sidebarMaxVisible}
         />
         <Content
           topic={nav.selectedTopic}
           content={nav.content}
           scrollOffset={contentScrollOffset}
+          maxVisibleLines={contentViewportHeight}
         />
       </Box>
       <Footer viewMode={nav.viewMode} />

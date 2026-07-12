@@ -141,6 +141,7 @@ export interface HandbookNavState {
   levels: HandbookLevel[];
   expandedLevel: number | null;
   selectedIndex: number;
+  sidebarScrollOffset: number;
   selectedTopic: HandbookTopic | null;
   content: string | null;
   navItems: NavItem[];
@@ -155,6 +156,7 @@ export function useHandbookNav() {
     levels,
     expandedLevel: null,
     selectedIndex: 0,
+    sidebarScrollOffset: 0,
     selectedTopic: null,
     content: null,
     navItems: buildNavItems(levels, null, 0),
@@ -169,6 +171,7 @@ export function useHandbookNav() {
         ...prev,
         expandedLevel: newExpanded,
         selectedIndex: 0,
+        sidebarScrollOffset: 0,
         navItems: newNavItems,
         totalItems: newNavItems.length,
         viewMode: "tree",
@@ -178,18 +181,40 @@ export function useHandbookNav() {
     });
   }, []);
 
-  const moveUp = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      selectedIndex: Math.max(0, prev.selectedIndex - 1),
-    }));
+  const moveUp = useCallback((maxVisible?: number) => {
+    setState((prev) => {
+      const newSelected = Math.max(0, prev.selectedIndex - 1);
+      const viewport = maxVisible ?? Infinity;
+      let newScroll = prev.sidebarScrollOffset;
+      if (newSelected < newScroll) {
+        newScroll = newSelected;
+      } else if (newSelected >= newScroll + viewport) {
+        newScroll = newSelected - viewport + 1;
+      }
+      return {
+        ...prev,
+        selectedIndex: newSelected,
+        sidebarScrollOffset: newScroll,
+      };
+    });
   }, []);
 
-  const moveDown = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      selectedIndex: Math.min(prev.totalItems - 1, prev.selectedIndex + 1),
-    }));
+  const moveDown = useCallback((maxVisible?: number) => {
+    setState((prev) => {
+      const newSelected = Math.min(prev.totalItems - 1, prev.selectedIndex + 1);
+      const viewport = maxVisible ?? Infinity;
+      let newScroll = prev.sidebarScrollOffset;
+      if (newSelected < newScroll) {
+        newScroll = newSelected;
+      } else if (newSelected >= newScroll + viewport) {
+        newScroll = newSelected - viewport + 1;
+      }
+      return {
+        ...prev,
+        selectedIndex: newSelected,
+        sidebarScrollOffset: newScroll,
+      };
+    });
   }, []);
 
   const selectCurrent = useCallback(() => {
@@ -207,6 +232,7 @@ export function useHandbookNav() {
           expandedLevel: newExpanded,
           navItems: newNavItems,
           totalItems: newNavItems.length,
+          sidebarScrollOffset: 0,
           viewMode: "tree",
           selectedTopic: null,
           content: null,
@@ -227,7 +253,7 @@ export function useHandbookNav() {
     });
   }, []);
 
-  const selectAt = useCallback((index: number) => {
+  const selectAt = useCallback((index: number, maxVisible?: number) => {
     setState((prev) => {
       const currentItem = prev.navItems[index];
       if (!currentItem) return prev;
@@ -237,9 +263,14 @@ export function useHandbookNav() {
           ? null
           : currentItem.levelNumber;
         const newNavItems = buildNavItems(prev.levels, newExpanded, index);
+        const viewport = maxVisible ?? Infinity;
+        let newScroll = prev.sidebarScrollOffset;
+        if (index < newScroll) newScroll = index;
+        else if (index >= newScroll + viewport) newScroll = index - viewport + 1;
         return {
           ...prev,
           selectedIndex: index,
+          sidebarScrollOffset: newScroll,
           expandedLevel: newExpanded,
           navItems: newNavItems,
           totalItems: newNavItems.length,
@@ -270,6 +301,7 @@ export function useHandbookNav() {
         return {
           ...prev,
           viewMode: "tree",
+          sidebarScrollOffset: 0,
           selectedTopic: null,
           content: null,
         };
@@ -293,6 +325,7 @@ export function useHandbookNav() {
         ...prev,
         expandedLevel: newExpanded,
         selectedIndex: firstTopicIndex >= 0 ? firstTopicIndex : 0,
+        sidebarScrollOffset: 0,
         navItems: newNavItems,
         totalItems: newNavItems.length,
         viewMode: "tree",
@@ -317,6 +350,13 @@ export function useHandbookNav() {
     });
   }, []);
 
+  const setSidebarScroll = useCallback((offset: number) => {
+    setState((prev) => ({
+      ...prev,
+      sidebarScrollOffset: Math.max(0, offset),
+    }));
+  }, []);
+
   return {
     ...state,
     expandLevel,
@@ -327,5 +367,6 @@ export function useHandbookNav() {
     goBack,
     jumpToLevel,
     selectTopicById,
+    setSidebarScroll,
   };
 }

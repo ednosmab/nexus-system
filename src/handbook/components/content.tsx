@@ -2,7 +2,7 @@
  * content.tsx — Markdown content renderer for handbook topics
  *
  * Displays the content of a selected handbook topic.
- * Supports scrolling and keyboard navigation.
+ * Supports scrolling within its own viewport (isolated from sidebar scroll).
  */
 
 import { Box, Text } from "ink";
@@ -12,9 +12,10 @@ interface ContentProps {
   topic: HandbookTopic | null;
   content: string | null;
   scrollOffset: number;
+  maxVisibleLines: number;
 }
 
-export function Content({ topic, content, scrollOffset }: ContentProps) {
+export function Content({ topic, content, scrollOffset, maxVisibleLines }: ContentProps) {
   if (!topic || !content) {
     return (
       <Box flexDirection="column" width="60%" padding={1}>
@@ -24,7 +25,7 @@ export function Content({ topic, content, scrollOffset }: ContentProps) {
           </Text>
         </Box>
         <Text dimColor>
-          Selecione um tópico na barra lateral para ver o conteúdo.
+          Selecione um topico na barra lateral para ver o conteudo.
         </Text>
         <Box marginTop={1}>
           <Text dimColor>
@@ -36,29 +37,29 @@ export function Content({ topic, content, scrollOffset }: ContentProps) {
   }
 
   const lines = content.split("\n");
-  const visibleLines = lines.slice(scrollOffset, scrollOffset + 30);
+  const visibleLines = lines.slice(scrollOffset, scrollOffset + maxVisibleLines);
 
   return (
-    <Box flexDirection="column" width="60%" padding={1}>
+    <Box flexDirection="column" width="60%" padding={1} flexGrow={1}>
       <Box marginBottom={1} flexDirection="column">
         <Text bold color="cyan">
           {topic.title}
         </Text>
         <Text dimColor>
-          Nível {topic.level} — {topic.levelName}
+          Nivel {topic.level} — {topic.levelName}
         </Text>
       </Box>
 
-      <Box flexDirection="column">
+      <Box flexDirection="column" flexGrow={1}>
         {visibleLines.map((line, index) => (
           <ContentLine key={`${scrollOffset}-${index}`} line={line} />
         ))}
       </Box>
 
-      {lines.length > 30 && (
+      {lines.length > maxVisibleLines && (
         <Box marginTop={1}>
           <Text dimColor>
-            Linhas {scrollOffset + 1}-{Math.min(scrollOffset + 30, lines.length)} de {lines.length}
+            Linhas {scrollOffset + 1}-{Math.min(scrollOffset + maxVisibleLines, lines.length)} de {lines.length}
           </Text>
         </Box>
       )}
