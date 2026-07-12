@@ -3,96 +3,98 @@
  *
  * Main entry point for the interactive handbook.
  * Uses Ink (React for terminals) with mouse and keyboard support.
+ * Mouse handling via useInput — Ink passes mouse bytes through as input
+ * because they don't match any key patterns.
+ *
+ * Based on: https://github.com/htlin222/mcq-tui/wiki/Mouse-Support-in-Ink
  *
  * Usage:
  *   nexus handbook          # Interactive mode
  *   nexus handbook --print  # Print mode (non-interactive)
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { appendFileSync } from "node:fs";
 import { Box, useInput, useApp } from "ink";
-import { MouseProvider } from "@ink-tools/ink-mouse";
 import { useHandbookNav } from "./hooks/use-handbook-nav.js";
 import { Sidebar } from "./components/sidebar.js";
 import { Content } from "./components/content.js";
 import { Footer } from "./components/footer.js";
+
+const DEBUG = "/tmp/handbook-mouse-debug.log";
+function dbg(msg: string) {
+  appendFileSync(DEBUG, `[${new Date().toISOString()}] ${msg}\n`);
+}
+
+// SGR mouse regex — ESC optional because Ink strips it
+const SGR_MOUSE = /\x1b?\[<(\d+);(\d+);(\d+)([Mm])/;
 
 function HandbookInner() {
   const { exit } = useApp();
   const nav = useHandbookNav();
   const [contentScrollOffset, setContentScrollOffset] = useState(0);
 
-  // ── Keyboard Navigation ────────────────────────────────────────────────
+  // ── Enable mouse tracking (clicks only, no motion) ────────────────────
+  useEffect(() => {
+    dbg("Enabling mouse: ?1000h ?1006h");
+    process.stdout.write("\x1B[?1000h\x1B[?1006h");
+    return () => {
+      dbg("Disabling mouse: ?1006l ?1000l");
+      process.stdout.write("\x1B[?1006l\x1B[?1000l");
+    };
+  }, []);
 
+  // ── Keyboard + Mouse via useInput ─────────────────────────────────────
   useInput((input, key) => {
+    // Log ALL input for debugging
+    const hex = Buffer.from(input).toString("hex");
+    const printable = input.length === 1 && input >= " " && input <= "~";
+    dbg(`INPUT len=${input.length} hex=${hex} printable=${printable} key=${JSON.stringify({ up: key.upArrow, down: key.downArrow, ret: key.return, esc: key.escape })}`);
+
     // Quit
     if (input === "q" || (key.ctrl && input === "c")) {
+      process.stdout.write("\x1B[?1006l\x1B[?1000l");
       exit();
       return;
     }
 
-    // Tree mode navigation
-    if (nav.viewMode === "tree") {
-      // Move up/down
-      if (key.upArrow) {
-        nav.moveUp();
-        return;
+    // ── Mouse click (SGR format) ──────────────────────────────────────
+    const mouseMatch = SGR_MOUSE.exec(input);
+    if (mouseMatch) {
+      const [, btn, col, row, action] = mouseMatch;
+      if (btn && col && row && action === "M" && Number(btn) === 0) {
+        const clickRow = Number(row);
+        const totalHeight = process.stdout.rows || 24;
+        const firstItemRow = totalHeight - nav.totalItems;
+        const rowIndex = clickRow - firstItemRow;
+        dbg(`CLICK: row=${clickRow} totalH=${totalHeight} firstItem=${firstItemRow} idx=${rowIndex} totalItems=${nav.totalItems}`);
+        if (rowIndex >= 0 && rowIndex < nav.totalItems) {
+          nav.selectAt(rowIndex);
+          setContentScrollOffset(0);
+        }
       }
-      if (key.downArrow) {
-        nav.moveDown();
-        return;
-      }
-
-      // Select/expand
-      if (key.return) {
-        nav.selectCurrent();
-        setContentScrollOffset(0);
-        return;
-      }
-
-      // Space to expand level
-      if (input === " ") {
-        nav.selectCurrent();
-        setContentScrollOffset(0);
-        return;
-      }
-
-      // Number keys for level jump
-      if (input === "1") {
-        nav.jumpToLevel(1);
-        return;
-      }
-      if (input === "2") {
-        nav.jumpToLevel(2);
-        return;
-      }
-      if (input === "3") {
-        nav.jumpToLevel(3);
-        return;
-      }
+      return;
     }
 
-    // Content mode navigation
-    if (nav.viewMode === "content") {
-      // Scroll up/down
-      if (key.upArrow) {
-        setContentScrollOffset((prev) => Math.max(0, prev - 1));
-        return;
-      }
-      if (key.downArrow) {
-        setContentScrollOffset((prev) => prev + 1);
-        return;
-      }
-
-      // Go back
-      if (key.escape) {
-        nav.goBack();
+    // ── Tree mode keyboard navigation ─────────────────────────────────
+    if (nav.viewMode === "tree") {
+      if (key.upArrow) { nav.moveUp(); return; }
+      if (key.downArrow) { nav.moveDown(); return; }
+      if (key.return || input === " ") {
+        nav.selectCurrent();
         setContentScrollOffset(0);
         return;
       }
+      if (input === "1") { nav.jumpToLevel(1); return; }
+      if (input === "2") { nav.jumpToLevel(2); return; }
+      if (input === "3") { nav.jumpToLevel(3); return; }
+    }
 
-      // Backspace also goes back
-      if (key.backspace) {
+    // ── Content mode keyboard navigation ──────────────────────────────
+    if (nav.viewMode === "content") {
+      if (key.upArrow) { setContentScrollOffset((p) => Math.max(0, p - 1)); return; }
+      if (key.downArrow) { setContentScrollOffset((p) => p + 1); return; }
+      if (key.escape || key.backspace) {
         nav.goBack();
         setContentScrollOffset(0);
         return;
@@ -108,10 +110,6 @@ function HandbookInner() {
         <Sidebar
           items={nav.navItems}
           selectedIndex={nav.selectedIndex}
-          onSelect={(index) => {
-            nav.selectAt(index);
-            setContentScrollOffset(0);
-          }}
         />
         <Content
           topic={nav.selectedTopic}
@@ -125,9 +123,5 @@ function HandbookInner() {
 }
 
 export function HandbookApp() {
-  return (
-    <MouseProvider autoEnable={true} cacheInvalidationMs={0}>
-      <HandbookInner />
-    </MouseProvider>
-  );
+  return <HandbookInner />;
 }

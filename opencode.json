@@ -47,8 +47,13 @@
     "./nexus-system/docs/rules/*.md",
     "./nexus-system/docs/skills/quick-board-enforcement.md",
     "./nexus-system/governance/**/*.yaml",
-    "./nexus-system/BRIEFING.md"
+    "./nexus-system/governance/context/context_buffer.yaml"
   ],
+  "nexus": {
+    "loading_profile": "auto",
+    "complexity_detection": true,
+    "capability_filtering": true
+  },
   "skills": {
     "paths": ["nexus-system/docs/skills"]
   },

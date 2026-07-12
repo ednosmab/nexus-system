@@ -2,7 +2,7 @@ reminders:
   - message: "Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas."
     priority: "medium"
     category: "docs"
-    createdAt: "2026-07-12T01:00:18.776Z"
+    createdAt: "2026-07-12T02:19:30.366Z"
   - message: "Health status is CRITICAL — immediate action required"
     priority: "high"
     category: "health"

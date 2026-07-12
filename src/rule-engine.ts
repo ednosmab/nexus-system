@@ -444,7 +444,7 @@ async function executeAction(
 
         // Deduplication: skip if reminder with same message already exists
         const escapedReminder = reminder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const dedupeRegex = new RegExp(`^- message: "${escapedReminder}"`, "m");
+        const dedupeRegex = new RegExp(`^\\s*- message: "${escapedReminder}"`, "m");
         if (dedupeRegex.test(content)) {
           return { success: true, message: `Reminder already exists: ${reminder} — skipped` };
         }

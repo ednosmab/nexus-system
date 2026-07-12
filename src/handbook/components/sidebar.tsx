@@ -2,21 +2,18 @@
  * sidebar.tsx — Tree view of handbook levels and topics
  *
  * Displays expandable levels with nested topics.
- * Supports keyboard navigation and mouse click.
+ * Supports keyboard navigation and mouse click (via raw stdin SGR parsing).
  */
 
-import { useRef } from "react";
 import { Box, Text } from "ink";
-import { useOnPress } from "@ink-tools/ink-mouse";
 import type { NavItem } from "../hooks/use-handbook-nav.js";
 
 interface SidebarProps {
   items: NavItem[];
   selectedIndex: number;
-  onSelect: (index: number) => void;
 }
 
-export function Sidebar({ items, selectedIndex, onSelect }: SidebarProps) {
+export function Sidebar({ items, selectedIndex }: SidebarProps) {
   return (
     <Box flexDirection="column" width="40%">
       <Box marginBottom={1}>
@@ -30,7 +27,6 @@ export function Sidebar({ items, selectedIndex, onSelect }: SidebarProps) {
           key={`${item.type}-${item.levelNumber}-${item.topic?.id}-${item.isExpanded}`}
           item={item}
           isSelected={index === selectedIndex}
-          onSelect={() => onSelect(index)}
         />
       ))}
     </Box>
@@ -40,20 +36,13 @@ export function Sidebar({ items, selectedIndex, onSelect }: SidebarProps) {
 interface SidebarItemProps {
   item: NavItem;
   isSelected: boolean;
-  onSelect: () => void;
 }
 
-function SidebarItem({ item, isSelected, onSelect }: SidebarItemProps) {
-  const ref = useRef(null);
-
-  useOnPress(ref, () => {
-    onSelect();
-  });
-
+function SidebarItem({ item, isSelected }: SidebarItemProps) {
   if (item.type === "level") {
     const arrow = item.isExpanded ? "▼" : "▶";
     return (
-      <Box ref={ref} flexDirection="column">
+      <Box flexDirection="column">
         <Box paddingLeft={0}>
           <Text
             bold
@@ -74,7 +63,7 @@ function SidebarItem({ item, isSelected, onSelect }: SidebarItemProps) {
 
   if (item.type === "topic" && item.topic) {
     return (
-      <Box ref={ref} flexDirection="column" paddingLeft={2}>
+      <Box flexDirection="column" paddingLeft={2}>
         <Text
           color={isSelected ? "blue" : undefined}
           inverse={isSelected}

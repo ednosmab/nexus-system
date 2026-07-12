@@ -103,5 +103,20 @@
       "challengingCount": 0,
       "lastPathChoice": null
     }
+  },
+  "rule-RULE-001": {
+    "recommendationId": "rule-RULE-001",
+    "acceptCount": 0,
+    "rejectCount": 0,
+    "deferCount": 8,
+    "totalInteractions": 8,
+    "acceptanceRate": 0,
+    "lastAction": "deferred",
+    "lastTimestamp": "2026-07-12T01:07:58.561Z",
+    "pathChoiceStats": {
+      "comfortableCount": 0,
+      "challengingCount": 0,
+      "lastPathChoice": null
+    }
   }
 }

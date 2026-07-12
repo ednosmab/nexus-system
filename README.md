@@ -78,7 +78,7 @@ That's it. Your project now has governed context for you and your AI agents.
 
 ---
 
-## All Commands (34)
+## All Commands (35)
 
 ### Core Commands
 
@@ -221,7 +221,7 @@ nexus-cli/
 
 | Metric | Count |
 |--------|-------|
-| CLI Commands | 34 |
+| CLI Commands | 35 |
 | Source Files | 148 |
 | Test Files | 117 |
 | Audit Detectors | 100+ |

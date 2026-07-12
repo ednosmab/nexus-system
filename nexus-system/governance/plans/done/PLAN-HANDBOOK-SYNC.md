@@ -1,12 +1,12 @@
 # PLAN-HANDBOOK-SYNC — Sincronização Semântica do Handbook
 
-**Status:** In Progress
-**Updated_at:** 2026-07-11T23:52:41.017Z
+**Status:** done
+**Updated_at:** 2026-07-12T00:30:00.000Z
 **Date:** 2026-07-11
 
 > **Data:** 2026-07-11
 > **Objectivo:** Automatizar a sincronização do handbook com dados reais do código, mantendo a filosofia como decisão humana
-> **Status:** 🟡 `in_progress` — A implementar
+> **Status:** ✅ `done` — Cancelado. Passos 1, 2 e 4 implementados; passos 3, 5 e 6 descontinuados por decisão do utilizador.
 
 ---
 

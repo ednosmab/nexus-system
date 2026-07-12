@@ -94,6 +94,8 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
   "plan.created": 1,
   "plan.file_changed": 1,
   "plan.status_changed": 1,
+  "plan.format_warning": 1,
+  "backlog.updated": 1,
   "lifecycle.state_changed": 1,
   "knowledge.analyzed": 1,
   "engineering_state.updated": 1,
