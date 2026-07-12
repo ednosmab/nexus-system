@@ -135,8 +135,8 @@
 │   governance/knowledge-graph/artifacts.json
 │   governance/knowledge-graph/relations.json
 │   governance/plans/
-│   governance/plans/2026-07-02-nexus-dashboard-restructure.md
-│   governance/plans/2026-07-11-nexus-living-plano-v2-3fases.md
+│   governance/plans/2026-07-12-backlog-batch-resolver.md
+│   governance/plans/2026-07-12-plano-correcao-watch-loop-e-fase2.md
 │   governance/plans/README.md
 │   governance/plans/TEMPLATE.md
 │   governance/plans/done/
@@ -158,6 +158,7 @@
 │   governance/plans/done/2026-07-09-complete-architecture-plan.md
 │   governance/plans/done/2026-07-09-gap-analysis-coverage-plan.md
 │   governance/plans/done/2026-07-09-plano-correcao-nexus-audit.md
+│   governance/plans/done/2026-07-11-nexus-living-plano-v2-3fases.md
 │   governance/plans/done/2026-07-12-plano-fix-retroactive-scan-race.md
 │   governance/plans/done/PLAN-DYNAMIC-RULE-ADAPTATION.md
 │   governance/plans/done/PLAN-HANDBOOK-SYNC.md
@@ -223,6 +224,7 @@
 │   reports/
 │   reports/doc-lifecycle-2026-07-12.json
 │   reports/doc-sync-2026-07-12.json
+│   reports/patterns-2026-07-12.json
 │   scripts/
 │   scripts/backlog.ts
 │   scripts/close-session.ts

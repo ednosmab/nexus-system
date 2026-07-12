@@ -113,6 +113,7 @@ const EVENT_VERSIONS: Record<NexusEventType, EventVersion> = {
   "system.updated": 1,
   "challenge.generated": 1,
   "state.mutated": 1,
+  "workdir.large_uncommitted_drift": 1,
 };
 
 /** Migrate a payload from one version to another. */

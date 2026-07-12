@@ -43,6 +43,7 @@ import { contextCommand } from "../src/commands/context.js";
 import { handbookCommand } from "../src/commands/handbook.js";
 import { watchCommand } from "../src/commands/watch.js";
 import { hooksCommand } from "../src/commands/hooks.js";
+import { internalScheduledCheckCommand } from "../src/commands/scheduled-check.js";
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
 import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
@@ -338,6 +339,7 @@ program.addCommand(contextCommand);
 program.addCommand(handbookCommand);
 program.addCommand(watchCommand());
 program.addCommand(hooksCommand);
+program.addCommand(internalScheduledCheckCommand);
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 

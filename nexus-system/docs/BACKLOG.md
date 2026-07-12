@@ -162,7 +162,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-12 |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
 | **Owner** | unassigned |

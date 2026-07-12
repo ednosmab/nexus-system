@@ -39,6 +39,7 @@ import { getEventBus } from "../event-bus.js";
 import type { ProjectAnalysis } from "../analyser.js";
 import { logger } from "../logger.js";
 import { NEXUS_DIR_NAME } from "../constants.js";
+import { ensureHooksDir, appendToHook } from "./hooks.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
   const dims = profile.dimensions;
@@ -354,6 +355,19 @@ export const initCommand = new Command("init")
           writeFileSync(mcpJsonPath, JSON.stringify(content, null, 2) + "\n", "utf-8");
         }
         result.filesCreated.push(".mcp.json");
+      }
+
+      // Install git hooks automatically
+      try {
+        const hooksPath = ensureHooksDir(targetDir);
+        const NEXUS_HOOK_LINE = "nexus detect --auto 2>/dev/null &";
+        const pc = appendToHook(hooksPath, "post-commit", NEXUS_HOOK_LINE);
+        const pm = appendToHook(hooksPath, "post-merge", NEXUS_HOOK_LINE);
+        if (pc.added || pm.added) {
+          console.log(chalk.gray("  ✓ Nexus git hooks installed"));
+        }
+      } catch (error) {
+        logger.debug("init", "Failed to install git hooks", { error });
       }
 
       // Load and register plugins

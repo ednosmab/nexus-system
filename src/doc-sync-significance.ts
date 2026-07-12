@@ -71,6 +71,7 @@ const ARTIFACT_SCORES: Record<ArtifactType, number> = {
 const DIRECTORY_SCORES: Record<string, number> = {
   "docs/skills/": 1.0,
   "docs/adrs/": 0.9,
+  "docs/generated/": 0.0,
   "governance/agents/": 0.9,
   "governance/WORKFLOW": 1.0,
   "governance/context/": 0.6,
