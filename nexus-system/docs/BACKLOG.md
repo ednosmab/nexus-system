@@ -1063,7 +1063,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | em implementação |
+| **Status** | concluído |
 | **Severidade** | Medio |
 | **Prioridade** | P1 |
 | **Owner** | executor |
@@ -1130,3 +1130,26 @@
 | **Modulos** | governance/plans/ |
 | **Descricao** | Plano Consolidado — Nexus Living: BUG-002 (fim-a-fim), Redesenho da Entropia, Item Futuro |
 | **Correcao** | Verificar checklist no plano `governance/plans/2026-07-13-plano-bug002-entropia.md` |
+
+
+### BACKLOG-2026_07_12_MIGRAR_CONSOLE_LOG_PARA_LOGGER — Plano — Migrar console.log para Logger Centralizado (3.1)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-12 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano — Migrar console.log para Logger Centralizado (3.1) |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-12-migrar-console-log-para-logger.md` |
+
+#### Passos do Plano
+- [x] Criar `src/output.ts` com helpers (output, outputLine, outputSection, outputTable, etc.)
+- [x] Criar plano (este ficheiro)
+- [ ] Migrar comandos (ordenados por complexidade crescente)
+- [ ] Run lint + tests
+- [ ] Atualizar BACKLOG.md (3.1 → Done)
+- [ ] Commit + push

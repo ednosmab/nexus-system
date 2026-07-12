@@ -14,6 +14,7 @@ import { logger } from "./logger.js";
 import { addImpediment, clearImpediments } from "./context-buffer-writer.js";
 import { acquireScanLock, releaseScanLock } from "./plan-backlog-sync-lock.js";
 import { shouldSkipScan, markScanRun } from "./plan-backlog-sync-cooldown.js";
+import { withSyncWriteGuard, isSyncWriteInProgress } from "./sync-write-guard.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,7 +92,7 @@ export function syncPlanToBacklog(
 
     const updatedBacklog = backlog.replace(statusRegex, `$1${statusWithPct}$3`);
     if (updatedBacklog !== backlog) {
-      writeFileSync(backlogPath, updatedBacklog, "utf-8");
+      withSyncWriteGuard(() => writeFileSync(backlogPath, updatedBacklog, "utf-8"));
       logger.info("plan-backlog-sync", `Updated ${planIdUpper}: ${percentage}% complete`);
       getEventBus().publish("backlog.updated", {
         planId,
@@ -132,7 +133,7 @@ export function syncBacklogToPlan(
   content = content.replace(/\*\*Status:\*\*\s*.+/, `**Status:** ${planStatus}`);
   content = content.replace(/\*\*Updated_at:\*\*\s*.+/, `**Updated_at:** ${new Date().toISOString()}`);
 
-  writeFileSync(planPath, content, "utf-8");
+  withSyncWriteGuard(() => writeFileSync(planPath, content, "utf-8"));
   logger.info("plan-backlog-sync", `Updated plan ${planId} status to ${planStatus}`);
 }
 
@@ -193,6 +194,9 @@ export function initPlanBacklogSync(projectRoot: string, nexusDir: string): void
   // When a plan file changes, sync checklist progress to BACKLOG.md
   // and auto-archive if status changed to done
   bus.subscribe("plan.file_changed", (payload: Record<string, unknown>) => {
+    // Guard: ignore events fired by our own writes (prevent feedback loop)
+    if (isSyncWriteInProgress()) return;
+
     const planId = payload.planId as string;
     const content = payload.content as string;
     if (planId && content) {
@@ -214,6 +218,9 @@ export function initPlanBacklogSync(projectRoot: string, nexusDir: string): void
 
   // When a plan is archived, mark it as done in BACKLOG.md
   bus.subscribe("plan.archived", (payload: Record<string, unknown>) => {
+    // Guard: ignore events fired by our own writes (prevent feedback loop)
+    if (isSyncWriteInProgress()) return;
+
     const planId = payload.planId as string;
     if (planId) {
       logger.info("plan-backlog-sync", `Plan archived: ${planId}`);
@@ -226,7 +233,7 @@ export function initPlanBacklogSync(projectRoot: string, nexusDir: string): void
           "m"
         );
         backlog = backlog.replace(statusRegex, `$1concluído$3`);
-        writeFileSync(backlogPath, backlog, "utf-8");
+        withSyncWriteGuard(() => writeFileSync(backlogPath, backlog, "utf-8"));
       }
     }
   });

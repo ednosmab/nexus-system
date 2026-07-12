@@ -18,6 +18,7 @@ import {
   type SignificanceResult,
 } from "./doc-sync-significance.js";
 import { logger } from "./logger.js";
+import { isSyncWriteInProgress } from "./sync-write-guard.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,6 +274,9 @@ function handleFileChange(
   }
 
   // Plan file change — publish event for rule engine to evaluate
+  // Guard: if this change was caused by our own sync write, don't re-trigger
+  if (isSyncWriteInProgress()) return;
+
   const relativePath = filePath.slice(nexusDir.length + 1);
   if (relativePath.startsWith("governance/plans/") && relativePath.endsWith(".md")) {
     const fileName = basename(filePath);
