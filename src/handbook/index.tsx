@@ -61,13 +61,26 @@ function HandbookInner() {
     // ── Mouse click (SGR format) ──────────────────────────────────────
     const mouseMatch = SGR_MOUSE.exec(input);
     if (mouseMatch) {
-      const [, btn, col, row, action] = mouseMatch;
-      if (btn && col && row && action === "M" && Number(btn) === 0) {
-        const clickRow = Number(row);
-        const totalHeight = process.stdout.rows || 24;
-        const firstItemRow = totalHeight - nav.totalItems;
-        const rowIndex = clickRow - firstItemRow;
-        dbg(`CLICK: row=${clickRow} totalH=${totalHeight} firstItem=${firstItemRow} idx=${rowIndex} totalItems=${nav.totalItems}`);
+      const [, btn, , row, action] = mouseMatch;
+      const btnNum = Number(btn);
+
+      // Scroll wheel (64=up, 65=down) — only on press
+      if (btnNum >= 64 && btnNum <= 65 && action === "M") {
+        const direction = btnNum === 64 ? -1 : 1;
+        if (nav.viewMode === "content") {
+          setContentScrollOffset((p) => Math.max(0, p + direction));
+        } else {
+          if (direction < 0) nav.moveUp();
+          else nav.moveDown();
+        }
+        return;
+      }
+
+      // Left click
+      if (btnNum === 0 && action === "M") {
+        const HEADER_LINES = 2;
+        const rowIndex = Number(row) - HEADER_LINES - 1;
+        dbg(`CLICK: row=${row} rowIndex=${rowIndex} totalItems=${nav.totalItems}`);
         if (rowIndex >= 0 && rowIndex < nav.totalItems) {
           nav.selectAt(rowIndex);
           setContentScrollOffset(0);

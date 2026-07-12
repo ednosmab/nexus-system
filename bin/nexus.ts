@@ -345,7 +345,7 @@ installMiddleware(program, {
   sessionId: currentSessionId,
 });
 
-program.parse();
+await program.parseAsync();
 
 // ── Post-Execution: Session End ─────────────────────────────────────────────
 

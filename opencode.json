@@ -49,11 +49,6 @@
     "./nexus-system/governance/**/*.yaml",
     "./nexus-system/governance/context/context_buffer.yaml"
   ],
-  "nexus": {
-    "loading_profile": "auto",
-    "complexity_detection": true,
-    "capability_filtering": true
-  },
   "skills": {
     "paths": ["nexus-system/docs/skills"]
   },

@@ -1,6 +1,6 @@
 {
-  "detectedAt": "2026-07-12T01:07:58.456Z",
-  "historyEntriesAnalyzed": 21,
+  "detectedAt": "2026-07-12T03:21:09.396Z",
+  "historyEntriesAnalyzed": 22,
   "reportsAnalyzed": 10,
   "patterns": [
     {
@@ -92,5 +92,5 @@
       "status": "proposed"
     }
   ],
-  "summary": "3 padrão(ões) detectado(s) em 21 entradas de histórico e 10 relatórios. 1 de severidade alta — atenção urgente recomendada. 1 regra(s) candidata(s) proposta(s) para aprovação do Tech Lead."
+  "summary": "3 padrão(ões) detectado(s) em 22 entradas de histórico e 10 relatórios. 1 de severidade alta — atenção urgente recomendada. 1 regra(s) candidata(s) proposta(s) para aprovação do Tech Lead."
 }

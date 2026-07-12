@@ -182,6 +182,8 @@ export const handbookCommand = new Command("handbook")
     try {
       const { render } = await import("ink");
       const { HandbookApp } = await import("../handbook/index.js");
+      // Clear screen + cursor home so sidebar items are at known positions
+      process.stdout.write("\x1B[2J\x1B[H");
       const { waitUntilExit } = render(React.createElement(HandbookApp));
       await waitUntilExit();
     } catch (error: unknown) {

@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-12T03:20:02.608Z",
+  "generated_at": "2026-07-12T14:07:58.487Z",
   "mode": "fix",
   "total_discrepancies": 10,
   "errors": 0,
   "warnings": 10,
   "fixable": 0,
-  "fix_actions_applied": 1,
+  "fix_actions_applied": 0,
   "discrepancies": [
     {
       "type": "validation",
