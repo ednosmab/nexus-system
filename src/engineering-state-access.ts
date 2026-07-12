@@ -15,9 +15,6 @@ import { consolidateEngineeringState, saveEngineeringState, loadEngineeringState
 
 let cachedState: EngineeringState | null = null;
 
-/** Maximum age (ms) for disk cache to be considered fresh. */
-const CACHE_MAX_AGE_MS = 60_000; // 1 minute
-
 /**
  * Check if the governance directory has been modified since the given timestamp.
  * This is a lightweight freshness check — much cheaper than full consolidation.
@@ -30,11 +27,13 @@ function isDiskCacheFresh(nexusDir: string, consolidatedAt: string): boolean {
   if (!existsSync(governanceDir)) return true; // no governance dir = nothing can invalidate
 
   try {
-    // Quick check: is the cache younger than CACHE_MAX_AGE_MS?
-    const age = Date.now() - consolidatedTime;
-    if (age < CACHE_MAX_AGE_MS) return true;
-
-    // Deeper check: has any file in governance/ been modified since consolidation?
+    // Always check for real changes — do NOT short-circuit on age alone.
+    // A TTL-based fast path here would report "fresh" even when a file in
+    // governance/ changed seconds ago (e.g. a plan just marked Done),
+    // serving stale data for up to a minute. The mtime scan below is
+    // confirmed cheap (bounded to governance/, not the full project tree
+    // that consolidateEngineeringState walks), so it's safe to run
+    // unconditionally.
     return !hasFileChangedSince(governanceDir, consolidatedTime);
   } catch {
     return false; // on error, treat as stale (force recalculation)

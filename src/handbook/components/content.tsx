@@ -18,7 +18,7 @@ interface ContentProps {
 export function Content({ topic, content, scrollOffset, maxVisibleLines }: ContentProps) {
   if (!topic || !content) {
     return (
-      <Box flexDirection="column" width="60%" padding={1}>
+      <Box flexDirection="column" width="60%" height="100%" overflow="hidden" padding={1}>
         <Box marginBottom={1}>
           <Text bold color="cyan">
             Handbook
@@ -40,7 +40,7 @@ export function Content({ topic, content, scrollOffset, maxVisibleLines }: Conte
   const visibleLines = lines.slice(scrollOffset, scrollOffset + maxVisibleLines);
 
   return (
-    <Box flexDirection="column" width="60%" padding={1} flexGrow={1}>
+    <Box flexDirection="column" width="60%" height="100%" overflow="hidden" padding={1} flexGrow={1}>
       <Box marginBottom={1} flexDirection="column">
         <Text bold color="cyan">
           {topic.title}
@@ -50,7 +50,7 @@ export function Content({ topic, content, scrollOffset, maxVisibleLines }: Conte
         </Text>
       </Box>
 
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection="column" flexGrow={1} height={maxVisibleLines} overflow="hidden">
         {visibleLines.map((line, index) => (
           <ContentLine key={`${scrollOffset}-${index}`} line={line} />
         ))}
@@ -67,16 +67,27 @@ export function Content({ topic, content, scrollOffset, maxVisibleLines }: Conte
   );
 }
 
+/**
+ * Every branch below renders exactly one terminal row per markdown line.
+ * `wrap="truncate-end"` is applied on every top-level <Text> so a long
+ * line (table, code, long sentence) is cut with an ellipsis instead of
+ * wrapping onto a second row. Without this, a single long line can push
+ * the total rendered height past the terminal's row count, and it's the
+ * terminal itself — not Ink — that scrolls to compensate. That native
+ * scroll drags the sidebar along with it, which looks like "the sidebar
+ * scroll is influenced by the content scroll" even though the two panels
+ * have fully independent scroll state.
+ */
 function ContentLine({ line }: { line: string }) {
   // Headers
   if (line.startsWith("# ")) {
-    return <Text bold color="cyan">{line.slice(2)}</Text>;
+    return <Text bold color="cyan" wrap="truncate-end">{line.slice(2)}</Text>;
   }
   if (line.startsWith("## ")) {
-    return <Text bold color="blue">{line.slice(3)}</Text>;
+    return <Text bold color="blue" wrap="truncate-end">{line.slice(3)}</Text>;
   }
   if (line.startsWith("### ")) {
-    return <Text bold color="green">{line.slice(4)}</Text>;
+    return <Text bold color="green" wrap="truncate-end">{line.slice(4)}</Text>;
   }
 
   // Empty lines
@@ -89,7 +100,7 @@ function ContentLine({ line }: { line: string }) {
   if (boldRegex.test(line)) {
     const parts = line.split(boldRegex);
     return (
-      <Text>
+      <Text wrap="truncate-end">
         {parts.map((part, i) => {
           // Odd indices are the captured groups (bold text)
           if (i % 2 === 1) {
@@ -103,14 +114,14 @@ function ContentLine({ line }: { line: string }) {
 
   // Code blocks
   if (line.startsWith("```")) {
-    return <Text dimColor>{line}</Text>;
+    return <Text dimColor wrap="truncate-end">{line}</Text>;
   }
 
   // Code inline
   if (line.includes("`")) {
     const parts = line.split(/`/);
     return (
-      <Text>
+      <Text wrap="truncate-end">
         {parts.map((part, i) => {
           if (i % 2 === 1) {
             return <Text key={i} color="yellow">{part}</Text>;
@@ -123,9 +134,9 @@ function ContentLine({ line }: { line: string }) {
 
   // Tables
   if (line.includes("|")) {
-    return <Text color="gray">{line}</Text>;
+    return <Text color="gray" wrap="truncate-end">{line}</Text>;
   }
 
   // Default
-  return <Text>{line}</Text>;
+  return <Text wrap="truncate-end">{line}</Text>;
 }

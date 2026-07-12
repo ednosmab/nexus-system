@@ -133,6 +133,26 @@ describe("engineering-state-access — cross-process cache", () => {
     expect(state.summary).not.toBe("Old state from disk");
   });
 
+  it("recalculates when governance/ file is modified less than 60s after consolidation (regression: TTL fast-path bug)", () => {
+    // Unlike the test above, this does NOT backdate consolidatedAt — it
+    // reproduces the realistic case of editing a file immediately after
+    // a consolidation happened (e.g. marking a plan Done right after
+    // running a command). A TTL-based fast path previously reported
+    // "fresh" here unconditionally for the first 60s, masking the change.
+    const govDir = join(nexusDir, "governance", "plans");
+    mkdirSync(govDir, { recursive: true });
+    writeFileSync(join(govDir, "test-plan.md"), "**Status:** In Progress", "utf-8");
+
+    const state1 = getEngineeringState(tmpDir, nexusDir, true);
+    clearEngineeringStateCache();
+
+    writeFileSync(join(govDir, "test-plan.md"), "**Status:** Done", "utf-8");
+    clearEngineeringStateCache();
+
+    const state2 = getEngineeringState(tmpDir, nexusDir, false);
+    expect(state2.consolidatedAt).not.toBe(state1.consolidatedAt);
+  });
+
   it("forceRefresh bypasses disk cache", () => {
     const mockState: EngineeringState = {
       consolidatedAt: new Date().toISOString(),

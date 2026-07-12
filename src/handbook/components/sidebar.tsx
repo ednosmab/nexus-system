@@ -22,16 +22,16 @@ export function Sidebar({ items, selectedIndex, scrollOffset, maxVisibleItems }:
   const hasMoreBelow = scrollOffset + maxVisibleItems < items.length;
 
   return (
-    <Box flexDirection="column" width="40%" height="100%">
+    <Box flexDirection="column" width="40%" height="100%" overflow="hidden">
       <Box marginBottom={1}>
         <Text bold color="cyan">
           Handbook
         </Text>
       </Box>
 
-      <Box flexDirection="column" flexGrow={1}>
+      <Box flexDirection="column" flexGrow={1} overflow="hidden">
         {hasMoreAbove && (
-          <Text dimColor>{`  ▲ ${scrollOffset} mais acima`}</Text>
+          <Text dimColor wrap="truncate-end">{`  ▲ ${scrollOffset} mais acima`}</Text>
         )}
 
         {visibleItems.map((item, index) => {
@@ -46,7 +46,7 @@ export function Sidebar({ items, selectedIndex, scrollOffset, maxVisibleItems }:
         })}
 
         {hasMoreBelow && (
-          <Text dimColor>{`  ▼ ${items.length - scrollOffset - maxVisibleItems} mais abaixo`}</Text>
+          <Text dimColor wrap="truncate-end">{`  ▼ ${items.length - scrollOffset - maxVisibleItems} mais abaixo`}</Text>
         )}
       </Box>
     </Box>
