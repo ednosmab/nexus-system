@@ -223,7 +223,7 @@ nexus-cli/
 |--------|-------|
 | CLI Commands | 38 |
 | Source Files | 148 |
-| Test Files | 126 |
+| Test Files | 127 |
 | Audit Detectors | 100+ |
 | Engine Modules | 12 |
 

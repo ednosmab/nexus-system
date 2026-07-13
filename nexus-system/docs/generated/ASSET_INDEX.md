@@ -1,7 +1,7 @@
 # Asset Index
 
-> Generated: 2026-07-13T01:41:51.115Z
-> Total Assets: 75
+> Generated: 2026-07-13T03:30:24.229Z
+> Total Assets: 76
 
 | Type | Name | Path | Status |
 |------|------|------|--------|
@@ -47,8 +47,7 @@
 | workflow | Main Workflow | governance/WORKFLOW.md | active |
 | runbook | merge | docs/runbooks/merge.md | active |
 | plan | 2026 07 12 migrar console log para logger | governance/plans/2026-07-12-migrar-console-log-para-logger.md | active |
-| plan | 2026 07 12 plano correcao watch loop e fase2 | governance/plans/2026-07-12-plano-correcao-watch-loop-e-fase2.md | active |
-| plan | 2026 07 13 plano bug002 entropia | governance/plans/2026-07-13-plano-bug002-entropia.md | active |
+| plan | PLAN doc semantic sync | governance/plans/PLAN-doc-semantic-sync.md | active |
 | plan | README | governance/plans/README.md | active |
 | script | backlog | scripts/backlog.ts | active |
 | script | close session | scripts/close-session.ts | active |
@@ -71,11 +70,13 @@
 | doc | opencode-context | docs/opencode-context.md | active |
 | doc | session-template | docs/session-template.md | active |
 | report | complexity nexus cli 2026 07 12 session1 | reports/complexity-nexus-cli-2026-07-12-session1.json | active |
+| report | complexity nexus cli 2026 07 13 session1 | reports/complexity-nexus-cli-2026-07-13-session1.json | active |
 | report | doc lifecycle 2026 07 12 | reports/doc-lifecycle-2026-07-12.json | active |
 | report | doc lifecycle 2026 07 13 | reports/doc-lifecycle-2026-07-13.json | active |
 | report | doc sync 2026 07 12 | reports/doc-sync-2026-07-12.json | active |
 | report | doc sync 2026 07 13 | reports/doc-sync-2026-07-13.json | active |
 | report | patterns 2026 07 12 | reports/patterns-2026-07-12.json | active |
+| report | patterns 2026 07 13 | reports/patterns-2026-07-13.json | active |
 | context | Session Context Buffer | governance/context/context_buffer.yaml | active |
 | prompt | executor prompt: README | cognition/prompts/executor/README.md | active |
 | prompt | planner prompt: README | cognition/prompts/planner/README.md | active |

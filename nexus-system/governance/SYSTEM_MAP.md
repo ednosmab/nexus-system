@@ -125,6 +125,8 @@
 │   feedback/records/2026-07-12-FB-1783888037474-l1zi9m.json
 │   feedback/records/2026-07-13-FB-1783907221581-a9mw9z.json
 │   feedback/records/2026-07-13-FB-1783907494091-x89c96.json
+│   feedback/records/2026-07-13-FB-1783907863373-pwv6hj.json
+│   feedback/records/2026-07-13-FB-1783907944029-jc3zo7.json
 │   feedback/summary.json
 │   fingerprint.json
 │   governance/
@@ -147,6 +149,8 @@
 │   governance/knowledge-graph/relations.json
 │   governance/plans/
 │   governance/plans/2026-07-12-migrar-console-log-para-logger.md
+│   governance/plans/2026-07-13-refactor-estrutural-sa4-sa10-sa11.md
+│   governance/plans/PLAN-doc-semantic-sync.md
 │   governance/plans/README.md
 │   governance/plans/TEMPLATE.md
 │   governance/plans/done/

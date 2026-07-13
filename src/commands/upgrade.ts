@@ -28,6 +28,7 @@ import { recordFeedback } from "../feedback-loops.js";
 import { readManifest, writeManifest, updateManifest } from "../manifest.js";
 import { updateSystemMapCapabilityStatus } from "../scaffolder.js";
 import { logger } from "../logger.js";
+import { output, outputBlank, outputSection, outputSuccess, outputError, outputWarning } from "../output.js";
 
 const { copySync, ensureDirSync } = fse;
 
@@ -51,11 +52,9 @@ export const upgradeCommand = new Command("upgrade")
     const targetDir = resolve(options.dir || ".");
 
     if (!isJson) {
-      console.log("");
-      console.log(chalk.bold.cyan("  ╔══════════════════════════════════════════╗"));
-      console.log(chalk.bold.cyan(isDryRun ? "  ║  nexus upgrade — Dry Run                  ║" : "  ║  nexus upgrade — Add Capabilities        ║"));
-      console.log(chalk.bold.cyan("  ╚══════════════════════════════════════════╝"));
-      console.log("");
+      output("");
+      outputSection(isDryRun ? "nexus upgrade — Dry Run" : "nexus upgrade — Add Capabilities");
+      outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
@@ -79,23 +78,23 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ dryRun: true, installed, wouldInstall: toInstall, capabilities: allCaps });
       } else {
-        console.log(chalk.bold("  Dry Run — No files will be modified."));
-        console.log("");
-        console.log(chalk.bold("  Currently installed:"));
+        outputSection("Dry Run — No files will be modified.");
+        outputBlank();
+        outputSection("Currently installed:");
         for (const cap of installed) {
           const info = CAPABILITIES.find((c) => c.id === cap);
-          console.log(chalk.green(`    ✔ ${info?.name || cap}`));
+          outputSuccess(`    ✔ ${info?.name || cap}`);
         }
         if (toInstall.length > 0) {
-          console.log("");
-          console.log(chalk.bold("  Would install:"));
+          outputBlank();
+          outputSection("Would install:");
           for (const cap of toInstall) {
             const info = CAPABILITIES.find((c) => c.id === cap);
-            console.log(chalk.cyan(`    → ${info?.name || cap}`));
+            output(chalk.cyan(`    → ${info?.name || cap}`));
           }
         }
-        console.log("");
-        console.log(chalk.gray("  Run without --dry-run to apply changes."));
+        outputBlank();
+        output(chalk.gray("  Run without --dry-run to apply changes."));
       }
       return;
     }
@@ -124,9 +123,9 @@ export const upgradeCommand = new Command("upgrade")
         if (isJson) {
           outputJson({ error: "no_profile", message: "No maturity profile found. Run 'nexus init' first." });
         } else {
-          console.log(chalk.yellow("  ⚠ No maturity profile found."));
-          console.log(chalk.gray("  Run 'nexus init' first to create a maturity profile."));
-          console.log("");
+          outputWarning("  ⚠ No maturity profile found.");
+          output(chalk.gray("  Run 'nexus init' first to create a maturity profile."));
+          outputBlank();
         }
         return;
       }
@@ -139,8 +138,8 @@ export const upgradeCommand = new Command("upgrade")
         if (isJson) {
           outputJson({ message: "All recommended capabilities already installed", installed });
         } else {
-          console.log(chalk.green("  ✔ All recommended capabilities are already installed!"));
-          console.log("");
+          outputSuccess("  ✔ All recommended capabilities are already installed!");
+          outputBlank();
         }
         return;
       }
@@ -195,14 +194,14 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ installed: toInstall, filesInstalled: result.filesInstalled, directoriesCreated: result.directoriesCreated });
       } else {
-        console.log("");
-        console.log(chalk.green("  ✔ Capabilities installed!"));
-        console.log("");
+        outputBlank();
+        outputSuccess("  ✔ Capabilities installed!");
+        outputBlank();
         for (const cap of toInstall) {
-          const info = CAPABILITIES.find((c) => c.id === cap);
-          console.log(chalk.cyan(`    ✓ ${info?.name || cap}`));
+            const info = CAPABILITIES.find((c) => c.id === cap);
+            output(chalk.cyan(`    ✓ ${info?.name || cap}`));
         }
-        console.log("");
+        outputBlank();
       }
       return;
     }
@@ -220,8 +219,8 @@ export const upgradeCommand = new Command("upgrade")
         if (isJson) {
           outputJson({ message: "All capabilities already installed", installed });
         } else {
-          console.log(chalk.green("  ✔ All capabilities are already installed!"));
-          console.log("");
+          outputSuccess("  ✔ All capabilities are already installed!");
+          outputBlank();
         }
         return;
       }
@@ -248,8 +247,8 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ error: "invalid_capability", message: `Invalid capability: ${targetCapability}. Valid: ${CAPABILITIES.map((c) => c.id).join(", ")}` });
       } else {
-        console.log(chalk.red(`  ✘ Invalid capability: ${targetCapability}`));
-        console.log(chalk.gray(`  Valid: ${CAPABILITIES.map((c) => c.id).join(", ")}`));
+        outputError(`  ✘ Invalid capability: ${targetCapability}`);
+        output(chalk.gray(`  Valid: ${CAPABILITIES.map((c) => c.id).join(", ")}`));
       }
       return;
     }
@@ -259,8 +258,8 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ error: "already_installed", message: `Capability '${targetCapability}' is already installed.`, installed });
       } else {
-        console.log(chalk.yellow(`  ⚠ Capability '${capInfo.name}' is already installed.`));
-        console.log("");
+        outputWarning(`  ⚠ Capability '${capInfo.name}' is already installed.`);
+        outputBlank();
       }
       return;
     }
@@ -272,8 +271,8 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ error: "missing_dependencies", message: `Missing dependencies: ${missing.join(", ")}`, missing });
       } else {
-        console.log(chalk.red(`  ✘ Missing dependencies: ${missing.join(", ")}`));
-        console.log(chalk.gray("  Install these capabilities first."));
+        outputError(`  ✘ Missing dependencies: ${missing.join(", ")}`);
+        output(chalk.gray("  Install these capabilities first."));
       }
       return;
     }
@@ -328,13 +327,13 @@ export const upgradeCommand = new Command("upgrade")
       if (isJson) {
         outputJson({ capability: targetCapability, filesInstalled: result.filesInstalled, directoriesCreated: result.directoriesCreated });
       } else {
-        console.log("");
-        console.log(chalk.green("  ✔ Capability installed!"));
-        console.log("");
-        console.log(chalk.bold("  Changes:"));
-        console.log(chalk.gray(`    Directories created: ${result.directoriesCreated}`));
-        console.log(chalk.gray(`    Files installed: ${result.filesInstalled}`));
-        console.log("");
+        outputBlank();
+        outputSuccess("  ✔ Capability installed!");
+        outputBlank();
+        outputSection("Changes:");
+        output(chalk.gray(`    Directories created: ${result.directoriesCreated}`));
+        output(chalk.gray(`    Files installed: ${result.filesInstalled}`));
+        outputBlank();
       }
 
       // Generate and display context rules
@@ -355,11 +354,11 @@ export const upgradeCommand = new Command("upgrade")
         const contextRules = generateContextRules(fingerprint, riskMap);
 
         if (contextRules.length > 0 && !isJson) {
-          console.log(chalk.bold("  Context-Aware Rules Generated:"));
+          outputSection("Context-Aware Rules Generated:");
           for (const rule of contextRules.slice(0, 3)) {
-            console.log(chalk.gray(`    • ${rule.rule}`));
+            output(chalk.gray(`    • ${rule.rule}`));
           }
-          console.log("");
+          outputBlank();
         }
       } catch (error) {
         logger.debug("upgrade", "Suppressed error", { error });
@@ -369,7 +368,7 @@ export const upgradeCommand = new Command("upgrade")
         outputJson({ error: "install_failed", message: String(error) });
       } else {
         spinner.fail("Installation failed");
-        console.error(chalk.red(`  Error: ${error}`));
+        logger.error("upgrade", `Error: ${error}`);
       }
       return;
     }
@@ -483,8 +482,8 @@ function installCapabilities(
 // ── Display ─────────────────────────────────────────────────────────────────
 
 function displayCapabilityStatus(installed: string[]): void {
-  console.log(chalk.bold("  Capabilities Status:"));
-  console.log("");
+  outputSection("Capabilities Status:");
+  outputBlank();
 
   for (const cap of CAPABILITIES) {
     const isInstalled = installed.includes(cap.id);
@@ -492,11 +491,11 @@ function displayCapabilityStatus(installed: string[]): void {
     const name = isInstalled ? chalk.bold(cap.name) : chalk.gray(cap.name);
     const status = isInstalled ? chalk.green("installed") : chalk.gray("available");
 
-    console.log(`    ${icon} ${name} — ${chalk.gray(cap.description)} [${status}]`);
+    output(`    ${icon} ${name} — ${chalk.gray(cap.description)} [${status}]`);
   }
 
-  console.log("");
-  console.log(chalk.gray("  Use 'nexus upgrade --capability <name>' to add a capability."));
-  console.log(chalk.gray("  Use 'nexus upgrade --accept-recommended' to install all recommended."));
-  console.log("");
+  outputBlank();
+  output(chalk.gray("  Use 'nexus upgrade --capability <name>' to add a capability."));
+  output(chalk.gray("  Use 'nexus upgrade --accept-recommended' to install all recommended."));
+  outputBlank();
 }

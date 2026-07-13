@@ -40,6 +40,7 @@ import type { ProjectAnalysis } from "../analyser.js";
 import { logger } from "../logger.js";
 import { NEXUS_DIR_NAME } from "../constants.js";
 import { installReactiveHooks } from "../git-hooks-installer.js";
+import { output, outputBlank, outputError } from "../output.js";
 
 function displayMaturityDimensions(profile: MaturityProfile): void {
   const dims = profile.dimensions;
@@ -60,10 +61,10 @@ function displayMaturityDimensions(profile: MaturityProfile): void {
     const empty = barWidth - filled;
     const color = value >= 65 ? chalk.green : value >= 35 ? chalk.yellow : chalk.red;
     const bar = color("█".repeat(filled)) + chalk.gray("░".repeat(empty));
-    console.log(`    ${label.padEnd(16)} ${bar} ${chalk.bold(String(value).padStart(3))}%`);
+    output(`    ${label.padEnd(16)} ${bar} ${chalk.bold(String(value).padStart(3))}%`);
   }
-  console.log("");
-  console.log(`    ${chalk.bold("Score Geral:")}      ${chalk.bold(String(profile.overallScore))}/100`);
+  outputBlank();
+  output(`    ${chalk.bold("Score Geral:")}      ${chalk.bold(String(profile.overallScore))}/100`);
 }
 
 function displayCapabilities(profile: MaturityProfile): void {
@@ -71,29 +72,29 @@ function displayCapabilities(profile: MaturityProfile): void {
   const recommended = profile.recommendedCapabilities;
   const future = profile.futureCapabilities;
 
-  console.log(chalk.bold("  Capacidades instaladas:"));
+  output(chalk.bold("  Capacidades instaladas:"));
   for (const cap of installed) {
     const info = CAPABILITIES.find((c) => c.id === cap);
-    console.log(chalk.green(`    ✓ ${info?.name || cap}`));
+    output(chalk.green(`    ✓ ${info?.name || cap}`));
   }
-  console.log("");
+  outputBlank();
 
   if (recommended.length > 0) {
-    console.log(chalk.bold("  Capacidades recomendadas:"));
+    output(chalk.bold("  Capacidades recomendadas:"));
     for (const cap of recommended) {
       const info = CAPABILITIES.find((c) => c.id === cap);
-      console.log(chalk.cyan(`    → ${info?.name || cap} — ${info?.description || ""}`));
+      output(chalk.cyan(`    → ${info?.name || cap} — ${info?.description || ""}`));
     }
-    console.log("");
+    outputBlank();
   }
 
   if (future.length > 0) {
-    console.log(chalk.bold("  Capacidades futuras:"));
+    output(chalk.bold("  Capacidades futuras:"));
     for (const cap of future) {
       const info = CAPABILITIES.find((c) => c.id === cap);
-      console.log(chalk.gray(`    □ ${info?.name || cap}`));
+      output(chalk.gray(`    □ ${info?.name || cap}`));
     }
-    console.log("");
+    outputBlank();
   }
 }
 
@@ -130,9 +131,9 @@ export const initCommand = new Command("init")
   .option("--dry-run", "Show what would be created without writing files")
   .action(async (options) => {
     const isDryRun = options.dryRun === true;
-    console.log("");
+    outputBlank();
     banner("nexus init", isDryRun ? "Dry Run — No files will be written" : "Maturity-Based Discovery");
-    console.log("");
+    outputBlank();
 
     // Determine project root
     const targetDir = options.dir
@@ -141,19 +142,19 @@ export const initCommand = new Command("init")
 
     // Safety guard
     if (shouldBlockInit(targetDir, options.force === true)) {
-      console.log(chalk.yellow("  ⚠ nexus-system should be created in your project, not inside nexus-cli."));
-      console.log(chalk.gray("  Run from your project root: nexus init"));
-      console.log(chalk.gray("  Or:  nexus init --force (to create inside nexus-cli)"));
-      console.log("");
+      output(chalk.yellow("  ⚠ nexus-system should be created in your project, not inside nexus-cli."));
+      output(chalk.gray("  Run from your project root: nexus init"));
+      output(chalk.gray("  Or:  nexus init --force (to create inside nexus-cli)"));
+      outputBlank();
       return;
     }
 
     // Check if already initialized
     if (existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
-      console.log(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
-      console.log("");
-      console.log(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
-      console.log("");
+      output(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
+      outputBlank();
+      output(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
+      outputBlank();
 
       // Re-analyse project complexity
       const analyseSpinner = ora("Re-analysing project complexity...").start();
@@ -161,30 +162,30 @@ export const initCommand = new Command("init")
       analyseSpinner.succeed("Project analysis complete");
 
       // Show what was detected (compare with initial state)
-      console.log("");
-      console.log(chalk.bold("  Current state:"));
-      console.log(`    Stack:     ${analysis.stack.length > 0 ? analysis.stack.join(", ") : chalk.gray("none detected")}`);
-      console.log(`    Packages:  ${analysis.packageCount}`);
-      console.log(`    Apps:      ${analysis.appCount}`);
-      console.log(`    Source:    ${analysis.sourceFileCount} files`);
-      console.log(`    Manager:  ${analysis.packageManager}`);
-      console.log(`    TypeScript:${analysis.hasTypeScript ? " yes" : chalk.gray(" no")}`);
-      console.log(`    Tests:     ${analysis.hasTests ? "yes" : chalk.gray("no")}`);
-      console.log(`    CI/CD:     ${analysis.hasCI ? "yes" : chalk.gray("no")}`);
-      console.log("");
+      outputBlank();
+      output(chalk.bold("  Current state:"));
+      output(`    Stack:     ${analysis.stack.length > 0 ? analysis.stack.join(", ") : chalk.gray("none detected")}`);
+      output(`    Packages:  ${analysis.packageCount}`);
+      output(`    Apps:      ${analysis.appCount}`);
+      output(`    Source:    ${analysis.sourceFileCount} files`);
+      output(`    Manager:  ${analysis.packageManager}`);
+      output(`    TypeScript:${analysis.hasTypeScript ? " yes" : chalk.gray(" no")}`);
+      output(`    Tests:     ${analysis.hasTests ? "yes" : chalk.gray("no")}`);
+      output(`    CI/CD:     ${analysis.hasCI ? "yes" : chalk.gray("no")}`);
+      outputBlank();
 
       // Load previous maturity profile
       const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
       const previousProfile = loadMaturityProfile(nexusDir);
 
       if (previousProfile) {
-        console.log(chalk.bold("  Previous maturity score:"));
-        console.log(`    ${previousProfile.overallScore}/100 ${healthBar(previousProfile.overallScore, 100)}`);
-        console.log("");
+        output(chalk.bold("  Previous maturity score:"));
+        output(`    ${previousProfile.overallScore}/100 ${healthBar(previousProfile.overallScore, 100)}`);
+        outputBlank();
       }
 
-      console.log(chalk.gray("  Or:  nexus init --accept-recommended"));
-      console.log("");
+      output(chalk.gray("  Or:  nexus init --accept-recommended"));
+      outputBlank();
 
       return;
     }
@@ -195,36 +196,36 @@ export const initCommand = new Command("init")
     analyseSpinner.succeed("Project analysis complete");
 
     // Show what was detected
-    console.log("");
-    console.log(chalk.bold("  Detected:"));
-    console.log(`    Stack:     ${analysis.stack.length > 0 ? analysis.stack.join(", ") : chalk.gray("none detected")}`);
-    console.log(`    Packages:  ${analysis.packageCount}`);
-    console.log(`    Apps:      ${analysis.appCount}`);
-    console.log(`    Source:    ${analysis.sourceFileCount} files`);
-    console.log(`    Manager:  ${analysis.packageManager}`);
-    console.log(`    TypeScript:${analysis.hasTypeScript ? " yes" : chalk.gray(" no")}`);
-    console.log(`    Tests:     ${analysis.hasTests ? "yes" : chalk.gray("no")}`);
-    console.log(`    CI/CD:     ${analysis.hasCI ? "yes" : chalk.gray("no")}`);
-    console.log("");
+    outputBlank();
+    output(chalk.bold("  Detected:"));
+    output(`    Stack:     ${analysis.stack.length > 0 ? analysis.stack.join(", ") : chalk.gray("none detected")}`);
+    output(`    Packages:  ${analysis.packageCount}`);
+    output(`    Apps:      ${analysis.appCount}`);
+    output(`    Source:    ${analysis.sourceFileCount} files`);
+    output(`    Manager:  ${analysis.packageManager}`);
+    output(`    TypeScript:${analysis.hasTypeScript ? " yes" : chalk.gray(" no")}`);
+    output(`    Tests:     ${analysis.hasTests ? "yes" : chalk.gray("no")}`);
+    output(`    CI/CD:     ${analysis.hasCI ? "yes" : chalk.gray("no")}`);
+    outputBlank();
 
     // Step 2: Get answers (interactive or from file)
     let answers: UserAnswers;
     if (options.answersFile) {
       const answersPath = resolve(options.answersFile);
       if (!existsSync(answersPath)) {
-        console.log(chalk.red(`  ✘ Answers file not found: ${answersPath}`));
+        output(chalk.red(`  ✘ Answers file not found: ${answersPath}`));
         process.exitCode = 1;
         return;
       }
       const raw = readFileSync(answersPath, "utf-8");
       answers = JSON.parse(raw);
-      console.log(chalk.gray(`  Loaded answers from ${options.answersFile}`));
+      output(chalk.gray(`  Loaded answers from ${options.answersFile}`));
     } else {
       // Guard against non-interactive environments
       if (!guardInteractive(options, false)) return;
 
-      console.log(chalk.bold("  Answer a few questions to determine your maturity profile:"));
-      console.log("");
+      output(chalk.bold("  Answer a few questions to determine your maturity profile:"));
+      outputBlank();
       answers = await askQuestions(analysis);
     }
 
@@ -234,33 +235,33 @@ export const initCommand = new Command("init")
     profileSpinner.succeed("Maturity profile calculated");
 
     // Step 4: Display maturity profile
-    console.log("");
-    console.log(chalk.bold.green("  ═══ Maturity Profile ═══"));
-    console.log("");
+    outputBlank();
+    output(chalk.bold.green("  ═══ Maturity Profile ═══"));
+    outputBlank();
     displayMaturityDimensions(profile);
-    console.log("");
+    outputBlank();
     displayCapabilities(profile);
 
     // Dry-run: show what would be installed and return
     if (isDryRun) {
       const capsToInstall: Capability[] = ["core", ...profile.recommendedCapabilities];
-      console.log(chalk.bold.green("  ═══ Dry Run — Would install ═══"));
-      console.log("");
-      console.log(chalk.bold("  Capabilities:"));
+      output(chalk.bold.green("  ═══ Dry Run — Would install ═══"));
+      outputBlank();
+      output(chalk.bold("  Capabilities:"));
       for (const cap of capsToInstall) {
         const info = CAPABILITIES.find((c) => c.id === cap);
-        console.log(chalk.green(`    ✓ ${info?.name || cap}`));
+        output(chalk.green(`    ✓ ${info?.name || cap}`));
       }
-      console.log("");
-      console.log(chalk.bold("  Files that would be created:"));
-      console.log(chalk.gray("    opencode.json"));
-      console.log(chalk.gray("    nexus-system/ (governance ecosystem)"));
+      outputBlank();
+      output(chalk.bold("  Files that would be created:"));
+      output(chalk.gray("    opencode.json"));
+      output(chalk.gray("    nexus-system/ (governance ecosystem)"));
       for (const dir of ["governance", "docs", "skills", "scripts", "telemetry"] as string[]) {
-        console.log(chalk.gray(`      ${dir}/`));
+        output(chalk.gray(`      ${dir}/`));
       }
-      console.log("");
-      console.log(chalk.gray("  Run without --dry-run to apply changes."));
-      console.log("");
+      outputBlank();
+      output(chalk.gray("  Run without --dry-run to apply changes."));
+      outputBlank();
       return;
     }
 
@@ -330,28 +331,28 @@ export const initCommand = new Command("init")
       }
 
       // Display results
-      console.log("");
-      console.log(chalk.bold.green("  ✓ Nexus System Framework installed!"));
-      console.log("");
-      console.log(chalk.bold("  Structure created:"));
-      console.log(chalk.gray("    opencode.json          ← configuration (project root)"));
-      console.log(chalk.gray("    nexus-system/          ← governance ecosystem"));
+      outputBlank();
+      output(chalk.bold.green("  ✓ Nexus System Framework installed!"));
+      outputBlank();
+      output(chalk.bold("  Structure created:"));
+      output(chalk.gray("    opencode.json          ← configuration (project root)"));
+      output(chalk.gray("    nexus-system/          ← governance ecosystem"));
       for (const dir of result.directoriesCreated) {
         if (dir === NEXUS_DIR_NAME) continue;
-        console.log(chalk.gray(`      ${dir.replace("nexus-system/", "")}/`));
+        output(chalk.gray(`      ${dir.replace("nexus-system/", "")}/`));
       }
-      console.log("");
-      console.log(chalk.bold("  Files created:"));
+      outputBlank();
+      output(chalk.bold("  Files created:"));
       for (const file of result.filesCreated) {
-        console.log(chalk.gray(`    ${file}`));
+        output(chalk.gray(`    ${file}`));
       }
-      console.log("");
-      console.log(chalk.bold("  Next steps:"));
-      console.log(chalk.gray("    1. Edit nexus-system/docs/AGENTS.md to customise rules"));
-      console.log(chalk.gray("    2. Edit opencode.json to set your AI models"));
-      console.log(chalk.gray("    3. Run 'nexus status' to check governance health"));
-      console.log(chalk.gray("    4. Run 'nexus assess' to re-evaluate maturity later"));
-      console.log("");
+      outputBlank();
+      output(chalk.bold("  Next steps:"));
+      output(chalk.gray("    1. Edit nexus-system/docs/AGENTS.md to customise rules"));
+      output(chalk.gray("    2. Edit opencode.json to set your AI models"));
+      output(chalk.gray("    3. Run 'nexus status' to check governance health"));
+      output(chalk.gray("    4. Run 'nexus assess' to re-evaluate maturity later"));
+      outputBlank();
 
       // Invalidate cache
       invalidateCache(targetDir);
@@ -386,9 +387,9 @@ export const initCommand = new Command("init")
       try {
         const hooksResult = installReactiveHooks(targetDir, "nexus");
         if (hooksResult.installed.length > 0) {
-          console.log(chalk.gray(`  ✓ Nexus git hooks installed: ${hooksResult.installed.join(", ")}`));
+          output(chalk.gray(`  ✓ Nexus git hooks installed: ${hooksResult.installed.join(", ")}`));
         } else if (hooksResult.skipped.length > 0 && hooksResult.skipped[0] !== "not-a-git-repo") {
-          console.log(chalk.gray(`  • Git hooks already configured`));
+          output(chalk.gray(`  • Git hooks already configured`));
         }
       } catch (error) {
         logger.debug("init", "Failed to install git hooks", { error });
@@ -401,14 +402,14 @@ export const initCommand = new Command("init")
         hookBus.registerPlugin(plugin);
       }
       if (plugins.length > 0) {
-        console.log(chalk.gray(`  🔌 Loaded ${plugins.length} plugin(s)`));
+        output(chalk.gray(`  🔌 Loaded ${plugins.length} plugin(s)`));
       }
 
       // Suggest future capabilities
       if (profile.futureCapabilities.length > 0) {
-        console.log(chalk.gray("  As your project grows, run 'nexus assess' to discover new capabilities."));
+        output(chalk.gray("  As your project grows, run 'nexus assess' to discover new capabilities."));
       }
-      console.log("");
+      outputBlank();
 
       // Publish events for init completion
       const bus = getEventBus();
@@ -442,16 +443,16 @@ export const initCommand = new Command("init")
       }
     } catch (error) {
       scaffoldSpinner.fail("Failed to install ecosystem");
-      console.error(chalk.red(`  Error: ${error}`));
+      outputError(chalk.red(`  Error: ${error}`));
 
       // Rollback: remove partial nexus-system directory
       const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
       if (existsSync(nexusDir)) {
         try {
           fse.removeSync(nexusDir);
-          console.log(chalk.gray("  Cleaned up partial nexus-system/ directory."));
+          output(chalk.gray("  Cleaned up partial nexus-system/ directory."));
         } catch {
-          console.log(chalk.yellow("  ⚠ Could not clean up nexus-system/ — remove manually."));
+          output(chalk.yellow("  ⚠ Could not clean up nexus-system/ — remove manually."));
         }
       }
 

@@ -1,7 +1,7 @@
 # System Map
 
-> Generated: 2026-07-13T01:41:51.114Z
-> Session Score: 98/100
+> Generated: 2026-07-13T03:30:24.226Z
+> Session Score: 99/100
 
 ## Overview
 
@@ -63,11 +63,10 @@
 
 - merge — docs/runbooks/merge.md
 
-### Plans (4)
+### Plans (3)
 
 - 2026 07 12 migrar console log para logger — governance/plans/2026-07-12-migrar-console-log-para-logger.md
-- 2026 07 12 plano correcao watch loop e fase2 — governance/plans/2026-07-12-plano-correcao-watch-loop-e-fase2.md
-- 2026 07 13 plano bug002 entropia — governance/plans/2026-07-13-plano-bug002-entropia.md
+- PLAN doc semantic sync — governance/plans/PLAN-doc-semantic-sync.md
 - README — governance/plans/README.md
 
 ### Scripts (6)
@@ -93,14 +92,16 @@
 - Nexus-System GUIDE — docs/Nexus-System_GUIDE.md
 - ... and 4 more
 
-### Reports (6)
+### Reports (8)
 
 - complexity nexus cli 2026 07 12 session1 — reports/complexity-nexus-cli-2026-07-12-session1.json
+- complexity nexus cli 2026 07 13 session1 — reports/complexity-nexus-cli-2026-07-13-session1.json
 - doc lifecycle 2026 07 12 — reports/doc-lifecycle-2026-07-12.json
 - doc lifecycle 2026 07 13 — reports/doc-lifecycle-2026-07-13.json
 - doc sync 2026 07 12 — reports/doc-sync-2026-07-12.json
 - doc sync 2026 07 13 — reports/doc-sync-2026-07-13.json
 - patterns 2026 07 12 — reports/patterns-2026-07-12.json
+- patterns 2026 07 13 — reports/patterns-2026-07-13.json
 
 ### Contexts (1)
 

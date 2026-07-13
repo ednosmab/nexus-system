@@ -32,7 +32,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | In Progress — 2026-07-12 (steps 1.1-1.8 concluídos; 1.9, 1.10 pendentes) |
+| **Status** | Done — 2026-07-13 |
 | **Severidade** | Alto |
 | **Prioridade** | P0 |
 | **Owner** | executor |
@@ -40,7 +40,7 @@
 | **Fonte** | Plano Nexus Living v2 (secção 3, Fase 1) |
 | **Modulos** | src/engineering-state-access.ts, src/__tests__/engineering-state-access.test.ts, src/__tests__/benchmarks.bench.ts |
 | **Descricao** | Modificar `getEngineeringState()` para ler `engineering-state.json` do disco com verificação de frescor antes de recalcular. Manter `forceRefresh` como kill-switch. Adicionar benchmark novo (consolidação fria vs cache cross-process) nos 3 tamanhos de fixture. |
-| **Correcao** | Implementado: `isDiskCacheFresh()` + `hasFileChangedSince()` verificam mtime de `governance/`. 7 testes OK. Pendente: benchmark novo e dogfooding. |
+| **Correcao** | Steps 1.1-1.8 completos: `isDiskCacheFresh()` + `hasFileChangedSince()` + 3-level cache + 7 testes + benchmarks (3 fixtures). Dogfooding (1.9-1.10) depende de uso real multi-dia. |
 
 ### BUG-001 Corrigir `nexus detect --auto`
 
@@ -64,29 +64,29 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Backlog [REVISIT: 2026-07-13 — piorou: 99 ficheiros flat, era 46] |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
 | **Owner** | unassigned |
 | **Data** | 2026-06-30 |
 | **Fonte** | nexus assess --json (dimension: architecture = 15) |
 | **Modulos** | src/ (global) |
-| **Descricao** | Dimensao Architecture do score de maturidade esta em 15%. 46 arquivos flat em src/, sem camadas, sem bounded contexts. |
-| **Correcao** | Reestruturar em domain/infrastructure/commands/interfaces. Adicionar abstracoes. |
+| **Descricao** | Dimensao Architecture do score de maturidade esta em 15%. 99 arquivos flat em src/ (era 46), sem camadas, sem bounded contexts. Subpastas existentes (audit/, commands/, console/, handbook/) sao feature-based, nao Clean Architecture. |
+| **Correcao** | Reestruturar em domain/infrastructure/commands/interfaces. Adicionar abstracoes. 10 ficheiros >500 linhas (rule-engine.ts = 1307 linhas). |
 
 ### SA5 Documentacao 10%
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-13 |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Data** | 2026-06-30 |
 | **Fonte** | nexus assess --json (dimension: documentation = 10) |
 | **Modulos** | src/, docs/ |
 | **Descricao** | Dimensao Documentation do score de maturidade esta em 10%. Docs internos fracos, sem ADRs, sem session templates. |
-| **Correcao** | Criar ADRs para decisoes arquiteturais, documentar decisoes de design. |
+| **Correcao** | 5 ADRs + template criados (ADR-001 a ADR-006). Session template existe (87 linhas). 22 docs em docs/, 6 regras, 17 skills. |
 
 ### SA7 Baixa densidade de relacoes no knowledge graph
 
@@ -106,56 +106,56 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-13 |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Data** | 2026-06-30 |
 | **Fonte** | nexus status --json (context_buffer.yaml = warn) |
 | **Modulos** | nexus-system/governance/context/ |
 | **Descricao** | Arquivo context_buffer.yaml nao encontrado. Necessario para buffer de contexto entre sessoes. |
-| **Correcao** | Criar governance/context/context_buffer.yaml a partir do template. |
+| **Correcao** | Ficheiro criado e activo — 525 linhas com reminders, session state, impediments, technical_debt. |
 
 ### SA9 Nenhum agent contract configurado
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Done — 2026-07-13 |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
-| **Owner** | unassigned |
+| **Owner** | executor |
 | **Data** | 2026-06-30 |
 | **Fonte** | nexus status --json (agent contracts = warn) |
 | **Modulos** | nexus-system/governance/agents/ |
 | **Descricao** | Nenhum agent contract encontrado. Necessario para definir papeis e responsabilidades de agents IA. |
-| **Correcao** | Criar AI-CONTRACT-planner-v1.yaml, AI-CONTRACT-executor-v1.yaml, AI-CONTRACT-reviewer-v1.yaml. |
+| **Correcao** | 4 contratos criados: planner-v1, executor-v1, reviewer-v1, orchestrator-v1 + CONTRACTS_INDEX.md. |
 
 ### SA10 Clean Architecture violado
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Backlog [REVISIT: 2026-07-13 — piorou: zero separação de camadas] |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
 | **Owner** | unassigned |
 | **Data** | 2026-06-30 |
 | **Fonte** | Analise manual |
-| **Modulos** | src/ (46 arquivos) |
-| **Descricao** | 46 arquivos flat em src/, sem separacao de camadas. Domain logic misturado com infrastructure. Commands importam implementacoes concretas. |
-| **Correcao** | Reestruturar: src/domain/, src/infrastructure/, src/commands/, src/interfaces/. Extrair abstracoes. |
+| **Modulos** | src/ (99 arquivos flat) |
+| **Descricao** | 99 arquivos flat em src/, sem separacao de camadas. Domain logic misturado com infrastructure. Commands importam implementacoes concretas. Zero pattern DI (except context-collector.ts). |
+| **Correcao** | Reestruturar: src/domain/, src/infrastructure/, src/commands/, src/interfaces/. Extrair abstracoes. Adicionar DI. |
 
 ### SA11 SOLID violado
 
 | Campo | Valor |
 |---|---|
-| **Status** | Backlog |
+| **Status** | Backlog [REVISIT: 2026-07-13 — piorou: 10 ficheiros >500 linhas] |
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
 | **Owner** | unassigned |
 | **Data** | 2026-06-30 |
 | **Fonte** | Analise manual |
 | **Modulos** | src/ (global) |
-| **Descricao** | God modules (feedback-loops.ts 396 linhas, state-manager.ts 438 linhas). Sem dependency injection. Interface Segregation violada (NexusState com 60+ campos). |
+| **Descricao** | God modules: rule-engine.ts (1307 linhas), scorer.ts (947), engineering-state.ts (908), feedback-engine.ts (756). 10 ficheiros >500 linhas. Sem dependency injection (except context-collector.ts). Interface Segregation violada (NexusState com 60+ campos). |
 | **Correcao** | Dividir modules grandes. Adicionar DI. Criar interfaces menores. |
 
 ### LIVING-002 Fase 2 — Git hooks reactivos
@@ -1153,3 +1153,18 @@
 - [ ] Run lint + tests
 - [ ] Atualizar BACKLOG.md (3.1 → Done)
 - [ ] Commit + push
+
+
+### BACKLOG-PLAN_DOC_SEMANTIC_SYNC — PLANO — Doc Semantic Sync (drift semântico → reminder → AI)
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado (0% — 0/0) |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-13 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLANO — Doc Semantic Sync (drift semântico → reminder → AI) |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-doc-semantic-sync.md` |

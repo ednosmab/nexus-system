@@ -33,6 +33,7 @@ import { getEventBus } from "./event-bus.js";
 import { startWatching } from "./file-watcher.js";
 import { checkAndArchiveDonePlans } from "./plan-lifecycle.js";
 import { DaemonCircuitBreaker } from "./daemon-circuit-breaker.js";
+import { outputError } from "./output.js";
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
@@ -275,7 +276,7 @@ function cleanup(pidPath: string, sockPath: string): void {
 const nexusDirArg = process.argv[2];
 if (nexusDirArg) {
   runDaemon(nexusDirArg).catch((err) => {
-    console.error("[daemon] Fatal error:", err);
+    outputError(`[daemon] Fatal error: ${err}`);
     process.exit(1);
   });
 }
