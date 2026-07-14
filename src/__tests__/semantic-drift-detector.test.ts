@@ -7,7 +7,7 @@ const MOCK_FACTS: CodebaseFacts = {
   dependencies: ["react", "typescript", "vitest", "express"],
   imports: ["react", "express", "node:fs"],
   cliCommands: ["serve", "build", "test", "lint"],
-  configKeys: ["PORT", "HOST", "DATABASE_URL"],
+  configKeys: ["PORT", "HOST", "DATABASE_URL", "NODE_ENV"],
 };
 
 function extractDependencies(content: string): { dependencies: string[] } {
@@ -35,10 +35,10 @@ describe("extractKeywords", () => {
     expect(result.dependencies).toContain("fastify");
   });
 
-  it("extracts config keys (UPPERCASE)", () => {
-    const result = extractKeywords("Set DATABASE_URL and PORT in .env");
+  it("extracts config keys (UPPERCASE with underscore)", () => {
+    const result = extractKeywords("Set DATABASE_URL and NODE_ENV in .env");
     expect(result.configRefs).toContain("DATABASE_URL");
-    expect(result.configRefs).toContain("PORT");
+    expect(result.configRefs).toContain("NODE_ENV");
   });
 
   it("handles empty content gracefully", () => {
@@ -53,7 +53,7 @@ describe("extractKeywords", () => {
 describe("detectDrift", () => {
   it("detects drift when dependency is missing from codebase", () => {
     const result = detectDrift(
-      { content: 'We use PostgreSQL as our database', type: "doc" },
+      { content: 'Install "postgresql" for the database', type: "doc" },
       MOCK_FACTS
     );
     expect(result.confidence).toBeGreaterThan(0);
@@ -99,11 +99,11 @@ describe("detectDrift", () => {
 
   it("reduces confidence for old ADRs (historical)", () => {
     const oldAdr = detectDrift(
-      { content: 'We use PostgreSQL', type: "adr", age: 400 },
+      { content: 'Install "postgresql" for the database', type: "adr", age: 400 },
       MOCK_FACTS
     );
     const newAdr = detectDrift(
-      { content: 'We use PostgreSQL', type: "adr", age: 30 },
+      { content: 'Install "postgresql" for the database', type: "adr", age: 30 },
       MOCK_FACTS
     );
     expect(oldAdr.confidence).toBeLessThan(newAdr.confidence);
@@ -124,15 +124,15 @@ describe("detectDrift", () => {
 });
 
 describe("detectDriftBatch", () => {
-  it("returns only documents with confidence > 0.3", () => {
+  it("returns only documents with confidence > 0.8", () => {
     const docs = [
       { path: "docs/adr-001.md", content: "We use React", type: "adr", age: 30 },
-      { path: "docs/runbook.md", content: "We use PostgreSQL", type: "runbook" },
+      { path: "docs/runbook.md", content: 'Install with "mongodb" and "redis" and "docker" and run `nexus deploy`', type: "runbook" },
     ];
     const results = detectDriftBatch(docs, MOCK_FACTS);
     expect(results.length).toBeGreaterThanOrEqual(1);
     for (const r of results) {
-      expect(r.confidence).toBeGreaterThan(0.3);
+      expect(r.confidence).toBeGreaterThan(0.8);
     }
   });
 
@@ -154,4 +154,70 @@ describe("scanCodebase", () => {
     expect(facts).toHaveProperty("configKeys");
     expect(Array.isArray(facts.dependencies)).toBe(true);
   });
+});
+
+// ── Golden set: known FPs must NOT generate drift ────────────────────────────
+
+describe("golden set — false positives", () => {
+  const FP_CASES = [
+    { label: "ADR status words", content: 'Status: Done, Backlog, proposed' },
+    { label: "Portuguese placeholders", content: 'Tarefa: Nenhuma. Proximo: Definir. Impedimentos: Nenhum' },
+    { label: "Generic English terms", content: 'Focus on quality, automation, governance, documentation' },
+    { label: "Template placeholders", content: 'projectName: my-project, areas: src/components' },
+    { label: "UPPERCASE headings", content: '## COMMIT_PERMISSION\n## SYSTEM_MAP\n## FORBIDDEN_OPERATIONS' },
+    { label: "Package-like refs", content: 'See nexus-governance and nexus-system packages' },
+    { label: "Portuguese error words", content: 'Se erro, bug, corrigi, falhou, fazer rollback' },
+    { label: "Config field names", content: 'churnWindowDays, weights, churn, violationRate, sensitiveSurface' },
+    { label: "Formatted strings", content: 'Run pnpm management for setup' },
+    { label: "Path-like refs", content: 'See src/services and docs/handbook for details' },
+  ];
+
+  for (const tc of FP_CASES) {
+    it(`suppresses FP: ${tc.label}`, () => {
+      const result = detectDrift(
+        { content: tc.content, type: "doc" },
+        { dependencies: [], imports: [], cliCommands: [], configKeys: [] }
+      );
+      expect(result.confidence).toBe(0);
+      expect(result.missingKeywords).toHaveLength(0);
+    });
+  }
+});
+
+// ── Golden set: known drift must BE detected ─────────────────────────────────
+
+describe("golden set — true drift", () => {
+  const DRIFT_CASES = [
+    {
+      label: "missing npm dependency",
+      content: 'Install "mongodb" for the database',
+      facts: { dependencies: ["react"], imports: [], cliCommands: [], configKeys: [] },
+    },
+    {
+      label: "missing CLI command",
+      content: 'Run `nexus deploy` to deploy',
+      facts: { dependencies: [], imports: [], cliCommands: ["status", "init"], configKeys: [] },
+    },
+    {
+      label: "missing CLI command (nexus cli)",
+      content: 'Run `nexus cli` for setup',
+      facts: { dependencies: [], imports: [], cliCommands: ["status", "init"], configKeys: [] },
+    },
+    {
+      label: "missing env var",
+      content: 'Set DATABASE_URL in your .env file',
+      facts: { dependencies: [], imports: [], cliCommands: [], configKeys: ["PORT"] },
+    },
+  ];
+
+  for (const tc of DRIFT_CASES) {
+    it(`detects drift: ${tc.label}`, () => {
+      const result = detectDrift(
+        { content: tc.content, type: "doc" },
+        tc.facts
+      );
+      expect(result.confidence).toBeGreaterThan(0);
+      expect(result.missingKeywords.length).toBeGreaterThan(0);
+    });
+  }
 });

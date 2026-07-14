@@ -11,10 +11,17 @@ import { scanCodebase, detectDriftBatch, type DriftResult } from "./semantic-dri
 import { addReminder } from "./context-buffer-writer.js";
 import type { ReminderPriority, ReminderCategory } from "./briefing.js";
 
+const ARCHIVAL_DIRS = ["history", "evolution", "feedback", "implementation", "plans"];
+
+function isArchivalPath(relativePath: string): boolean {
+  return ARCHIVAL_DIRS.some(dir => relativePath.startsWith(dir + "/") || relativePath.includes("/" + dir + "/"));
+}
+
 function loadDocsForDrift(docsDir: string): Array<{ path: string; content: string; type: string; age?: number }> {
   if (!existsSync(docsDir)) return [];
   const files = readdirSync(docsDir, { recursive: true })
-    .filter((f): f is string => typeof f === "string" && extname(f) === ".md");
+    .filter((f): f is string => typeof f === "string" && extname(f) === ".md")
+    .filter((f): f is string => !isArchivalPath(f));
 
   return files.map(f => {
     const fullPath = join(docsDir, f);
@@ -55,11 +62,11 @@ export interface SemanticSyncResult {
  * are skipped by addReminder().
  */
 export function runSemanticDocSync(options: SemanticSyncOptions): SemanticSyncResult {
-  const { projectRoot, nexusDir, docsDir = join(projectRoot, "docs") } = options;
+  const { projectRoot, nexusDir, docsDir = join(projectRoot, "docs"), minConfidence = 0.8 } = options;
 
   const facts = scanCodebase(projectRoot);
   const docs = loadDocsForDrift(docsDir);
-  const driftResults = detectDriftBatch(docs, facts);
+  const driftResults = detectDriftBatch(docs, facts).filter(r => r.confidence >= minConfidence);
 
   let written = 0;
   let skipped = 0;

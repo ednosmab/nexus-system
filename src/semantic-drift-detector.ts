@@ -84,7 +84,7 @@ function scanCliCommands(commandsDir: string): string[] {
   for (const file of files) {
     try {
       const content = readFileSync(join(commandsDir, file as string), "utf-8");
-      const cmdMatches = content.matchAll(/\.command\(["']([^"']+)["']\)/g);
+      const cmdMatches = content.matchAll(/(?:\.command|new Command)\(["']([^"']+)["']\)/g);
       for (const match of cmdMatches) {
         commands.push(match[1]!);
       }
@@ -131,6 +131,28 @@ const DEPENDENCY_KEYWORDS = [
   "pg", "mysql2", "better-sqlite3", "mongoose", "ioredis",
 ];
 
+const FALSE_POSITIVE_PATTERNS: RegExp[] = [
+  /^(?:Done|Backlog|proposed|active|completed)$/i,
+  /^(?:Nenhuma|Definir|Nenhum|oi)$/i,
+  /^(?:quality|automation|governance|documentation|observability|architecture|ai)$/i,
+  /^(?:projectName|my-project|areas|auth|payment|session|security|utf-8|sensitiveKeywords)$/i,
+  /^(?:src\/|docs\/|lib\/|packages\/)/,
+  /^(?:pnpm|npm|yarn)\s/,
+  /^(?:erro|bug|corrigi|falhou|rollback)$/i,
+  /^(?:churnWindowDays|weights|churn|violationRate|sensitiveSurface|historyPath|feedbackPath|violationKeywords|highComplexityThreshold)$/i,
+  /^(?:COMMIT_PERMISSION|SYSTEM_MAP|FORBIDDEN_OPERATIONS|CONTRACTS_INDEX|CONTEXT_HIERARCHY|CONCEPTUAL_MODEL|KNOWLEDGE_LIFECYCLE|SESSION_REVIEW|NEXUS_NO_DAEMON|NEXUS_CHILD|VIOLATION_KEYWORDS|COMMAND_GATES|SKILL_TEMPLATE|KNOWN_LIMITATIONS|BACKLOG_BATCH_RESOLVER|PUBLIC_JWK|PRIVATE_JWK|COMMITS_ENGLISH|BOOTSTRAP_SETUP|LEAN_FLOW|TDD_STRICT|SECURITY_VALIDATION|SENIOR_ENGINEER|TDD_SKILL|POST_COMMIT_CHECK|DEPLOY_CHECKLIST|SESSION_PRIORITY|SESSION_INVARIANT|QUICK_BOARD|EVIDENCE_OVER_DOCS|MEASURE_BEFORE_OPTIMIZE|BACKLOG_STATES|COMPLETION_CHECKLIST|GAP_DETECTION|INFRA_VALIDATION|AUTO_RECOMMEND|COMMAND_CATEGORIES|HANDBOOK_DIR)$/i,
+  /^nexus-[a-z]/i,
+  /^PLANO[_-]/i,
+  /^NEXUS[_-]/i,
+  /^REFACTOR[_-]/i,
+  /^MIGRAR[_-]/i,
+  /^PLAN[_-]/i,
+];
+
+function isFalsePositive(value: string): boolean {
+  return FALSE_POSITIVE_PATTERNS.some(p => p.test(value));
+}
+
 export function extractKeywords(content: string): ExtractedKeywords {
   const words = content.split(/\s+/).map(w => w.toLowerCase().replace(/[^a-z0-9-]/g, ""));
   const technical = words.filter(w =>
@@ -139,7 +161,7 @@ export function extractKeywords(content: string): ExtractedKeywords {
   );
   const commands = content.match(/(?:nexus|npm|pnpm|yarn)\s+\w+/g) ?? [];
   const depRefs = content.match(/(?:"|')(?:@?[\w-]+\/)?[\w-]+(?:"|')/g) ?? [];
-  const configRefs = content.match(/[A-Z][A-Z_]{2,}/g) ?? [];
+  const configRefs = content.match(/[A-Z][A-Z0-9]*_[A-Z0-9_]+/g) ?? [];
   return {
     technical: [...new Set(technical)],
     commands: [...new Set(commands)],
@@ -165,12 +187,14 @@ export function detectDrift(
   const missing: string[] = [];
   let confidence = 0;
   for (const dep of keywords.dependencies) {
+    if (isFalsePositive(dep)) continue;
     if (!fuzzyMatch(dep, facts.dependencies, 2)) {
       missing.push(dep);
       confidence += CONFIDENCE_RULES.dependency_missing;
     }
   }
   for (const cmd of keywords.commands) {
+    if (isFalsePositive(cmd)) continue;
     const cmdName = cmd.split(/\s+/).pop() ?? cmd;
     if (!fuzzyMatch(cmdName, facts.cliCommands, 2)) {
       missing.push(cmd);
@@ -178,6 +202,7 @@ export function detectDrift(
     }
   }
   for (const key of keywords.configRefs) {
+    if (isFalsePositive(key)) continue;
     if (!fuzzyMatch(key, facts.configKeys, 1)) {
       missing.push(key);
       confidence += CONFIDENCE_RULES.config_missing;
@@ -198,5 +223,5 @@ export function detectDriftBatch(
 ): DriftResult[] {
   return documents.map(doc =>
     detectDrift({ content: doc.content, type: doc.type, age: doc.age }, facts, doc.path)
-  ).filter(r => r.confidence > 0.3);
+  ).filter(r => r.confidence > 0.8);
 }

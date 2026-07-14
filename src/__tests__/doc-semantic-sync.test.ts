@@ -96,7 +96,7 @@ describe("runSemanticDocSync", () => {
     vi.mocked(detector.detectDriftBatch).mockReturnValue([
       {
         document: "docs/README.md",
-        confidence: 0.6,
+        confidence: 0.9,
         missingKeywords: ["daemon"],
         reason: "Missing: daemon",
       },
