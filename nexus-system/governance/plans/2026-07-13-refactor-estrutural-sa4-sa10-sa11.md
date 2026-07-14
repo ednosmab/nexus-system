@@ -1,6 +1,8 @@
 # Plano de Refactor Estrutural — SA4 / SA10 / SA11
 
 **Status:** In Progress
+**Updated_at:** 2026-07-14T04:51:45.474Z
+**Date:** 2026-07-13
 
 > **Data:** 2026-07-13
 > **Status:** Planeado
@@ -9,6 +11,17 @@
 > **Dependências:** Nenhuma — pode iniciar imediatamente
 
 ---
+
+
+## Checklist
+
+- [ ] `pnpm run lint` — limpo
+- [ ] `pnpm test` — todos passam
+- [ ] `pnpm run build` — OK
+- [ ] `wc -l src/*.ts` — nenhum > 400
+- [ ] `find src/ -maxdepth 1 -name "*.ts" | wc -l` — < 30
+- [ ] `ls -d src/domain/ src/infrastructure/ src/shared/` — existem
+- [ ] Backlog SA4/SA10/SA11 actualizado
 
 ## 1. Problema
 

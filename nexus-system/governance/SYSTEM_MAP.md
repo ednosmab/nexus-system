@@ -86,6 +86,8 @@
 │   docs/history/2026-07-12-rule-session_end_plans.md
 │   docs/history/2026-07-13-rule-session_close.md
 │   docs/history/2026-07-13-rule-session_end_plans.md
+│   docs/history/2026-07-14-rule-session_close.md
+│   docs/history/2026-07-14-rule-session_end_plans.md
 │   docs/opencode-context.md
 │   docs/rules/
 │   docs/rules/agent-modes.md
@@ -127,6 +129,8 @@
 │   feedback/records/2026-07-13-FB-1783907494091-x89c96.json
 │   feedback/records/2026-07-13-FB-1783907863373-pwv6hj.json
 │   feedback/records/2026-07-13-FB-1783907944029-jc3zo7.json
+│   feedback/records/2026-07-13-FB-1783917483526-5q4tbc.json
+│   feedback/records/2026-07-14-FB-1784006211371-sxdv0m.json
 │   feedback/summary.json
 │   fingerprint.json
 │   governance/
@@ -148,11 +152,13 @@
 │   governance/knowledge-graph/artifacts.json
 │   governance/knowledge-graph/relations.json
 │   governance/plans/
-│   governance/plans/2026-07-12-migrar-console-log-para-logger.md
 │   governance/plans/2026-07-13-refactor-estrutural-sa4-sa10-sa11.md
-│   governance/plans/PLAN-doc-semantic-sync.md
+│   governance/plans/PLAN-monettization-implementation.md
 │   governance/plans/README.md
 │   governance/plans/TEMPLATE.md
+│   governance/plans/brand-change/
+│   governance/plans/brand-change/plano-rebranding-shitenno-go.md
+│   governance/plans/brand-change/rename-shitenno-go.py
 │   governance/plans/done/
 │   governance/plans/done/2026-07-02-init-audit-dashboard.md
 │   governance/plans/done/2026-07-02-nexus-dashboard-restructure.md
@@ -179,6 +185,7 @@
 │   governance/plans/done/2026-07-13-plano-bug002-entropia.md
 │   governance/plans/done/PLAN-DYNAMIC-RULE-ADAPTATION.md
 │   governance/plans/done/PLAN-HANDBOOK-SYNC.md
+│   governance/plans/done/PLAN-doc-semantic-sync.md
 │   governance/plans/done/PLANO-CORRECAO-NEXUS.md
 │   governance/plans/done/Plano-de-Evolução-do-Nexus-CLI.md
 │   governance/plans/done/adaptive-dual-path.md
@@ -241,12 +248,15 @@
 │   reports/
 │   reports/complexity-nexus-cli-2026-07-12-session1.json
 │   reports/complexity-nexus-cli-2026-07-13-session1.json
+│   reports/complexity-nexus-cli-2026-07-14-session1.json
 │   reports/doc-lifecycle-2026-07-12.json
 │   reports/doc-lifecycle-2026-07-13.json
 │   reports/doc-sync-2026-07-12.json
 │   reports/doc-sync-2026-07-13.json
+│   reports/doc-sync-2026-07-14.json
 │   reports/patterns-2026-07-12.json
 │   reports/patterns-2026-07-13.json
+│   reports/patterns-2026-07-14.json
 │   scripts/
 │   scripts/backlog.ts
 │   scripts/close-session.ts
@@ -272,6 +282,7 @@
 │   telemetry/events-2026-07-11.jsonl
 │   telemetry/events-2026-07-12.jsonl
 │   telemetry/events-2026-07-13.jsonl
+│   telemetry/events-2026-07-14.jsonl
 │   telemetry/maturity-2026-06-30.json
 │   telemetry/maturity-2026-07-01.json
 │   telemetry/maturity-2026-07-06.json

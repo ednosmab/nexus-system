@@ -1,6 +1,6 @@
 # PLANO — Doc Semantic Sync (drift semântico → reminder → AI)
 
-**Status:** proposta pronta para execução
+**Status:** done
 **Updated_at:** 2026-07-13T02:42:51.629Z
 **Date:** 2026-07-13
 **Escopo:** conectar `semantic-drift-detector.ts` (já existe, já testado, **não está ligado a nada**) ao `context_buffer.yaml`, para que o AI veja automaticamente na próxima sessão o que precisa escrever.

@@ -1168,3 +1168,89 @@
 | **Modulos** | governance/plans/ |
 | **Descricao** | PLANO — Doc Semantic Sync (drift semântico → reminder → AI) |
 | **Correcao** | Verificar checklist no plano `governance/plans/PLAN-doc-semantic-sync.md` |
+
+
+### BACKLOG-2026_07_13_REFACTOR_ESTRUTURAL_SA4_SA10_SA11 — Plano de Refactor Estrutural — SA4 / SA10 / SA11
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-13 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Refactor Estrutural — SA4 / SA10 / SA11 |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-13-refactor-estrutural-sa4-sa10-sa11.md` |
+
+#### Passos do Plano
+- [ ] `pnpm run lint` — limpo
+- [ ] `pnpm test` — todos passam
+- [ ] `pnpm run build` — OK
+- [ ] `wc -l src/*.ts` — nenhum > 400
+- [ ] `find src/ -maxdepth 1 -name "*.ts" | wc -l` — < 30
+- [ ] `ls -d src/domain/ src/infrastructure/ src/shared/` — existem
+- [ ] Backlog SA4/SA10/SA11 actualizado
+- [ ] `pnpm run lint` — limpo
+- [ ] `pnpm test` — todos passam
+- [ ] `pnpm run build` — OK
+- [ ] `wc -l src/*.ts` — nenhum > 400
+- [ ] `find src/ -maxdepth 1 -name "*.ts" | wc -l` — < 30
+- [ ] `ls -d src/domain/ src/infrastructure/ src/shared/` — existem
+- [ ] Backlog SA4/SA10/SA11 actualizado
+
+
+### BACKLOG-PLANO_MONETIZACAO_NEXUS — Plano de Monetização — nexus-system (Free + Token Mensal)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-13 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Monetização — nexus-system (Free + Token Mensal) |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLANO-MONETIZACAO-NEXUS.md` |
+
+#### Passos do Plano
+- [ ] `PUBLIC_JWK` real (não o placeholder) commitado em `src/license.ts`
+- [ ] `PRIVATE_JWK` **fora** do repositório (só no Cloudflare, via `wrangler secret`)
+- [ ] Worker deployado e testado manualmente (`curl` no `/refresh` com uma key de teste)
+- [ ] Payment Link do Stripe testado em modo teste (Stripe tem test mode com cartão `4242 4242 4242 4242`)
+- [ ] `nexus license activate <key>` testado ponta a ponta em modo teste
+- [ ] `PUBLIC_JWK` real (não o placeholder) commitado em `src/license.ts`
+- [ ] `PRIVATE_JWK` **fora** do repositório (só no Cloudflare, via `wrangler secret`)
+- [ ] Worker deployado e testado manualmente (`curl` no `/refresh` com uma key de teste)
+- [ ] Payment Link do Stripe testado em modo teste (Stripe tem test mode com cartão `4242 4242 4242 4242`)
+- [ ] `nexus license activate <key>` testado ponta a ponta em modo teste
+
+
+### BACKLOG-PLAN_MONETTIZATION_IMPLEMENTATION — Plano de Implementação — Monetização Nexus CLI
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-14 |
+| **Fonte** | nexus plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Implementação — Monetização Nexus CLI |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-monettization-implementation.md` |
+
+#### Passos do Plano
+- [ ] Criar `src/license.ts`
+- [ ] Adicionar `jose` ao `package.json`
+- [ ] Criar `src/__tests__/license.test.ts`
+- [ ] Modificar `src/cli-middleware.ts`
+- [ ] Criar `src/commands/license.ts`
+- [ ] Modificar `bin/nexus.ts`
+- [ ] Criar `src/__tests__/license.test.ts`
+- [ ] Criar `src/__tests__/license-gate.test.ts`
+- [ ] Actualizar `README.md`
+- [ ] Criar `docs/handbook/02-commands/license.md`
+- [ ] Actualizar `docs/reference/cli.md`
