@@ -1,9 +1,3 @@
-/**
- * doc-lifecycle-auditor.ts — Documentation Lifecycle Auditor
- *
- * Thin facade — all logic split into audit/doc-lifecycle/ modules.
- */
-
 export type {
   DocType,
   DocLifecycleStatus,
@@ -18,18 +12,18 @@ export type {
   ProposedMove,
   DocLifecycleReport,
   MoveResult,
-} from "./audit/doc-lifecycle/types.js";
+} from "./types.js";
 
 export {
   detectStatusMarkers,
   detectCrossReferences,
   detectSupersession,
-} from "./audit/doc-lifecycle/detectors.js";
+} from "./detectors.js";
 
-export { classifyDocument } from "./audit/doc-lifecycle/classifier.js";
+export { classifyDocument } from "./classifier.js";
 
 export {
   auditDocLifecycle,
   applyMoves,
   writeDocLifecycleReport,
-} from "./audit/doc-lifecycle/auditor.js";
+} from "./auditor.js";
