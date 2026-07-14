@@ -1,6 +1,6 @@
 # Architecture Overview
 
-> Generated: 2026-07-13T03:30:24.231Z
+> Generated: 2026-07-14T04:51:49.151Z
 
 ## System Architecture
 

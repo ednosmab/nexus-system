@@ -15,7 +15,7 @@ import { execSync } from "node:child_process";
 import { NEXUS_DIR_NAME } from "./constants.js";
 import { InvalidRuleError } from "./errors.js";
 import { logger } from "./logger.js";
-import { type Capability, loadMaturityProfile } from "./maturity-profile.js";
+import { loadMaturityProfile } from "./maturity-profile.js";
 import { transitionTask, type BacklogState } from "./backlog-state-machine.js";
 import { replaceSectionField, updateNextP0 } from "./context-buffer-writer.js";
 
@@ -111,157 +111,30 @@ export function validateRule(rule: unknown): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
-// ── Types ───────────────────────────────────────────────────────────────────
+// ── Types (re-exported from domain/rules/rule.ts) ───────────────────────────
 
-/** Tipos de evento que disparam regras. */
-export type TriggerType =
-  | "session_start"
-  | "session_end"
-  | "file_change"
-  | "git_commit"
-  | "git_push"
-  | "assessment"
-  | "health_check"
-  | "capability_install"
-  | "capability_remove"
-  | "adr_created"
-  | "skill_created"
-  | "contrato_created"
-  | "validation_fail"
-  | "validation_pass"
-  | "maturity_change"
-  | "knowledge_debt_detected"
-  | "pattern_detected"
-  | "pipeline_complete"
-  | "task_completed"
-  | "plan_archived"
-  | "plan_created"
-  | "plan_file_changed"
-  | "plan_status_changed"
-  | "manual";
+import type {
+  TriggerType,
+  ActionType,
+  Rule,
+  RuleCondition,
+  RuleAction,
+  RuleContext,
+  RuleResult,
+  EngineResult,
+} from "./domain/rules/rule.js";
 
-/** Operadores para condições. */
-export type ConditionOperator =
-  | "equals"
-  | "not_equals"
-  | "contains"
-  | "not_contains"
-  | "greater_than"
-  | "less_than"
-  | "exists"
-  | "not_exists"
-  | "matches_regex";
-
-/** Acções executáveis pelo engine. */
-export type ActionType =
-  | "update_context_buffer"
-  | "create_reminder"
-  | "remove_reminder"
-  | "update_quick_board"
-  | "create_adr"
-  | "create_skill"
-  | "log_event"
-  | "send_notification"
-  | "trigger_assessment"
-  | "trigger_health_check"
-  | "update_backlog"
-  | "run_local_script"
-  | "run_script"
-  | "run_nexus_command"
-  | "update_file"
-  | "create_file"
-  | "remove_file"
-  | "update_backlog_status"
-  | "archive_plan"
-  | "auto_populate_next_p0";
-
-/** Uma regra declarativa. */
-export interface Rule {
-  /** Identificador único da regra. */
-  id: string;
-  /** Descrição legível. */
-  description: string;
-  /** Quando activar (trigger). */
-  trigger: TriggerType;
-  /** Condições para executar (todas devem ser verdadeiras). */
-  conditions: RuleCondition[];
-  /** Acções a executar (em ordem). */
-  actions: RuleAction[];
-  /** Prioridade (1=alta, 5=baixa). */
-  priority: number;
-  /** Regras que devem executar primeiro. */
-  dependencies: string[];
-  /** Se true, regra está activa. */
-  enabled: boolean;
-  /** Tags para filtragem. */
-  tags: string[];
-  /** Capability necessária para a regra executar. Se ausente, a regra roda sempre. */
-  requiredCapability?: Capability;
-}
-
-/** Condição de uma regra. */
-export interface RuleCondition {
-  /** Campo a avaliar (ex: "maturity.overallScore"). */
-  field: string;
-  /** Operador. */
-  operator: ConditionOperator;
-  /** Valor para comparar. */
-  value: string | number | boolean;
-}
-
-/** Acção de uma regra. */
-export interface RuleAction {
-  /** Tipo de acção. */
-  type: ActionType;
-  /** Parâmetros da acção. */
-  params: Record<string, string | number | boolean>;
-}
-
-/** Contexto de execução de uma regra. */
-export interface RuleContext {
-  /** Tipo de evento que disparou. */
-  trigger: TriggerType;
-  /** Dados do evento. */
-  eventData: Record<string, unknown>;
-  /** Project root. */
-  projectRoot: string;
-  /** Nexus dir. */
-  nexusDir: string;
-  /** Timestamp. */
-  timestamp: string;
-  /** Capabilities instaladas no projecto. */
-  installedCapabilities?: Capability[];
-}
-
-/** Resultado da execução de uma regra. */
-export interface RuleResult {
-  /** ID da regra executada. */
-  ruleId: string;
-  /** Se foi executada com sucesso. */
-  success: boolean;
-  /** Mensagem resultado. */
-  message: string;
-  /** Acções executadas. */
-  actionsExecuted: number;
-  /** Tempo de execução (ms). */
-  duration: number;
-}
-
-/** Resultado do engine. */
-export interface EngineResult {
-  /** Total de regras avaliadas. */
-  rulesEvaluated: number;
-  /** Total de regras executadas. */
-  rulesExecuted: number;
-  /** Total de regras ignoradas (condições não cumpridas). */
-  rulesSkipped: number;
-  /** Total de erros. */
-  rulesFailed: number;
-  /** Resultados individuais. */
-  results: RuleResult[];
-  /** Resumo legível. */
-  summary: string;
-}
+export type {
+  TriggerType,
+  ConditionOperator,
+  ActionType,
+  Rule,
+  RuleCondition,
+  RuleAction,
+  RuleContext,
+  RuleResult,
+  EngineResult,
+} from "./domain/rules/rule.js";
 
 // ── Rule Storage ────────────────────────────────────────────────────────────
 

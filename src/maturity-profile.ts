@@ -13,66 +13,21 @@ import { join } from "node:path";
 import type { ProjectAnalysis } from "./analyser.js";
 import { logger } from "./logger.js";
 
-// ── Types ───────────────────────────────────────────────────────────────────
+// ── Types (re-exported from domain entities) ────────────────────────────────
 
-/** Dimensões de maturidade do projeto (0-100 cada). */
-export interface MaturityDimensions {
-  /** Estrutura arquitetural, separação de concerns, padrões */
-  architecture: number;
-  /** Processos de governança, decisões documentadas, workflows */
-  governance: number;
-  /** Testes, validação, CI/CD, qualidade de código */
-  quality: number;
-  /** Automação: CI/CD, scripts, pipelines */
-  automation: number;
-  /** Uso de IA no desenvolvimento */
-  ai: number;
-  /** Documentação: ADRs, skills, guias */
-  documentation: number;
-  /** Observabilidade: logs, métricas, relatórios */
-  observability: number;
-}
+import type {
+  MaturityDimensions,
+  Capability,
+  CapabilityInfo,
+  MaturityProfile,
+} from "./domain/entities/engineering-state.js";
 
-/** Capacidades que o Nexus pode instalar. */
-export type Capability =
-  | "core"           // Sempre instalado — o essencial
-  | "knowledge"      // Skills, AGENTS.md, documentação
-  | "architecture"   // ADRs, SDRs, planos
-  | "governance"     // Contratos de agentes, workflows, context buffer
-  | "ai"             // Agentes IA, prompts, orquestração
-  | "quality"        // Validação, health checks, testes
-  | "metrics"        // Relatórios, scoring, complexidade
-  | "operations"     // Scripts, sessões, runbooks
-  | "compliance";    // FORBIDDEN_OPERATIONS, DESDO, reviews
-
-/** Informação sobre uma capacidade. */
-export interface CapabilityInfo {
-  id: Capability;
-  name: string;
-  description: string;
-  /** Dimensões que esta capacidade suporta ( peso: 0-1) */
-  dimensions: Partial<Record<keyof MaturityDimensions, number>>;
-  /** Se true, sempre instalado */
-  alwaysInstalled: boolean;
-  /** Capacidades que dependem desta */
-  requires: Capability[];
-}
-
-/** Resultado do cálculo de maturidade. */
-export interface MaturityProfile {
-  /** Dimensões calculadas (0-100 cada). */
-  dimensions: MaturityDimensions;
-  /** Score geral (média ponderada das dimensões). */
-  overallScore: number;
-  /** Capacidades recomendadas com base no perfil. */
-  recommendedCapabilities: Capability[];
-  /** Capacidades que o projeto já possui. */
-  installedCapabilities: Capability[];
-  /** Capacidades futuras (não recomendadas ainda). */
-  futureCapabilities: Capability[];
-  /** Data do cálculo. */
-  computedAt: string;
-}
+export type {
+  MaturityDimensions,
+  Capability,
+  CapabilityInfo,
+  MaturityProfile,
+} from "./domain/entities/engineering-state.js";
 
 // ── Capability Definitions ──────────────────────────────────────────────────
 
