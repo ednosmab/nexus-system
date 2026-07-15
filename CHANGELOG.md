@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] — 2026-07-15
+
+### Added
+
+- **Rebranding completo:** nexus-system → shitenno-go (package name, binary, docs, templates, all references)
+- **Structural refactoring:** Split 10+ god modules into domain modules (rule-engine, knowledge-debt, maturity-profile, capability-engine, health-auditor, mcp-server, knowledge-graph, doc-lifecycle-auditor, feedback-engine, engineering-state)
+- **Domain layer:** New `src/domain/` with entities, rules, and scoring modules (Clean Architecture)
+- **Semantic drift detector:** Keywords + AST-based documentation drift detection with golden tests
+- **Doc semantic sync:** Bridge between semantic-drift-detector and context_buffer.yaml
+- **Git hooks installer:** Auto-install post-commit and post-merge hooks
+- **Plan backlog sync:** Cooldown and lock mechanisms for concurrent syncs
+- **Session context:** Session tracker with state machine transitions
+- **CLI global flags:** `--quiet`, `--no-color`, `--compact` for terminal output control
+
+### Changed
+
+- **Architecture:** 99 flat files restructured into domain/infrastructure/commands/layers
+- **Test suite:** Expanded to 2000+ tests across 80+ files with full coverage
+- **Audit detectors:** Expanded to 180+ enterprise-level security, supply chain, and configuration analysis
+- **CLI commands:** 38 total commands with centralized output helpers
+- **Documentation:** Massive rename across all docs, updated all references to shitenno-go
+- **CI/CD:** Updated to Node.js 22, fixed corepack enable ordering for pnpm
+- **Governance:** Moved plans to `governance/plans/`, new pipeline templates, agent contracts
+
+### Fixed
+
+- Rebrand nexus-system → shitenno-go across entire codebase
+- Semantic drift detector — FP filter, scanner fix, golden set tests
+- Handbook TUI path resolution + text wrap + docs sync
+- Daemon script path resolution via relative path
+- Watch infinite loop — excluded reports/ from watcher, added plan-backlog cooldown
+- Race condition in retroactive scan — added lock + cooldown mechanism
+- CI failures — Node.js 20 deprecated, pnpm not found in PATH
+- Hand scroll bleed in handbook TUI
+
 ## [0.8.0] — 2026-07-13
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "shitenno-go",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "AI governance framework that grows with your project — scoring, pattern detection, health auditing",
   "type": "module",
   "bin": {
