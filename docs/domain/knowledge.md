@@ -1,6 +1,6 @@
 # Knowledge
 
-> What knowledge means in the Nexus System.
+> What knowledge means in the Shitenno-go.
 
 ## Definition
 
@@ -12,7 +12,7 @@ The distinction matters:
 - **Information** is data with context. It tells you what happened and when.
 - **Knowledge** is information with meaning. It tells you what happened, when, why it matters, and what to do about it.
 
-Nexus exists to transform data into knowledge, and knowledge into engineering capability.
+Shiten exists to transform data into knowledge, and knowledge into engineering capability.
 
 ---
 
@@ -34,13 +34,13 @@ Engineering knowledge is not static. It evolves as the team learns, as the proje
 
 ### It is Governed
 
-Engineering knowledge must be governed. Without governance, knowledge becomes stale, contradictory, and unreliable. Nexus provides the governance structure that keeps knowledge healthy.
+Engineering knowledge must be governed. Without governance, knowledge becomes stale, contradictory, and unreliable. Shiten provides the governance structure that keeps knowledge healthy.
 
 ---
 
 ## The Three States of Knowledge
 
-In the Nexus model, knowledge exists in three states:
+In the Shiten model, knowledge exists in three states:
 
 ### Tacit Knowledge
 
@@ -112,7 +112,7 @@ Knowledge Debt manifests in ten types:
 9. **Test Missing** — No tests for codebase
 10. **ADR Stale** — Records referencing outdated information
 
-Each type represents a gap between what should exist and what does exist. Nexus detects these gaps before they compound.
+Each type represents a gap between what should exist and what does exist. Shiten detects these gaps before they compound.
 
 ---
 
@@ -120,7 +120,7 @@ Each type represents a gap between what should exist and what does exist. Nexus 
 
 AI agents need knowledge to be useful. Without governed context, AI operates blindly — generating code that conflicts with patterns, violating unwritten rules, and repeating decisions.
 
-Nexus provides the bridge between human knowledge and AI capability:
+Shiten provides the bridge between human knowledge and AI capability:
 
 ```
 Human Knowledge → Engineering Assets → Governed Context → AI Agent
@@ -154,6 +154,6 @@ The Engineering State measures how well this lifecycle is functioning. A team wi
 
 ---
 
-*This document defines what knowledge means in the Nexus System. For the formal specification of knowledge-related concepts, see [ubiquitous-language.md](./ubiquitous-language.md).*
+*This document defines what knowledge means in the Shitenno-go. For the formal specification of knowledge-related concepts, see [ubiquitous-language.md](./ubiquitous-language.md).*
 
 *Last updated: 2026-06-28*

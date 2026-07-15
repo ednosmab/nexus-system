@@ -34,8 +34,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- `nexus watch` command not found — corrected bin path in package.json
-- `nexus daemon start` — daemon script path resolution via relative path
+- `shiten watch` command not found — corrected bin path in package.json
+- `shiten daemon start` — daemon script path resolution via relative path
 - Version read path in bundled output — uses package root discovery
 - CI failures — Node.js 20 deprecated, pnpm not found in PATH
 - Watch infinite loop — excluded reports/ from watcher, added plan-backlog cooldown
@@ -50,7 +50,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **33 audit detectors:** Expanded from basic checks to comprehensive governance analysis
 - **Taint analysis:** Track data flow through governance rules and detect contamination
 - **13 new CLI commands:** `act`, `plan`, `goal`, `decide`, `policy`, `console`, `digest`, `bench`, `briefing`, `feedback`, `profile`, `dashboard`, `shell-init`
-- **`nexus docs-audit`:** Validate documentation synchronization with codebase
+- **`shiten docs-audit`:** Validate documentation synchronization with codebase
 - **Dashboard command:** Visual governance overview with real-time metrics
 - **Shell integration:** Auto-completion setup for bash/zsh/fish
 
@@ -75,7 +75,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Static metrics: packages, apps, files, dependencies, monorepo
   - Behavioral metrics: validate failures, ADRs, branches, commits/week, sessions, bug fixes, agents, skills
   - Per-area scoring with churn, violations, sensitive surface, dependency depth, incident-free age, context pressure
-  - Report writer: JSON reports saved to `nexus-system/reports/`
+  - Report writer: JSON reports saved to `shitenno-go/reports/`
 - **Pattern detector** (`pattern-detector.ts`):
   - Recurring error detection (3+ occurrences in same area)
   - Reverted decision detection (rollback patterns)
@@ -100,7 +100,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Template customization with project-specific placeholders
   - Area auto-detection
 - **Disk cache** (`cache.ts`):
-  - SHA256 checksums for key files (.git/HEAD, package.json, opencode.json, nexus-profile/, nexus-system/)
+  - SHA256 checksums for key files (.git/HEAD, package.json, opencode.json, shiten-profile/, shitenno-go/)
   - Cache invalidation on init/upgrade/sync
   - `--no-cache` flag on status/detect/audit commands
   - Cache hit: <1ms vs 15-106ms without cache
@@ -116,7 +116,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Performance benchmarks** (`benchmarks.bench.ts`): Scaling tests for all engines
 - **`--json` flag** on all commands (`status`, `detect`, `audit`, `validate`, `sync`, `upgrade --list`, `clean`): Structured JSON output for CI/scripting
 - **Health bar visualization** (`formatting.ts`): ASCII progress bars for complexity scores and health scores
-- **`nexus clean` command**: Explicitly clear cache and temporary files
+- **`shiten clean` command**: Explicitly clear cache and temporary files
 - **GitHub Actions CI** (`.github/workflows/ci.yml`): Typecheck + build + test on Node 18/20/22
 - **GitHub Actions Release** (`.github/workflows/release.yml`): Automated npm publish on git tags
 - **Formatting utilities** (`formatting.ts`): `healthBar`, `miniBar`, `outputJson`, `statusIcon` — shared across all commands

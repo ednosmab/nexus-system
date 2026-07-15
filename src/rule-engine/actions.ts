@@ -5,13 +5,13 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { logger } from "../logger.js";
 import { escapeRegex } from "../validation.js";
 import { transitionTask, type BacklogState } from "../backlog-state-machine.js";
 import { replaceSectionField, updateNextP0 } from "../context-buffer-writer.js";
 import type { RuleAction, RuleContext } from "../domain/rules/rule.js";
-import { isScriptAllowed, isNexusCommandAllowed, getAllowedScriptCommand, getAllowedNexusCommand } from "./security.js";
+import { isScriptAllowed, isShitenCommandAllowed, getAllowedScriptCommand, getAllowedShitenCommand } from "./security.js";
 import { resolveField } from "./conditions.js";
 
 /** Resolve template variables in action params (e.g., "${eventData.planId}" → actual value). */
@@ -26,10 +26,10 @@ function resolveParam(value: unknown, context: RuleContext): string {
 }
 
 /** Garante que governance/context/context_buffer.yaml existe, criando-o se necessário. */
-function ensureContextBuffer(nexusDir: string): string {
-  const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+function ensureContextBuffer(shitenDir: string): string {
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) {
-    const contextDir = join(nexusDir, "governance", "context");
+    const contextDir = join(shitenDir, "governance", "context");
     if (!existsSync(contextDir)) {
       mkdirSync(contextDir, { recursive: true });
     }
@@ -53,20 +53,20 @@ export async function executeAction(
       }
 
       const result = replaceSectionField(
-        readFileSync(join(context.nexusDir, "governance", "context", "context_buffer.yaml"), "utf-8"),
+        readFileSync(join(context.shitenDir, "governance", "context", "context_buffer.yaml"), "utf-8"),
         field,
         value
       );
 
       if (result.updated) {
-        writeFileSync(join(context.nexusDir, "governance", "context", "context_buffer.yaml"), result.content, "utf-8");
+        writeFileSync(join(context.shitenDir, "governance", "context", "context_buffer.yaml"), result.content, "utf-8");
         return { success: true, message: `Updated ${field} = ${value}` };
       }
       return { success: false, message: `Field "${field}" not found in buffer` };
     }
 
     case "create_reminder": {
-      const bufferPath = ensureContextBuffer(context.nexusDir);
+      const bufferPath = ensureContextBuffer(context.shitenDir);
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -98,7 +98,7 @@ export async function executeAction(
     }
 
     case "update_quick_board": {
-      const bufferPath = ensureContextBuffer(context.nexusDir);
+      const bufferPath = ensureContextBuffer(context.shitenDir);
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -120,7 +120,7 @@ export async function executeAction(
     }
 
     case "log_event": {
-      const historyDir = join(context.nexusDir, "docs", "history");
+      const historyDir = join(context.shitenDir, "docs", "history");
       if (!existsSync(historyDir)) {
         mkdirSync(historyDir, { recursive: true });
       }
@@ -143,12 +143,12 @@ export async function executeAction(
     }
 
     case "trigger_assessment": {
-      const assessBin = join(context.projectRoot, "dist", "nexus.js");
+      const assessBin = join(context.projectRoot, "dist", "shiten.js");
       if (!existsSync(assessBin)) {
-        return { success: true, message: "Assessment skipped: nexus binary not found (dev environment)" };
+        return { success: true, message: "Assessment skipped: shiten binary not found (dev environment)" };
       }
       try {
-        execSync("NEXUS_CHILD=1 node dist/nexus.js assess", {
+        execSync("SHITEN_CHILD=1 node dist/shiten.js assess", {
           cwd: context.projectRoot,
           timeout: 60000,
           encoding: "utf-8",
@@ -161,12 +161,12 @@ export async function executeAction(
     }
 
     case "trigger_health_check": {
-      const doctorBin = join(context.projectRoot, "dist", "nexus.js");
+      const doctorBin = join(context.projectRoot, "dist", "shiten.js");
       if (!existsSync(doctorBin)) {
-        return { success: true, message: "Health check skipped: nexus binary not found (dev environment)" };
+        return { success: true, message: "Health check skipped: shiten binary not found (dev environment)" };
       }
       try {
-        execSync("NEXUS_CHILD=1 node dist/nexus.js doctor", {
+        execSync("SHITEN_CHILD=1 node dist/shiten.js doctor", {
           cwd: context.projectRoot,
           timeout: 60000,
           encoding: "utf-8",
@@ -179,7 +179,7 @@ export async function executeAction(
     }
 
     case "update_backlog": {
-      const backlogPath = join(context.nexusDir, "docs", "BACKLOG.md");
+      const backlogPath = join(context.shitenDir, "docs", "BACKLOG.md");
       if (!existsSync(backlogPath)) return { success: false, message: "BACKLOG.md not found" };
 
       try {
@@ -206,7 +206,7 @@ export async function executeAction(
       }
 
       try {
-        const result = transitionTask(context.nexusDir, taskId, fromState as BacklogState, toState as BacklogState);
+        const result = transitionTask(context.shitenDir, taskId, fromState as BacklogState, toState as BacklogState);
         return { success: result.success, message: result.message };
       } catch (error) {
         return { success: false, message: `Failed to transition backlog: ${error instanceof Error ? error.message : String(error)}` };
@@ -220,7 +220,7 @@ export async function executeAction(
       }
 
       try {
-        execSync(`NEXUS_CHILD=1 node dist/nexus.js plan md done ${planId}`, {
+        execSync(`SHITEN_CHILD=1 node dist/shiten.js plan md done ${planId}`, {
           cwd: context.projectRoot,
           timeout: 30000,
           encoding: "utf-8",
@@ -283,35 +283,35 @@ export async function executeAction(
       }
     }
 
-    case "run_nexus_command": {
+    case "run_shiten_command": {
       const command = String(action.params.command || "");
-      if (!command) return { success: false, message: "No nexus command specified" };
+      if (!command) return { success: false, message: "No shiten command specified" };
 
-      if (!isNexusCommandAllowed(command)) {
+      if (!isShitenCommandAllowed(command)) {
         return {
           success: false,
-          message: `Nexus command "${command}" not in allowlist. Allowed: ${Object.keys({ "briefing": "", "docs-audit": "", "status": "", "validate": "" }).join(", ")}`,
+          message: `Shiten command "${command}" not in allowlist. Allowed: ${Object.keys({ "briefing": "", "docs-audit": "", "status": "", "validate": "" }).join(", ")}`,
         };
       }
 
       try {
-        const nexusCommand = getAllowedNexusCommand(command)!;
-        const result = execSync(`NEXUS_CHILD=1 node dist/nexus.js ${nexusCommand}`, {
+        const shitenCommand = getAllowedShitenCommand(command)!;
+        const result = execSync(`SHITEN_CHILD=1 node dist/shiten.js ${shitenCommand}`, {
           cwd: context.projectRoot,
           timeout: 30000,
           encoding: "utf-8",
           stdio: "pipe",
         });
-        return { success: true, message: `Nexus command executed: ${command}\n${result.trim()}` };
+        return { success: true, message: `Shiten command executed: ${command}\n${result.trim()}` };
       } catch (error) {
-        return { success: false, message: `Nexus command failed: ${error instanceof Error ? error.message : String(error)}` };
+        return { success: false, message: `Shiten command failed: ${error instanceof Error ? error.message : String(error)}` };
       }
     }
 
     case "auto_populate_next_p0": {
       try {
-        const nexusDir = join(context.projectRoot, NEXUS_DIR_NAME);
-        const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+        const shitenDir = join(context.projectRoot, SHITEN_DIR_NAME);
+        const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
 
         if (!existsSync(backlogPath)) {
           return { success: false, message: "BACKLOG.md not found" };
@@ -325,7 +325,7 @@ export async function executeAction(
         }
 
         const taskDesc = p0Match[2]!.trim();
-        const result = updateNextP0(nexusDir, taskDesc);
+        const result = updateNextP0(shitenDir, taskDesc);
         return { success: result.success, message: result.message };
       } catch (error) {
         return { success: false, message: `auto_populate_next_p0 failed: ${error instanceof Error ? error.message : String(error)}` };

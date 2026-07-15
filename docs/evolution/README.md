@@ -1,10 +1,10 @@
 # Evolution
 
-> How the Nexus System should evolve. Target architecture, migration strategy, and future roadmap.
+> How the Shitenno-go should evolve. Target architecture, migration strategy, and future roadmap.
 
 ## Purpose
 
-This directory describes the future direction of Nexus. Documents here answer: "How should the system evolve?" They complement the architecture docs (which answer "How does the system work today?").
+This directory describes the future direction of Shiten. Documents here answer: "How should the system evolve?" They complement the architecture docs (which answer "How does the system work today?").
 
 ## Audience
 

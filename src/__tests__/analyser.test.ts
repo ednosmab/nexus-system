@@ -7,7 +7,7 @@ import { analyseProject } from "../analyser.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-analyser-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-analyser-"));
 });
 
 afterEach(() => {
@@ -20,7 +20,7 @@ describe("analyseProject", () => {
     expect(result.rootDir).toBe(tempDir);
     expect(result.hasGit).toBe(false);
     expect(result.hasPackageJson).toBe(false);
-    expect(result.hasNexus).toBe(false);
+    expect(result.hasShiten).toBe(false);
   });
 
   it("detects git repository", () => {

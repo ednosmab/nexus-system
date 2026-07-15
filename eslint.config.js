@@ -29,10 +29,10 @@ export default [
       "prefer-const": "warn",
       "no-var": "error",
       "no-restricted-globals": ["error", "__dirname", "__filename"],
-      // Prevent hardcoding "nexus-system" — use NEXUS_DIR_NAME from src/constants.ts
+      // Prevent hardcoding "shitenno-go" — use SHITEN_DIR_NAME from src/constants.ts
       "no-restricted-syntax": ["error", {
-        selector: "Literal[value='nexus-system']",
-        message: "Use NEXUS_DIR_NAME from src/constants.ts instead of hardcoding 'nexus-system'.",
+        selector: "Literal[value='shitenno-go']",
+        message: "Use SHITEN_DIR_NAME from src/constants.ts instead of hardcoding 'shitenno-go'.",
       }],
     },
   },
@@ -60,7 +60,7 @@ export default [
       "no-restricted-imports": "off",
     },
   },
-  // Exception: constants.ts is where NEXUS_DIR_NAME is defined — must contain the literal
+  // Exception: constants.ts is where SHITEN_DIR_NAME is defined — must contain the literal
   {
     files: ["src/constants.ts"],
     rules: {

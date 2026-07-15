@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "../../constants.js";
+import { SHITEN_DIR_NAME } from "../../constants.js";
 import type { ProjectAnalysis } from "../../analyser.js";
 import { walkSourceFiles } from "../../utils.js";
 import { logger } from "../../logger.js";
@@ -120,11 +120,11 @@ export interface PreReadHistory {
 }
 
 export function preReadHistory(
-  nexusDir: string,
+  shitenDir: string,
   areas: string[],
   violationKeywords: string[]
 ): PreReadHistory {
-  const historyDir = join(nexusDir, "docs", "history");
+  const historyDir = join(shitenDir, "docs", "history");
   const result: PreReadHistory = {
     totalEntries: 0,
     violationsByArea: new Map(),
@@ -177,8 +177,8 @@ export function preReadHistory(
 // ── Context Pressure ────────────────────────────────────────────────────────
 
 export function countContextPressure(projectRoot: string, area: string): number {
-  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
-  const layersDir = join(nexusDir, "docs", "layers");
+  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+  const layersDir = join(shitenDir, "docs", "layers");
   if (!existsSync(layersDir)) return 0;
 
   const areaParts = area.split("/");
@@ -313,18 +313,18 @@ export function collectStaticMetrics(analysis: ProjectAnalysis): StaticMetric[] 
 
 export function collectBehavioralMetrics(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): BehavioralMetric[] {
   const metrics: BehavioralMetric[] = [];
 
-  const validateFailures = countValidateFailures(nexusDir);
+  const validateFailures = countValidateFailures(shitenDir);
   if (validateFailures >= 3) {
     metrics.push({
       signal: "validate-failures",
       value: validateFailures,
       score: 3,
       evidence: `${validateFailures} validate failures in history — structural gaps`,
-      suggestion: "Run 'nexus upgrade' to add governance components",
+      suggestion: "Run 'shiten upgrade' to add governance components",
     });
   } else if (validateFailures >= 1) {
     metrics.push({
@@ -335,7 +335,7 @@ export function collectBehavioralMetrics(
     });
   }
 
-  const adrCount = countAdrs(nexusDir);
+  const adrCount = countAdrs(shitenDir);
   if (adrCount >= 3) {
     metrics.push({
       signal: "adr-count",
@@ -388,7 +388,7 @@ export function collectBehavioralMetrics(
     });
   }
 
-  const sessionsWithoutClose = countSessionsWithoutClose(nexusDir);
+  const sessionsWithoutClose = countSessionsWithoutClose(shitenDir);
   if (sessionsWithoutClose >= 2) {
     metrics.push({
       signal: "sessions-without-close",
@@ -435,7 +435,7 @@ export function collectBehavioralMetrics(
     });
   }
 
-  const skillCount = countSkills(nexusDir);
+  const skillCount = countSkills(shitenDir);
   if (skillCount >= 6) {
     metrics.push({
       signal: "skill-count",
@@ -450,8 +450,8 @@ export function collectBehavioralMetrics(
 
 // ── Raw Count Functions ─────────────────────────────────────────────────────
 
-function countValidateFailures(nexusDir: string): number {
-  const historyDir = join(nexusDir, "docs", "history");
+function countValidateFailures(shitenDir: string): number {
+  const historyDir = join(shitenDir, "docs", "history");
   if (!existsSync(historyDir)) return 0;
 
   let count = 0;
@@ -470,9 +470,9 @@ function countValidateFailures(nexusDir: string): number {
   return count;
 }
 
-function countSessionsWithoutClose(nexusDir: string): number {
+function countSessionsWithoutClose(shitenDir: string): number {
   const bufferPath = join(
-    nexusDir,
+    shitenDir,
     "governance",
     "context",
     "context_buffer.yaml"
@@ -489,8 +489,8 @@ function countSessionsWithoutClose(nexusDir: string): number {
   }
 }
 
-function countAdrs(nexusDir: string): number {
-  const adrDir = join(nexusDir, "docs", "adrs");
+function countAdrs(shitenDir: string): number {
+  const adrDir = join(shitenDir, "docs", "adrs");
   if (!existsSync(adrDir)) return 0;
 
   return readdirSync(adrDir).filter(
@@ -556,8 +556,8 @@ function countAgents(projectRoot: string): number {
   }
 }
 
-function countSkills(nexusDir: string): number {
-  const skillsDir = join(nexusDir, "docs", "skills");
+function countSkills(shitenDir: string): number {
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (!existsSync(skillsDir)) return 0;
 
   return readdirSync(skillsDir).filter((f) => f.endsWith(".md")).length;

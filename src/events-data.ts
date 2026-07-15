@@ -25,8 +25,8 @@ export interface TraceEntry {
   }>;
 }
 
-export function loadTrace(nexusDir: string): TraceEntry[] {
-  const tracePath = join(nexusDir, "telemetry", "rule-trace.jsonl");
+export function loadTrace(shitenDir: string): TraceEntry[] {
+  const tracePath = join(shitenDir, "telemetry", "rule-trace.jsonl");
   if (!existsSync(tracePath)) return [];
 
   const content = readFileSync(tracePath, "utf-8");

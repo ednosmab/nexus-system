@@ -22,7 +22,7 @@ function createTmpDir(): string {
   return dir;
 }
 
-function createMockEngineeringState(nexusDir: string): void {
+function createMockEngineeringState(shitenDir: string): void {
   const state = {
     consolidatedAt: new Date().toISOString(),
     lifecycle: "governed" as const,
@@ -52,7 +52,7 @@ function createMockEngineeringState(nexusDir: string): void {
     summary: "Test state",
   };
 
-  writeFileSync(join(nexusDir, "engineering-state.json"), JSON.stringify(state, null, 2));
+  writeFileSync(join(shitenDir, "engineering-state.json"), JSON.stringify(state, null, 2));
 }
 
 describe("ai-interface", () => {
@@ -109,9 +109,9 @@ describe("ai-interface", () => {
   describe("context command", () => {
     it("generates context from engineering state", () => {
       const projectDir = join(tmpDir, "test-project");
-      const nexusDir = join(projectDir, "nexus-system");
-      mkdirSync(nexusDir, { recursive: true });
-      createMockEngineeringState(nexusDir);
+      const shitenDir = join(projectDir, "shitenno-go");
+      mkdirSync(shitenDir, { recursive: true });
+      createMockEngineeringState(shitenDir);
 
       const capturedOutput = { output: "" };
       const outputSpy = vi.spyOn(process.stdout, "write").mockImplementation((msg: string | Uint8Array) => {
@@ -136,9 +136,9 @@ describe("ai-interface", () => {
 
     it("outputs JSON when requested", () => {
       const projectDir = join(tmpDir, "test-project");
-      const nexusDir = join(projectDir, "nexus-system");
-      mkdirSync(nexusDir, { recursive: true });
-      createMockEngineeringState(nexusDir);
+      const shitenDir = join(projectDir, "shitenno-go");
+      mkdirSync(shitenDir, { recursive: true });
+      createMockEngineeringState(shitenDir);
 
       const capturedOutput = { output: "" };
       const outputSpy = vi.spyOn(process.stdout, "write").mockImplementation((msg: string | Uint8Array) => {

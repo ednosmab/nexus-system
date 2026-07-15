@@ -1,15 +1,15 @@
 /**
- * constants.ts — Shared Constants for Nexus
+ * constants.ts — Shared Constants for Shiten
  *
  * Eliminates duplication of VIOLATION_KEYWORDS and COMMAND_GATES.
  */
 
 /**
  * Single source of truth for the metadata directory name.
- * NEVER hardcode "nexus-system" in other files — use this constant.
+ * NEVER hardcode "shitenno-go" in other files — use this constant.
  * This is the ONLY place where the string literal should appear.
  */
-export const NEXUS_DIR_NAME = "nexus-system";
+export const SHITEN_DIR_NAME = "shitenno-go";
 
 /** Keywords indicating violations in commits/logs. Unified from src/constants.ts + src/audit/constants.ts. */
 export const VIOLATION_KEYWORDS = [

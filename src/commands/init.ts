@@ -18,7 +18,7 @@ import fse from "fs-extra";
 const { copySync } = fse;
 import { analyseProject } from "../analyser.js";
 import { askQuestions, type UserAnswers } from "../prompts.js";
-import { scaffoldNexusSystem } from "../scaffolder.js";
+import { scaffoldShitennoGo } from "../scaffolder.js";
 import { invalidateCache } from "../cache.js";
 import { loadPlugins, getHookBus } from "../plugin-system.js";
 import { guardInteractive } from "../shared.js";
@@ -38,7 +38,7 @@ import { createManifest, writeManifest } from "../manifest.js";
 import { getEventBus } from "../event-bus.js";
 import type { ProjectAnalysis } from "../analyser.js";
 import { logger } from "../logger.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { installReactiveHooks } from "../git-hooks-installer.js";
 import { output, outputBlank, outputError } from "../output.js";
 
@@ -116,23 +116,23 @@ export function isStarterProject(analysis: ProjectAnalysis): boolean {
 // ── Safety Guard ───────────────────────────────────────────────────────────
 
 /**
- * Determines if init should be blocked because the target is inside nexus-cli.
+ * Determines if init should be blocked because the target is inside shitenno-cli.
  * Extracted for testability.
  */
 export function shouldBlockInit(targetDir: string, force: boolean): boolean {
-  return targetDir.includes("nexus-cli") && !force;
+  return targetDir.includes("shitenno-cli") && !force;
 }
 
 export const initCommand = new Command("init")
-  .description("Initialize Nexus System ecosystem with maturity-based discovery")
+  .description("Initialize Shitenno-go ecosystem with maturity-based discovery")
   .option("-d, --dir <path>", "Project root directory (default: current)")
   .option("--answers-file <path>", "JSON file with pre-defined answers (skips interactive prompts)")
-  .option("--force", "Force creation inside nexus-cli (not recommended)")
+  .option("--force", "Force creation inside shitenno-cli (not recommended)")
   .option("--dry-run", "Show what would be created without writing files")
   .action(async (options) => {
     const isDryRun = options.dryRun === true;
     outputBlank();
-    banner("nexus init", isDryRun ? "Dry Run — No files will be written" : "Maturity-Based Discovery");
+    banner("shiten init", isDryRun ? "Dry Run — No files will be written" : "Maturity-Based Discovery");
     outputBlank();
 
     // Determine project root
@@ -142,16 +142,16 @@ export const initCommand = new Command("init")
 
     // Safety guard
     if (shouldBlockInit(targetDir, options.force === true)) {
-      output(chalk.yellow("  ⚠ nexus-system should be created in your project, not inside nexus-cli."));
-      output(chalk.gray("  Run from your project root: nexus init"));
-      output(chalk.gray("  Or:  nexus init --force (to create inside nexus-cli)"));
+      output(chalk.yellow("  ⚠ shitenno-go should be created in your project, not inside shitenno-cli."));
+      output(chalk.gray("  Run from your project root: shiten init"));
+      output(chalk.gray("  Or:  shiten init --force (to create inside shitenno-cli)"));
       outputBlank();
       return;
     }
 
     // Check if already initialized
-    if (existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
-      output(chalk.yellow("  ⚠ Nexus is already initialized in this directory."));
+    if (existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
+      output(chalk.yellow("  ⚠ Shiten is already initialized in this directory."));
       outputBlank();
       output(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
       outputBlank();
@@ -175,8 +175,8 @@ export const initCommand = new Command("init")
       outputBlank();
 
       // Load previous maturity profile
-      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
-      const previousProfile = loadMaturityProfile(nexusDir);
+      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
+      const previousProfile = loadMaturityProfile(shitenDir);
 
       if (previousProfile) {
         output(chalk.bold("  Previous maturity score:"));
@@ -184,7 +184,7 @@ export const initCommand = new Command("init")
         outputBlank();
       }
 
-      output(chalk.gray("  Or:  nexus init --accept-recommended"));
+      output(chalk.gray("  Or:  shiten init --accept-recommended"));
       outputBlank();
 
       return;
@@ -230,8 +230,8 @@ export const initCommand = new Command("init")
     }
 
     // Step 3: Calculate maturity profile
-    const profileSpinner = ora("Calculating maturity profile...").start();      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
-    const profile = calculateMaturityProfile(answers.maturity, analysis, nexusDir);
+    const profileSpinner = ora("Calculating maturity profile...").start();      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
+    const profile = calculateMaturityProfile(answers.maturity, analysis, shitenDir);
     profileSpinner.succeed("Maturity profile calculated");
 
     // Step 4: Display maturity profile
@@ -255,7 +255,7 @@ export const initCommand = new Command("init")
       outputBlank();
       output(chalk.bold("  Files that would be created:"));
       output(chalk.gray("    opencode.json"));
-      output(chalk.gray("    nexus-system/ (governance ecosystem)"));
+      output(chalk.gray("    shitenno-go/ (governance ecosystem)"));
       for (const dir of ["governance", "docs", "skills", "scripts", "telemetry"] as string[]) {
         output(chalk.gray(`      ${dir}/`));
       }
@@ -267,22 +267,22 @@ export const initCommand = new Command("init")
 
     // Step 5: Scaffold by capabilities
     const scaffoldSpinner = ora("Installing governance ecosystem...").start();
-    const nexusDirForEvents = resolve(targetDir, NEXUS_DIR_NAME);
-    const previousProfile = existsSync(nexusDirForEvents) ? loadMaturityProfile(nexusDirForEvents) : null;
+    const shitenDirForEvents = resolve(targetDir, SHITEN_DIR_NAME);
+    const previousProfile = existsSync(shitenDirForEvents) ? loadMaturityProfile(shitenDirForEvents) : null;
     try {
       // Determine which capabilities to install (recommended + selected)
       const capsToInstall: Capability[] = ["core", ...profile.recommendedCapabilities];
 
       // Allow user to customize if they want more
-      const result = scaffoldNexusSystem(targetDir, answers, capsToInstall);
+      const result = scaffoldShitennoGo(targetDir, answers, capsToInstall);
       scaffoldSpinner.succeed("Framework installed!");
 
       // Initialize default rules if governance/rules is empty
-      initializeRules(nexusDir);
+      initializeRules(shitenDir);
 
       // Save maturity profile
-      saveMaturityProfile(nexusDir, profile);
-      recordMaturitySnapshot(nexusDir, profile);
+      saveMaturityProfile(shitenDir, profile);
+      recordMaturitySnapshot(shitenDir, profile);
 
       // Create installation manifest for change detection
       const { readFileSync: readFS } = await import("node:fs");
@@ -295,12 +295,12 @@ export const initCommand = new Command("init")
       } catch (error) {
         logger.debug("init", "Suppressed error", { error });
       }
-      const manifest = createManifest(cliVersion, nexusDir, capsToInstall, profile.overallScore);
-      writeManifest(nexusDir, manifest);
+      const manifest = createManifest(cliVersion, shitenDir, capsToInstall, profile.overallScore);
+      writeManifest(shitenDir, manifest);
 
       // Save user profile for personalized feedback
       if (answers.userProfile) {
-        saveUserProfile(nexusDir, {
+        saveUserProfile(shitenDir, {
           name: answers.userProfile.name,
           role: answers.userProfile.role,
           architecture: answers.userProfile.architecture,
@@ -316,15 +316,15 @@ export const initCommand = new Command("init")
       // Generate project fingerprint
       const { generateProjectFingerprint, saveFingerprint } = await import("../project-fingerprint.js");
       const fingerprint = generateProjectFingerprint(targetDir, analysis, profile.overallScore);
-      saveFingerprint(nexusDir, fingerprint);
+      saveFingerprint(shitenDir, fingerprint);
 
       // Generate initial BRIEFING.md
       try {
         const { generateRiskMap } = await import("../risk-map.js");
         const { generateBriefing, briefingToMarkdown } = await import("../briefing.js");
-        const riskMap = generateRiskMap(targetDir, nexusDir);
+        const riskMap = generateRiskMap(targetDir, shitenDir);
         const briefing = generateBriefing(fingerprint, riskMap, [], [], profile);
-        const briefingPath = join(nexusDir, "BRIEFING.md");
+        const briefingPath = join(shitenDir, "BRIEFING.md");
         writeFileSync(briefingPath, briefingToMarkdown(briefing), "utf-8");
       } catch (error) {
         logger.debug("init", "Suppressed error", { error });
@@ -332,14 +332,14 @@ export const initCommand = new Command("init")
 
       // Display results
       outputBlank();
-      output(chalk.bold.green("  ✓ Nexus System Framework installed!"));
+      output(chalk.bold.green("  ✓ Shitenno-go Framework installed!"));
       outputBlank();
       output(chalk.bold("  Structure created:"));
       output(chalk.gray("    opencode.json          ← configuration (project root)"));
-      output(chalk.gray("    nexus-system/          ← governance ecosystem"));
+      output(chalk.gray("    shitenno-go/          ← governance ecosystem"));
       for (const dir of result.directoriesCreated) {
-        if (dir === NEXUS_DIR_NAME) continue;
-        output(chalk.gray(`      ${dir.replace("nexus-system/", "")}/`));
+        if (dir === SHITEN_DIR_NAME) continue;
+        output(chalk.gray(`      ${dir.replace("shitenno-go/", "")}/`));
       }
       outputBlank();
       output(chalk.bold("  Files created:"));
@@ -348,10 +348,10 @@ export const initCommand = new Command("init")
       }
       outputBlank();
       output(chalk.bold("  Next steps:"));
-      output(chalk.gray("    1. Edit nexus-system/docs/AGENTS.md to customise rules"));
+      output(chalk.gray("    1. Edit shitenno-go/docs/AGENTS.md to customise rules"));
       output(chalk.gray("    2. Edit opencode.json to set your AI models"));
-      output(chalk.gray("    3. Run 'nexus status' to check governance health"));
-      output(chalk.gray("    4. Run 'nexus assess' to re-evaluate maturity later"));
+      output(chalk.gray("    3. Run 'shiten status' to check governance health"));
+      output(chalk.gray("    4. Run 'shiten assess' to re-evaluate maturity later"));
       outputBlank();
 
       // Invalidate cache
@@ -362,22 +362,22 @@ export const initCommand = new Command("init")
         const mcpJsonPath = join(targetDir, ".mcp.json");
         const currentDir = dirname(fileURLToPath(import.meta.url));
         const mcpTemplatePath = join(currentDir, "..", "templates", "base", ".mcp.json");
-        const nexusMcpEntry = { "nexus-mcp": { command: "nexus", args: ["mcp"] } };
+        const shitenMcpEntry = { "shiten-mcp": { command: "shiten", args: ["mcp"] } };
 
         if (existsSync(mcpJsonPath)) {
           try {
             const existing = JSON.parse(readFileSync(mcpJsonPath, "utf-8"));
             if (!existing.mcpServers) existing.mcpServers = {};
-            existing.mcpServers["nexus-mcp"] = nexusMcpEntry["nexus-mcp"];
+            existing.mcpServers["shiten-mcp"] = shitenMcpEntry["shiten-mcp"];
             writeFileSync(mcpJsonPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
           } catch {
-            const merged = { mcpServers: { ...nexusMcpEntry } };
+            const merged = { mcpServers: { ...shitenMcpEntry } };
             writeFileSync(mcpJsonPath, JSON.stringify(merged, null, 2) + "\n", "utf-8");
           }
         } else if (existsSync(mcpTemplatePath)) {
           copySync(mcpTemplatePath, mcpJsonPath);
         } else {
-          const content = { mcpServers: nexusMcpEntry };
+          const content = { mcpServers: shitenMcpEntry };
           writeFileSync(mcpJsonPath, JSON.stringify(content, null, 2) + "\n", "utf-8");
         }
         result.filesCreated.push(".mcp.json");
@@ -385,9 +385,9 @@ export const initCommand = new Command("init")
 
       // Install reactive git hooks (append-safe, husky-aware)
       try {
-        const hooksResult = installReactiveHooks(targetDir, "nexus");
+        const hooksResult = installReactiveHooks(targetDir, "shiten");
         if (hooksResult.installed.length > 0) {
-          output(chalk.gray(`  ✓ Nexus git hooks installed: ${hooksResult.installed.join(", ")}`));
+          output(chalk.gray(`  ✓ Shiten git hooks installed: ${hooksResult.installed.join(", ")}`));
         } else if (hooksResult.skipped.length > 0 && hooksResult.skipped[0] !== "not-a-git-repo") {
           output(chalk.gray(`  • Git hooks already configured`));
         }
@@ -407,7 +407,7 @@ export const initCommand = new Command("init")
 
       // Suggest future capabilities
       if (profile.futureCapabilities.length > 0) {
-        output(chalk.gray("  As your project grows, run 'nexus assess' to discover new capabilities."));
+        output(chalk.gray("  As your project grows, run 'shiten assess' to discover new capabilities."));
       }
       outputBlank();
 
@@ -445,14 +445,14 @@ export const initCommand = new Command("init")
       scaffoldSpinner.fail("Failed to install ecosystem");
       outputError(chalk.red(`  Error: ${error}`));
 
-      // Rollback: remove partial nexus-system directory
-      const nexusDir = resolve(targetDir, NEXUS_DIR_NAME);
-      if (existsSync(nexusDir)) {
+      // Rollback: remove partial shitenno-go directory
+      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
+      if (existsSync(shitenDir)) {
         try {
-          fse.removeSync(nexusDir);
-          output(chalk.gray("  Cleaned up partial nexus-system/ directory."));
+          fse.removeSync(shitenDir);
+          output(chalk.gray("  Cleaned up partial shitenno-go/ directory."));
         } catch {
-          output(chalk.yellow("  ⚠ Could not clean up nexus-system/ — remove manually."));
+          output(chalk.yellow("  ⚠ Could not clean up shitenno-go/ — remove manually."));
         }
       }
 

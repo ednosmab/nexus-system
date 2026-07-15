@@ -78,8 +78,8 @@ export interface PlanRepository {
 export class FilePlanRepository implements PlanRepository {
   private dir: string;
 
-  constructor(nexusDir: string) {
-    this.dir = join(nexusDir, "governance", "plans");
+  constructor(shitenDir: string) {
+    this.dir = join(shitenDir, "governance", "plans");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }

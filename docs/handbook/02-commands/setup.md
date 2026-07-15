@@ -1,15 +1,15 @@
 # Setup & Configuration
 
-Comandos para inicializar e configurar o projeto Nexus.
+Comandos para inicializar e configurar o projeto Shiten.
 
 ---
 
-## `nexus init`
+## `shiten init`
 
-Inicializa o ecossistema Nexus com descoberta baseada em maturidade.
+Inicializa o ecossistema Shiten com descoberta baseada em maturidade.
 
 ```bash
-nexus init [options]
+shiten init [options]
 ```
 
 ### Opções
@@ -22,9 +22,9 @@ nexus init [options]
 ### Exemplos
 
 ```bash
-nexus init                          # Setup interativo
-nexus init --dir ./my-project       # Diretório específico
-nexus init --answers-file config.json  # Modo não-interativo
+shiten init                          # Setup interativo
+shiten init --dir ./my-project       # Diretório específico
+shiten init --answers-file config.json  # Modo não-interativo
 ```
 
 ### Dicas
@@ -34,22 +34,22 @@ nexus init --answers-file config.json  # Modo não-interativo
 
 ---
 
-## `nexus mcp`
+## `shiten mcp`
 
 Servidor MCP para agentes AI — inicie o servidor ou instale globalmente.
 
 ```bash
-nexus mcp [options] [command]
+shiten mcp [options] [command]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus mcp` | Inicia o servidor MCP |
-| `nexus mcp install` | Instala o servidor MCP Filesystem |
-| `nexus mcp install --check` | Verifica status da instalação |
-| `nexus mcp install --upgrade` | Atualiza para a versão mais recente |
+| `shiten mcp` | Inicia o servidor MCP |
+| `shiten mcp install` | Instala o servidor MCP Filesystem |
+| `shiten mcp install --check` | Verifica status da instalação |
+| `shiten mcp install --upgrade` | Atualiza para a versão mais recente |
 
 ### Opções
 
@@ -60,26 +60,26 @@ nexus mcp [options] [command]
 ### Exemplos
 
 ```bash
-nexus mcp                    # Iniciar servidor
-nexus mcp --project-root .   # Raiz específica
-nexus mcp install            # Instalar servidor
-nexus mcp install --check    # Verificar instalação
-nexus mcp install --upgrade  # Atualizar
+shiten mcp                    # Iniciar servidor
+shiten mcp --project-root .   # Raiz específica
+shiten mcp install            # Instalar servidor
+shiten mcp install --check    # Verificar instalação
+shiten mcp install --upgrade  # Atualizar
 ```
 
 ### Dicas
 
 - Conecte seu agente AI a este servidor para contexto ao vivo do projeto
-- Execute `nexus mcp install` uma vez para corrigir timeouts do MCP
+- Execute `shiten mcp install` uma vez para corrigir timeouts do MCP
 
 ---
 
-## `nexus upgrade`
+## `shiten upgrade`
 
 Adicione capacidades ao ecossistema de governança.
 
 ```bash
-nexus upgrade [options]
+shiten upgrade [options]
 ```
 
 ### Opções
@@ -92,19 +92,19 @@ nexus upgrade [options]
 ### Exemplos
 
 ```bash
-nexus upgrade                          # Mostrar capacidades disponíveis
-nexus upgrade --capability architecture # Instalar capacidade específica
-nexus upgrade --accept-recommended     # Instalar todas recomendadas
+shiten upgrade                          # Mostrar capacidades disponíveis
+shiten upgrade --capability architecture # Instalar capacidade específica
+shiten upgrade --accept-recommended     # Instalar todas recomendadas
 ```
 
 ---
 
-## `nexus clean`
+## `shiten clean`
 
-Limpe o cache e arquivos temporários do Nexus.
+Limpe o cache e arquivos temporários do Shiten.
 
 ```bash
-nexus clean [options]
+shiten clean [options]
 ```
 
 ### Opções
@@ -116,6 +116,6 @@ nexus clean [options]
 ### Exemplos
 
 ```bash
-nexus clean              # Limpar todo cache
-nexus clean --dry-run    # Pré-visualizar limpeza
+shiten clean              # Limpar todo cache
+shiten clean --dry-run    # Pré-visualizar limpeza
 ```

@@ -1,8 +1,8 @@
 /**
- * help-data.ts — Command help metadata for nexus help system
+ * help-data.ts — Command help metadata for shiten help system
  *
  * Categories, descriptions, usage examples, and tips for each command.
- * Used by the custom help formatter in bin/nexus.ts.
+ * Used by the custom help formatter in bin/shiten.ts.
  */
 
 export interface CommandHelp {
@@ -22,16 +22,16 @@ export interface CommandCategory {
 export const COMMAND_CATEGORIES: CommandCategory[] = [
   {
     name: "Setup & Configuration",
-    description: "Initialize and configure your Nexus project",
+    description: "Initialize and configure your Shiten project",
     commands: [
       {
         name: "init",
-        description: "Initialize Nexus ecosystem with maturity-based discovery",
-        usage: "nexus init [options]",
+        description: "Initialize Shiten ecosystem with maturity-based discovery",
+        usage: "shiten init [options]",
         examples: [
-          "nexus init                          # Interactive setup",
-          "nexus init --dir ./my-project        # Initialize specific directory",
-          "nexus init --answers-file config.json # Non-interactive mode",
+          "shiten init                          # Interactive setup",
+          "shiten init --dir ./my-project        # Initialize specific directory",
+          "shiten init --answers-file config.json # Non-interactive mode",
         ],
         tips: [
           "Run this first to set up governance in your project",
@@ -41,36 +41,36 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "mcp",
         description: "MCP server for AI agents — start server or install globally",
-        usage: "nexus mcp [options] [command]",
+        usage: "shiten mcp [options] [command]",
         examples: [
-          "nexus mcp                    # Start MCP server",
-          "nexus mcp --project-root .   # Specify project root",
-          "nexus mcp install            # Install MCP Filesystem server",
-          "nexus mcp install --check    # Check installation status",
-          "nexus mcp install --upgrade  # Upgrade to latest version",
+          "shiten mcp                    # Start MCP server",
+          "shiten mcp --project-root .   # Specify project root",
+          "shiten mcp install            # Install MCP Filesystem server",
+          "shiten mcp install --check    # Check installation status",
+          "shiten mcp install --upgrade  # Upgrade to latest version",
         ],
         tips: [
           "Connect your AI agent to this server for live project context",
-          "Run 'nexus mcp install' once to fix MCP timeout issues",
+          "Run 'shiten mcp install' once to fix MCP timeout issues",
         ],
       },
       {
         name: "upgrade",
         description: "Add capabilities to your governance ecosystem",
-        usage: "nexus upgrade [options]",
+        usage: "shiten upgrade [options]",
         examples: [
-          "nexus upgrade                          # Show available capabilities",
-          "nexus upgrade --capability architecture # Install specific capability",
-          "nexus upgrade --accept-recommended     # Install all recommended",
+          "shiten upgrade                          # Show available capabilities",
+          "shiten upgrade --capability architecture # Install specific capability",
+          "shiten upgrade --accept-recommended     # Install all recommended",
         ],
       },
       {
         name: "clean",
-        description: "Clear nexus cache and temporary files",
-        usage: "nexus clean [options]",
+        description: "Clear shiten cache and temporary files",
+        usage: "shiten clean [options]",
         examples: [
-          "nexus clean              # Clear all cache",
-          "nexus clean --dry-run    # Preview what would be deleted",
+          "shiten clean              # Clear all cache",
+          "shiten clean --dry-run    # Preview what would be deleted",
         ],
       },
     ],
@@ -82,20 +82,20 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "status",
         description: "Check governance health status with maturity score",
-        usage: "nexus status [options]",
+        usage: "shiten status [options]",
         examples: [
-          "nexus status              # Full health report",
-          "nexus status --json       # JSON output",
-          "nexus status --no-cache   # Skip cache, recalculate",
+          "shiten status              # Full health report",
+          "shiten status --json       # JSON output",
+          "shiten status --no-cache   # Skip cache, recalculate",
         ],
       },
       {
         name: "audit",
         description: "Audit governance health, knowledge graph, and issues",
-        usage: "nexus audit [options]",
+        usage: "shiten audit [options]",
         examples: [
-          "nexus audit               # Full audit with health score",
-          "nexus audit --json        # JSON output for CI/CD",
+          "shiten audit               # Full audit with health score",
+          "shiten audit --json        # JSON output for CI/CD",
         ],
         tips: [
           "Shows health score (0-100), issues, and knowledge graph status",
@@ -105,19 +105,19 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "doctor",
         description: "Engineering mentor — identify risks and suggest improvements",
-        usage: "nexus doctor [options]",
+        usage: "shiten doctor [options]",
         examples: [
-          "nexus doctor              # Full diagnostic report",
-          "nexus doctor --json       # JSON output",
+          "shiten doctor              # Full diagnostic report",
+          "shiten doctor --json       # JSON output",
         ],
       },
       {
         name: "assess",
         description: "Re-evaluate project maturity and recommend new capabilities",
-        usage: "nexus assess [options]",
+        usage: "shiten assess [options]",
         examples: [
-          "nexus assess              # Interactive re-assessment",
-          "nexus assess --json       # JSON output",
+          "shiten assess              # Interactive re-assessment",
+          "shiten assess --json       # JSON output",
         ],
         tips: [
           "Run when your project has grown to discover new capabilities",
@@ -126,10 +126,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "detect",
         description: "Detect patterns in history and propose candidate rules",
-        usage: "nexus detect [options]",
+        usage: "shiten detect [options]",
         examples: [
-          "nexus detect              # Analyze history for patterns",
-          "nexus detect --json       # JSON output",
+          "shiten detect              # Analyze history for patterns",
+          "shiten detect --json       # JSON output",
         ],
       },
     ],
@@ -141,10 +141,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "run",
         description: "Run the full analysis pipeline (analyze → score → detect → audit → evolve)",
-        usage: "nexus run [options]",
+        usage: "shiten run [options]",
         examples: [
-          "nexus run                 # Run full pipeline",
-          "nexus run --json          # JSON output",
+          "shiten run                 # Run full pipeline",
+          "shiten run --json          # JSON output",
         ],
         tips: [
           "Combines all analysis stages in one command",
@@ -154,30 +154,30 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "evolve",
         description: "Show evolution recommendations and manage feedback",
-        usage: "nexus evolve [options]",
+        usage: "shiten evolve [options]",
         examples: [
-          "nexus evolve              # Show recommendations",
-          "nexus evolve --json       # JSON output",
+          "shiten evolve              # Show recommendations",
+          "shiten evolve --json       # JSON output",
         ],
       },
       {
         name: "act",
         description: "Execute actions with idempotency guarantees",
-        usage: "nexus act [options]",
+        usage: "shiten act [options]",
         examples: [
-          "nexus act create --title 'Fix auth' --action-type bugfix",
-          "nexus act list            # List all actions",
+          "shiten act create --title 'Fix auth' --action-type bugfix",
+          "shiten act list            # List all actions",
         ],
       },
       {
         name: "plan",
         description: "Manage coordinated action sequences (plans)",
-        usage: "nexus plan <subcommand> [options]",
+        usage: "shiten plan <subcommand> [options]",
         examples: [
-          "nexus plan create my-plan           # Create a plan",
-          "nexus plan execute <plan-id>        # Execute a plan",
-          "nexus plan list                     # List all plans",
-          "nexus plan show <plan-id>           # Show plan details",
+          "shiten plan create my-plan           # Create a plan",
+          "shiten plan execute <plan-id>        # Execute a plan",
+          "shiten plan list                     # List all plans",
+          "shiten plan show <plan-id>           # Show plan details",
         ],
       },
     ],
@@ -189,21 +189,21 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "goal",
         description: "Manage governance goals",
-        usage: "nexus goal <subcommand> [options]",
+        usage: "shiten goal <subcommand> [options]",
         examples: [
-          "nexus goal create --title 'Improve tests' --priority high",
-          "nexus goal list            # List all goals",
-          "nexus goal show <id>       # Show goal details",
+          "shiten goal create --title 'Improve tests' --priority high",
+          "shiten goal list            # List all goals",
+          "shiten goal show <id>       # Show goal details",
         ],
       },
       {
         name: "decide",
         description: "Evaluate proposed actions using specialized evaluators",
-        usage: "nexus decide <action> [options]",
+        usage: "shiten decide <action> [options]",
         examples: [
-          'nexus decide "upgrade auth to OAuth2"',
-          'nexus decide "add rate limiting" --category security',
-          "nexus decide list          # List all decisions",
+          'shiten decide "upgrade auth to OAuth2"',
+          'shiten decide "add rate limiting" --category security',
+          "shiten decide list          # List all decisions",
         ],
         tips: [
           "Evaluates risk, impact, confidence, and goal alignment",
@@ -212,10 +212,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "policy",
         description: "Manage and evaluate declarative governance policies",
-        usage: "nexus policy <subcommand> [options]",
+        usage: "shiten policy <subcommand> [options]",
         examples: [
-          "nexus policy list          # List all policies",
-          "nexus policy evaluate      # Evaluate current state against policies",
+          "shiten policy list          # List all policies",
+          "shiten policy evaluate      # Evaluate current state against policies",
         ],
       },
     ],
@@ -227,36 +227,36 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "console",
         description: "Token economy console with session metrics",
-        usage: "nexus console [options]",
+        usage: "shiten console [options]",
         examples: [
-          "nexus console              # Full console",
-          "nexus console --days 30    # Last 30 days",
+          "shiten console              # Full console",
+          "shiten console --days 30    # Last 30 days",
         ],
       },
       {
         name: "report",
         description: "Generate performance report for the user",
-        usage: "nexus report [options]",
+        usage: "shiten report [options]",
         examples: [
-          "nexus report               # Full report",
-          "nexus report --json        # JSON output",
+          "shiten report               # Full report",
+          "shiten report --json        # JSON output",
         ],
       },
       {
         name: "digest",
         description: "Daily digest of project health and recent changes",
-        usage: "nexus digest [options]",
+        usage: "shiten digest [options]",
         examples: [
-          "nexus digest               # Today's digest",
-          "nexus digest --json        # JSON output",
+          "shiten digest               # Today's digest",
+          "shiten digest --json        # JSON output",
         ],
       },
       {
         name: "bench",
         description: "Benchmark token economy and Context Pipeline performance",
-        usage: "nexus bench [options]",
+        usage: "shiten bench [options]",
         examples: [
-          "nexus bench                # Run benchmark",
+          "shiten bench                # Run benchmark",
         ],
       },
     ],
@@ -268,12 +268,12 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "briefing",
         description: "Pre-session briefing for AI agents (Context Pipeline)",
-        usage: "nexus briefing [options]",
+        usage: "shiten briefing [options]",
         examples: [
-          "nexus briefing             # Full briefing",
-          "nexus briefing --summary   # One-line summary",
-          "nexus briefing --write     # Write to .nexus/BRIEFING.md",
-          "nexus briefing --json      # JSON output",
+          "shiten briefing             # Full briefing",
+          "shiten briefing --summary   # One-line summary",
+          "shiten briefing --write     # Write to .shiten/BRIEFING.md",
+          "shiten briefing --json      # JSON output",
         ],
         tips: [
           "Run at the start of each AI session for context",
@@ -282,29 +282,29 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "feedback",
         description: "Report session outcome for the Context Pipeline feedback loop",
-        usage: "nexus feedback [options]",
+        usage: "shiten feedback [options]",
         examples: [
-          'nexus feedback --outcome success',
-          'nexus feedback --outcome failure --notes "type error in auth"',
+          'shiten feedback --outcome success',
+          'shiten feedback --outcome failure --notes "type error in auth"',
         ],
       },
       {
         name: "profile",
         description: "View and update your user profile for personalized feedback",
-        usage: "nexus profile [options]",
+        usage: "shiten profile [options]",
         examples: [
-          "nexus profile              # Show current profile",
-          "nexus profile --update     # Update profile interactively",
+          "shiten profile              # Show current profile",
+          "shiten profile --update     # Update profile interactively",
         ],
       },
       {
         name: "dashboard",
         description: "Interactive engineering dashboard with tabs, mouse, and accessibility",
-        usage: "nexus dashboard [options]",
+        usage: "shiten dashboard [options]",
         examples: [
-          "nexus dashboard            # Open interactive dashboard",
-          "nexus dashboard --json     # JSON snapshot",
-          "nexus dashboard --live 5   # Auto-refresh every 5s",
+          "shiten dashboard            # Open interactive dashboard",
+          "shiten dashboard --json     # JSON snapshot",
+          "shiten dashboard --live 5   # Auto-refresh every 5s",
         ],
         tips: [
           "Navigate with arrow keys, Tab, numbers, or mouse",
@@ -314,16 +314,16 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "reminders",
         description: "List, add, remove, and manage session reminders with priority and category",
-        usage: "nexus reminders [options] [command]",
+        usage: "shiten reminders [options] [command]",
         examples: [
-          "nexus reminders                                              # List all active reminders",
-          'nexus reminders add "Run audit"                              # Add reminder (default: medium, feature)',
-          'nexus reminders add "Fix auth bug" --priority high --category bug  # Add with priority and category',
-          'nexus reminders add "Security review" --notify               # Add with desktop notification',
-          "nexus reminders rm 1                                         # Remove reminder by index",
-          'nexus reminders rm --message "audit"                         # Remove by partial match',
-          "nexus reminders clear                                        # Remove all reminders",
-          "nexus reminders --json                                       # Output as JSON",
+          "shiten reminders                                              # List all active reminders",
+          'shiten reminders add "Run audit"                              # Add reminder (default: medium, feature)',
+          'shiten reminders add "Fix auth bug" --priority high --category bug  # Add with priority and category',
+          'shiten reminders add "Security review" --notify               # Add with desktop notification',
+          "shiten reminders rm 1                                         # Remove reminder by index",
+          'shiten reminders rm --message "audit"                         # Remove by partial match',
+          "shiten reminders clear                                        # Remove all reminders",
+          "shiten reminders --json                                       # Output as JSON",
         ],
         tips: [
           "Priorities: high (🔴), medium (🟡), low (🟢) — default is medium",
@@ -341,32 +341,32 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "validate",
         description: "Validate session integrity and governance rules",
-        usage: "nexus validate [options]",
+        usage: "shiten validate [options]",
         examples: [
-          "nexus validate             # Validate current session",
-          "nexus validate --json      # JSON output",
+          "shiten validate             # Validate current session",
+          "shiten validate --json      # JSON output",
         ],
       },
       {
         name: "shell-init",
         description: "Output shell hooks for session tracking",
-        usage: "nexus shell-init [options]",
+        usage: "shiten shell-init [options]",
         examples: [
-          "nexus shell-init           # Show shell hooks",
-          "Add to .bashrc/.zshrc: eval $(nexus shell-init)",
+          "shiten shell-init           # Show shell hooks",
+          "Add to .bashrc/.zshrc: eval $(shiten shell-init)",
         ],
       },
       {
         name: "handbook",
-        description: "Exibe o handbook de referência do Nexus",
-        usage: "nexus handbook [options]",
+        description: "Exibe o handbook de referência do Shiten",
+        usage: "shiten handbook [options]",
         examples: [
-          "nexus handbook              # Show full handbook index",
-          "nexus handbook --level 1    # Apenas fundamentos",
-          "nexus handbook --level 2    # Apenas comandos",
-          "nexus handbook --level 3    # Apenas arquitetura",
-          "nexus handbook --topic init # Buscar por tópico",
-          "nexus handbook --list       # Listar todos os tópicos",
+          "shiten handbook              # Show full handbook index",
+          "shiten handbook --level 1    # Apenas fundamentos",
+          "shiten handbook --level 2    # Apenas comandos",
+          "shiten handbook --level 3    # Apenas arquitetura",
+          "shiten handbook --topic init # Buscar por tópico",
+          "shiten handbook --list       # Listar todos os tópicos",
         ],
         tips: [
           "Nível 1: Para qualquer pessoa (o que é, instalação, primeiros passos)",
@@ -383,11 +383,11 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "docs-audit",
         description: "Audit documentation lifecycle status and propose organization",
-        usage: "nexus docs-audit [options]",
+        usage: "shiten docs-audit [options]",
         examples: [
-          "nexus docs-audit              # Dry-run: show proposed moves",
-          "nexus docs-audit --apply      # Apply moves with confirmation",
-          "nexus docs-audit --json       # Output as JSON",
+          "shiten docs-audit              # Dry-run: show proposed moves",
+          "shiten docs-audit --apply      # Apply moves with confirmation",
+          "shiten docs-audit --json       # Output as JSON",
         ],
         tips: [
           "Run this periodically to keep documentation organized",

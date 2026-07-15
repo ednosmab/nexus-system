@@ -6,12 +6,12 @@ import { calculateComplexityScore, writeComplexityReport } from "../scorer.js";
 import type { ProjectAnalysis } from "../analyser.js";
 
 let tempDir: string;
-let nexusDir: string;
+let shitenDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-scorer-"));
-  nexusDir = join(tempDir, "nexus-system");
-  mkdirSync(nexusDir, { recursive: true });
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-scorer-"));
+  shitenDir = join(tempDir, "shitenno-go");
+  mkdirSync(shitenDir, { recursive: true });
 });
 
 afterEach(() => {
@@ -23,7 +23,7 @@ function makeAnalysis(overrides: Partial<ProjectAnalysis> = {}): ProjectAnalysis
     rootDir: tempDir,
     hasGit: false,
     hasPackageJson: false,
-    hasNexus: false,
+    hasShiten: false,
     stack: [],
     packageManager: "unknown",
     monorepo: false,
@@ -44,7 +44,7 @@ function makeAnalysis(overrides: Partial<ProjectAnalysis> = {}): ProjectAnalysis
 
 describe("calculateComplexityScore", () => {
   it("returns junior level for empty project", async () => {
-    const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
+    const report = await calculateComplexityScore(tempDir, shitenDir, makeAnalysis());
     expect(report.level).toBe("junior");
     expect(report.score).toBe(0);
     expect(report.staticMetrics.length).toBeGreaterThan(0);
@@ -59,17 +59,17 @@ describe("calculateComplexityScore", () => {
       sourceFileCount: 200,
       dependencyCount: 80,
     });
-    const report = await calculateComplexityScore(tempDir, nexusDir, analysis);
+    const report = await calculateComplexityScore(tempDir, shitenDir, analysis);
     expect(report.score).toBeGreaterThanOrEqual(5);
     expect(report.level).toBe("pleno");
   });
 
   it("returns senior level for high complexity", async () => {
-    mkdirSync(join(nexusDir, "docs", "adrs"), { recursive: true });
-    mkdirSync(join(nexusDir, "docs", "history"), { recursive: true });
-    writeFileSync(join(nexusDir, "docs", "adrs", "ADR-001.md"), "# ADR-001");
-    writeFileSync(join(nexusDir, "docs", "adrs", "ADR-002.md"), "# ADR-002");
-    writeFileSync(join(nexusDir, "docs", "adrs", "ADR-003.md"), "# ADR-003");
+    mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
+    mkdirSync(join(shitenDir, "docs", "history"), { recursive: true });
+    writeFileSync(join(shitenDir, "docs", "adrs", "ADR-001.md"), "# ADR-001");
+    writeFileSync(join(shitenDir, "docs", "adrs", "ADR-002.md"), "# ADR-002");
+    writeFileSync(join(shitenDir, "docs", "adrs", "ADR-003.md"), "# ADR-003");
 
     const analysis = makeAnalysis({
       packageCount: 6,
@@ -78,13 +78,13 @@ describe("calculateComplexityScore", () => {
       dependencyCount: 120,
       monorepo: true,
     });
-    const report = await calculateComplexityScore(tempDir, nexusDir, analysis);
+    const report = await calculateComplexityScore(tempDir, shitenDir, analysis);
     expect(report.score).toBeGreaterThanOrEqual(10);
     expect(report.level).toBe("senior");
   });
 
   it("includes computedAt timestamp", async () => {
-    const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
+    const report = await calculateComplexityScore(tempDir, shitenDir, makeAnalysis());
     expect(report.computedAt).toBeTruthy();
     expect(new Date(report.computedAt).getTime()).toBeGreaterThan(0);
   });
@@ -92,7 +92,7 @@ describe("calculateComplexityScore", () => {
   it("populates staticMetrics with evidence", async () => {
     const report = await calculateComplexityScore(
       tempDir,
-      nexusDir,
+      shitenDir,
       makeAnalysis({ packageCount: 1 })
     );
     expect(report.staticMetrics.length).toBeGreaterThan(0);
@@ -106,32 +106,32 @@ describe("calculateComplexityScore", () => {
 
 describe("writeComplexityReport", () => {
   it("returns null when reports/ doesn't exist", async () => {
-    const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
-    const result = writeComplexityReport(tempDir, nexusDir, report);
+    const report = await calculateComplexityScore(tempDir, shitenDir, makeAnalysis());
+    const result = writeComplexityReport(tempDir, shitenDir, report);
     expect(result).toBeNull();
   });
 
   it("writes JSON report when reports/ exists", async () => {
-    mkdirSync(join(nexusDir, "reports"), { recursive: true });
-    const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
-    const filename = writeComplexityReport(tempDir, nexusDir, report);
+    mkdirSync(join(shitenDir, "reports"), { recursive: true });
+    const report = await calculateComplexityScore(tempDir, shitenDir, makeAnalysis());
+    const filename = writeComplexityReport(tempDir, shitenDir, report);
 
     expect(filename).toBeTruthy();
     expect(filename).toMatch(/^complexity-.*\.json$/);
 
     // Verify the file was written
-    const reports = readdirSync(join(nexusDir, "reports")).filter((f: string) =>
+    const reports = readdirSync(join(shitenDir, "reports")).filter((f: string) =>
       f.startsWith("complexity-")
     );
     expect(reports.length).toBe(1);
   });
 
   it("increments session number on multiple writes", async () => {
-    mkdirSync(join(nexusDir, "reports"), { recursive: true });
-    const report = await calculateComplexityScore(tempDir, nexusDir, makeAnalysis());
+    mkdirSync(join(shitenDir, "reports"), { recursive: true });
+    const report = await calculateComplexityScore(tempDir, shitenDir, makeAnalysis());
 
-    const f1 = writeComplexityReport(tempDir, nexusDir, report);
-    const f2 = writeComplexityReport(tempDir, nexusDir, report);
+    const f1 = writeComplexityReport(tempDir, shitenDir, report);
+    const f2 = writeComplexityReport(tempDir, shitenDir, report);
 
     expect(f1).toContain("session1");
     expect(f2).toContain("session2");

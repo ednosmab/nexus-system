@@ -94,7 +94,7 @@ export function statusIcon(
  * Render a boxed banner with command name and subtitle.
  * Replaces the duplicated 3-line `╔══╗` pattern across all commands.
  *
- * @param title - Command name (e.g. "nexus status")
+ * @param title - Command name (e.g. "shiten status")
  * @param subtitle - Description (e.g. "Health Check")
  */
 export function banner(title: string, subtitle: string): void {

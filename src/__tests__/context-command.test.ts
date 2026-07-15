@@ -1,5 +1,5 @@
 /**
- * context-command.test.ts — Tests for context command (nexus context --for-agent)
+ * context-command.test.ts — Tests for context command (shiten context --for-agent)
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -16,12 +16,12 @@ describe("context command", () => {
   });
 
   it("returns null when no engineering state exists", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     expect(result).toBeNull();
   });
 
   it("returns a valid ContextOutput structure when state exists", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(result).toHaveProperty("version");
@@ -35,7 +35,7 @@ describe("context command", () => {
   });
 
   it("has deterministic project fields", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(result.project).toHaveProperty("name");
@@ -45,7 +45,7 @@ describe("context command", () => {
   });
 
   it("has engineeringState with required fields", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     const es = result.engineeringState;
@@ -69,7 +69,7 @@ describe("context command", () => {
   });
 
   it("output is JSON-serializable", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     const serialized = JSON.stringify(result);
@@ -79,7 +79,7 @@ describe("context command", () => {
   });
 
   it("challenges is always an array", () => {
-    const result = generateContext("/tmp/nonexistent-nexus-dir");
+    const result = generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(Array.isArray(result.challenges)).toBe(true);

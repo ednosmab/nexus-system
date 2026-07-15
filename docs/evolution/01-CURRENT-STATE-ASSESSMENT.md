@@ -1,6 +1,6 @@
 # Current State Assessment
 
-> Where the Nexus System stands today.
+> Where the Shitenno-go stands today.
 
 ## Strengths
 

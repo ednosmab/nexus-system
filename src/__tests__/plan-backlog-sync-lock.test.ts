@@ -18,7 +18,7 @@ import { acquireScanLock, releaseScanLock } from "../plan-backlog-sync-lock.js";
 import { shouldSkipScan, markScanRun } from "../plan-backlog-sync-cooldown.js";
 
 function createTempDir(): string {
-  const dir = join(tmpdir(), `nexus-lock-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const dir = join(tmpdir(), `shiten-lock-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }

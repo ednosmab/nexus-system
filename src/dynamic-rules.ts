@@ -88,9 +88,9 @@ function detectGitIncidents(projectRoot: string): DynamicRule[] {
 
 // ── History Analysis ───────────────────────────────────────────────────────
 
-function detectHistoryIncidents(_projectRoot: string, nexusDir: string): DynamicRule[] {
+function detectHistoryIncidents(_projectRoot: string, shitenDir: string): DynamicRule[] {
   const rules: DynamicRule[] = [];
-  const historyDir = join(nexusDir, "docs", "history");
+  const historyDir = join(shitenDir, "docs", "history");
 
   if (!existsSync(historyDir)) return rules;
 
@@ -140,7 +140,7 @@ function detectHistoryIncidents(_projectRoot: string, nexusDir: string): Dynamic
 
 export function generateDynamicRules(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): DynamicRule[] {
   const rules: DynamicRule[] = [];
 
@@ -148,7 +148,7 @@ export function generateDynamicRules(
   rules.push(...detectGitIncidents(projectRoot));
 
   // Detect from history
-  rules.push(...detectHistoryIncidents(projectRoot, nexusDir));
+  rules.push(...detectHistoryIncidents(projectRoot, shitenDir));
 
   // Sort by severity
   const severityOrder: Record<RuleSeverity, number> = { critical: 0, high: 1, medium: 2, low: 3 };

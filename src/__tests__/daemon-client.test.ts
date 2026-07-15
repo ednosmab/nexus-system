@@ -13,9 +13,9 @@ describe("daemon-client", () => {
   beforeEach(() => {
     if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true });
     mkdirSync(TEST_DIR, { recursive: true });
-    vi.stubEnv("NEXUS_NO_DAEMON", "");
+    vi.stubEnv("SHITEN_NO_DAEMON", "");
     vi.stubEnv("CI", "");
-    vi.stubEnv("NEXUS_CHILD", "");
+    vi.stubEnv("SHITEN_CHILD", "");
   });
 
   afterEach(() => {
@@ -28,8 +28,8 @@ describe("daemon-client", () => {
       expect(shouldSkipDaemon()).toBe(false);
     });
 
-    it("returns true if NEXUS_NO_DAEMON=1", () => {
-      vi.stubEnv("NEXUS_NO_DAEMON", "1");
+    it("returns true if SHITEN_NO_DAEMON=1", () => {
+      vi.stubEnv("SHITEN_NO_DAEMON", "1");
       expect(shouldSkipDaemon()).toBe(true);
     });
 
@@ -38,8 +38,8 @@ describe("daemon-client", () => {
       expect(shouldSkipDaemon()).toBe(true);
     });
 
-    it("returns true if NEXUS_CHILD=1", () => {
-      vi.stubEnv("NEXUS_CHILD", "1");
+    it("returns true if SHITEN_CHILD=1", () => {
+      vi.stubEnv("SHITEN_CHILD", "1");
       expect(shouldSkipDaemon()).toBe(true);
     });
   });

@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, Nexus modules are isolated. `pattern-detector` doesn't know what `health-auditor` found. `knowledge-debt` doesn't feed `auto-evolution`. Each module is an island.
+Today, Shiten modules are isolated. `pattern-detector` doesn't know what `health-auditor` found. `knowledge-debt` doesn't feed `auto-evolution`. Each module is an island.
 
 The event bus connects them.
 
@@ -33,7 +33,7 @@ The event bus connects them.
 |-------|---------|-------------|
 | `session.start` | `{ sessionId, branch }` | init, assess |
 | `session.end` | `{ sessionId, summary }` | close-session |
-| `lifecycle.state_changed` | `{ previous, current, trigger }` | nexus-state-machine |
+| `lifecycle.state_changed` | `{ previous, current, trigger }` | shiten-state-machine |
 
 ### Analysis Events
 
@@ -104,22 +104,22 @@ The event bus connects them.
 type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;
 
 interface EventBus {
-  publish<T>(eventType: NexusEventType, payload: T): void;
-  subscribe<T>(eventType: NexusEventType, handler: EventHandler<T>): unsubscribe;
-  subscribeOnce<T>(eventType: NexusEventType, handler: EventHandler<T>): unsubscribe;
-  removeAllListeners(eventType?: NexusEventType): void;
-  listenerCount(eventType: NexusEventType): number;
+  publish<T>(eventType: ShitenEventType, payload: T): void;
+  subscribe<T>(eventType: ShitenEventType, handler: EventHandler<T>): unsubscribe;
+  subscribeOnce<T>(eventType: ShitenEventType, handler: EventHandler<T>): unsubscribe;
+  removeAllListeners(eventType?: ShitenEventType): void;
+  listenerCount(eventType: ShitenEventType): number;
 }
 ```
 
 ## Implementation
 
 ```typescript
-class NexusEventBus implements EventBus {
+class ShitenEventBus implements EventBus {
   private listeners = new Map<string, Set<EventHandler>>();
   private eventHistory: Array<{ type: string; payload: unknown; timestamp: string }> = [];
 
-  publish<T>(eventType: NexusEventType, payload: T): void {
+  publish<T>(eventType: ShitenEventType, payload: T): void {
     // Record in history
     this.eventHistory.push({
       type: eventType,
@@ -140,7 +140,7 @@ class NexusEventBus implements EventBus {
     }
   }
 
-  subscribe<T>(eventType: NexusEventType, handler: EventHandler<T>): () => void {
+  subscribe<T>(eventType: ShitenEventType, handler: EventHandler<T>): () => void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
@@ -163,7 +163,7 @@ let globalBus: EventBus | null = null;
 
 export function getEventBus(): EventBus {
   if (!globalBus) {
-    globalBus = new NexusEventBus();
+    globalBus = new ShitenEventBus();
   }
   return globalBus;
 }
@@ -224,4 +224,4 @@ bus.subscribe("maturity.changed", ({ previous, current }) => {
 
 - **File:** `src/event-bus.ts` (~200 lines)
 - **Singleton:** `getEventBus()`
-- **Types:** `NexusEventType`, `EventHandler`, `EventBus`
+- **Types:** `ShitenEventType`, `EventHandler`, `EventBus`

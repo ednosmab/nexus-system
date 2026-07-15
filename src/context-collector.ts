@@ -34,23 +34,23 @@ import { readPersistedEvents, type EventEnvelope } from "./event-bus.js";
 
 /** Injectable dependencies for testability. */
 export interface ContextDeps {
-  loadFingerprint: (nexusDir: string) => ProjectFingerprint | null;
-  saveFingerprint: (nexusDir: string, fp: ProjectFingerprint) => void;
-  isFingerprintStale: (nexusDir: string) => boolean;
+  loadFingerprint: (shitenDir: string) => ProjectFingerprint | null;
+  saveFingerprint: (shitenDir: string, fp: ProjectFingerprint) => void;
+  isFingerprintStale: (shitenDir: string) => boolean;
   analyseProject: (projectRoot: string) => ProjectAnalysis;
-  loadMaturityProfile: (nexusDir: string) => MaturityProfile | null;
+  loadMaturityProfile: (shitenDir: string) => MaturityProfile | null;
   generateProjectFingerprint: (root: string, analysis: ProjectAnalysis, score?: number) => ProjectFingerprint;
-  generateRiskMap: (root: string, nexusDir: string) => RiskMap;
+  generateRiskMap: (root: string, shitenDir: string) => RiskMap;
   generateContextRules: (fp: ProjectFingerprint, risk: RiskMap) => ContextRule[];
-  generateDynamicRules: (root: string, nexusDir: string) => DynamicRule[];
+  generateDynamicRules: (root: string, shitenDir: string) => DynamicRule[];
   generateBriefing: (fp: ProjectFingerprint, risk: RiskMap, ctx: ContextRule[], dyn: DynamicRule[], mat?: MaturityProfile, quickBoard?: { currentTask: string; nextP0: string; p1Debts: string; impediments: string; lastSessionStatus: string }, reminders?: Reminder[]) => Briefing;
-  detectPatterns: (projectRoot: string, nexusDir: string) => PatternDetectionReport;
+  detectPatterns: (projectRoot: string, shitenDir: string) => PatternDetectionReport;
   /** Optional: compute checksums for snapshot cache invalidation. */
-  computeKeyChecksums?: (projectRoot: string, nexusDir: string) => Record<string, string>;
+  computeKeyChecksums?: (projectRoot: string, shitenDir: string) => Record<string, string>;
   /** Optional: read cached snapshot. Return null to disable cache reads. */
-  getCached?: <T>(projectRoot: string, nexusDir: string, key: string, checksumsFn: () => Record<string, string>) => T | null;
+  getCached?: <T>(projectRoot: string, shitenDir: string, key: string, checksumsFn: () => Record<string, string>) => T | null;
   /** Optional: write snapshot to cache. No-op to disable cache writes. */
-  setCache?: <T>(projectRoot: string, nexusDir: string, key: string, data: T, checksums: Record<string, string>) => void;
+  setCache?: <T>(projectRoot: string, shitenDir: string, key: string, data: T, checksums: Record<string, string>) => void;
 }
 
 /** The collected context snapshot. */
@@ -96,17 +96,17 @@ export const defaultDeps: ContextDeps = {
  * Collect all project context into a single snapshot.
  *
  * Uses an intermediate disk cache keyed by a lightweight pre-hash
- * (git HEAD + nexus-system dir). On cache hit, all heavy computation
+ * (git HEAD + shitenno-go dir). On cache hit, all heavy computation
  * (fingerprint, risk map, rules, briefing) is skipped.
  *
  * @param projectRoot - Root directory of the project.
- * @param nexusDir - Path to nexus-system/ directory.
+ * @param shitenDir - Path to shitenno-go/ directory.
  * @param deps - Injectable dependencies (for testing). Uses real I/O if omitted.
  * @returns A complete ContextSnapshot.
  */
 export function collectContext(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   deps: ContextDeps = defaultDeps
 ): ContextSnapshot {
   // 0. Snapshot cache check (intermediate cache — 2.15b)
@@ -114,8 +114,8 @@ export function collectContext(
   const cacheGet = deps.getCached ?? getCached;
   const cacheSet = deps.setCache ?? setCache;
   try {
-    const cached = cacheGet<ContextSnapshot>(projectRoot, nexusDir, "complexity", () =>
-      computeChecksums(projectRoot, nexusDir)
+    const cached = cacheGet<ContextSnapshot>(projectRoot, shitenDir, "complexity", () =>
+      computeChecksums(projectRoot, shitenDir)
     );
     if (cached && (cached as ContextSnapshot).inputHash) {
       logger.debug("collectContext", "Snapshot cache hit — skipping recomputation");
@@ -126,28 +126,28 @@ export function collectContext(
   }
 
   // 1. Fingerprint
-  let fingerprint = deps.loadFingerprint(nexusDir);
-  if (!fingerprint || deps.isFingerprintStale(nexusDir)) {
+  let fingerprint = deps.loadFingerprint(shitenDir);
+  if (!fingerprint || deps.isFingerprintStale(shitenDir)) {
     const analysis = deps.analyseProject(projectRoot);
-    const maturityProfile = deps.loadMaturityProfile(nexusDir);
+    const maturityProfile = deps.loadMaturityProfile(shitenDir);
     fingerprint = deps.generateProjectFingerprint(projectRoot, analysis, maturityProfile?.overallScore);
-    deps.saveFingerprint(nexusDir, fingerprint);
+    deps.saveFingerprint(shitenDir, fingerprint);
   }
 
   // 2. Risk Map
-  const riskMap = deps.generateRiskMap(projectRoot, nexusDir);
+  const riskMap = deps.generateRiskMap(projectRoot, shitenDir);
 
   // 3. Context Rules
   const contextRules = deps.generateContextRules(fingerprint, riskMap);
 
   // 4. Dynamic Rules
-  const dynamicRules = deps.generateDynamicRules(projectRoot, nexusDir);
+  const dynamicRules = deps.generateDynamicRules(projectRoot, shitenDir);
 
   // 5. Maturity Profile
-  const maturityProfile = deps.loadMaturityProfile(nexusDir);
+  const maturityProfile = deps.loadMaturityProfile(shitenDir);
 
   // 6. Load Quick Board data from context_buffer.yaml
-  const quickBoard = loadQuickBoard(nexusDir);
+  const quickBoard = loadQuickBoard(shitenDir);
 
   // 7. Generate Briefing
   const briefing = deps.generateBriefing(
@@ -164,10 +164,10 @@ export function collectContext(
   );
 
   // 7. Enrich briefing with detected patterns (Gap 4+5: feedback hotspots + pattern-detector)
-  const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, nexusDir, deps);
+  const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, shitenDir, deps);
 
   // 7b. Enrich briefing with recent activity from persisted events (last 24h)
-  const finalBriefing = enrichBriefingWithRecentActivity(enrichedBriefing, nexusDir);
+  const finalBriefing = enrichBriefingWithRecentActivity(enrichedBriefing, shitenDir);
 
   // 8. Compute input hash for cache invalidation
   const inputHash = computeInputHash({
@@ -189,10 +189,10 @@ export function collectContext(
     briefing: finalBriefing,
   };
 
-  // 9. Store snapshot in cache (reuse complexity slot in nexus-cache.json)
+  // 9. Store snapshot in cache (reuse complexity slot in shiten-cache.json)
   try {
-    const checksums = computeChecksums(projectRoot, nexusDir);
-    cacheSet(projectRoot, nexusDir, "complexity", snapshot, checksums);
+    const checksums = computeChecksums(projectRoot, shitenDir);
+    cacheSet(projectRoot, shitenDir, "complexity", snapshot, checksums);
   } catch (err) {
     logger.debug("collectContext", "Failed to cache snapshot:", err instanceof Error ? err.message : err);
   }
@@ -211,7 +211,7 @@ export function collectContext(
  *
  * @param briefing - The base briefing to enrich.
  * @param projectRoot - Root directory of the project.
- * @param nexusDir - Path to nexus-system/ directory.
+ * @param shitenDir - Path to shitenno-go/ directory.
  * @param deps - Injectable dependencies (for testing).
  * @param existingPatternReport - Optional pre-computed pattern report to avoid re-detection.
  * @returns The enriched briefing with recurringErrors and detected patterns populated.
@@ -219,14 +219,14 @@ export function collectContext(
 function enrichBriefingWithPatterns(
   briefing: Briefing,
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   deps: ContextDeps,
   existingPatternReport?: PatternDetectionReport
 ): Briefing {
   // Gap 4: Populate recurringErrors from feedback failure hotspots
   let recurringErrors: string[] = [];
   try {
-    const records = getFeedbackRecords(nexusDir);
+    const records = getFeedbackRecords(shitenDir);
     if (records.length > 0) {
       const summary = computeFeedbackSummary(records);
       recurringErrors = summary.failureHotspots;
@@ -238,7 +238,7 @@ function enrichBriefingWithPatterns(
   // Gap 5: Populate detected patterns from pattern-detector
   let detected: Briefing["patterns"]["detected"] = [];
   try {
-    const patternReport = existingPatternReport ?? deps.detectPatterns(projectRoot, nexusDir);
+    const patternReport = existingPatternReport ?? deps.detectPatterns(projectRoot, shitenDir);
     detected = patternReport.patterns.map((p: DetectedPattern) => ({
       type: p.type,
       description: p.description,
@@ -296,15 +296,15 @@ function summarizeEvent(event: EventEnvelope): string {
  */
 function enrichBriefingWithRecentActivity(
   briefing: Briefing,
-  nexusDir: string
+  shitenDir: string
 ): Briefing {
   try {
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
     const yesterday = new Date(now.getTime() - 86400000).toISOString().slice(0, 10);
 
-    const todayEvents = readPersistedEvents(nexusDir, today);
-    const yesterdayEvents = readPersistedEvents(nexusDir, yesterday);
+    const todayEvents = readPersistedEvents(shitenDir, today);
+    const yesterdayEvents = readPersistedEvents(shitenDir, yesterday);
     const allEvents = [...yesterdayEvents, ...todayEvents];
 
     // Filter to relevant event types and last 24h
@@ -345,7 +345,7 @@ function enrichBriefingWithRecentActivity(
  * Load Quick Board data from context_buffer.yaml.
  * Provides session state summary for agent reminder at session start.
  */
-function loadQuickBoard(nexusDir: string): {
+function loadQuickBoard(shitenDir: string): {
   currentTask: string;
   nextP0: string;
   p1Debts: string;
@@ -363,7 +363,7 @@ function loadQuickBoard(nexusDir: string): {
   };
 
   try {
-    const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+    const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
     if (!existsSync(bufferPath)) {
       return defaultQuickBoard;
     }
@@ -397,7 +397,7 @@ function loadQuickBoard(nexusDir: string): {
       : "Nenhuma";
 
     // Auto-update next_p0 and current_task from BACKLOG.md if stale
-    const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+    const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
     let nextP0 = data?.next_p0 ?? "Verificar BACKLOG.md para próximo P0";
     let currentTaskVal = currentTask;
 

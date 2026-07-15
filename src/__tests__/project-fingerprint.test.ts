@@ -26,7 +26,7 @@ function makeAnalysis(overrides: Partial<ProjectAnalysis> = {}): ProjectAnalysis
     rootDir: "/project",
     hasGit: true,
     hasPackageJson: true,
-    hasNexus: true,
+    hasShiten: true,
     stack: ["typescript"],
     packageManager: "pnpm",
     monorepo: false,
@@ -240,9 +240,9 @@ describe("saveFingerprint", () => {
   it("writes fingerprint to fingerprint.json", () => {
     mockExistsSync.mockReturnValue(true);
     const fp = generateProjectFingerprint("/project", makeAnalysis());
-    saveFingerprint("/nexus", fp);
+    saveFingerprint("/shiten", fp);
     expect(mockWriteFileSync).toHaveBeenCalledWith(
-      "/nexus/fingerprint.json",
+      "/shiten/fingerprint.json",
       JSON.stringify(fp, null, 2),
       "utf-8"
     );
@@ -251,14 +251,14 @@ describe("saveFingerprint", () => {
   it("creates directory if it does not exist", () => {
     mockExistsSync.mockReturnValue(false);
     const fp = generateProjectFingerprint("/project", makeAnalysis());
-    saveFingerprint("/nexus", fp);
-    expect(mockMkdirSync).toHaveBeenCalledWith("/nexus", { recursive: true });
+    saveFingerprint("/shiten", fp);
+    expect(mockMkdirSync).toHaveBeenCalledWith("/shiten", { recursive: true });
   });
 
   it("does not create directory if it exists", () => {
     mockExistsSync.mockReturnValue(true);
     const fp = generateProjectFingerprint("/project", makeAnalysis());
-    saveFingerprint("/nexus", fp);
+    saveFingerprint("/shiten", fp);
     expect(mockMkdirSync).not.toHaveBeenCalled();
   });
 });
@@ -271,19 +271,19 @@ describe("loadFingerprint", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify(fp));
 
-    const loaded = loadFingerprint("/nexus");
+    const loaded = loadFingerprint("/shiten");
     expect(loaded).toEqual(fp);
   });
 
   it("returns null when file does not exist", () => {
     mockExistsSync.mockReturnValue(false);
-    expect(loadFingerprint("/nexus")).toBeNull();
+    expect(loadFingerprint("/shiten")).toBeNull();
   });
 
   it("returns null when file contains invalid JSON", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue("not json");
-    expect(loadFingerprint("/nexus")).toBeNull();
+    expect(loadFingerprint("/shiten")).toBeNull();
   });
 });
 
@@ -292,7 +292,7 @@ describe("loadFingerprint", () => {
 describe("isFingerprintStale", () => {
   it("returns true when no fingerprint exists", () => {
     mockExistsSync.mockReturnValue(false);
-    expect(isFingerprintStale("/nexus")).toBe(true);
+    expect(isFingerprintStale("/shiten")).toBe(true);
   });
 
   it("returns true when fingerprint is older than maxAgeDays", () => {
@@ -308,7 +308,7 @@ describe("isFingerprintStale", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify(oldFp));
 
-    expect(isFingerprintStale("/nexus", 7)).toBe(true);
+    expect(isFingerprintStale("/shiten", 7)).toBe(true);
   });
 
   it("returns false when fingerprint is fresh", () => {
@@ -324,7 +324,7 @@ describe("isFingerprintStale", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify(freshFp));
 
-    expect(isFingerprintStale("/nexus", 7)).toBe(false);
+    expect(isFingerprintStale("/shiten", 7)).toBe(false);
   });
 
   it("uses default maxAgeDays of 7", () => {
@@ -340,12 +340,12 @@ describe("isFingerprintStale", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify(sixDaysAgo));
 
-    expect(isFingerprintStale("/nexus")).toBe(false);
+    expect(isFingerprintStale("/shiten")).toBe(false);
   });
 
   it("returns true when fingerprint load fails", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue("invalid");
-    expect(isFingerprintStale("/nexus")).toBe(true);
+    expect(isFingerprintStale("/shiten")).toBe(true);
   });
 });

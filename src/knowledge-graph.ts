@@ -25,19 +25,19 @@ export { graphToText } from "./knowledge-graph/visualization.js";
 
 import { discoverArtifacts, discoverRelations } from "./knowledge-graph/discovery.js";
 import { saveArtifacts, saveRelations } from "./knowledge-graph/storage.js";
-import { getEventBus, type NexusEventType } from "./event-bus.js";
+import { getEventBus, type ShitenEventType } from "./event-bus.js";
 
-function rebuildGraph(nexusDir: string): void {
-  const artifacts = discoverArtifacts(nexusDir);
+function rebuildGraph(shitenDir: string): void {
+  const artifacts = discoverArtifacts(shitenDir);
   const relations = discoverRelations(artifacts);
-  saveArtifacts(nexusDir, artifacts);
-  saveRelations(nexusDir, relations);
+  saveArtifacts(shitenDir, artifacts);
+  saveRelations(shitenDir, relations);
 }
 
-export function initializeKnowledgeGraph(nexusDir: string): void {
+export function initializeKnowledgeGraph(shitenDir: string): void {
   const bus = getEventBus();
 
-  const eventTypes: NexusEventType[] = [
+  const eventTypes: ShitenEventType[] = [
     "adr.created",
     "skill.created",
     "capability.installed",
@@ -45,7 +45,7 @@ export function initializeKnowledgeGraph(nexusDir: string): void {
 
   for (const eventType of eventTypes) {
     bus.subscribe(eventType, () => {
-      rebuildGraph(nexusDir);
+      rebuildGraph(shitenDir);
     });
   }
 }

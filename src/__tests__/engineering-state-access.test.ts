@@ -16,8 +16,8 @@ describe("engineering-state-access", () => {
 
   beforeEach(() => {
     clearEngineeringStateCache();
-    tmpDir = join(tmpdir(), `nexus-access-${Date.now()}`);
-    mkdirSync(join(tmpDir, "nexus-system"), { recursive: true });
+    tmpDir = join(tmpdir(), `shiten-access-${Date.now()}`);
+    mkdirSync(join(tmpDir, "shitenno-go"), { recursive: true });
   });
 
   afterEach(() => {
@@ -30,7 +30,7 @@ describe("engineering-state-access", () => {
   });
 
   it("getEngineeringState returns an object with expected properties", () => {
-    const state = getEngineeringState(tmpDir, join(tmpDir, "nexus-system"), true);
+    const state = getEngineeringState(tmpDir, join(tmpDir, "shitenno-go"), true);
     expect(state).toBeDefined();
     expect(state).toHaveProperty("consolidatedAt");
     expect(state).toHaveProperty("healthScores");
@@ -38,28 +38,28 @@ describe("engineering-state-access", () => {
   });
 
   it("returns same reference when called twice without forceRefresh", () => {
-    const state1 = getEngineeringState(tmpDir, join(tmpDir, "nexus-system"), false);
-    const state2 = getEngineeringState(tmpDir, join(tmpDir, "nexus-system"), false);
+    const state1 = getEngineeringState(tmpDir, join(tmpDir, "shitenno-go"), false);
+    const state2 = getEngineeringState(tmpDir, join(tmpDir, "shitenno-go"), false);
     expect(state1).toBe(state2);
   });
 
   it("returns fresh state when forceRefresh=true", () => {
-    const state1 = getEngineeringState(tmpDir, join(tmpDir, "nexus-system"), false);
+    const state1 = getEngineeringState(tmpDir, join(tmpDir, "shitenno-go"), false);
     clearEngineeringStateCache();
-    const state2 = getEngineeringState(tmpDir, join(tmpDir, "nexus-system"), true);
+    const state2 = getEngineeringState(tmpDir, join(tmpDir, "shitenno-go"), true);
     expect(state1).not.toBe(state2);
   });
 });
 
 describe("engineering-state-access — cross-process cache", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
 
   beforeEach(() => {
     clearEngineeringStateCache();
-    tmpDir = join(tmpdir(), `nexus-cross-${Date.now()}`);
-    nexusDir = join(tmpDir, "nexus-system");
-    mkdirSync(nexusDir, { recursive: true });
+    tmpDir = join(tmpdir(), `shiten-cross-${Date.now()}`);
+    shitenDir = join(tmpDir, "shitenno-go");
+    mkdirSync(shitenDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -87,19 +87,19 @@ describe("engineering-state-access — cross-process cache", () => {
     };
 
     // Save to disk (simulating another process)
-    saveEngineeringState(nexusDir, mockState);
+    saveEngineeringState(shitenDir, mockState);
 
     // Clear in-memory cache
     clearEngineeringStateCache();
 
     // Should load from disk, not reconsolidate
-    const state = getEngineeringState(tmpDir, nexusDir, false);
+    const state = getEngineeringState(tmpDir, shitenDir, false);
     expect(state.summary).toBe("Test state from disk");
   });
 
   it("recalculates when governance/ file is modified after consolidation", () => {
     // Create governance dir with a file
-    const govDir = join(nexusDir, "governance");
+    const govDir = join(shitenDir, "governance");
     mkdirSync(govDir, { recursive: true });
     writeFileSync(join(govDir, "test.md"), "# Test", "utf-8");
 
@@ -122,14 +122,14 @@ describe("engineering-state-access — cross-process cache", () => {
       summary: "Old state from disk",
     };
 
-    saveEngineeringState(nexusDir, oldState);
+    saveEngineeringState(shitenDir, oldState);
     clearEngineeringStateCache();
 
     // Modify governance file (newer than consolidatedAt)
     writeFileSync(join(govDir, "test.md"), "# Updated", "utf-8");
 
     // Should recalculate, not use old disk state
-    const state = getEngineeringState(tmpDir, nexusDir, false);
+    const state = getEngineeringState(tmpDir, shitenDir, false);
     expect(state.summary).not.toBe("Old state from disk");
   });
 
@@ -139,11 +139,11 @@ describe("engineering-state-access — cross-process cache", () => {
     // a consolidation happened (e.g. marking a plan Done right after
     // running a command). A TTL-based fast path previously reported
     // "fresh" here unconditionally for the first 60s, masking the change.
-    const govDir = join(nexusDir, "governance", "plans");
+    const govDir = join(shitenDir, "governance", "plans");
     mkdirSync(govDir, { recursive: true });
     writeFileSync(join(govDir, "test-plan.md"), "**Status:** In Progress", "utf-8");
 
-    const state1 = getEngineeringState(tmpDir, nexusDir, true);
+    const state1 = getEngineeringState(tmpDir, shitenDir, true);
     clearEngineeringStateCache();
     
     await new Promise(r => setTimeout(r, 10));
@@ -151,7 +151,7 @@ describe("engineering-state-access — cross-process cache", () => {
     writeFileSync(join(govDir, "test-plan.md"), "**Status:** Done", "utf-8");
     clearEngineeringStateCache();
 
-    const state2 = getEngineeringState(tmpDir, nexusDir, false);
+    const state2 = getEngineeringState(tmpDir, shitenDir, false);
     expect(state2.consolidatedAt).not.toBe(state1.consolidatedAt);
   });
 
@@ -174,11 +174,11 @@ describe("engineering-state-access — cross-process cache", () => {
       summary: "Disk state that should be bypassed",
     };
 
-    saveEngineeringState(nexusDir, mockState);
+    saveEngineeringState(shitenDir, mockState);
     clearEngineeringStateCache();
 
     // forceRefresh should ignore disk cache
-    const state = getEngineeringState(tmpDir, nexusDir, true);
+    const state = getEngineeringState(tmpDir, shitenDir, true);
     expect(state.summary).not.toBe("Disk state that should be bypassed");
   });
 });

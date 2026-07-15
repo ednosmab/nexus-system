@@ -1,24 +1,24 @@
 /**
  * act.ts — Action Engine CLI Command
  *
- * The `nexus act` command. Execute actions with idempotency guarantees.
+ * The `shiten act` command. Execute actions with idempotency guarantees.
  *
  * Usage:
- *   nexus act log-event --event "session.start" --message "Session started"
- *   nexus act notify --message "Build complete" --level info
- *   nexus act reminder --message "Run audit" --priority high
- *   nexus act script --script "nexus audit"
- *   nexus act --list
- *   nexus act --show EXE-abc123
- *   nexus act --stats
- *   nexus act --rollback EXE-abc123
+ *   shiten act log-event --event "session.start" --message "Session started"
+ *   shiten act notify --message "Build complete" --level info
+ *   shiten act reminder --message "Run audit" --priority high
+ *   shiten act script --script "shiten audit"
+ *   shiten act --list
+ *   shiten act --show EXE-abc123
+ *   shiten act --stats
+ *   shiten act --rollback EXE-abc123
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import {
   ActionEngine,
   FileExecutionRepository,
@@ -31,8 +31,8 @@ import { output, outputBlank, outputSection, outputSuccess, outputError } from "
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): ActionEngine {
-  const nexusDir = join(dir, NEXUS_DIR_NAME);
-  return new ActionEngine(new FileExecutionRepository(nexusDir));
+  const shitenDir = join(dir, SHITEN_DIR_NAME);
+  return new ActionEngine(new FileExecutionRepository(shitenDir));
 }
 
 const STATUS_COLORS: Record<ActionStatus, (s: string) => string> = {
@@ -156,7 +156,7 @@ export function actCommand(): Command {
   cmd
     .command("script")
     .description("Run a whitelisted script")
-    .option("--script <name>", "Script name (e.g., 'nexus audit')")
+    .option("--script <name>", "Script name (e.g., 'shiten audit')")
     .option("--action-id <id>", "Custom action ID")
     .option("--correlation-id <id>", "Correlation ID")
     .option("--json", "Output as JSON")

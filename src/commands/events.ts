@@ -3,7 +3,7 @@
  *
  * Shows rule engine execution trace from telemetry/rule-trace.jsonl.
  *
- * Usage: nexus events [--last <n>] [--trigger <type>] [--json]
+ * Usage: shiten events [--last <n>] [--trigger <type>] [--json]
  */
 
 import { Command } from "commander";
@@ -23,8 +23,8 @@ export const eventsCommand = new Command("events")
     if (result) return;
 
     const projectRoot = process.cwd();
-    const nexusDir = `${projectRoot}/nexus-system`;
-    const entries = loadTrace(nexusDir);
+    const shitenDir = `${projectRoot}/shitenno-go`;
+    const entries = loadTrace(shitenDir);
 
     let filtered = entries;
     if (options.trigger) {

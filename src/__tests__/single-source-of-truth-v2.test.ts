@@ -7,7 +7,7 @@ import { consolidateEngineeringState } from "../engineering-state.js";
 
 describe("Single Source of Truth (Phase 4)", () => {
   it("consolidateEngineeringState returns a valid state", () => {
-    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
     expect(state).toBeDefined();
     expect(state.consolidatedAt).toBeDefined();
     expect(state.lifecycle).toBeDefined();
@@ -17,7 +17,7 @@ describe("Single Source of Truth (Phase 4)", () => {
   });
 
   it("engineering state has health scores", () => {
-    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
     expect(state.healthScores).toBeDefined();
     expect(typeof state.healthScores.overall).toBe("number");
     expect(typeof state.healthScores.knowledgeDebt).toBe("number");
@@ -25,7 +25,7 @@ describe("Single Source of Truth (Phase 4)", () => {
   });
 
   it("engineering state has entropy", () => {
-    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const state = consolidateEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
     expect(state.entropy).toBeDefined();
     expect(typeof state.entropy.score).toBe("number");
     expect(typeof state.entropy.orphanedAssets).toBe("number");

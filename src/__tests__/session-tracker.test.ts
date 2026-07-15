@@ -12,11 +12,11 @@ import {
 } from "../session-tracker.js";
 
 let tempDir: string;
-let nexusDir: string;
+let shitenDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-session-"));
-  nexusDir = join(tempDir, "nexus-system");
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-session-"));
+  shitenDir = join(tempDir, "shitenno-go");
 });
 
 afterEach(() => {
@@ -25,7 +25,7 @@ afterEach(() => {
 
 describe("Session Tracker", () => {
   it("startSession creates a session with correct shape", () => {
-    const session = startSession(nexusDir);
+    const session = startSession(shitenDir);
 
     expect(session.id).toMatch(/^SES-\d{17}-\d{4}$/);
     expect(session.startedAt).toBeDefined();
@@ -39,40 +39,40 @@ describe("Session Tracker", () => {
   });
 
   it("startSession persists to sessions.jsonl", () => {
-    const session = startSession(nexusDir);
-    const content = readFileSync(join(nexusDir, "telemetry", "sessions.jsonl"), "utf-8");
+    const session = startSession(shitenDir);
+    const content = readFileSync(join(shitenDir, "telemetry", "sessions.jsonl"), "utf-8");
     const lines = content.trim().split("\n");
     expect(lines).toHaveLength(1);
     expect(JSON.parse(lines[0]!).id).toBe(session.id);
   });
 
   it("startSession creates telemetry directory", () => {
-    startSession(nexusDir);
-    expect(existsSync(join(nexusDir, "telemetry"))).toBe(true);
+    startSession(shitenDir);
+    expect(existsSync(join(shitenDir, "telemetry"))).toBe(true);
   });
 
   it("trackCommand adds command to session", () => {
-    const session = startSession(nexusDir);
-    trackCommand(nexusDir, session.id, "report");
-    trackCommand(nexusDir, session.id, "doctor");
+    const session = startSession(shitenDir);
+    trackCommand(shitenDir, session.id, "report");
+    trackCommand(shitenDir, session.id, "doctor");
 
-    const sessions = getSessions(nexusDir);
+    const sessions = getSessions(shitenDir);
     expect(sessions[0]!.commands).toEqual(["report", "doctor"]);
   });
 
   it("trackCommand ignores unknown session", () => {
-    trackCommand(nexusDir, "SES-FAKE", "report");
-    const sessions = getSessions(nexusDir);
+    trackCommand(shitenDir, "SES-FAKE", "report");
+    const sessions = getSessions(shitenDir);
     expect(sessions).toHaveLength(0);
   });
 
   it("trackFeedback increments feedback counters", () => {
-    const session = startSession(nexusDir);
-    trackFeedback(nexusDir, session.id, "accepted", "challenging");
-    trackFeedback(nexusDir, session.id, "rejected", "comfortable");
-    trackFeedback(nexusDir, session.id, "accepted", "challenging");
+    const session = startSession(shitenDir);
+    trackFeedback(shitenDir, session.id, "accepted", "challenging");
+    trackFeedback(shitenDir, session.id, "rejected", "comfortable");
+    trackFeedback(shitenDir, session.id, "accepted", "challenging");
 
-    const sessions = getSessions(nexusDir);
+    const sessions = getSessions(shitenDir);
     expect(sessions[0]!.feedbackGiven).toBe(3);
     expect(sessions[0]!.recommendationsAccepted).toBe(2);
     expect(sessions[0]!.recommendationsRejected).toBe(1);
@@ -81,14 +81,14 @@ describe("Session Tracker", () => {
   });
 
   it("trackFeedback ignores unknown session", () => {
-    trackFeedback(nexusDir, "SES-FAKE", "accepted");
-    const sessions = getSessions(nexusDir);
+    trackFeedback(shitenDir, "SES-FAKE", "accepted");
+    const sessions = getSessions(shitenDir);
     expect(sessions).toHaveLength(0);
   });
 
   it("endSession sets endedAt and calculates duration", () => {
-    const session = startSession(nexusDir);
-    const ended = endSession(nexusDir, session.id);
+    const session = startSession(shitenDir);
+    const ended = endSession(shitenDir, session.id);
 
     expect(ended).not.toBeNull();
     expect(ended!.endedAt).toBeDefined();
@@ -96,48 +96,48 @@ describe("Session Tracker", () => {
   });
 
   it("endSession returns null for unknown session", () => {
-    const result = endSession(nexusDir, "SES-FAKE");
+    const result = endSession(shitenDir, "SES-FAKE");
     expect(result).toBeNull();
   });
 
   it("getSessions returns all sessions", () => {
-    startSession(nexusDir);
-    startSession(nexusDir);
-    startSession(nexusDir);
+    startSession(shitenDir);
+    startSession(shitenDir);
+    startSession(shitenDir);
 
-    const sessions = getSessions(nexusDir);
+    const sessions = getSessions(shitenDir);
     expect(sessions).toHaveLength(3);
   });
 
   it("getSessions filters by since", () => {
-    startSession(nexusDir);
+    startSession(shitenDir);
     const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
-    const sessions = getSessions(nexusDir, { since: oldDate });
+    const sessions = getSessions(shitenDir, { since: oldDate });
     expect(sessions.length).toBeGreaterThanOrEqual(1);
   });
 
   it("getSessions filters by limit", () => {
-    startSession(nexusDir);
-    startSession(nexusDir);
-    startSession(nexusDir);
+    startSession(shitenDir);
+    startSession(shitenDir);
+    startSession(shitenDir);
 
-    const sessions = getSessions(nexusDir, { limit: 2 });
+    const sessions = getSessions(shitenDir, { limit: 2 });
     expect(sessions).toHaveLength(2);
   });
 
   it("getSessionMetrics returns correct metrics", () => {
-    const s1 = startSession(nexusDir);
-    trackCommand(nexusDir, s1.id, "report");
-    trackCommand(nexusDir, s1.id, "report");
-    trackFeedback(nexusDir, s1.id, "accepted", "challenging");
-    endSession(nexusDir, s1.id);
+    const s1 = startSession(shitenDir);
+    trackCommand(shitenDir, s1.id, "report");
+    trackCommand(shitenDir, s1.id, "report");
+    trackFeedback(shitenDir, s1.id, "accepted", "challenging");
+    endSession(shitenDir, s1.id);
 
-    const s2 = startSession(nexusDir);
-    trackCommand(nexusDir, s2.id, "doctor");
-    trackFeedback(nexusDir, s2.id, "rejected", "comfortable");
-    endSession(nexusDir, s2.id);
+    const s2 = startSession(shitenDir);
+    trackCommand(shitenDir, s2.id, "doctor");
+    trackFeedback(shitenDir, s2.id, "rejected", "comfortable");
+    endSession(shitenDir, s2.id);
 
-    const metrics = getSessionMetrics(nexusDir);
+    const metrics = getSessionMetrics(shitenDir);
     expect(metrics.totalSessions).toBe(2);
     expect(metrics.totalCommands).toBe(3);
     expect(metrics.commandFrequency).toEqual({ report: 2, doctor: 1 });
@@ -147,7 +147,7 @@ describe("Session Tracker", () => {
   });
 
   it("getSessionMetrics returns empty metrics for no sessions", () => {
-    const metrics = getSessionMetrics(nexusDir);
+    const metrics = getSessionMetrics(shitenDir);
     expect(metrics.totalSessions).toBe(0);
     expect(metrics.avgDuration).toBe(0);
     expect(metrics.totalCommands).toBe(0);
@@ -155,25 +155,25 @@ describe("Session Tracker", () => {
   });
 
   it("getSessionMetrics filters by days", () => {
-    startSession(nexusDir);
-    const metrics = getSessionMetrics(nexusDir, 1);
+    startSession(shitenDir);
+    const metrics = getSessionMetrics(shitenDir, 1);
     expect(metrics.totalSessions).toBe(1);
   });
 
-  it("getSessions returns empty for non-existent nexus dir", () => {
-    const sessions = getSessions("/tmp/nonexistent-nexus-dir-test");
+  it("getSessions returns empty for non-existent shiten dir", () => {
+    const sessions = getSessions("/tmp/nonexistent-shiten-dir-test");
     expect(sessions).toEqual([]);
   });
 
   it("handles multiple sessions with interleaved commands", () => {
-    const s1 = startSession(nexusDir);
-    const s2 = startSession(nexusDir);
-    trackCommand(nexusDir, s1.id, "report");
-    trackCommand(nexusDir, s2.id, "doctor");
-    trackCommand(nexusDir, s1.id, "validate");
-    trackCommand(nexusDir, s2.id, "detect");
+    const s1 = startSession(shitenDir);
+    const s2 = startSession(shitenDir);
+    trackCommand(shitenDir, s1.id, "report");
+    trackCommand(shitenDir, s2.id, "doctor");
+    trackCommand(shitenDir, s1.id, "validate");
+    trackCommand(shitenDir, s2.id, "detect");
 
-    const sessions = getSessions(nexusDir);
+    const sessions = getSessions(shitenDir);
     expect(sessions).toHaveLength(2);
     const s1Sessions = sessions.find((s) => s.id === s1.id);
     const s2Sessions = sessions.find((s) => s.id === s2.id);

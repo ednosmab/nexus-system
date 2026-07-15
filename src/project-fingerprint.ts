@@ -7,7 +7,7 @@
  * - Scale (packages, apps, files)
  * - Tooling (TypeScript, tests, CI)
  *
- * PRINCIPLE: To help the project, Nexus must first understand it.
+ * PRINCIPLE: To help the project, Shiten must first understand it.
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -145,8 +145,8 @@ export function generateProjectFingerprint(
 
 // ── Persistence ────────────────────────────────────────────────────────────
 
-export function saveFingerprint(nexusDir: string, fingerprint: ProjectFingerprint): void {
-  const dir = join(nexusDir);
+export function saveFingerprint(shitenDir: string, fingerprint: ProjectFingerprint): void {
+  const dir = join(shitenDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -154,8 +154,8 @@ export function saveFingerprint(nexusDir: string, fingerprint: ProjectFingerprin
   writeFileSync(filePath, JSON.stringify(fingerprint, null, 2), "utf-8");
 }
 
-export function loadFingerprint(nexusDir: string): ProjectFingerprint | null {
-  const filePath = join(nexusDir, "fingerprint.json");
+export function loadFingerprint(shitenDir: string): ProjectFingerprint | null {
+  const filePath = join(shitenDir, "fingerprint.json");
   if (!existsSync(filePath)) return null;
   try {
     return JSON.parse(readFileSync(filePath, "utf-8"));
@@ -164,8 +164,8 @@ export function loadFingerprint(nexusDir: string): ProjectFingerprint | null {
   }
 }
 
-export function isFingerprintStale(nexusDir: string, maxAgeDays = 7): boolean {
-  const fingerprint = loadFingerprint(nexusDir);
+export function isFingerprintStale(shitenDir: string, maxAgeDays = 7): boolean {
+  const fingerprint = loadFingerprint(shitenDir);
   if (!fingerprint) return true;
   const age = Date.now() - new Date(fingerprint.detectedAt).getTime();
   return age > maxAgeDays * 24 * 60 * 60 * 1000;

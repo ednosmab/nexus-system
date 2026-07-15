@@ -24,7 +24,7 @@ import chalk from "chalk";
  * In quiet mode, only error-level output is shown.
  */
 function isQuiet(): boolean {
-  return process.env.NEXUS_QUIET === "1";
+  return process.env.SHITEN_QUIET === "1";
 }
 
 /**

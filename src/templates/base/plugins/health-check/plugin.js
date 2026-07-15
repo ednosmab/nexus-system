@@ -1,7 +1,7 @@
 /**
- * health-check Plugin — Demo Plugin for Nexus CLI
+ * health-check Plugin — Demo Plugin for Shiten CLI
  *
- * Provides extra health checks during `nexus audit`.
+ * Provides extra health checks during `shiten audit`.
  * Demonstrates the plugin system with custom-check and custom-recommendation hooks.
  *
  * WARNING: This file is auto-generated from plugin.ts. Do not edit directly.
@@ -13,14 +13,14 @@ import { join } from "node:path";
 const plugin = {
   name: "health-check",
   version: "1.0.0",
-  description: "Extra health checks for Nexus projects",
+  description: "Extra health checks for Shiten projects",
 
   hooks: {
     "custom-check": async (context) => {
-      const { projectRoot, nexusDir } = context;
+      const { projectRoot, shitenDir } = context;
       const issues = [];
 
-      const adrDir = join(nexusDir, "docs", "adrs");
+      const adrDir = join(shitenDir, "docs", "adrs");
       if (existsSync(adrDir)) {
         const adrFiles = readdirSync(adrDir).filter(
           (f) => f.endsWith(".md") && !f.startsWith("ADR-TEMPLATE")
@@ -50,12 +50,12 @@ const plugin = {
         issues.push("No test files found — consider adding tests");
       }
 
-      const workflowPath = join(nexusDir, "governance", "WORKFLOW.md");
+      const workflowPath = join(shitenDir, "governance", "WORKFLOW.md");
       if (!existsSync(workflowPath)) {
         issues.push("No WORKFLOW.md — governance workflow not documented");
       }
 
-      const rulesDir = join(nexusDir, "governance", "rules");
+      const rulesDir = join(shitenDir, "governance", "rules");
       if (existsSync(rulesDir)) {
         const ruleFiles = readdirSync(rulesDir).filter((f) => f.endsWith(".json"));
         if (ruleFiles.length === 0) {
@@ -70,8 +70,8 @@ const plugin = {
       return null;
     },
 
-    "custom-recommendation": async (nexusDir) => {
-      const adrDir = join(nexusDir, "docs", "adrs");
+    "custom-recommendation": async (shitenDir) => {
+      const adrDir = join(shitenDir, "docs", "adrs");
       const hasAdrs =
         existsSync(adrDir) &&
         readdirSync(adrDir).filter(
@@ -84,7 +84,7 @@ const plugin = {
           title: "Create first ADR (from health-check plugin)",
           description:
             "No Architecture Decision Records found. ADRs document important decisions.",
-          command: "nexus init",
+          command: "shiten init",
         };
       }
 

@@ -1,7 +1,7 @@
 /**
  * rule-engine.ts — Pilar 5: Rule Engine (facade)
  *
- * Centraliza todos os comportamentos automáticos do Nexus.
+ * Centraliza todos os comportamentos automáticos do Shiten.
  * Mecanismo declarativo para gatilhos: quando algo acontece,
  * o engine avalia condições e executa acções.
  *
@@ -12,9 +12,9 @@
 // Re-export all public API from the rule-engine module
 export {
   isScriptAllowed,
-  isNexusCommandAllowed,
+  isShitenCommandAllowed,
   getAllowedScriptCommand,
-  getAllowedNexusCommand,
+  getAllowedShitenCommand,
   isValidRuleId,
   DANGEROUS_KEYS,
 } from "./rule-engine/security.js";

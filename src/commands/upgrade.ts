@@ -23,7 +23,7 @@ import {
 import { getCapabilityFiles } from "../capability-mapping.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { recordFeedback } from "../feedback-loops.js";
 import { readManifest, writeManifest, updateManifest } from "../manifest.js";
 import { updateSystemMapCapabilityStatus } from "../scaffolder.js";
@@ -53,20 +53,20 @@ export const upgradeCommand = new Command("upgrade")
 
     if (!isJson) {
       output("");
-      outputSection(isDryRun ? "nexus upgrade — Dry Run" : "nexus upgrade — Add Capabilities");
+      outputSection(isDryRun ? "shiten upgrade — Dry Run" : "shiten upgrade — Add Capabilities");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("upgrade", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("upgrade", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
-    const installed = detectCapabilitySignalsFromFilesystem(ctx.nexusDir);
+    const installed = detectCapabilitySignalsFromFilesystem(ctx.shitenDir);
 
     // 3.12: --dry-run: show what would be installed without writing
     if (isDryRun) {
-      const profile = loadMaturityProfile(ctx.nexusDir);
+      const profile = loadMaturityProfile(ctx.shitenDir);
       const toInstall = (profile?.recommendedCapabilities ?? []).filter(
         (cap) => !installed.includes(cap)
       );
@@ -118,13 +118,13 @@ export const upgradeCommand = new Command("upgrade")
 
     // Accept recommended capabilities
     if (options.acceptRecommended) {
-      const profile = loadMaturityProfile(ctx.nexusDir);
+      const profile = loadMaturityProfile(ctx.shitenDir);
       if (!profile) {
         if (isJson) {
-          outputJson({ error: "no_profile", message: "No maturity profile found. Run 'nexus init' first." });
+          outputJson({ error: "no_profile", message: "No maturity profile found. Run 'shiten init' first." });
         } else {
           outputWarning("  ⚠ No maturity profile found.");
-          output(chalk.gray("  Run 'nexus init' first to create a maturity profile."));
+          output(chalk.gray("  Run 'shiten init' first to create a maturity profile."));
           outputBlank();
         }
         return;
@@ -154,7 +154,7 @@ export const upgradeCommand = new Command("upgrade")
       updateSystemMapStatus(targetDir, allInstalled);
 
       // Update manifest
-      const currentManifest = readManifest(ctx.nexusDir);
+      const currentManifest = readManifest(ctx.shitenDir);
       const { readFileSync: readFS } = await import("node:fs");
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
@@ -168,11 +168,11 @@ export const upgradeCommand = new Command("upgrade")
       const updatedManifest = updateManifest(
         currentManifest,
         cliVersion,
-        ctx.nexusDir,
+        ctx.shitenDir,
         [...installed, ...toInstall],
         profile?.overallScore ?? 0
       );
-      writeManifest(ctx.nexusDir, updatedManifest);
+      writeManifest(ctx.shitenDir, updatedManifest);
 
       invalidateCache(targetDir);
 
@@ -184,7 +184,7 @@ export const upgradeCommand = new Command("upgrade")
           capabilityName: capInfo?.name ?? cap,
           version: cliVersion,
         });
-        recordFeedback(ctx.nexusDir, {
+        recordFeedback(ctx.shitenDir, {
           recommendationId: `cap-${cap}`,
           action: "accepted",
           context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 },
@@ -290,7 +290,7 @@ export const upgradeCommand = new Command("upgrade")
         updateSystemMapStatus(targetDir, [...installed, targetCapability as Capability]);
 
         // Update manifest
-        const currentManifest = readManifest(ctx.nexusDir);
+        const currentManifest = readManifest(ctx.shitenDir);
         const { readFileSync: readFS } = await import("node:fs");
         const __filename2 = fileURLToPath(import.meta.url);
         const __dirname2 = dirname(__filename2);
@@ -304,11 +304,11 @@ export const upgradeCommand = new Command("upgrade")
         const updatedManifest = updateManifest(
           currentManifest,
           cliVersion,
-          ctx.nexusDir,
+          ctx.shitenDir,
           [...installed, targetCapability as Capability],
           0
         );
-        writeManifest(ctx.nexusDir, updatedManifest);
+        writeManifest(ctx.shitenDir, updatedManifest);
 
         invalidateCache(targetDir);
 
@@ -318,7 +318,7 @@ export const upgradeCommand = new Command("upgrade")
         capabilityName: capInfo.name,
         version: cliVersion,
       });
-      recordFeedback(ctx.nexusDir, {
+      recordFeedback(ctx.shitenDir, {
         recommendationId: `cap-${targetCapability}`,
         action: "accepted",
         context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 },
@@ -343,14 +343,14 @@ export const upgradeCommand = new Command("upgrade")
         const { generateContextRules } = await import("../context-rules.js");
 
         const analysis = (await import("../analyser.js")).analyseProject(targetDir);
-        let fingerprint = loadFingerprint(ctx.nexusDir);
+        let fingerprint = loadFingerprint(ctx.shitenDir);
         if (!fingerprint) {
           const { saveFingerprint } = await import("../project-fingerprint.js");
           fingerprint = generateProjectFingerprint(targetDir, analysis);
-          saveFingerprint(ctx.nexusDir, fingerprint);
+          saveFingerprint(ctx.shitenDir, fingerprint);
         }
 
-        const riskMap = generateRiskMap(targetDir, ctx.nexusDir);
+        const riskMap = generateRiskMap(targetDir, ctx.shitenDir);
         const contextRules = generateContextRules(fingerprint, riskMap);
 
         if (contextRules.length > 0 && !isJson) {
@@ -384,7 +384,7 @@ function updateSystemMapStatus(
   targetDir: string,
   installedCapabilities: Capability[]
 ): void {
-  const systemMapPath = join(targetDir, NEXUS_DIR_NAME, "governance", "SYSTEM_MAP.md");
+  const systemMapPath = join(targetDir, SHITEN_DIR_NAME, "governance", "SYSTEM_MAP.md");
   if (!existsSync(systemMapPath)) return;
 
   const templatesDir = getTemplatesDir();
@@ -409,7 +409,7 @@ function updateAgentsMdWithCapabilities(
   targetDir: string,
   installedCapabilities: Capability[]
 ): void {
-  const agentsMdPath = join(targetDir, NEXUS_DIR_NAME, "docs", "AGENTS.md");
+  const agentsMdPath = join(targetDir, SHITEN_DIR_NAME, "docs", "AGENTS.md");
   if (!existsSync(agentsMdPath)) return;
 
   const templatesDir = getTemplatesDir();
@@ -495,7 +495,7 @@ function displayCapabilityStatus(installed: string[]): void {
   }
 
   outputBlank();
-  output(chalk.gray("  Use 'nexus upgrade --capability <name>' to add a capability."));
-  output(chalk.gray("  Use 'nexus upgrade --accept-recommended' to install all recommended."));
+  output(chalk.gray("  Use 'shiten upgrade --capability <name>' to add a capability."));
+  output(chalk.gray("  Use 'shiten upgrade --accept-recommended' to install all recommended."));
   outputBlank();
 }

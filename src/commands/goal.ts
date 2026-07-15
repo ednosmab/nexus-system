@@ -1,18 +1,18 @@
 /**
  * goal.ts — Goal Management CLI Command
  *
- * The `nexus goal` command. CRUD operations for governance goals.
+ * The `shiten goal` command. CRUD operations for governance goals.
  *
  * Usage:
- *   nexus goal create "Achieve 80% test coverage" --priority high --target quality
- *   nexus goal list
- *   nexus goal list --status active
- *   nexus goal show GOAL-abc123
- *   nexus goal update GOAL-abc123 --progress 50
- *   nexus goal complete GOAL-abc123
- *   nexus goal abandon GOAL-abc123
- *   nexus goal stats
- *   nexus goal delete GOAL-abc123
+ *   shiten goal create "Achieve 80% test coverage" --priority high --target quality
+ *   shiten goal list
+ *   shiten goal list --status active
+ *   shiten goal show GOAL-abc123
+ *   shiten goal update GOAL-abc123 --progress 50
+ *   shiten goal complete GOAL-abc123
+ *   shiten goal abandon GOAL-abc123
+ *   shiten goal stats
+ *   shiten goal delete GOAL-abc123
  */
 
 import { Command } from "commander";
@@ -21,14 +21,14 @@ import chalk from "chalk";
 import { guardNotInitialized } from "../shared.js";
 import { GoalEngine, type GoalStatus, type GoalPriority, FileGoalRepository } from "../goal-engine.js";
 import { outputJson } from "../formatting.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputSection, outputSuccess, outputError, outputWarning } from "../output.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): GoalEngine {
-  const nexusDir = join(dir, NEXUS_DIR_NAME);
-  return new GoalEngine(new FileGoalRepository(nexusDir));
+  const shitenDir = join(dir, SHITEN_DIR_NAME);
+  return new GoalEngine(new FileGoalRepository(shitenDir));
 }
 
 function join(...paths: string[]): string {
@@ -140,7 +140,7 @@ export function goalCommand(): Command {
 
       outputBlank();
       if (goals.length === 0) {
-        output(chalk.dim("  No goals found. Create one with: nexus goal create \"<title>\""));
+        output(chalk.dim("  No goals found. Create one with: shiten goal create \"<title>\""));
       } else {
         outputSection(`Goals (${goals.length})`);
         output(chalk.dim("  " + "─".repeat(70)));
@@ -237,7 +237,7 @@ export function goalCommand(): Command {
         goal!.title = opts.title as string;
         goal!.updatedAt = new Date().toISOString();
         // Re-save via repo
-        const repo = new FileGoalRepository(join(ctx.projectRoot, NEXUS_DIR_NAME));
+        const repo = new FileGoalRepository(join(ctx.projectRoot, SHITEN_DIR_NAME));
         repo.save(goal!);
       }
 

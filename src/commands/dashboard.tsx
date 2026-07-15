@@ -1,5 +1,5 @@
 /**
- * dashboard.ts — nexus dashboard command
+ * dashboard.ts — shiten dashboard command
  *
  * Launches the interactive terminal dashboard.
  * Supports --json for machine-readable output,
@@ -36,13 +36,13 @@ export function dashboardCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("dashboard", ctx.projectRoot, ctx.nexusDir, isJson)) {
+      if (!checkLifecycleGate("dashboard", ctx.projectRoot, ctx.shitenDir, isJson)) {
         return;
       }
 
       // JSON mode — output data and exit
       if (isJson) {
-        const data = collectConsoleData(ctx.projectRoot, ctx.nexusDir);
+        const data = collectConsoleData(ctx.projectRoot, ctx.shitenDir);
         outputJson(data as unknown as Record<string, unknown>);
         return;
       }
@@ -51,12 +51,12 @@ export function dashboardCommand(): Command {
       try {
         // Dynamic import to avoid loading React/Ink when using --json
         const { render } = await import("ink");
-        const { NexusConsole } = await import("../console/index.js");
+        const { ShitenConsole } = await import("../console/index.js");
 
         const { waitUntilExit } = render(
-          <NexusConsole
+          <ShitenConsole
             projectRoot={ctx.projectRoot}
-            nexusDir={ctx.nexusDir}
+            shitenDir={ctx.shitenDir}
             refreshInterval={refreshInterval}
             isScreenReaderEnabled={isScreenReader}
           />
@@ -70,7 +70,7 @@ export function dashboardCommand(): Command {
         console.log("");
 
         // Fallback: static output
-        const data = collectConsoleData(ctx.projectRoot, ctx.nexusDir);
+        const data = collectConsoleData(ctx.projectRoot, ctx.shitenDir);
         displayStaticDashboard(data);
       }
     });

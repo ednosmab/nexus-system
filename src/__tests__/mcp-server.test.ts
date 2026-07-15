@@ -148,7 +148,7 @@ beforeEach(() => {
 
 describe("handleGetBriefing", () => {
   it("returns valid JSON structure with all required fields", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {});
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {});
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0]!.type).toBe("text");
@@ -162,7 +162,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns minimal depth with project, risks, and 1 recommendation", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {
       depth: "minimal",
     });
 
@@ -177,7 +177,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns full depth with quickBoard and tokenEconomy", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {
       depth: "full",
     });
 
@@ -188,7 +188,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns standard depth by default", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {});
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     // Standard includes all main sections but not extended fields
@@ -197,7 +197,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns markdown format", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {
       format: "markdown",
     });
 
@@ -207,7 +207,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns summary format", () => {
-    const result = handleGetBriefing("/project", "/project/nexus-system", {
+    const result = handleGetBriefing("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -217,11 +217,11 @@ describe("handleGetBriefing", () => {
   });
 
   it("calls collectContext with correct arguments", () => {
-    handleGetBriefing("/my/project", "/my/project/nexus-system", {});
+    handleGetBriefing("/my/project", "/my/project/shitenno-go", {});
 
     expect(mockCollectContext).toHaveBeenCalledWith(
       "/my/project",
-      "/my/project/nexus-system"
+      "/my/project/shitenno-go"
     );
   });
 });
@@ -230,7 +230,7 @@ describe("handleGetBriefing", () => {
 
 describe("handleGetRiskMap", () => {
   it("returns valid JSON structure with overallRisk and areas", () => {
-    const result = handleGetRiskMap("/project", "/project/nexus-system", {});
+    const result = handleGetRiskMap("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("overallRisk");
@@ -240,7 +240,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("each area has required fields", () => {
-    const result = handleGetRiskMap("/project", "/project/nexus-system", {});
+    const result = handleGetRiskMap("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     for (const area of json.areas) {
@@ -253,7 +253,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("returns summary format with human-readable output", () => {
-    const result = handleGetRiskMap("/project", "/project/nexus-system", {
+    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -262,7 +262,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("summary includes high/critical areas", () => {
-    const result = handleGetRiskMap("/project", "/project/nexus-system", {
+    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -279,7 +279,7 @@ describe("handleGetRiskMap", () => {
       ],
     } as any);
 
-    const result = handleGetRiskMap("/project", "/project/nexus-system", {
+    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -289,11 +289,11 @@ describe("handleGetRiskMap", () => {
   });
 
   it("calls generateRiskMap with correct arguments", () => {
-    handleGetRiskMap("/my/project", "/my/project/nexus-system", {});
+    handleGetRiskMap("/my/project", "/my/project/shitenno-go", {});
 
     expect(mockGenerateRiskMap).toHaveBeenCalledWith(
       "/my/project",
-      "/my/project/nexus-system"
+      "/my/project/shitenno-go"
     );
   });
 });
@@ -302,7 +302,7 @@ describe("handleGetRiskMap", () => {
 
 describe("handleGetRules", () => {
   it("returns all rule types by default", () => {
-    const result = handleGetRules("/project", "/project/nexus-system", {});
+    const result = handleGetRules("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("contextRules");
@@ -311,7 +311,7 @@ describe("handleGetRules", () => {
   });
 
   it("contextRules have required fields", () => {
-    const result = handleGetRules("/project", "/project/nexus-system", {
+    const result = handleGetRules("/project", "/project/shitenno-go", {
       type: "context",
     });
 
@@ -340,7 +340,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = handleGetRules("/project", "/project/nexus-system", {
+    const result = handleGetRules("/project", "/project/shitenno-go", {
       type: "dynamic",
     });
 
@@ -365,7 +365,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = handleGetRules("/project", "/project/nexus-system", {
+    const result = handleGetRules("/project", "/project/shitenno-go", {
       type: "engine",
     });
 
@@ -376,7 +376,7 @@ describe("handleGetRules", () => {
   });
 
   it("returns markdown format with headers", () => {
-    const result = handleGetRules("/project", "/project/nexus-system", {
+    const result = handleGetRules("/project", "/project/shitenno-go", {
       format: "markdown",
     });
 
@@ -384,17 +384,17 @@ describe("handleGetRules", () => {
   });
 
   it("calls loadRules for engine rules", () => {
-    handleGetRules("/project", "/project/nexus-system", { type: "engine" });
+    handleGetRules("/project", "/project/shitenno-go", { type: "engine" });
 
-    expect(mockLoadRules).toHaveBeenCalledWith("/project/nexus-system");
+    expect(mockLoadRules).toHaveBeenCalledWith("/project/shitenno-go");
   });
 
   it("calls generateDynamicRules for dynamic rules", () => {
-    handleGetRules("/project", "/project/nexus-system", { type: "dynamic" });
+    handleGetRules("/project", "/project/shitenno-go", { type: "dynamic" });
 
     expect(mockGenerateDynamicRules).toHaveBeenCalledWith(
       "/project",
-      "/project/nexus-system"
+      "/project/shitenno-go"
     );
   });
 });
@@ -409,7 +409,7 @@ describe("Error Handling", () => {
 
     // The handler itself will throw, which is caught by the MCP server's try/catch
     expect(() =>
-      handleGetBriefing("/nonexistent", "/nonexistent/nexus-system", {})
+      handleGetBriefing("/nonexistent", "/nonexistent/shitenno-go", {})
     ).toThrow("ENOENT");
   });
 
@@ -419,16 +419,16 @@ describe("Error Handling", () => {
     });
 
     expect(() =>
-      handleGetRiskMap("/nonexistent", "/nonexistent/nexus-system", {})
+      handleGetRiskMap("/nonexistent", "/nonexistent/shitenno-go", {})
     ).toThrow("Cannot read property of undefined");
   });
 
-  it("getRules handles loadRules returning empty for missing nexus dir", () => {
+  it("getRules handles loadRules returning empty for missing shiten dir", () => {
     mockLoadRules.mockReturnValue([]);
 
     const result = handleGetRules(
       "/nonexistent",
-      "/nonexistent/nexus-system",
+      "/nonexistent/shitenno-go",
       { type: "engine" }
     );
 
@@ -441,7 +441,7 @@ describe("Error Handling", () => {
 
     const result = handleGetRules(
       "/fresh-project",
-      "/fresh-project/nexus-system",
+      "/fresh-project/shitenno-go",
       { type: "dynamic" }
     );
 
@@ -455,7 +455,7 @@ describe("Error Handling", () => {
 describe("createMcpServer", () => {
   it("creates a server with correct name and version", async () => {
     const { createMcpServer } = await import("../mcp-server.js");
-    const server = createMcpServer("/project", "/project/nexus-system");
+    const server = createMcpServer("/project", "/project/shitenno-go");
     expect(server).toBeDefined();
   });
 
@@ -464,10 +464,10 @@ describe("createMcpServer", () => {
     expect(() => createMcpServer("/project")).not.toThrow();
   });
 
-  it("handles missing nexus directory gracefully", async () => {
+  it("handles missing shiten directory gracefully", async () => {
     const { createMcpServer } = await import("../mcp-server.js");
     expect(() =>
-      createMcpServer("/project", "/nonexistent/nexus-system")
+      createMcpServer("/project", "/nonexistent/shitenno-go")
     ).not.toThrow();
   });
 });

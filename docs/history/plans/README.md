@@ -1,6 +1,6 @@
 # Historical Plans
 
-> Archived planning documents from the Nexus System evolution.
+> Archived planning documents from the Shitenno-go evolution.
 
 ## Purpose
 
@@ -14,9 +14,9 @@ This directory contains historical planning documents that have been superseded 
 
 | Document | Original Location | Replaced By |
 |----------|-------------------|-------------|
-| NEXUS_EVOLUTION_PLAN.md | plans/ | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md |
-| Plano-de-Evolucao-do-Nexus-CLI.md | plans/ | docs/evolution/ |
-| Plano-Estrategico-Proximo-Estagio-do-Nexus-System.md | plans/ | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md |
+| SHITEN_EVOLUTION_PLAN.md | plans/ | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md |
+| Plano-de-Evolucao-do-Shitenno-cli.md | plans/ | docs/evolution/ |
+| Plano-Estrategico-Proximo-Estagio-do-Shitenno-go.md | plans/ | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md |
 | adaptive-dual-path.md | plans/ | docs/evolution/roadmap/ |
 | auditoria-completa-plano.md | plans/ | docs/evolution/quality/ |
 | auditoria-correcao-completa.md | plans/ | docs/evolution/quality/ |

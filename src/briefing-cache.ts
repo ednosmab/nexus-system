@@ -2,7 +2,7 @@
  * briefing-cache.ts — Context Pipeline: Smart Cache Layer
  *
  * Caches briefing results with SHA-256 hash invalidation.
- * Cache is stored at .nexus/briefing-cache.json.
+ * Cache is stored at .shiten/briefing-cache.json.
  *
  * Cache invalidation triggers:
  * - Git HEAD changed (new commit)
@@ -65,11 +65,11 @@ export function isCacheValid(entry: CacheEntry, currentHash: string): boolean {
 }
 
 /**
- * Check if a cache entry has expired based on NEXUS_CACHE_TTL_MINUTES env var.
+ * Check if a cache entry has expired based on SHITEN_CACHE_TTL_MINUTES env var.
  * Pure function — only reads env var, no side effects.
  */
 export function isCacheExpired(entry: CacheEntry, nowMs: number = Date.now()): boolean {
-  const ttlMinutes = parseInt(process.env.NEXUS_CACHE_TTL_MINUTES || "", 10);
+  const ttlMinutes = parseInt(process.env.SHITEN_CACHE_TTL_MINUTES || "", 10);
   if (ttlMinutes <= 0 || !entry.computedAt) return false;
   const ageMs = nowMs - new Date(entry.computedAt).getTime();
   return ageMs > ttlMinutes * 60 * 1000;
@@ -77,13 +77,13 @@ export function isCacheExpired(entry: CacheEntry, nowMs: number = Date.now()): b
 
 // ── Cache Storage ──────────────────────────────────────────────────────────
 
-function getCachePath(nexusDir: string): string {
-  return join(nexusDir, "briefing-cache.json");
+function getCachePath(shitenDir: string): string {
+  return join(shitenDir, "briefing-cache.json");
 }
 
-function ensureDir(nexusDir: string): void {
-  if (!existsSync(nexusDir)) {
-    mkdirSync(nexusDir, { recursive: true });
+function ensureDir(shitenDir: string): void {
+  if (!existsSync(shitenDir)) {
+    mkdirSync(shitenDir, { recursive: true });
   }
 }
 
@@ -91,8 +91,8 @@ function ensureDir(nexusDir: string): void {
  * Read the briefing cache from disk.
  * Returns null if cache doesn't exist or is corrupted.
  */
-export function readCache(nexusDir: string): BriefingCache | null {
-  const cachePath = getCachePath(nexusDir);
+export function readCache(shitenDir: string): BriefingCache | null {
+  const cachePath = getCachePath(shitenDir);
   if (!existsSync(cachePath)) return null;
 
   try {
@@ -108,10 +108,10 @@ export function readCache(nexusDir: string): BriefingCache | null {
 /**
  * Write the briefing cache to disk (atomic: tmp + rename).
  */
-function writeCache(nexusDir: string, cache: BriefingCache): void {
-  ensureDir(nexusDir);
-  const cachePath = getCachePath(nexusDir);
-  const tmpPath = join(tmpdir(), `nexus-briefing-cache-${Date.now()}.json`);
+function writeCache(shitenDir: string, cache: BriefingCache): void {
+  ensureDir(shitenDir);
+  const cachePath = getCachePath(shitenDir);
+  const tmpPath = join(tmpdir(), `shiten-briefing-cache-${Date.now()}.json`);
   try {
     writeFileSync(tmpPath, JSON.stringify(cache, null, 2), "utf-8");
     renameSync(tmpPath, cachePath);
@@ -124,10 +124,10 @@ function writeCache(nexusDir: string, cache: BriefingCache): void {
  * Get a cached briefing if valid, or null on cache miss.
  */
 export function getCachedBriefing(
-  nexusDir: string,
+  shitenDir: string,
   currentHash: string
 ): { briefing: Briefing; cacheHit: boolean } | null {
-  const cache = readCache(nexusDir);
+  const cache = readCache(shitenDir);
   if (!cache?.entry) return null;
 
   // Check hash validity + optional TTL expiration (3.27)
@@ -142,7 +142,7 @@ export function getCachedBriefing(
  * Store a briefing in the cache.
  */
 export function setCachedBriefing(
-  nexusDir: string,
+  shitenDir: string,
   briefing: Briefing,
   inputHash: string
 ): void {
@@ -154,14 +154,14 @@ export function setCachedBriefing(
       briefing,
     },
   };
-  writeCache(nexusDir, cache);
+  writeCache(shitenDir, cache);
 }
 
 /**
  * Invalidate the briefing cache (force regeneration).
  */
-export function invalidateBriefingCache(nexusDir: string): void {
-  const cachePath = getCachePath(nexusDir);
+export function invalidateBriefingCache(shitenDir: string): void {
+  const cachePath = getCachePath(shitenDir);
   if (existsSync(cachePath)) {
     unlinkSync(cachePath);
   }

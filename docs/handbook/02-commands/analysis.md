@@ -4,12 +4,12 @@ Comandos para verificar saúde do projeto, maturidade e padrões.
 
 ---
 
-## `nexus status`
+## `shiten status`
 
 Verifica o status de saúde da governança com pontuação de maturidade.
 
 ```bash
-nexus status [options]
+shiten status [options]
 ```
 
 ### Opções
@@ -22,9 +22,9 @@ nexus status [options]
 ### Exemplos
 
 ```bash
-nexus status              # Relatório completo
-nexus status --json       # Saída JSON
-nexus status --no-cache   # Recalcular tudo
+shiten status              # Relatório completo
+shiten status --json       # Saída JSON
+shiten status --no-cache   # Recalcular tudo
 ```
 
 ### Dicas
@@ -34,12 +34,12 @@ nexus status --no-cache   # Recalcular tudo
 
 ---
 
-## `nexus audit`
+## `shiten audit`
 
 Audite a saúde da governança, knowledge graph e problemas.
 
 ```bash
-nexus audit [options]
+shiten audit [options]
 ```
 
 ### Opções
@@ -51,18 +51,18 @@ nexus audit [options]
 ### Exemplos
 
 ```bash
-nexus audit               # Auditoria completa com pontuação
-nexus audit --json        # Saída JSON
+shiten audit               # Auditoria completa com pontuação
+shiten audit --json        # Saída JSON
 ```
 
 ---
 
-## `nexus doctor`
+## `shiten doctor`
 
 Mentor de engenharia — identifique riscos e sugira melhorias.
 
 ```bash
-nexus doctor [options]
+shiten doctor [options]
 ```
 
 ### Opções
@@ -74,18 +74,18 @@ nexus doctor [options]
 ### Exemplos
 
 ```bash
-nexus doctor              # Relatório diagnóstico completo
-nexus doctor --json       # Saída JSON
+shiten doctor              # Relatório diagnóstico completo
+shiten doctor --json       # Saída JSON
 ```
 
 ---
 
-## `nexus assess`
+## `shiten assess`
 
 Reavalie a maturidade do projeto e recomende novas capacidades.
 
 ```bash
-nexus assess [options]
+shiten assess [options]
 ```
 
 ### Opções
@@ -97,8 +97,8 @@ nexus assess [options]
 ### Exemplos
 
 ```bash
-nexus assess              # Reavaliação interativa
-nexus assess --json       # Saída JSON
+shiten assess              # Reavaliação interativa
+shiten assess --json       # Saída JSON
 ```
 
 ### Dicas
@@ -107,12 +107,12 @@ nexus assess --json       # Saída JSON
 
 ---
 
-## `nexus detect`
+## `shiten detect`
 
 Detecte padrões no histórico e proponha regras candidatas.
 
 ```bash
-nexus detect [options]
+shiten detect [options]
 ```
 
 ### Opções
@@ -124,6 +124,6 @@ nexus detect [options]
 ### Exemplos
 
 ```bash
-nexus detect              # Analisar histórico
-nexus detect --json       # Saída JSON
+shiten detect              # Analisar histórico
+shiten detect --json       # Saída JSON
 ```

@@ -30,16 +30,16 @@ export const statusCommand = new Command("status")
     const isJson = options.json === true;
 
     if (!isJson) {
-      outputBlank();        banner("nexus status", "Health Check");
+      outputBlank();        banner("shiten status", "Health Check");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("status", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("status", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
-    const checks = runHealthChecks(ctx.projectRoot, ctx.nexusDir);
+    const checks = runHealthChecks(ctx.projectRoot, ctx.shitenDir);
 
     // Complexity analysis (with cache)
     const analysis = analyseProject(ctx.projectRoot);
@@ -47,29 +47,29 @@ export const statusCommand = new Command("status")
     let cacheHit = false;
 
     if (options.cache !== false) {
-      const cached = getCached<ComplexityReport>(ctx.projectRoot, ctx.nexusDir, "complexity",
-        () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+      const cached = getCached<ComplexityReport>(ctx.projectRoot, ctx.shitenDir, "complexity",
+        () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
       if (cached) {
         complexity = cached;
         cacheHit = true;
       } else {
-        complexity = await calculateComplexityScore(ctx.projectRoot, ctx.nexusDir, analysis);
-        setCache(ctx.projectRoot, ctx.nexusDir, "complexity", complexity,
-          computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+        complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir, analysis);
+        setCache(ctx.projectRoot, ctx.shitenDir, "complexity", complexity,
+          computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
       }
     } else {
-      complexity = await calculateComplexityScore(ctx.projectRoot, ctx.nexusDir, analysis);
+      complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir, analysis);
     }
 
     // Write report to reports/
-    const reportFile = writeComplexityReport(ctx.projectRoot, ctx.nexusDir, complexity);
+    const reportFile = writeComplexityReport(ctx.projectRoot, ctx.shitenDir, complexity);
 
     // Load maturity profile
-    const maturityProfile = loadMaturityProfile(ctx.nexusDir);
+    const maturityProfile = loadMaturityProfile(ctx.shitenDir);
     const installedCapabilities = maturityProfile?.installedCapabilities ?? ["core"];
 
     // Load growth profile (needed for both JSON and human output)
-    const growthProfile = loadGrowthProfile(ctx.nexusDir);
+    const growthProfile = loadGrowthProfile(ctx.shitenDir);
 
     // JSON output
     if (isJson) {
@@ -130,13 +130,13 @@ export const statusCommand = new Command("status")
         outputBlank();
         if (failCount > 0) {
           output(chalk.gray("  Attempting fixes for failed checks..."));
-          output(chalk.gray("  → Run 'nexus init' to fix failed governance checks"));
-          output(chalk.gray("  → Run 'nexus upgrade --accept-recommended' to add missing capabilities"));
+          output(chalk.gray("  → Run 'shiten init' to fix failed governance checks"));
+          output(chalk.gray("  → Run 'shiten upgrade --accept-recommended' to add missing capabilities"));
         }
         if (warnCount > 0) {
           output(chalk.gray("  Attempting fixes for warnings..."));
-          output(chalk.gray("  → Run 'nexus upgrade' to add optional components"));
-          output(chalk.gray("  → Run 'nexus sync' to synchronize documentation"));
+          output(chalk.gray("  → Run 'shiten upgrade' to add optional components"));
+          output(chalk.gray("  → Run 'shiten sync' to synchronize documentation"));
         }
         if (failCount === 0 && warnCount === 0) {
           output(chalk.green("  ✔ No fixes needed — governance is healthy!"));
@@ -150,11 +150,11 @@ export const statusCommand = new Command("status")
 
     // Display project fingerprint
     const { loadFingerprint, isFingerprintStale, generateProjectFingerprint, saveFingerprint } = await import("../project-fingerprint.js");
-    const staleFingerprint = isFingerprintStale(ctx.nexusDir);
-    let fingerprint = loadFingerprint(ctx.nexusDir);
+    const staleFingerprint = isFingerprintStale(ctx.shitenDir);
+    let fingerprint = loadFingerprint(ctx.shitenDir);
     if (!fingerprint || staleFingerprint) {
       fingerprint = generateProjectFingerprint(ctx.projectRoot, analysis, maturityProfile?.overallScore);
-      saveFingerprint(ctx.nexusDir, fingerprint);
+      saveFingerprint(ctx.shitenDir, fingerprint);
     }
     if (fingerprint) {
       output(chalk.bold("  🔍 Project Fingerprint:"));
@@ -170,7 +170,7 @@ export const statusCommand = new Command("status")
       const { collectContext } = await import("../context-collector.js");
       const { computeInputHash, getCachedBriefing } = await import("../briefing-cache.js");
 
-      const snapshot = collectContext(ctx.projectRoot, ctx.nexusDir);
+      const snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
       const inputHash = computeInputHash({
         fingerprintHash: snapshot.fingerprint.hash,
         riskMapHash: snapshot.riskMap.generatedAt,
@@ -178,7 +178,7 @@ export const statusCommand = new Command("status")
         dynamicRuleCount: snapshot.dynamicRules.length,
         maturityScore: snapshot.maturityProfile?.overallScore ?? null,
       });
-      const cached = getCachedBriefing(ctx.nexusDir, inputHash);
+      const cached = getCachedBriefing(ctx.shitenDir, inputHash);
       const briefing = cached?.briefing ?? snapshot.briefing;
 
       output(chalk.bold("  📋 Pre-Session Briefing:"));
@@ -204,10 +204,10 @@ export const statusCommand = new Command("status")
     try {
       const { evaluateCapabilities } = await import("../capability-engine.js");
       const { subscribeToEngineeringState } = await import("../engineering-state-subscription.js");
-      const { getState, unsubscribe } = subscribeToEngineeringState(ctx.projectRoot, ctx.nexusDir);
+      const { getState, unsubscribe } = subscribeToEngineeringState(ctx.projectRoot, ctx.shitenDir);
       const state = getState();
       unsubscribe();
-      const engineResult = evaluateCapabilities(state, ctx.nexusDir);
+      const engineResult = evaluateCapabilities(state, ctx.shitenDir);
 
       output(chalk.bold("  ⚙ Capability Engine:"));
       output(chalk.gray(`    Overall: ${engineResult.overallScore}% | Installed: ${engineResult.byMaturity.installed.length + engineResult.byMaturity.configured.length + engineResult.byMaturity.active.length + engineResult.byMaturity.optimized.length} | Dormant: ${engineResult.byMaturity.dormant.length}`));
@@ -231,7 +231,7 @@ export const statusCommand = new Command("status")
     }
 
     if (reportFile) {
-      output(chalk.gray(`  📄 Report saved: nexus-system/reports/${reportFile}`));
+      output(chalk.gray(`  📄 Report saved: shitenno-go/reports/${reportFile}`));
       outputBlank();
     }
 
@@ -244,29 +244,29 @@ export const statusCommand = new Command("status")
     });
   });
 
-function runHealthChecks(projectRoot: string, nexusDir: string): StatusCheck[] {
+function runHealthChecks(projectRoot: string, shitenDir: string): StatusCheck[] {
   const checks: StatusCheck[] = [];
 
   // 1. Check opencode.json at project root
   checks.push(checkOpencodeConfig(projectRoot));
 
-  // 2. Check AGENTS.md in nexus-system/docs/
-  checks.push(checkAgentsFile(nexusDir));
+  // 2. Check AGENTS.md in shitenno-go/docs/
+  checks.push(checkAgentsFile(shitenDir));
 
-  // 3. Check skills directory in nexus-system/docs/skills/
-  checks.push(checkSkillsDirectory(nexusDir));
+  // 3. Check skills directory in shitenno-go/docs/skills/
+  checks.push(checkSkillsDirectory(shitenDir));
 
-  // 4. Check governance directory in nexus-system/governance/
-  checks.push(checkGovernanceDirectory(nexusDir));
+  // 4. Check governance directory in shitenno-go/governance/
+  checks.push(checkGovernanceDirectory(shitenDir));
 
-  // 5. Check context buffer in nexus-system/governance/context/
-  checks.push(checkContextBuffer(nexusDir));
+  // 5. Check context buffer in shitenno-go/governance/context/
+  checks.push(checkContextBuffer(shitenDir));
 
-  // 6. Check scripts in nexus-system/scripts/
-  checks.push(checkScripts(nexusDir));
+  // 6. Check scripts in shitenno-go/scripts/
+  checks.push(checkScripts(shitenDir));
 
-  // 7. Check agent contracts in nexus-system/governance/agents/
-  checks.push(checkAgentContracts(nexusDir));
+  // 7. Check agent contracts in shitenno-go/governance/agents/
+  checks.push(checkAgentContracts(shitenDir));
 
   return checks;
 }
@@ -301,11 +301,11 @@ function checkOpencodeConfig(projectRoot: string): StatusCheck {
   }
 }
 
-function checkAgentsFile(nexusDir: string): StatusCheck {
-  const agentsPath = join(nexusDir, "docs", "AGENTS.md");
+function checkAgentsFile(shitenDir: string): StatusCheck {
+  const agentsPath = join(shitenDir, "docs", "AGENTS.md");
 
   if (!existsSync(agentsPath)) {
-    return { name: "nexus-system/docs/AGENTS.md", status: "fail", message: "File not found" };
+    return { name: "shitenno-go/docs/AGENTS.md", status: "fail", message: "File not found" };
   }
 
   const content = readFileSync(agentsPath, "utf-8");
@@ -313,24 +313,24 @@ function checkAgentsFile(nexusDir: string): StatusCheck {
 
   if (ruleCount < 10) {
     return {
-      name: "nexus-system/docs/AGENTS.md",
+      name: "shitenno-go/docs/AGENTS.md",
       status: "warn",
       message: `Only ${ruleCount} rules found (expected 22+)`,
     };
   }
 
   return {
-    name: "nexus-system/docs/AGENTS.md",
+    name: "shitenno-go/docs/AGENTS.md",
     status: "pass",
     message: `${ruleCount} rules configured`,
   };
 }
 
-function checkSkillsDirectory(nexusDir: string): StatusCheck {
-  const skillsDir = join(nexusDir, "docs", "skills");
+function checkSkillsDirectory(shitenDir: string): StatusCheck {
+  const skillsDir = join(shitenDir, "docs", "skills");
 
   if (!existsSync(skillsDir)) {
-    return { name: "nexus-system/docs/skills/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno-go/docs/skills/", status: "warn", message: "Directory not found" };
   }
 
   const skillFiles = readdirSync(skillsDir).filter((f: string) =>
@@ -338,21 +338,21 @@ function checkSkillsDirectory(nexusDir: string): StatusCheck {
   );
 
   if (skillFiles.length === 0) {
-    return { name: "nexus-system/docs/skills/", status: "warn", message: "No skills found" };
+    return { name: "shitenno-go/docs/skills/", status: "warn", message: "No skills found" };
   }
 
   return {
-    name: "nexus-system/docs/skills/",
+    name: "shitenno-go/docs/skills/",
     status: "pass",
     message: `${skillFiles.length} skills installed`,
   };
 }
 
-function checkGovernanceDirectory(nexusDir: string): StatusCheck {
-  const govDir = join(nexusDir, "governance");
+function checkGovernanceDirectory(shitenDir: string): StatusCheck {
+  const govDir = join(shitenDir, "governance");
 
   if (!existsSync(govDir)) {
-    return { name: "nexus-system/governance/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno-go/governance/", status: "warn", message: "Directory not found" };
   }
 
   const hasContext = existsSync(join(govDir, "context"));
@@ -363,14 +363,14 @@ function checkGovernanceDirectory(nexusDir: string): StatusCheck {
   if (hasAgents) parts.push("agents");
 
   return {
-    name: "nexus-system/governance/",
+    name: "shitenno-go/governance/",
     status: "pass",
     message: `Contains: ${parts.join(", ") || "empty"}`,
   };
 }
 
-function checkContextBuffer(nexusDir: string): StatusCheck {
-  const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+function checkContextBuffer(shitenDir: string): StatusCheck {
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
 
   if (!existsSync(bufferPath)) {
     return { name: "context_buffer.yaml", status: "warn", message: "Not found" };
@@ -385,11 +385,11 @@ function checkContextBuffer(nexusDir: string): StatusCheck {
   return { name: "context_buffer.yaml", status: "pass", message: "Valid" };
 }
 
-function checkScripts(nexusDir: string): StatusCheck {
-  const scriptsDir = join(nexusDir, "scripts");
+function checkScripts(shitenDir: string): StatusCheck {
+  const scriptsDir = join(shitenDir, "scripts");
 
   if (!existsSync(scriptsDir)) {
-    return { name: "nexus-system/scripts/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno-go/scripts/", status: "warn", message: "Directory not found" };
   }
 
   const scriptFiles = readdirSync(scriptsDir).filter((f: string) =>
@@ -397,18 +397,18 @@ function checkScripts(nexusDir: string): StatusCheck {
   );
 
   if (scriptFiles.length === 0) {
-    return { name: "nexus-system/scripts/", status: "warn", message: "No scripts found" };
+    return { name: "shitenno-go/scripts/", status: "warn", message: "No scripts found" };
   }
 
   return {
-    name: "nexus-system/scripts/",
+    name: "shitenno-go/scripts/",
     status: "pass",
     message: `${scriptFiles.length} scripts installed`,
   };
 }
 
-function checkAgentContracts(nexusDir: string): StatusCheck {
-  const contractsDir = join(nexusDir, "governance", "agents");
+function checkAgentContracts(shitenDir: string): StatusCheck {
+  const contractsDir = join(shitenDir, "governance", "agents");
 
   if (!existsSync(contractsDir)) {
     return { name: "agent contracts", status: "warn", message: "Not found" };
@@ -454,9 +454,9 @@ function displayResults(checks: StatusCheck[]): void {
   outputBlank();
 
   if (failCount > 0) {
-    output(chalk.red("  Run 'nexus init' to fix failed checks."));
+    output(chalk.red("  Run 'shiten init' to fix failed checks."));
   } else if (warnCount > 0) {
-    output(chalk.yellow("  Some optional components are missing. Run 'nexus upgrade' to add them."));
+    output(chalk.yellow("  Some optional components are missing. Run 'shiten upgrade' to add them."));
   } else {
     output(chalk.green("  Governance is healthy!"));
   }
@@ -472,7 +472,7 @@ function displayMaturityProfile(
   outputBlank();
 
   if (!profile) {
-    output(chalk.gray("    No maturity profile found. Run 'nexus init' to create one."));
+    output(chalk.gray("    No maturity profile found. Run 'shiten init' to create one."));
     outputBlank();
     return;
   }

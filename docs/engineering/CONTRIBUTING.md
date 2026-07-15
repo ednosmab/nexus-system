@@ -1,6 +1,6 @@
-# Contributing to Nexus CLI
+# Contributing to Shiten CLI
 
-> How to contribute to the Nexus System.
+> How to contribute to the Shitenno-go.
 
 ## Prerequisites
 

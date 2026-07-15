@@ -58,14 +58,14 @@ class InMemoryGoalRepository implements GoalRepository {
 
 describe("FileGoalRepository", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
   let repo: FileGoalRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-goal-repo-test-${Date.now()}`);
-    nexusDir = join(tmpDir, "nexus-system");
-    mkdirSync(nexusDir, { recursive: true });
-    repo = new FileGoalRepository(nexusDir);
+    tmpDir = join(tmpdir(), `shiten-goal-repo-test-${Date.now()}`);
+    shitenDir = join(tmpDir, "shitenno-go");
+    mkdirSync(shitenDir, { recursive: true });
+    repo = new FileGoalRepository(shitenDir);
   });
 
   afterEach(() => {

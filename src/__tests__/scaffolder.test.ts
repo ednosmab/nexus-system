@@ -2,14 +2,14 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem, } from "../scaffolder.js";
+import { scaffoldShitennoGo, } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-scaffold-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-scaffold-"));
 });
 
 afterEach(() => {
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 const DEFAULT_MATURITY = {
-  usedNexusBefore: false,
+  usedShitenBefore: false,
   isFirstProject: false,
   projectAge: "new" as const,
   teamSize: "solo" as const,
@@ -48,47 +48,47 @@ function makeAnswers(overrides: Partial<UserAnswers> = {}): UserAnswers {
   };
 }
 
-// ── scaffoldNexusSystem ──────────────────────────────────────────────────────
+// ── scaffoldShitennoGo ──────────────────────────────────────────────────────
 
-describe("scaffoldNexusSystem", () => {
+describe("scaffoldShitennoGo", () => {
   describe("junior level", () => {
     const coreCaps: Capability[] = ["core", "knowledge"];
 
     it("creates base directories", () => {
-      const result = scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
+      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
       expect(result.capabilities).toContain("core");
-      expect(result.directoriesCreated).toContain("nexus-system");
-      expect(result.directoriesCreated).toContain("nexus-system/docs");
-      expect(result.directoriesCreated).toContain("nexus-system/scripts");
-      expect(result.directoriesCreated).toContain("nexus-system/docs/skills");
+      expect(result.directoriesCreated).toContain("shitenno-go");
+      expect(result.directoriesCreated).toContain("shitenno-go/docs");
+      expect(result.directoriesCreated).toContain("shitenno-go/scripts");
+      expect(result.directoriesCreated).toContain("shitenno-go/docs/skills");
     });
 
     it("creates base files", () => {
-      const result = scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
-      expect(result.filesCreated).toContain("nexus-system/docs/AGENTS.md");
-      expect(result.filesCreated).toContain("nexus-system/docs/FORBIDDEN_OPERATIONS.md");
-      expect(result.filesCreated).toContain("nexus-system/docs/DESDO.md");
-      expect(result.filesCreated).toContain("nexus-system/governance/SYSTEM_MAP.md");
+      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      expect(result.filesCreated).toContain("shitenno-go/docs/AGENTS.md");
+      expect(result.filesCreated).toContain("shitenno-go/docs/FORBIDDEN_OPERATIONS.md");
+      expect(result.filesCreated).toContain("shitenno-go/docs/DESDO.md");
+      expect(result.filesCreated).toContain("shitenno-go/governance/SYSTEM_MAP.md");
       expect(result.filesCreated).toContain("opencode.json");
     });
 
     it("copies core skills", () => {
-      const result = scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
+      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
       const skills = result.filesCreated.filter((f) =>
-        f.includes("nexus-system/docs/skills/")
+        f.includes("shitenno-go/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
 
     it("generates opencode.json at project root", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
+      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
       expect(existsSync(join(tempDir, "opencode.json"))).toBe(true);
     });
 
     it("customizes AGENTS.md with stack info", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers({ stack: ["react", "nextjs"] }), coreCaps);
+      scaffoldShitennoGo(tempDir, makeAnswers({ stack: ["react", "nextjs"] }), coreCaps);
       const content = require("node:fs").readFileSync(
-        join(tempDir, "nexus-system", "docs", "AGENTS.md"),
+        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("react");
@@ -97,31 +97,31 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("does NOT create governance-only files for core only", () => {
-      const result = scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      const result = scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       // context_buffer.yaml IS now in core (always created)
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/context/context_buffer.yaml"
+        "shitenno-go/governance/context/context_buffer.yaml"
       );
       // WORKFLOW.md is governance-only
       expect(result.filesCreated).not.toContain(
-        "nexus-system/governance/WORKFLOW.md"
+        "shitenno-go/governance/WORKFLOW.md"
       );
     });
 
     it("creates .gitignore with feedback pattern", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
+      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
       const content = readFileSync(
         join(tempDir, ".gitignore"),
         "utf-8"
       );
-      expect(content).toContain("nexus-system/docs/feedback");
+      expect(content).toContain("shitenno-go/docs/feedback");
     });
 
     it("creates capabilities.md with customization", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), coreCaps);
-      expect(existsSync(join(tempDir, "nexus-system", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "capabilities.md"),
+        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("CAPABILITIES");
@@ -129,9 +129,9 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("AGENTS.md excludes governance section when governance not installed", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "AGENTS.md"),
+        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
         "utf-8"
       );
       // The governance section should be removed
@@ -141,18 +141,18 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("AGENTS.md includes governance section when governance installed", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core", "governance"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "governance"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "AGENTS.md"),
+        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("ALGORITMO DE GESTÃO DE CONTEXTO");
     });
 
     it("AGENTS.md includes knowledge section when knowledge installed", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core", "knowledge"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "AGENTS.md"),
+        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("GOVERNANÇA DO DESIGN SYSTEM");
@@ -161,25 +161,25 @@ describe("scaffoldNexusSystem", () => {
 
   describe("pleno level", () => {
     it("adds context_buffer.yaml", () => {
-      const result = scaffoldNexusSystem(
+      const result = scaffoldShitennoGo(
         tempDir,
         makeAnswers(),
         ["core", "knowledge", "governance"]
       );
       expect(result.capabilities).toContain("governance");
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/context/context_buffer.yaml"
+        "shitenno-go/governance/context/context_buffer.yaml"
       );
     });
 
     it("copies knowledge + governance skills", () => {
-      const result = scaffoldNexusSystem(
+      const result = scaffoldShitennoGo(
         tempDir,
         makeAnswers(),
         ["core", "knowledge", "governance"]
       );
       const skills = result.filesCreated.filter((f) =>
-        f.includes("nexus-system/docs/skills/")
+        f.includes("shitenno-go/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
@@ -189,60 +189,60 @@ describe("scaffoldNexusSystem", () => {
     const seniorCaps: Capability[] = ["core", "knowledge", "architecture", "governance", "ai", "quality", "metrics", "operations", "compliance"];
 
     it("adds cognition and all governance templates", () => {
-      const result = scaffoldNexusSystem(
+      const result = scaffoldShitennoGo(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
       expect(result.capabilities).toContain("ai");
       expect(result.filesCreated).toContain(
-        "nexus-system/cognition/context/CONTEXT_HIERARCHY.md"
+        "shitenno-go/cognition/context/CONTEXT_HIERARCHY.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/contracts/CONTRACTS_INDEX.md"
+        "shitenno-go/governance/contracts/CONTRACTS_INDEX.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/handoffs/TEMPLATE.md"
+        "shitenno-go/governance/handoffs/TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/premortem/PREMORTEM.md"
+        "shitenno-go/governance/premortem/PREMORTEM.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/reviews/SESSION_REVIEW.md"
+        "shitenno-go/governance/reviews/SESSION_REVIEW.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/docs/adrs/ADR-TEMPLATE.md"
+        "shitenno-go/docs/adrs/ADR-TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/docs/sdr/SDR-TEMPLATE.md"
+        "shitenno-go/docs/sdr/SDR-TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/governance/plans/TEMPLATE.md"
+        "shitenno-go/governance/plans/TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "nexus-system/docs/session-template.md"
+        "shitenno-go/docs/session-template.md"
       );
     });
 
     it("copies all skills for senior", () => {
-      const result = scaffoldNexusSystem(
+      const result = scaffoldShitennoGo(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
       const skills = result.filesCreated.filter((f) =>
-        f.includes("nexus-system/docs/skills/")
+        f.includes("shitenno-go/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
 
     it("creates reports/ directory", () => {
-      const result = scaffoldNexusSystem(
+      const result = scaffoldShitennoGo(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
-      expect(result.directoriesCreated).toContain("nexus-system/reports");
+      expect(result.directoriesCreated).toContain("shitenno-go/reports");
     });
   });
 
@@ -250,9 +250,9 @@ describe("scaffoldNexusSystem", () => {
 
   describe("SYSTEM_MAP.md capability status indicators", () => {
     it("shows ✅ for installed capabilities and 📋 for uninstalled", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core", "governance"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "governance"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core and governance should be installed
@@ -265,9 +265,9 @@ describe("scaffoldNexusSystem", () => {
 
     it("shows all ✅ when all capabilities installed", () => {
       const allCaps: Capability[] = ["core", "knowledge", "architecture", "governance", "ai", "quality", "metrics", "operations", "compliance"];
-      scaffoldNexusSystem(tempDir, makeAnswers(), allCaps);
+      scaffoldShitennoGo(tempDir, makeAnswers(), allCaps);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core should be ✅
@@ -283,9 +283,9 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("core is always ✅ even with only core installed", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core should be ✅
@@ -297,9 +297,9 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("preserves non-capability sections of SYSTEM_MAP.md", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // Core sections should remain
@@ -314,14 +314,14 @@ describe("scaffoldNexusSystem", () => {
 
   describe("capabilities.md scaffolding", () => {
     it("creates capabilities.md during scaffold", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
-      expect(existsSync(join(tempDir, "nexus-system", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
     });
 
     it("capabilities.md contains all capability definitions", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "capabilities.md"),
+        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("core");
@@ -336,16 +336,16 @@ describe("scaffoldNexusSystem", () => {
     });
 
     it("capabilities.md is not duplicated when same capability set", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core", "knowledge"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
       // Run again with same capabilities - should not fail
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core", "knowledge"]);
-      expect(existsSync(join(tempDir, "nexus-system", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
+      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
     });
 
     it("capabilities.md references SYSTEM_MAP.md", () => {
-      scaffoldNexusSystem(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "nexus-system", "docs", "capabilities.md"),
+        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("SYSTEM_MAP.md");

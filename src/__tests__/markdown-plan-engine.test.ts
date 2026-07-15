@@ -13,16 +13,16 @@ import { MarkdownPlanEngine } from "../markdown-plan-engine.js";
 
 describe("MarkdownPlanEngine", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
   let engine: MarkdownPlanEngine;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-md-plan-test-${Date.now()}`);
-    nexusDir = join(tmpDir, "nexus-system");
-    mkdirSync(join(nexusDir, "governance", "plans"), { recursive: true });
-    mkdirSync(join(nexusDir, "governance", "plans", "done"), { recursive: true });
-    mkdirSync(join(nexusDir, "governance", "plans", "reference"), { recursive: true });
-    engine = new MarkdownPlanEngine(nexusDir);
+    tmpDir = join(tmpdir(), `shiten-md-plan-test-${Date.now()}`);
+    shitenDir = join(tmpDir, "shitenno-go");
+    mkdirSync(join(shitenDir, "governance", "plans"), { recursive: true });
+    mkdirSync(join(shitenDir, "governance", "plans", "done"), { recursive: true });
+    mkdirSync(join(shitenDir, "governance", "plans", "reference"), { recursive: true });
+    engine = new MarkdownPlanEngine(shitenDir);
   });
 
   afterEach(() => {
@@ -31,7 +31,7 @@ describe("MarkdownPlanEngine", () => {
 
   describe("status detection", () => {
     it("detects 'done' from frontmatter", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-frontmatter.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-frontmatter.md");
       writeFileSync(planPath, "# Test Plan\n\n**Status:** Done\n", "utf-8");
 
       const plans = engine.list();
@@ -40,7 +40,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("detects 'andamento' from frontmatter", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-andamento.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-andamento.md");
       writeFileSync(planPath, "# Test Plan\n\n**Status:** In Progress\n", "utf-8");
 
       const plans = engine.list();
@@ -50,7 +50,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("detects 'done' when all checkboxes are [x]", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-checkboxes.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-checkboxes.md");
       writeFileSync(
         planPath,
         "# Checkbox Plan\n\n- [x] Step 1 done\n- [x] Step 2 done\n- [x] Step 3 done\n",
@@ -63,7 +63,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("detects 'andamento' when some checkboxes are [ ]", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-partial.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-partial.md");
       writeFileSync(
         planPath,
         "# Partial Plan\n\n- [x] Step 1 done\n- [ ] Step 2 pending\n",
@@ -77,7 +77,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("detects 'andamento' when no checkboxes and no status field", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-nostatus.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-nostatus.md");
       writeFileSync(planPath, "# Plain Plan\n\nJust some text.\n", "utf-8");
 
       const plans = engine.list();
@@ -87,7 +87,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("detects 'done' from 'concluído' in frontmatter", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-concluido.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-concluido.md");
       writeFileSync(planPath, "# Test Plan\n\n**Status:** Concluído\n", "utf-8");
 
       const plans = engine.list();
@@ -98,7 +98,7 @@ describe("MarkdownPlanEngine", () => {
 
   describe("header normalization", () => {
     it("adds **Status:** Done when all checkboxes are [x] and no status field", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-normalize-done.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-normalize-done.md");
       writeFileSync(
         planPath,
         "# Normalize Done\n\n- [x] Step 1\n- [x] Step 2\n",
@@ -112,7 +112,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("adds **Status:** In Progress when some checkboxes are [ ] and no status field", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-normalize-wip.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-normalize-wip.md");
       writeFileSync(
         planPath,
         "# Normalize WIP\n\n- [x] Step 1\n- [ ] Step 2\n",
@@ -126,7 +126,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("adds **Status:** In Progress when no checkboxes and no status field", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-normalize-empty.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-normalize-empty.md");
       writeFileSync(planPath, "# Empty Plan\n\nSome content.\n", "utf-8");
 
       engine.list();
@@ -136,7 +136,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("does not modify plan that already has **Status:**", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-normalize-existing.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-normalize-existing.md");
       writeFileSync(
         planPath,
         "# Existing Status\n\n**Status:** Paused\n\n- [ ] Step 1\n",
@@ -152,7 +152,7 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("normalized done plan is excluded from active list", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-normalize-exclude.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-normalize-exclude.md");
       writeFileSync(
         planPath,
         "# Exclude Test\n\n- [x] A\n- [x] B\n",
@@ -167,7 +167,7 @@ describe("MarkdownPlanEngine", () => {
 
   describe("updateStatus", () => {
     it("adds status field when none exists", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-add-status.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-add-status.md");
       writeFileSync(planPath, "# Test Plan\n\nSome content.\n", "utf-8");
 
       engine.updateStatus("test-add-status", "done");
@@ -179,12 +179,12 @@ describe("MarkdownPlanEngine", () => {
     });
 
     it("moves plan to done/ when status is set to done", () => {
-      const planPath = join(nexusDir, "governance", "plans", "test-move.md");
+      const planPath = join(shitenDir, "governance", "plans", "test-move.md");
       writeFileSync(planPath, "# Test Plan\n\n**Status:** In Progress\n", "utf-8");
 
       engine.updateStatus("test-move", "done");
 
-      const donePath = join(nexusDir, "governance", "plans", "done", "test-move.md");
+      const donePath = join(shitenDir, "governance", "plans", "done", "test-move.md");
       const { existsSync } = require("node:fs");
       expect(existsSync(donePath)).toBe(true);
     });

@@ -9,16 +9,16 @@ import { join, dirname } from "node:path";
 import { logger } from "../logger.js";
 import type { HealthIssue } from "./types.js";
 
-export function detectAdrCoverage(nexusDir: string): HealthIssue[] {
+export function detectAdrCoverage(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
 
   if (!existsSync(adrDir)) {
     issues.push({
       type: "adr_coverage_gap",
       severity: 1,
       description: "Directório docs/adrs/ não existe — decisões arquiteturais não rastreadas",
-      location: "nexus-system/docs/adrs/",
+      location: "shitenno-go/docs/adrs/",
       recommendation: "Criar directório docs/adrs/ e adicionar ADRs para decisões existentes",
     });
     return issues;
@@ -33,7 +33,7 @@ export function detectAdrCoverage(nexusDir: string): HealthIssue[] {
         type: "adr_coverage_gap",
         severity: 1,
         description: "Nenhum ADR encontrado em docs/adrs/ — decisões não documentadas",
-        location: "nexus-system/docs/adrs/",
+        location: "shitenno-go/docs/adrs/",
         recommendation: "Criar ADRs para decisões arquiteturais significativas",
       });
     }
@@ -44,9 +44,9 @@ export function detectAdrCoverage(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectUnreferencedDirs(nexusDir: string): HealthIssue[] {
+export function detectUnreferencedDirs(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const docsDir = join(nexusDir, "docs");
+  const docsDir = join(shitenDir, "docs");
   if (!existsSync(docsDir)) return issues;
 
   const governanceFiles = [
@@ -59,7 +59,7 @@ export function detectUnreferencedDirs(nexusDir: string): HealthIssue[] {
 
   let governanceContent = "";
   for (const doc of governanceFiles) {
-    const path = join(nexusDir, doc);
+    const path = join(shitenDir, doc);
     if (existsSync(path)) {
       try { governanceContent += readFileSync(path, "utf-8") + "\n"; } catch (readErr) { logger.debug("governance-detectors", "Error reading governance file:", readErr); }
     }
@@ -76,7 +76,7 @@ export function detectUnreferencedDirs(nexusDir: string): HealthIssue[] {
           type: "orphan_dir",
           severity: 1,
           description: `Directório "docs/${entry.name}" existe mas não é referenciado em nenhum documento governance`,
-          location: `nexus-system/docs/${entry.name}/`,
+          location: `shitenno-go/docs/${entry.name}/`,
           recommendation: `Adicionar referência a "docs/${entry.name}" em SYSTEM_MAP.md ou remover o directório`,
         });
       }
@@ -86,9 +86,9 @@ export function detectUnreferencedDirs(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectReportNaming(nexusDir: string): HealthIssue[] {
+export function detectReportNaming(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return issues;
 
   const validPattern = /^(health|complexity|doc-lifecycle|pattern)(-[a-z0-9]+(-[a-z0-9]+)*)?-\d{4}-\d{2}-\d{2}.*\.json$/;
@@ -103,7 +103,7 @@ export function detectReportNaming(nexusDir: string): HealthIssue[] {
           type: "broken_ref",
           severity: 1,
           description: `Report "${file}" não segue a convenção de nomenclatura (<tipo>-YYYY-MM-DD.json)`,
-          location: `nexus-system/reports/${file}`,
+          location: `shitenno-go/reports/${file}`,
           recommendation: `Renomear "${file}" para seguir o padrão <tipo>-YYYY-MM-DD.json`,
         });
       }
@@ -113,7 +113,7 @@ export function detectReportNaming(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBareWordRefs(nexusDir: string): HealthIssue[] {
+export function detectBareWordRefs(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const p0Files = [
     "AGENTS.md",
@@ -122,7 +122,7 @@ export function detectBareWordRefs(nexusDir: string): HealthIssue[] {
     "Requisitos_plataforma.md",
     "CONTEXT_HIERARCHY.md",
   ];
-  const docPath = join(nexusDir, "docs/AGENTS.md");
+  const docPath = join(shitenDir, "docs/AGENTS.md");
   if (!existsSync(docPath)) return issues;
 
   try {
@@ -132,13 +132,13 @@ export function detectBareWordRefs(nexusDir: string): HealthIssue[] {
       const locations = ["docs/", "cognition/context/", "governance/", ""];
       for (const file of p0Files) {
         if (p0Line.includes(file)) {
-          const found = locations.some((loc) => existsSync(join(nexusDir, loc, file)));
+          const found = locations.some((loc) => existsSync(join(shitenDir, loc, file)));
           if (!found) {
             issues.push({
               type: "bare_word_ref",
               severity: 3,
               description: `Referência P0 obrigatória "${file}" não existe em nenhuma localização`,
-              location: "nexus-system/docs/AGENTS.md",
+              location: "shitenno-go/docs/AGENTS.md",
               recommendation: `Criar "${file}" ou remover da lista P0 em AGENTS.md`,
             });
           }
@@ -149,7 +149,7 @@ export function detectBareWordRefs(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectTemplateDirRefs(nexusDir: string): HealthIssue[] {
+export function detectTemplateDirRefs(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const docsToScan = [
     "docs/AGENTS.md",
@@ -160,7 +160,7 @@ export function detectTemplateDirRefs(nexusDir: string): HealthIssue[] {
   const branchConventions = new Set(["feat/", "fix/", "hotfix/", "chore/", "docs/", "refactor/"]);
 
   for (const doc of docsToScan) {
-    const path = join(nexusDir, doc);
+    const path = join(shitenDir, doc);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
@@ -169,16 +169,16 @@ export function detectTemplateDirRefs(nexusDir: string): HealthIssue[] {
         const ref = match[1];
         if (!ref) continue;
         const dirPart = ref.split(/[<]/)[0];
-        if (dirPart && dirPart.includes("/") && !dirPart.startsWith("nexus-system/")) {
+        if (dirPart && dirPart.includes("/") && !dirPart.startsWith("shitenno-go/")) {
           if (branchConventions.has(dirPart)) continue;
           if (dirPart.includes("git ") || dirPart.includes("&&")) continue;
-          const dirPath = join(nexusDir, dirPart);
+          const dirPath = join(shitenDir, dirPart);
           if (!existsSync(dirPath)) {
             issues.push({
               type: "template_dir_ref",
               severity: 2,
               description: `Directório "${dirPart}" referenciado por template "${ref}" não existe`,
-              location: `nexus-system/${doc}`,
+              location: `shitenno-go/${doc}`,
               recommendation: `Criar directório "${dirPart}" ou corrigir referência em "${doc}"`,
             });
           }
@@ -189,9 +189,9 @@ export function detectTemplateDirRefs(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
+export function detectExtensionMismatch(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const projectRoot = join(nexusDir, "..");
+  const projectRoot = join(shitenDir, "..");
   const KNOWN_CORRECTIONS: Record<string, string> = {
     "context_buffer.md": "context_buffer.yaml",
     "context_buffer.json": "context_buffer.yaml",
@@ -219,7 +219,7 @@ export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
   };
 
   for (const doc of docsToScan) {
-    const path = join(nexusDir, doc);
+    const path = join(shitenDir, doc);
     if (!existsSync(path)) continue;
     const docDir = dirname(path);
     try {
@@ -229,15 +229,15 @@ export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
         if (content.includes(wrongName)) {
           const found =
             existsSync(join(docDir, correctName)) ||
-            existsSync(join(nexusDir, "governance/context", correctName)) ||
-            existsSync(join(nexusDir, correctName)) ||
+            existsSync(join(shitenDir, "governance/context", correctName)) ||
+            existsSync(join(shitenDir, correctName)) ||
             existsSync(join(projectRoot, correctName));
           if (found) {
             issues.push({
               type: "extension_mismatch",
               severity: 2,
               description: `Referência "${wrongName}" usa extensão errada — ficheiro real é "${correctName}"`,
-              location: `nexus-system/${doc}`,
+              location: `shitenno-go/${doc}`,
               recommendation: `Corrigir "${wrongName}" para "${correctName}" em "${doc}"`,
             });
           }
@@ -254,7 +254,7 @@ export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
         const fullName = `${baseName}${ext}`;
         if (KNOWN_CORRECTIONS[fullName]) continue;
 
-        const exactPath = join(nexusDir, fullName);
+        const exactPath = join(shitenDir, fullName);
         const exactPathRoot = join(projectRoot, fullName);
         const exactPathDocDir = join(docDir, fullName);
         if (existsSync(exactPath) || existsSync(exactPathRoot) || existsSync(exactPathDocDir)) continue;
@@ -263,15 +263,15 @@ export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
         if (!swappedExt) continue;
 
         const swappedName = `${baseName}${swappedExt}`;
-        const swappedPathNexus = join(nexusDir, swappedName);
+        const swappedPathShiten = join(shitenDir, swappedName);
         const swappedPathRoot = join(projectRoot, swappedName);
         const swappedPathDocDir = join(docDir, swappedName);
-        if (existsSync(swappedPathNexus) || existsSync(swappedPathRoot) || existsSync(swappedPathDocDir)) {
+        if (existsSync(swappedPathShiten) || existsSync(swappedPathRoot) || existsSync(swappedPathDocDir)) {
           issues.push({
             type: "extension_mismatch",
             severity: 2,
             description: `Referência "${fullName}" usa extensão errada — ficheiro real é "${swappedName}"`,
-            location: `nexus-system/${doc}`,
+            location: `shitenno-go/${doc}`,
             recommendation: `Corrigir "${fullName}" para "${swappedName}" em "${doc}"`,
           });
         }
@@ -281,9 +281,9 @@ export function detectExtensionMismatch(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectSystemMapMismatch(nexusDir: string): HealthIssue[] {
+export function detectSystemMapMismatch(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const systemMapPath = join(nexusDir, "governance/SYSTEM_MAP.md");
+  const systemMapPath = join(shitenDir, "governance/SYSTEM_MAP.md");
   if (!existsSync(systemMapPath)) return issues;
 
   try {
@@ -295,7 +295,7 @@ export function detectSystemMapMismatch(nexusDir: string): HealthIssue[] {
       if (match[1]) mapEntries.add(match[1].replace(/\/$/, ""));
     }
 
-    const docsDir = join(nexusDir, "docs");
+    const docsDir = join(shitenDir, "docs");
     if (existsSync(docsDir)) {
       const entries = readdirSync(docsDir, { withFileTypes: true });
       for (const entry of entries) {
@@ -304,7 +304,7 @@ export function detectSystemMapMismatch(nexusDir: string): HealthIssue[] {
             type: "system_map_mismatch",
             severity: 1,
             description: `Directório "docs/${entry.name}" existe mas não está listado no SYSTEM_MAP.md`,
-            location: "nexus-system/governance/SYSTEM_MAP.md",
+            location: "shitenno-go/governance/SYSTEM_MAP.md",
             recommendation: `Adicionar "docs/${entry.name}" à árvore em SYSTEM_MAP.md`,
           });
         }
@@ -314,9 +314,9 @@ export function detectSystemMapMismatch(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBrokenCommands(nexusDir: string): HealthIssue[] {
+export function detectBrokenCommands(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const pkgPath = join(nexusDir, "package.json");
+  const pkgPath = join(shitenDir, "package.json");
   if (existsSync(pkgPath)) return issues;
 
   const docsToScan = ["governance/WORKFLOW.md", "docs/AGENTS.md"];
@@ -324,7 +324,7 @@ export function detectBrokenCommands(nexusDir: string): HealthIssue[] {
   const brokenCommands = new Set<string>();
 
   for (const doc of docsToScan) {
-    const path = join(nexusDir, doc);
+    const path = join(shitenDir, doc);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
@@ -340,17 +340,17 @@ export function detectBrokenCommands(nexusDir: string): HealthIssue[] {
       type: "broken_command",
       severity: 2,
       description: `${brokenCommands.size} comando(s) pnpm run não executável(s) sem package.json: ${Array.from(brokenCommands).join(", ")}`,
-      location: "nexus-system/",
-      recommendation: "Criar nexus-system/package.json com os scripts definidos",
+      location: "shitenno-go/",
+      recommendation: "Criar shitenno-go/package.json com os scripts definidos",
     });
   }
   return issues;
 }
 
-export function detectP0Inconsistency(nexusDir: string): HealthIssue[] {
+export function detectP0Inconsistency(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const agentsPath = join(nexusDir, "docs/AGENTS.md");
-  const contextPath = join(nexusDir, "cognition/context/CONTEXT_HIERARCHY.md");
+  const agentsPath = join(shitenDir, "docs/AGENTS.md");
+  const contextPath = join(shitenDir, "cognition/context/CONTEXT_HIERARCHY.md");
   if (!existsSync(agentsPath) || !existsSync(contextPath)) return issues;
 
   try {
@@ -378,7 +378,7 @@ export function detectP0Inconsistency(nexusDir: string): HealthIssue[] {
           type: "p0_inconsistency",
           severity: 1,
           description: `"${file}" está na lista P0 de AGENTS.md mas não na de CONTEXT_HIERARCHY.md`,
-          location: "nexus-system/docs/AGENTS.md",
+          location: "shitenno-go/docs/AGENTS.md",
           recommendation: `Verificar se "${file}" deve ser P0 em ambos os documentos`,
         });
       }
@@ -389,7 +389,7 @@ export function detectP0Inconsistency(nexusDir: string): HealthIssue[] {
           type: "p0_inconsistency",
           severity: 1,
           description: `"${file}" está na lista P0 de CONTEXT_HIERARCHY.md mas não na de AGENTS.md`,
-          location: "nexus-system/cognition/context/CONTEXT_HIERARCHY.md",
+          location: "shitenno-go/cognition/context/CONTEXT_HIERARCHY.md",
           recommendation: `Verificar se "${file}" deve ser P0 em ambos os documentos`,
         });
       }
@@ -398,11 +398,11 @@ export function detectP0Inconsistency(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectTripleMaturityScore(nexusDir: string): HealthIssue[] {
+export function detectTripleMaturityScore(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const fpPath = join(nexusDir, "fingerprint.json");
-  const mpPath = join(nexusDir, "maturity-profile.json");
-  const briefingPath = join(nexusDir, "BRIEFING.md");
+  const fpPath = join(shitenDir, "fingerprint.json");
+  const mpPath = join(shitenDir, "maturity-profile.json");
+  const briefingPath = join(shitenDir, "BRIEFING.md");
 
   const scores: { source: string; value: number | null }[] = [];
 
@@ -436,7 +436,7 @@ export function detectTripleMaturityScore(nexusDir: string): HealthIssue[] {
         type: "triple_maturity_score",
         severity: 3,
         description: `Scores de maturidade inconsistentes: ${details}`,
-        location: "nexus-system/",
+        location: "shitenno-go/",
         recommendation: "Reconciliar — todos os ficheiros devem reflectir o mesmo valor",
       });
     }
@@ -444,9 +444,9 @@ export function detectTripleMaturityScore(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectEmptyStack(nexusDir: string): HealthIssue[] {
+export function detectEmptyStack(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const fpPath = join(nexusDir, "fingerprint.json");
+  const fpPath = join(shitenDir, "fingerprint.json");
   if (!existsSync(fpPath)) return issues;
 
   try {
@@ -456,7 +456,7 @@ export function detectEmptyStack(nexusDir: string): HealthIssue[] {
         type: "empty_stack",
         severity: 3,
         description: "fingerprint.json tem stack: [] vazio — projecto TypeScript não detectado",
-        location: "nexus-system/fingerprint.json",
+        location: "shitenno-go/fingerprint.json",
         recommendation: 'Actualizar stack para ["typescript"] ou re-executar fingerprint',
       });
     }

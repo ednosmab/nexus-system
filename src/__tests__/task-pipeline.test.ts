@@ -3,7 +3,7 @@ import {
   initializeTaskPipeline,
   type TaskPipelineConfig,
 } from "../task-pipeline.js";
-import { getEventBus, resetEventBus, type NexusEventType } from "../event-bus.js";
+import { getEventBus, resetEventBus, type ShitenEventType } from "../event-bus.js";
 
 describe("task-pipeline", () => {
   let config: TaskPipelineConfig;
@@ -13,7 +13,7 @@ describe("task-pipeline", () => {
     resetEventBus();
     config = {
       projectRoot: process.cwd(),
-      nexusDir: process.cwd(),
+      shitenDir: process.cwd(),
     };
     cleanup = null;
   });
@@ -31,12 +31,12 @@ describe("task-pipeline", () => {
   it("subscribes to validation.completed event", () => {
     cleanup = initializeTaskPipeline(config);
     const bus = getEventBus();
-    expect(bus.listenerCount("validation.completed" as NexusEventType)).toBeGreaterThanOrEqual(1);
+    expect(bus.listenerCount("validation.completed" as ShitenEventType)).toBeGreaterThanOrEqual(1);
   });
 
   it("subscribes to task.completed event", () => {
     cleanup = initializeTaskPipeline(config);
     const bus = getEventBus();
-    expect(bus.listenerCount("task.completed" as NexusEventType)).toBeGreaterThanOrEqual(1);
+    expect(bus.listenerCount("task.completed" as ShitenEventType)).toBeGreaterThanOrEqual(1);
   });
 });

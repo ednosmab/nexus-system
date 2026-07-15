@@ -83,7 +83,7 @@ export function formatFeedbackAsMarkdown(feedback: PersonalizedFeedback): string
   }
 
   lines.push("---");
-  lines.push(`*Feedback gerado automaticamente por nexus-cli para o perfil: ${feedback.profile.role}*`);
+  lines.push(`*Feedback gerado automaticamente por shitenno-cli para o perfil: ${feedback.profile.role}*`);
 
   return lines.join("\n");
 }

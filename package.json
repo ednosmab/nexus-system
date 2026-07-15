@@ -1,21 +1,21 @@
 {
-  "name": "nexus-system",
+  "name": "shitenno-go",
   "version": "0.8.0",
   "description": "AI governance framework that grows with your project — scoring, pattern detection, health auditing",
   "type": "module",
   "bin": {
-    "nexus": "./dist/bin/nexus.js"
+    "shiten": "./dist/bin/shiten.js"
   },
-  "main": "./dist/nexus.js",
+  "main": "./dist/shiten.js",
   "files": [
     "dist"
   ],
   "exports": {
-    ".": "./dist/nexus.js"
+    ".": "./dist/shiten.js"
   },
   "scripts": {
-    "build": "tsup && rm -rf dist/templates && cp -r src/templates dist/templates && cp package.json dist/package.json",
-    "dev": "tsx bin/nexus.ts",
+    "build": "tsup && rm -rf dist/templates && cp -r src/templates dist/templates && rm -rf dist/bin/templates && cp -r src/templates dist/bin/templates && cp package.json dist/package.json",
+    "dev": "tsx bin/shiten.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
@@ -28,12 +28,12 @@
     "lint": "eslint 'src/**/*.ts' --max-warnings=0",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "prepare": "husky",
-    "sync:docs": "tsx nexus-system/scripts/sync-docs.ts",
-    "sync:docs:fix": "tsx nexus-system/scripts/sync-docs.ts --fix",
-    "sync:docs:dry": "tsx nexus-system/scripts/sync-docs.ts --dry-run",
-    "validate:docs": "tsx nexus-system/scripts/sync-docs.ts",
-    "backlog": "tsx nexus-system/scripts/backlog.ts",
-    "nexus": "node ./dist/bin/nexus.js"
+    "sync:docs": "tsx shitenno-go/scripts/sync-docs.ts",
+    "sync:docs:fix": "tsx shitenno-go/scripts/sync-docs.ts --fix",
+    "sync:docs:dry": "tsx shitenno-go/scripts/sync-docs.ts --dry-run",
+    "validate:docs": "tsx shitenno-go/scripts/sync-docs.ts",
+    "backlog": "tsx shitenno-go/scripts/backlog.ts",
+    "shiten": "node ./dist/bin/shiten.js"
   },
   "keywords": [
     "ai",
@@ -45,14 +45,14 @@
     "pattern-detection",
     "health-audit"
   ],
-  "author": "Edson Ramos <edson.ramos@nexus-system.com>",
+  "author": "Edson Garcia <edson.g.j.silva@gmail.com>",
   "license": "MIT",
   "workspaces": [
     "apps/*"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ednosmab/nexus-system.git"
+    "url": "https://github.com/ednosmab/shitenno-go.git"
   },
   "engines": {
     "node": ">=18.0.0"

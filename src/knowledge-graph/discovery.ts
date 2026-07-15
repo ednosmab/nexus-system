@@ -2,11 +2,11 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Artifact, Relation } from "./types.js";
 
-export function discoverArtifacts(nexusDir: string): Artifact[] {
+export function discoverArtifacts(shitenDir: string): Artifact[] {
   const artifacts: Artifact[] = [];
   const now = new Date().toISOString();
 
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
   if (existsSync(adrDir)) {
     const files = readdirSync(adrDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("ADR-TEMPLATE")
@@ -26,7 +26,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const skillsDir = join(nexusDir, "docs", "skills");
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (existsSync(skillsDir)) {
     const files = readdirSync(skillsDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -44,7 +44,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const contractsDir = join(nexusDir, "governance", "agents");
+  const contractsDir = join(shitenDir, "governance", "agents");
   if (existsSync(contractsDir)) {
     const files = readdirSync(contractsDir).filter(
       (f) => f.endsWith(".yaml") || f.endsWith(".yml")
@@ -64,7 +64,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const workflowPath = join(nexusDir, "governance", "WORKFLOW.md");
+  const workflowPath = join(shitenDir, "governance", "WORKFLOW.md");
   if (existsSync(workflowPath)) {
     artifacts.push({
       id: "workflow-main",
@@ -79,7 +79,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     });
   }
 
-  const runbooksDir = join(nexusDir, "docs", "runbooks");
+  const runbooksDir = join(shitenDir, "docs", "runbooks");
   if (existsSync(runbooksDir)) {
     const files = readdirSync(runbooksDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -97,7 +97,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const plansDir = join(nexusDir, "governance", "plans");
+  const plansDir = join(shitenDir, "governance", "plans");
   if (existsSync(plansDir)) {
     const files = readdirSync(plansDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("TEMPLATE")
@@ -117,7 +117,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const scriptsDir = join(nexusDir, "scripts");
+  const scriptsDir = join(shitenDir, "scripts");
   if (existsSync(scriptsDir)) {
     const files = readdirSync(scriptsDir).filter(
       (f) => f.endsWith(".ts") || f.endsWith(".js")
@@ -137,7 +137,7 @@ export function discoverArtifacts(nexusDir: string): Artifact[] {
     }
   }
 
-  const docsDir = join(nexusDir, "docs");
+  const docsDir = join(shitenDir, "docs");
   if (existsSync(docsDir)) {
     const files = readdirSync(docsDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("README")

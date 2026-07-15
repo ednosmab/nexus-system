@@ -3,7 +3,7 @@
  *
  * Shows historical snapshots of Engineering State.
  *
- * Usage: nexus history [--from <date>] [--to <date>] [--diff]
+ * Usage: shiten history [--from <date>] [--to <date>] [--diff]
  */
 
 import { Command } from "commander";
@@ -13,7 +13,7 @@ import { outputJson } from "../formatting.js";
 import { listSnapshots, getSnapshotAt, diffSnapshots } from "../engineering-state-history.js";
 import { output, outputBlank } from "../output.js";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 
 export const historyCommand = new Command("history")
   .description("Show engineering state history")
@@ -26,13 +26,13 @@ export const historyCommand = new Command("history")
     if (result) return;
 
     const projectRoot = process.cwd();
-    const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
+    const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
 
     const range = options.from || options.to
       ? { from: options.from || "2000-01-01", to: options.to || new Date().toISOString() }
       : undefined;
 
-    const snapshots = listSnapshots(nexusDir, range);
+    const snapshots = listSnapshots(shitenDir, range);
 
     if (snapshots.length === 0) {
       output(chalk.yellow("No snapshots found."));
@@ -64,8 +64,8 @@ export const historyCommand = new Command("history")
         const currMeta = snapshots[i];
         if (!prevMeta || !currMeta) continue;
 
-        const prev = getSnapshotAt(nexusDir, prevMeta.timestamp);
-        const curr = getSnapshotAt(nexusDir, currMeta.timestamp);
+        const prev = getSnapshotAt(shitenDir, prevMeta.timestamp);
+        const curr = getSnapshotAt(shitenDir, currMeta.timestamp);
 
         if (prev && curr) {
           const delta = diffSnapshots(prev, curr);

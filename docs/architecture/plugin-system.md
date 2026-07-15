@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, extending Nexus requires modifying core code. If a team wants custom checks, custom recommendations, or custom capabilities, they must fork the repository.
+Today, extending Shiten requires modifying core code. If a team wants custom checks, custom recommendations, or custom capabilities, they must fork the repository.
 
 The plugin system allows extension without modification.
 
@@ -12,7 +12,7 @@ The plugin system allows extension without modification.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   NEXUS CORE                        │
+│                   SHITEN CORE                        │
 │                                                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
 │  │  Analysis   │  │  Governance │  │  Evolution  │ │
@@ -41,14 +41,14 @@ The plugin system allows extension without modification.
 | `post-analysis` | After project analysis | Analysis result | Enriched analysis |
 | `pre-scaffold` | Before scaffolding | Capabilities, answers | Modified capabilities |
 | `post-scaffold` | After scaffolding | Scaffold result | Additional actions |
-| `custom-check` | During health audit | Nexus dir | Additional issues |
+| `custom-check` | During health audit | Shiten dir | Additional issues |
 | `custom-recommendation` | During evolution | State, debt | Additional recommendations |
 | `custom-metric` | During scoring | Metrics | Additional metrics |
 
 ## The Plugin Interface
 
 ```typescript
-interface NexusPlugin {
+interface ShitenPlugin {
   name: string;
   version: string;
   description: string;
@@ -59,8 +59,8 @@ interface NexusPlugin {
     "post-analysis"?: (ctx: PipelineContext) => Promise<PipelineContext>;
     "pre-scaffold"?: (ctx: ScaffoldContext) => Promise<ScaffoldContext>;
     "post-scaffold"?: (ctx: ScaffoldResult) => Promise<ScaffoldResult>;
-    "custom-check"?: (nexusDir: string) => Promise<HealthIssue[]>;
-    "custom-recommendation"?: (state: NexusState) => Promise<EvolutionRecommendation[]>;
+    "custom-check"?: (shitenDir: string) => Promise<HealthIssue[]>;
+    "custom-recommendation"?: (state: ShitenState) => Promise<EvolutionRecommendation[]>;
     "custom-metric"?: (metrics: MetricSet) => Promise<MetricSet>;
   };
 }
@@ -74,7 +74,7 @@ Plugins are discovered from two locations:
 
 ```
 project-root/
-└── nexus-system/
+└── shitenno-go/
     ├── plugins/
     │   ├── my-custom-check/
     │   │   └── plugin.ts
@@ -86,7 +86,7 @@ project-root/
 ### 2. Global Plugins
 
 ```
-~/.config/nexus/plugins/
+~/.config/shiten/plugins/
 ├── shared-plugin-a/
 │   └── plugin.ts
 └── shared-plugin-b/
@@ -96,11 +96,11 @@ project-root/
 ## Plugin Loading
 
 ```typescript
-function loadPlugins(projectRoot: string): NexusPlugin[] {
-  const plugins: NexusPlugin[] = [];
+function loadPlugins(projectRoot: string): ShitenPlugin[] {
+  const plugins: ShitenPlugin[] = [];
   
   // Load project-level plugins
-  const projectPluginsDir = join(projectRoot, "nexus-system", "plugins");
+  const projectPluginsDir = join(projectRoot, "shitenno-go", "plugins");
   if (existsSync(projectPluginsDir)) {
     const dirs = readdirSync(projectPluginsDir, { withFileTypes: true })
       .filter(d => d.isDirectory());
@@ -115,7 +115,7 @@ function loadPlugins(projectRoot: string): NexusPlugin[] {
   }
   
   // Load global plugins
-  const globalPluginsDir = join(homedir(), ".config", "nexus", "plugins");
+  const globalPluginsDir = join(homedir(), ".config", "shiten", "plugins");
   if (existsSync(globalPluginsDir)) {
     // Similar loading logic
   }
@@ -128,16 +128,16 @@ function loadPlugins(projectRoot: string): NexusPlugin[] {
 
 ```typescript
 class HookBus {
-  private plugins: NexusPlugin[] = [];
+  private plugins: ShitenPlugin[] = [];
 
-  registerPlugin(plugin: NexusPlugin): void {
+  registerPlugin(plugin: ShitenPlugin): void {
     this.plugins.push(plugin);
   }
 
   async executeHook<T>(
-    hookName: keyof NexusPlugin["hooks"],
+    hookName: keyof ShitenPlugin["hooks"],
     input: T,
-    transformer: (plugin: NexusPlugin, input: T) => Promise<T>
+    transformer: (plugin: ShitenPlugin, input: T) => Promise<T>
   ): Promise<T> {
     let current = input;
     
@@ -157,20 +157,20 @@ class HookBus {
 ### Custom Health Check Plugin
 
 ```typescript
-// nexus-system/plugins/my-check/plugin.ts
-import type { NexusPlugin } from "nexus-system";
+// shitenno-go/plugins/my-check/plugin.ts
+import type { ShitenPlugin } from "shitenno-go";
 
-const plugin: NexusPlugin = {
+const plugin: ShitenPlugin = {
   name: "my-custom-check",
   version: "1.0.0",
   description: "Checks for custom governance rules",
   
   hooks: {
-    "custom-check": async (nexusDir) => {
+    "custom-check": async (shitenDir) => {
       const issues = [];
       
       // Check for custom rule
-      const customRulePath = join(nexusDir, "governance", "CUSTOM_RULE.md");
+      const customRulePath = join(shitenDir, "governance", "CUSTOM_RULE.md");
       if (!existsSync(customRulePath)) {
         issues.push({
           type: "missing_docs",
@@ -191,8 +191,8 @@ export default plugin;
 ### Custom Scoring Metric Plugin
 
 ```typescript
-// nexus-system/plugins/my-metric/plugin.ts
-const plugin: NexusPlugin = {
+// shitenno-go/plugins/my-metric/plugin.ts
+const plugin: ShitenPlugin = {
   name: "my-scoring-metric",
   version: "1.0.0",
   description: "Adds custom scoring metric",
@@ -212,9 +212,9 @@ export default plugin;
 
 ## Safety
 
-- Plugins run in the same process as Nexus (no sandboxing)
+- Plugins run in the same process as Shiten (no sandboxing)
 - Plugin errors are caught and logged, not propagated
-- Plugins cannot modify Nexus core
+- Plugins cannot modify Shiten core
 - Plugins are loaded once at startup
 
 ## Plugin Manifest (Optional)
@@ -224,7 +224,7 @@ export default plugin;
   "name": "my-plugin",
   "version": "1.0.0",
   "description": "My custom plugin",
-  "nexusVersion": ">=0.1.0",
+  "shitenVersion": ">=0.1.0",
   "hooks": ["custom-check", "custom-recommendation"],
   "author": "Me"
 }

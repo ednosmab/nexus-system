@@ -2,18 +2,18 @@
  * cli-global-flags.test.ts — Tests for --quiet and --no-color global CLI flags
  *
  * Tests:
- * 1. Logger respects NEXUS_QUIET env var
+ * 1. Logger respects SHITEN_QUIET env var
  * 2. Logger still outputs errors in quiet mode
- * 3. Logger works normally without NEXUS_QUIET
+ * 3. Logger works normally without SHITEN_QUIET
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { logger, setLogLevel, muteLogs } from "../logger.js";
 
-// ── Logger NEXUS_QUIET tests ────────────────────────────────────────────────
+// ── Logger SHITEN_QUIET tests ────────────────────────────────────────────────
 
-describe("logger — NEXUS_QUIET env var", () => {
-  const originalEnv = process.env.NEXUS_QUIET;
+describe("logger — SHITEN_QUIET env var", () => {
+  const originalEnv = process.env.SHITEN_QUIET;
 
   beforeEach(() => {
     setLogLevel("info"); // Reset log level
@@ -22,15 +22,15 @@ describe("logger — NEXUS_QUIET env var", () => {
   afterEach(() => {
     // Restore env
     if (originalEnv === undefined) {
-      delete process.env.NEXUS_QUIET;
+      delete process.env.SHITEN_QUIET;
     } else {
-      process.env.NEXUS_QUIET = originalEnv;
+      process.env.SHITEN_QUIET = originalEnv;
     }
     vi.restoreAllMocks();
   });
 
-  it("outputs debug/info/warn when NEXUS_QUIET is not set", () => {
-    delete process.env.NEXUS_QUIET;
+  it("outputs debug/info/warn when SHITEN_QUIET is not set", () => {
+    delete process.env.SHITEN_QUIET;
     setLogLevel("debug"); // Enable all levels
 
     const spies = {
@@ -51,8 +51,8 @@ describe("logger — NEXUS_QUIET env var", () => {
     expect(spies.error).toHaveBeenCalledOnce();
   });
 
-  it("suppresses debug/info/warn when NEXUS_QUIET=1", () => {
-    process.env.NEXUS_QUIET = "1";
+  it("suppresses debug/info/warn when SHITEN_QUIET=1", () => {
+    process.env.SHITEN_QUIET = "1";
 
     const spies = {
       debug: vi.spyOn(console, "debug").mockImplementation(() => {}),
@@ -72,8 +72,8 @@ describe("logger — NEXUS_QUIET env var", () => {
     expect(spies.error).toHaveBeenCalledOnce();
   });
 
-  it("still outputs error level when NEXUS_QUIET=1", () => {
-    process.env.NEXUS_QUIET = "1";
+  it("still outputs error level when SHITEN_QUIET=1", () => {
+    process.env.SHITEN_QUIET = "1";
 
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -81,8 +81,8 @@ describe("logger — NEXUS_QUIET env var", () => {
     expect(errorSpy).toHaveBeenCalledOnce();
   });
 
-  it("respects both NEXUS_QUIET and log level together", () => {
-    process.env.NEXUS_QUIET = "1";
+  it("respects both SHITEN_QUIET and log level together", () => {
+    process.env.SHITEN_QUIET = "1";
     setLogLevel("debug"); // Would normally show debug
 
     const spies = {

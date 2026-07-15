@@ -1,10 +1,10 @@
 # 18 — STATE MACHINE
 
-> Nexus lifecycle gates.
+> Shiten lifecycle gates.
 
 ## The States
 
-Nexus itself has a lifecycle. It progresses through states:
+Shiten itself has a lifecycle. It progresses through states:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -16,8 +16,8 @@ Nexus itself has a lifecycle. It progresses through states:
 
 | State | Description | Entry Criteria |
 |-------|-------------|---------------|
-| `uninitialized` | No Nexus configuration exists | Default state |
-| `discovered` | `nexus init` has been run | opencode.json + nexus-system/ exist |
+| `uninitialized` | No Shiten configuration exists | Default state |
+| `discovered` | `shiten init` has been run | opencode.json + shitenno-go/ exist |
 | `assessed` | Maturity has been evaluated | maturity-profile.json exists |
 | `governed` | Governance rules are in place | WORKFLOW.md + contracts exist |
 | `evolved` | System has recommended and implemented improvements | evolution report exists |
@@ -25,7 +25,7 @@ Nexus itself has a lifecycle. It progresses through states:
 ## State Definitions
 
 ```typescript
-type NexusLifecycleState = 
+type ShitenLifecycleState = 
   | "uninitialized"
   | "discovered" 
   | "assessed"
@@ -37,8 +37,8 @@ type NexusLifecycleState =
 
 ```typescript
 interface StateTransition {
-  from: NexusLifecycleState;
-  to: NexusLifecycleState;
+  from: ShitenLifecycleState;
+  to: ShitenLifecycleState;
   trigger: string;
   guards: Array<(context: PipelineContext) => boolean>;
 }
@@ -48,12 +48,12 @@ interface StateTransition {
 
 | From | To | Trigger | Guard |
 |------|----|---------|-------|
-| `uninitialized` | `discovered` | `nexus init` | opencode.json created |
-| `discovered` | `assessed` | `nexus assess` or `nexus status` | maturity-profile.json exists |
-| `assessed` | `governed` | `nexus upgrade --capability governance` | WORKFLOW.md exists |
-| `governed` | `evolved` | `nexus run` pipeline completes | evolution report exists |
-| `evolved` | `governed` | `nexus assess` (regression) | maturity decreased |
-| `governed` | `assessed` | `nexus assess` (regression) | governance removed |
+| `uninitialized` | `discovered` | `shiten init` | opencode.json created |
+| `discovered` | `assessed` | `shiten assess` or `shiten status` | maturity-profile.json exists |
+| `assessed` | `governed` | `shiten upgrade --capability governance` | WORKFLOW.md exists |
+| `governed` | `evolved` | `shiten run` pipeline completes | evolution report exists |
+| `evolved` | `governed` | `shiten assess` (regression) | maturity decreased |
+| `governed` | `assessed` | `shiten assess` (regression) | governance removed |
 
 ## Invalid Transitions
 
@@ -70,34 +70,34 @@ These transitions are blocked:
 ## The State Machine Interface
 
 ```typescript
-interface NexusStateMachine {
-  getState(): NexusLifecycleState;
-  canTransition(to: NexusLifecycleState): boolean;
-  transition(to: NexusLifecycleState, context: PipelineContext): boolean;
-  getHistory(): Array<{ from: NexusLifecycleState; to: NexusLifecycleState; timestamp: string }>;
+interface ShitenStateMachine {
+  getState(): ShitenLifecycleState;
+  canTransition(to: ShitenLifecycleState): boolean;
+  transition(to: ShitenLifecycleState, context: PipelineContext): boolean;
+  getHistory(): Array<{ from: ShitenLifecycleState; to: ShitenLifecycleState; timestamp: string }>;
 }
 ```
 
 ## Implementation
 
 ```typescript
-class DefaultNexusStateMachine implements NexusStateMachine {
-  private current: NexusLifecycleState;
-  private history: Array<{ from: NexusLifecycleState; to: NexusLifecycleState; timestamp: string }> = [];
+class DefaultShitenStateMachine implements ShitenStateMachine {
+  private current: ShitenLifecycleState;
+  private history: Array<{ from: ShitenLifecycleState; to: ShitenLifecycleState; timestamp: string }> = [];
 
-  constructor(initialState: NexusLifecycleState = "uninitialized") {
+  constructor(initialState: ShitenLifecycleState = "uninitialized") {
     this.current = initialState;
   }
 
-  getState(): NexusLifecycleState {
+  getState(): ShitenLifecycleState {
     return this.current;
   }
 
-  canTransition(to: NexusLifecycleState): boolean {
+  canTransition(to: ShitenLifecycleState): boolean {
     return isValidTransition(this.current, to);
   }
 
-  transition(to: NexusLifecycleState, context: PipelineContext): boolean {
+  transition(to: ShitenLifecycleState, context: PipelineContext): boolean {
     if (!this.canTransition(to)) return false;
 
     const from = this.current;
@@ -121,12 +121,12 @@ class DefaultNexusStateMachine implements NexusStateMachine {
 The current state is detected from filesystem:
 
 ```typescript
-function detectLifecycleState(projectRoot: string, nexusDir: string): NexusLifecycleState {
+function detectLifecycleState(projectRoot: string, shitenDir: string): ShitenLifecycleState {
   if (!existsSync(join(projectRoot, "opencode.json"))) return "uninitialized";
-  if (!existsSync(join(nexusDir, "maturity-profile.json"))) return "discovered";
-  if (!existsSync(join(nexusDir, "governance", "WORKFLOW.md"))) return "assessed";
+  if (!existsSync(join(shitenDir, "maturity-profile.json"))) return "discovered";
+  if (!existsSync(join(shitenDir, "governance", "WORKFLOW.md"))) return "assessed";
   
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (existsSync(reportsDir)) {
     const evolutionReports = readdirSync(reportsDir)
       .filter(f => f.startsWith("evolution-") && f.endsWith(".json"));
@@ -143,15 +143,15 @@ Some commands are gated by state:
 
 | Command | Required State |
 |---------|---------------|
-| `nexus init` | `uninitialized` |
-| `nexus status` | `discovered`+ |
-| `nexus detect` | `assessed`+ |
-| `nexus audit` | `assessed`+ |
-| `nexus upgrade` | `assessed`+ |
-| `nexus validate` | `discovered`+ |
-| `nexus assess` | `discovered`+ |
-| `nexus doctor` | `assessed`+ |
-| `nexus run` | `assessed`+ |
+| `shiten init` | `uninitialized` |
+| `shiten status` | `discovered`+ |
+| `shiten detect` | `assessed`+ |
+| `shiten audit` | `assessed`+ |
+| `shiten upgrade` | `assessed`+ |
+| `shiten validate` | `discovered`+ |
+| `shiten assess` | `discovered`+ |
+| `shiten doctor` | `assessed`+ |
+| `shiten run` | `assessed`+ |
 
 ## Event Integration
 
@@ -159,13 +159,13 @@ State transitions publish events:
 
 ```typescript
 bus.subscribe("lifecycle.state_changed", ({ from, to }) => {
-  console.log(`Nexus lifecycle: ${from} → ${to}`);
+  console.log(`Shiten lifecycle: ${from} → ${to}`);
 });
 ```
 
 ## Implementation
 
-- **File:** `src/nexus-state-machine.ts` (~220 lines)
+- **File:** `src/shiten-state-machine.ts` (~220 lines)
 - **Detection:** `detectLifecycleState()`
-- **State machine:** `DefaultNexusStateMachine`
+- **State machine:** `DefaultShitenStateMachine`
 - **Integration:** Commands check state before executing

@@ -27,7 +27,7 @@ import {
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputSection, outputSuccess, outputError, outputWarning, outputInfo } from "../output.js";
 import { logger } from "../logger.js";
 
@@ -105,15 +105,15 @@ function applyUpdates(
   options: UpdateOptions
 ): void {
   const templatesDir = getTemplatesDir();
-  const nexusDir = join(targetDir, NEXUS_DIR_NAME);
+  const shitenDir = join(targetDir, SHITEN_DIR_NAME);
 
   // Create backup if requested
   if (options.backup) {
-    const backupDir = join(nexusDir, "backups", new Date().toISOString().replace(/[:.]/g, "-"));
+    const backupDir = join(shitenDir, "backups", new Date().toISOString().replace(/[:.]/g, "-"));
     ensureDirSync(backupDir);
 
     for (const file of [...diff.changed, ...diff.removed]) {
-      const srcPath = join(nexusDir, file);
+      const srcPath = join(shitenDir, file);
       if (existsSync(srcPath)) {
         const destPath = join(backupDir, file);
         ensureDirSync(join(destPath, ".."));
@@ -130,7 +130,7 @@ function applyUpdates(
   // Copy new/changed files
   for (const file of [...diff.added, ...diff.changed]) {
     const srcPath = join(templatesDir, file);
-    const destPath = join(nexusDir, file);
+    const destPath = join(shitenDir, file);
 
     if (existsSync(srcPath)) {
       ensureDirSync(join(destPath, ".."));
@@ -141,7 +141,7 @@ function applyUpdates(
 
   // Remove deleted files
   for (const file of diff.removed) {
-    const filePath = join(nexusDir, file);
+    const filePath = join(shitenDir, file);
     if (existsSync(filePath)) {
       removeSync(filePath);
       filesUpdated++;
@@ -167,24 +167,24 @@ export const updateCommand = new Command("update")
 
     if (!isJson) {
       output("");
-      outputSection("nexus update — Change Detection");
+      outputSection("shiten update — Change Detection");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("update", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("update", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
     // Read current manifest
-    const currentManifest = readManifest(ctx.nexusDir);
+    const currentManifest = readManifest(ctx.shitenDir);
 
     if (!currentManifest) {
       if (isJson) {
-        outputJson({ error: "no_manifest", message: "No manifest found. Run 'nexus init' or 'nexus upgrade' first." });
+        outputJson({ error: "no_manifest", message: "No manifest found. Run 'shiten init' or 'shiten upgrade' first." });
       } else {
         outputWarning("  ⚠ No manifest found.");
-        output(chalk.gray("  Run 'nexus init' or 'nexus upgrade' to create a manifest."));
+        output(chalk.gray("  Run 'shiten init' or 'shiten upgrade' to create a manifest."));
         outputBlank();
       }
       return;
@@ -202,7 +202,7 @@ export const updateCommand = new Command("update")
 
     // Scan current templates
     const spinner = ora("Scanning templates for changes...").start();
-    const newHashes = scanTemplateHashes(ctx.nexusDir);
+    const newHashes = scanTemplateHashes(ctx.shitenDir);
     spinner.succeed("Scan complete");
 
     // Create a "new" manifest with current hashes for comparison
@@ -268,11 +268,11 @@ export const updateCommand = new Command("update")
         const updatedManifest = updateManifest(
           currentManifest,
           currentCliVersion,
-          ctx.nexusDir,
+          ctx.shitenDir,
           currentManifest.capabilities,
           currentManifest.maturityScore
         );
-        writeManifest(ctx.nexusDir, updatedManifest);
+        writeManifest(ctx.shitenDir, updatedManifest);
 
         // Publish event
         getEventBus().publish("system.updated", {
@@ -308,11 +308,11 @@ export const updateCommand = new Command("update")
         outputJson({
           status: "changes_detected",
           diff,
-          hint: "Run 'nexus update --apply' to apply changes",
+          hint: "Run 'shiten update --apply' to apply changes",
         });
       } else {
-        output(chalk.gray("  Run 'nexus update --apply' to apply these changes."));
-        output(chalk.gray("  Run 'nexus update --dry-run' to preview without applying."));
+        output(chalk.gray("  Run 'shiten update --apply' to apply these changes."));
+        output(chalk.gray("  Run 'shiten update --dry-run' to preview without applying."));
         outputBlank();
       }
     }

@@ -10,10 +10,10 @@ export interface MaturitySnapshot {
 }
 
 export function recordMaturitySnapshot(
-  nexusDir: string,
+  shitenDir: string,
   profile: MaturityProfile
 ): void {
-  const telemetryDir = join(nexusDir, "telemetry");
+  const telemetryDir = join(shitenDir, "telemetry");
   if (!existsSync(telemetryDir)) {
     mkdirSync(telemetryDir, { recursive: true });
   }
@@ -32,8 +32,8 @@ export function recordMaturitySnapshot(
   writeFileSync(filePath, JSON.stringify(snapshot, null, 2), "utf-8");
 }
 
-export function readMaturityHistory(nexusDir: string): MaturitySnapshot[] {
-  const telemetryDir = join(nexusDir, "telemetry");
+export function readMaturityHistory(shitenDir: string): MaturitySnapshot[] {
+  const telemetryDir = join(shitenDir, "telemetry");
   if (!existsSync(telemetryDir)) return [];
 
   const files = readdirSync(telemetryDir)

@@ -10,12 +10,12 @@ import { recordDimensionFeedback } from "../feedback-loops.js";
 import { startSession, trackCommand, trackFeedback, endSession } from "../session-tracker.js";
 
 let tempDir: string;
-let nexusDir: string;
+let shitenDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-perf-"));
-  nexusDir = join(tempDir, "nexus-system");
-  mkdirSync(nexusDir, { recursive: true });
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-perf-"));
+  shitenDir = join(tempDir, "shitenno-go");
+  mkdirSync(shitenDir, { recursive: true });
 });
 
 afterEach(() => {
@@ -42,7 +42,7 @@ describe("Performance Reporter", () => {
 
     for (const dim of dims) {
       for (let i = 0; i < 3; i++) {
-        recordDimensionFeedback(nexusDir, {
+        recordDimensionFeedback(shitenDir, {
           recommendationId: `EVO-${dim.toUpperCase()}-${i}`,
           action: i < 2 ? "accepted" : "rejected",
           context: defaultContext,
@@ -54,22 +54,22 @@ describe("Performance Reporter", () => {
   }
 
   function seedSessionData() {
-    const s1 = startSession(nexusDir);
-    trackCommand(nexusDir, s1.id, "report");
-    trackCommand(nexusDir, s1.id, "doctor");
-    trackFeedback(nexusDir, s1.id, "accepted", "challenging");
-    trackFeedback(nexusDir, s1.id, "accepted", "challenging");
-    endSession(nexusDir, s1.id);
+    const s1 = startSession(shitenDir);
+    trackCommand(shitenDir, s1.id, "report");
+    trackCommand(shitenDir, s1.id, "doctor");
+    trackFeedback(shitenDir, s1.id, "accepted", "challenging");
+    trackFeedback(shitenDir, s1.id, "accepted", "challenging");
+    endSession(shitenDir, s1.id);
 
-    const s2 = startSession(nexusDir);
-    trackCommand(nexusDir, s2.id, "detect");
-    trackFeedback(nexusDir, s2.id, "rejected", "comfortable");
-    endSession(nexusDir, s2.id);
+    const s2 = startSession(shitenDir);
+    trackCommand(shitenDir, s2.id, "detect");
+    trackFeedback(shitenDir, s2.id, "rejected", "comfortable");
+    endSession(shitenDir, s2.id);
   }
 
   function seedGrowthProfile() {
     const now = new Date().toISOString();
-    const profilePath = join(nexusDir, "growth-profile.json");
+    const profilePath = join(shitenDir, "growth-profile.json");
     writeFileSync(profilePath, JSON.stringify({
       projectId: "test",
       createdAt: now,
@@ -82,7 +82,7 @@ describe("Performance Reporter", () => {
   }
 
   function seedTrends() {
-    const telemetryDir = join(nexusDir, "telemetry");
+    const telemetryDir = join(shitenDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
     writeFileSync(join(telemetryDir, "maturity-2026-06-29.json"), JSON.stringify({ overallScore: 65 }), "utf-8");
     writeFileSync(join(telemetryDir, "maturity-2026-06-28.json"), JSON.stringify({ overallScore: 55 }), "utf-8");
@@ -96,7 +96,7 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
     seedTrends();
 
-    const report = generatePerformanceReport(tempDir, nexusDir, { days: 30 });
+    const report = generatePerformanceReport(tempDir, shitenDir, { days: 30 });
 
     expect(report.period).toBeDefined();
     expect(report.period.days).toBe(30);
@@ -135,13 +135,13 @@ describe("Performance Reporter", () => {
     seedDimensionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir, { days: 7 });
+    const report = generatePerformanceReport(tempDir, shitenDir, { days: 7 });
     expect(report.period.days).toBe(7);
   });
 
   it("generatePerformanceReport defaults to 30 days", () => {
     seedGrowthProfile();
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.period.days).toBe(30);
   });
 
@@ -150,7 +150,7 @@ describe("Performance Reporter", () => {
     seedSessionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.sessions.total).toBe(2);
     expect(report.sessions.commandFrequency.report).toBe(1);
     expect(report.sessions.commandFrequency.doctor).toBe(1);
@@ -162,7 +162,7 @@ describe("Performance Reporter", () => {
     seedSessionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.feedback.totalInteractions).toBeGreaterThanOrEqual(7);
   });
 
@@ -171,7 +171,7 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
     seedTrends();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.debtTrend.current).toBe(30);
     expect(report.debtTrend.previous).toBe(45);
     expect(report.debtTrend.delta).toBe(-15);
@@ -182,7 +182,7 @@ describe("Performance Reporter", () => {
     seedGrowthProfile();
     seedTrends();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.maturityTrend.current).toBe(65);
     expect(report.maturityTrend.previous).toBe(55);
     expect(report.maturityTrend.delta).toBe(10);
@@ -190,7 +190,7 @@ describe("Performance Reporter", () => {
 
   it("generatePerformanceReport defaults when no telemetry files exist", () => {
     seedGrowthProfile();
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.debtTrend.current).toBe(100);
     expect(report.debtTrend.previous).toBe(100);
     expect(report.maturityTrend.current).toBe(0);
@@ -201,7 +201,7 @@ describe("Performance Reporter", () => {
     seedDimensionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     const strengths = report.insights.filter((i) => i.type === "strength");
     const improvements = report.insights.filter((i) => i.type === "improvement");
     expect(strengths.length).toBeGreaterThanOrEqual(1);
@@ -211,12 +211,12 @@ describe("Performance Reporter", () => {
   it("generatePerformanceReport generates debt insight when delta > 10", () => {
     seedDimensionData();
     seedGrowthProfile();
-    const telemetryDir = join(nexusDir, "telemetry");
+    const telemetryDir = join(shitenDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
     writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-29.json"), JSON.stringify({ healthScore: 20 }), "utf-8");
     writeFileSync(join(telemetryDir, "knowledge-debt-2026-06-28.json"), JSON.stringify({ healthScore: 50 }), "utf-8");
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     const debtInsight = report.insights.find(
       (i) => i.dimension === "architectural_vision" && i.type === "improvement"
     );
@@ -226,12 +226,12 @@ describe("Performance Reporter", () => {
   it("generatePerformanceReport generates maturity insight when delta > 5", () => {
     seedDimensionData();
     seedGrowthProfile();
-    const telemetryDir = join(nexusDir, "telemetry");
+    const telemetryDir = join(shitenDir, "telemetry");
     mkdirSync(telemetryDir, { recursive: true });
     writeFileSync(join(telemetryDir, "maturity-2026-06-29.json"), JSON.stringify({ overallScore: 70 }), "utf-8");
     writeFileSync(join(telemetryDir, "maturity-2026-06-28.json"), JSON.stringify({ overallScore: 55 }), "utf-8");
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     const maturityInsight = report.insights.find(
       (i) => i.dimension === "scope_management" && i.type === "strength"
     );
@@ -242,7 +242,7 @@ describe("Performance Reporter", () => {
     seedDimensionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.nextSteps.length).toBeGreaterThanOrEqual(1);
     expect(report.nextSteps.length).toBeLessThanOrEqual(5);
   });
@@ -251,7 +251,7 @@ describe("Performance Reporter", () => {
     seedDimensionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.summary).toContain("Score médio");
     expect(report.summary).toContain("sessões");
     expect(report.summary).toContain("interações");
@@ -260,22 +260,22 @@ describe("Performance Reporter", () => {
   it("writePerformanceReport creates file", () => {
     seedDimensionData();
     seedGrowthProfile();
-    const report = generatePerformanceReport(tempDir, nexusDir);
-    const filename = writePerformanceReport(nexusDir, report);
+    const report = generatePerformanceReport(tempDir, shitenDir);
+    const filename = writePerformanceReport(shitenDir, report);
 
     expect(filename).toBeDefined();
     expect(filename).toMatch(/performance-\d{4}-\d{2}-\d{2}\.json/);
   });
 
   it("writePerformanceReport returns null on error", () => {
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     const result = writePerformanceReport("/dev/null", report);
     expect(result).toBeNull();
   });
 
   it("generatePerformanceReport handles empty data gracefully", () => {
     seedGrowthProfile();
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
 
     expect(report.period).toBeDefined();
     expect(report.dimensions).toBeDefined();
@@ -287,7 +287,7 @@ describe("Performance Reporter", () => {
   it("generatePerformanceReport respects growth profile pattern", () => {
     seedDimensionData();
     const now = new Date().toISOString();
-    const profilePath = join(nexusDir, "growth-profile.json");
+    const profilePath = join(shitenDir, "growth-profile.json");
     writeFileSync(profilePath, JSON.stringify({
       projectId: "test",
       createdAt: now,
@@ -298,7 +298,7 @@ describe("Performance Reporter", () => {
       patterns: [{ type: "prefers_comfort", confidence: 0.8, description: "Comfort-oriented" }],
     }), "utf-8");
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     expect(report.profile.growthPattern).toBe("prefers_comfort");
 
     const patternInsight = report.insights.find((i) => i.type === "pattern");
@@ -309,7 +309,7 @@ describe("Performance Reporter", () => {
     seedDimensionData();
     seedGrowthProfile();
 
-    const report = generatePerformanceReport(tempDir, nexusDir);
+    const report = generatePerformanceReport(tempDir, shitenDir);
     for (const [_dim, data] of Object.entries(report.dimensions)) {
       expect(data.score).toBeGreaterThanOrEqual(0);
       expect(data.score).toBeLessThanOrEqual(100);

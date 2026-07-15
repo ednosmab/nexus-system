@@ -65,7 +65,7 @@ afterEach(() => {
 describe("startWatching", () => {
   it("returns a stop function", async () => {
     const { startWatching } = await import("../file-watcher.js");
-    const stop = startWatching("/nexus");
+    const stop = startWatching("/shiten");
     expect(typeof stop).toBe("function");
     stop();
   });
@@ -74,7 +74,7 @@ describe("startWatching", () => {
     const { startWatching } = await import("../file-watcher.js");
     const { getEventBus } = await import("../event-bus.js");
 
-    const stop = startWatching("/nexus");
+    const stop = startWatching("/shiten");
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     // Get the chokidar watcher and trigger 'add'
@@ -83,7 +83,7 @@ describe("startWatching", () => {
     const addHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "add")?.[1];
 
     if (addHandler) {
-      addHandler("/nexus/docs/adrs/ADR-001.md");
+      addHandler("/shiten/docs/adrs/ADR-001.md");
     }
 
     expect(bus?.publish).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe("startWatching", () => {
     const { startWatching } = await import("../file-watcher.js");
     const { getEventBus } = await import("../event-bus.js");
 
-    const stop = startWatching("/nexus");
+    const stop = startWatching("/shiten");
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -105,7 +105,7 @@ describe("startWatching", () => {
     const addHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "add")?.[1];
 
     if (addHandler) {
-      addHandler("/nexus/docs/adrs/ADR-001.md");
+      addHandler("/shiten/docs/adrs/ADR-001.md");
     }
 
     expect(bus?.publish).toHaveBeenCalledWith(
@@ -119,7 +119,7 @@ describe("startWatching", () => {
     const { startWatching } = await import("../file-watcher.js");
     const { getEventBus } = await import("../event-bus.js");
 
-    const stop = startWatching("/nexus");
+    const stop = startWatching("/shiten");
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -127,7 +127,7 @@ describe("startWatching", () => {
     const addHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "add")?.[1];
 
     if (addHandler) {
-      addHandler("/nexus/docs/skills/my-skill.md");
+      addHandler("/shiten/docs/skills/my-skill.md");
     }
 
     expect(bus?.publish).toHaveBeenCalledWith(
@@ -142,7 +142,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -150,7 +150,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/governance/rules/RULE-001.json");
+      changeHandler("/shiten/governance/rules/RULE-001.json");
     }
 
     vi.advanceTimersByTime(150);
@@ -168,7 +168,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -176,7 +176,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/governance/rules/RULE-001.json");
+      changeHandler("/shiten/governance/rules/RULE-001.json");
     }
 
     vi.advanceTimersByTime(150);
@@ -194,7 +194,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -202,7 +202,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/governance/WORKFLOW.md");
+      changeHandler("/shiten/governance/WORKFLOW.md");
     }
 
     vi.advanceTimersByTime(150);
@@ -220,7 +220,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -228,7 +228,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/config.json");
+      changeHandler("/shiten/config.json");
     }
 
     vi.advanceTimersByTime(150);
@@ -246,7 +246,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -254,7 +254,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/docs/README.md");
+      changeHandler("/shiten/docs/README.md");
     }
 
     vi.advanceTimersByTime(150);
@@ -272,7 +272,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100, enableDocSync: false });
+    const stop = startWatching("/shiten", { debounceMs: 100, enableDocSync: false });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -280,7 +280,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/docs/README.md");
+      changeHandler("/shiten/docs/README.md");
     }
 
     vi.advanceTimersByTime(150);
@@ -298,7 +298,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 200 });
+    const stop = startWatching("/shiten", { debounceMs: 200 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -306,11 +306,11 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/docs/same.md");
+      changeHandler("/shiten/docs/same.md");
       vi.advanceTimersByTime(100);
-      changeHandler("/nexus/docs/same.md");
+      changeHandler("/shiten/docs/same.md");
       vi.advanceTimersByTime(100);
-      changeHandler("/nexus/docs/same.md");
+      changeHandler("/shiten/docs/same.md");
       vi.advanceTimersByTime(250);
     }
 
@@ -337,7 +337,7 @@ describe("startWatching", () => {
     const { getEventBus } = await import("../event-bus.js");
 
     vi.useFakeTimers();
-    const stop = startWatching("/nexus", { debounceMs: 100 });
+    const stop = startWatching("/shiten", { debounceMs: 100 });
     const bus = vi.mocked(getEventBus).mock.results[0]?.value;
 
     const { watch } = await import("chokidar");
@@ -345,7 +345,7 @@ describe("startWatching", () => {
     const changeHandler = (watcher as any)?.on?.mock?.calls?.find?.((c: any) => c[0] === "change")?.[1];
 
     if (changeHandler) {
-      changeHandler("/nexus/docs/generated/ARCHITECTURE.md");
+      changeHandler("/shiten/docs/generated/ARCHITECTURE.md");
     }
 
     vi.advanceTimersByTime(150);
@@ -362,7 +362,7 @@ describe("startWatching", () => {
     const { startWatching } = await import("../file-watcher.js");
     const { watch } = await import("chokidar");
 
-    const stop = startWatching("/nexus", { extraPaths: ["/extra/**/*.ts"] });
+    const stop = startWatching("/shiten", { extraPaths: ["/extra/**/*.ts"] });
     const watchCall = vi.mocked(watch).mock.calls[0];
     expect(watchCall![0]).toContain("/extra/**/*.ts");
     stop();
@@ -383,7 +383,7 @@ describe("stopWatching", () => {
 describe("WatcherOptions type", () => {
   it("accepts valid options", async () => {
     const { startWatching } = await import("../file-watcher.js");
-    const stop = startWatching("/nexus", {
+    const stop = startWatching("/shiten", {
       debounceMs: 300,
       extraPaths: ["/extra"],
       enableDocSync: false,

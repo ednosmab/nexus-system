@@ -8,13 +8,13 @@ import { batchScoreArea, batchGitChurn, preReadHistory, countContextPressure, ty
 
 export function calculateAreaScores(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   profile: ProjectProfile,
   cache: FileContentCache
 ): Promise<AreaScore[]> {
 
   const churnMap = batchGitChurn(projectRoot, profile.areas, profile.churnWindowDays);
-  const history = preReadHistory(nexusDir, profile.areas, profile.violationKeywords);
+  const history = preReadHistory(shitenDir, profile.areas, profile.violationKeywords);
 
   const areaMetricsPromises = profile.areas.map((area) => {
     const areaPath = join(projectRoot, area);
@@ -121,12 +121,12 @@ export function scoreProject(
 
   if (level === "pleno" && !suggestions.some((s) => s.includes("upgrade"))) {
     suggestions.push(
-      "Your project complexity suggests moderate complexity. Run: nexus upgrade --list"
+      "Your project complexity suggests moderate complexity. Run: shiten upgrade --list"
     );
   }
   if (level === "senior" && !suggestions.some((s) => s.includes("upgrade"))) {
     suggestions.push(
-      "Your project complexity suggests high complexity. Run: nexus upgrade --list"
+      "Your project complexity suggests high complexity. Run: shiten upgrade --list"
     );
   }
 

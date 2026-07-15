@@ -1,24 +1,24 @@
 /**
  * policy.ts — Policy Engine CLI Command
  *
- * The `nexus policy` command. Manage and evaluate declarative policies.
+ * The `shiten policy` command. Manage and evaluate declarative policies.
  *
  * Usage:
- *   nexus policy list
- *   nexus policy show POL-abc123
- *   nexus policy create "No hardcoded secrets" --mode enforce --effect deny --field "fileContent" --operator contains --value "password"
- *   nexus policy evaluate --field "riskLevel" --operator equals --value "critical"
- *   nexus policy enable POL-abc123
- *   nexus policy disable POL-abc123
- *   nexus policy delete POL-abc123
- *   nexus policy stats
+ *   shiten policy list
+ *   shiten policy show POL-abc123
+ *   shiten policy create "No hardcoded secrets" --mode enforce --effect deny --field "fileContent" --operator contains --value "password"
+ *   shiten policy evaluate --field "riskLevel" --operator equals --value "critical"
+ *   shiten policy enable POL-abc123
+ *   shiten policy disable POL-abc123
+ *   shiten policy delete POL-abc123
+ *   shiten policy stats
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import {
   PolicyEngine,
   FilePolicyRepository,
@@ -32,8 +32,8 @@ import { output, outputBlank, outputSection, outputSuccess, outputError, outputW
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): PolicyEngine {
-  const nexusDir = join(dir, NEXUS_DIR_NAME);
-  return new PolicyEngine(new FilePolicyRepository(nexusDir));
+  const shitenDir = join(dir, SHITEN_DIR_NAME);
+  return new PolicyEngine(new FilePolicyRepository(shitenDir));
 }
 
 const MODE_COLORS: Record<PolicyMode, (s: string) => string> = {
@@ -80,7 +80,7 @@ export function policyCommand(): Command {
 
       outputBlank();
       if (policies.length === 0) {
-        output(chalk.dim("  No policies defined. Create one with: nexus policy create \"<name>\""));
+        output(chalk.dim("  No policies defined. Create one with: shiten policy create \"<name>\""));
       } else {
         outputSection(`Policies (${policies.length})`);
         output(chalk.dim("  " + "─".repeat(70)));

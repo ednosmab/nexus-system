@@ -1,5 +1,5 @@
 {
-  "name": "nexus-system",
+  "name": "shitenno-go",
   "version": "1.0.0",
   "description": "Reusable AI governance framework for opencode-based monorepos",
   "scripts": {

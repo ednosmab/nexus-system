@@ -1,6 +1,6 @@
 # Decisions
 
-> How decisions are modeled in the Nexus System.
+> How decisions are modeled in the Shitenno-go.
 
 ## Definition
 
@@ -34,7 +34,7 @@ Decisions can be superseded. A decision made last year may be wrong this year. T
 
 ## Recommendation vs. Execution
 
-In the Nexus model, there is a critical distinction between a Recommendation and an Execution:
+In the Shiten model, there is a critical distinction between a Recommendation and an Execution:
 
 ### Recommendation
 
@@ -58,9 +58,9 @@ Created ADR-003.md: "Deprecate legacy auth module"
 
 ### The Rule
 
-**Nexus proposes. Humans decide.**
+**Shiten proposes. Humans decide.**
 
-This is not a feature. It is an identity principle. Nexus never auto-applies changes to production code, governance rules, or project structure without explicit human approval.
+This is not a feature. It is an identity principle. Shiten never auto-applies changes to production code, governance rules, or project structure without explicit human approval.
 
 ---
 
@@ -75,14 +75,14 @@ Recognition → Deliberation → Commitment → Recording → Supersession/Archi
 ### 1. Recognition
 
 The team recognizes that a decision needs to be made. This may come from:
-- A pattern detected by Nexus
+- A pattern detected by Shiten
 - A knowledge gap identified by Knowledge Debt
 - A recommendation from the Recommendation Engine
 - A human observation
 
 ### 2. Deliberation
 
-The team considers alternatives, evaluates trade-offs, and assesses consequences. This is a human process — Nexus provides context, not judgment.
+The team considers alternatives, evaluates trade-offs, and assesses consequences. This is a human process — Shiten provides context, not judgment.
 
 ### 3. Commitment
 
@@ -139,7 +139,7 @@ AI agents need context to make good decisions. They need to understand:
 - What patterns exist (Skills)
 - What constraints apply (Contracts)
 
-Nexus provides this context. It ensures that AI agents make decisions that are consistent with the team's established knowledge.
+Shiten provides this context. It ensures that AI agents make decisions that are consistent with the team's established knowledge.
 
 Without governed context, AI agents make arbitrary decisions. With governed context, AI agents amplify good engineering.
 
@@ -152,10 +152,10 @@ Without governed context, AI agents make arbitrary decisions. With governed cont
 3. Every decision must be recorded (as an ADR)
 4. Every decision must be traceable to its rationale
 5. Decisions are never silently deleted — they are superseded or archived
-6. Nexus proposes, humans decide — this rule is absolute
+6. Shiten proposes, humans decide — this rule is absolute
 
 ---
 
-*This document defines how decisions are modeled in the Nexus System. For the formal specification of decision-related concepts, see [ubiquitous-language.md](./ubiquitous-language.md).*
+*This document defines how decisions are modeled in the Shitenno-go. For the formal specification of decision-related concepts, see [ubiquitous-language.md](./ubiquitous-language.md).*
 
 *Last updated: 2026-06-28*

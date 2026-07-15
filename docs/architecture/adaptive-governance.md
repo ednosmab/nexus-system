@@ -4,7 +4,7 @@
 
 ## The Rule Engine
 
-Nexus includes a declarative rule engine that automates governance behaviors. Rules are defined as data, not code.
+Shiten includes a declarative rule engine that automates governance behaviors. Rules are defined as data, not code.
 
 ## Rule Structure
 

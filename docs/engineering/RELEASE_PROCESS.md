@@ -1,6 +1,6 @@
 # Release Process
 
-> How releases are managed for the Nexus CLI.
+> How releases are managed for the Shiten CLI.
 
 ## Version Numbering
 
@@ -37,8 +37,8 @@ PATCH — Bug fixes (backward compatible)
 
 ### Post-Release
 
-- [ ] Verify npm package: `npm view nexus-cli`
-- [ ] Test installation: `npm install -g nexus-cli`
+- [ ] Verify npm package: `npm view shitenno-cli`
+- [ ] Test installation: `npm install -g shitenno-cli`
 - [ ] Update GitHub release notes
 - [ ] Merge back to develop
 

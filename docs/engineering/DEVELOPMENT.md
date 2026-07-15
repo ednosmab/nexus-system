@@ -1,6 +1,6 @@
 # Development Guide
 
-> Setting up and working on the Nexus CLI development environment.
+> Setting up and working on the Shiten CLI development environment.
 
 ## Prerequisites
 
@@ -12,8 +12,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/nexus-cli/nexus-cli.git
-cd nexus-cli
+git clone https://github.com/shitenno-cli/shitenno-cli.git
+cd shitenno-cli
 
 # Install dependencies
 pnpm install
@@ -27,7 +27,7 @@ pnpm lint
 ## Project Structure
 
 ```
-nexus-cli/
+shitenno-cli/
 ├── src/
 │   ├── commands/          # 13 CLI commands
 │   │   ├── init.ts        # Project initialization
@@ -46,7 +46,7 @@ nexus-cli/
 │   ├── __tests__/         # Test suite (484 tests)
 │   └── templates/         # Scaffold templates
 ├── docs/                  # Documentation
-├── nexus-system/          # Nexus system (governance, plugins, profile)
+├── shitenno-go/          # Shiten system (governance, plugins, profile)
 └── package.json
 ```
 

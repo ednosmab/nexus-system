@@ -1,12 +1,12 @@
 # Custom Rules
 
-Guia para criar regras customizadas no Nexus.
+Guia para criar regras customizadas no Shiten.
 
 ---
 
 ## Visão Geral
 
-O Nexus permite criar regras customizadas para automatizar fluxos de trabalho específicos do seu projeto.
+O Shiten permite criar regras customizadas para automatizar fluxos de trabalho específicos do seu projeto.
 
 ---
 
@@ -57,7 +57,7 @@ Defina o que acontece quando a regra é ativada:
 
 ### 4. Crie o Arquivo JSON
 
-Crie o arquivo em `nexus-system/governance/rules/`:
+Crie o arquivo em `shitenno-go/governance/rules/`:
 
 ```json
 {
@@ -81,8 +81,8 @@ Crie o arquivo em `nexus-system/governance/rules/`:
 ### 5. Valide e Teste
 
 ```bash
-nexus validate --rule RULE-CUSTOM-001
-nexus rule test RULE-CUSTOM-001
+shiten validate --rule RULE-CUSTOM-001
+shiten rule test RULE-CUSTOM-001
 ```
 
 ---
@@ -100,7 +100,7 @@ nexus rule test RULE-CUSTOM-001
     {
       "type": "send_notification",
       "params": {
-        "message": "👋 Bem-vindo! Use 'nexus status' para verificar a saúde do projeto."
+        "message": "👋 Bem-vindo! Use 'shiten status' para verificar a saúde do projeto."
       }
     }
   ]

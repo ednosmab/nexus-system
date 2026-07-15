@@ -22,8 +22,8 @@ import { getDefaultRules } from "./defaults.js";
 const RULES_DIR = "governance/rules";
 
 /** Lê todas as regras de um directório. */
-export function loadRules(nexusDir: string): Rule[] {
-  const rulesPath = join(nexusDir, RULES_DIR);
+export function loadRules(shitenDir: string): Rule[] {
+  const rulesPath = join(shitenDir, RULES_DIR);
   if (!existsSync(rulesPath)) return [];
 
   const files = readdirSync(rulesPath).filter(
@@ -52,12 +52,12 @@ export function loadRules(nexusDir: string): Rule[] {
 }
 
 /** Grava uma regra no directório. */
-export function saveRule(nexusDir: string, rule: Rule): void {
+export function saveRule(shitenDir: string, rule: Rule): void {
   if (!isValidRuleId(rule.id)) {
     throw new InvalidRuleError(`Rule ID: "${rule.id}". Only alphanumeric, hyphens and underscores allowed.`);
   }
 
-  const rulesPath = join(nexusDir, RULES_DIR);
+  const rulesPath = join(shitenDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
@@ -161,7 +161,7 @@ export async function executeRules(
   const total = rules.filter((r) => r.enabled && r.trigger === context.trigger).length;
 
   try {
-    const telemetryDir = join(context.nexusDir, "telemetry");
+    const telemetryDir = join(context.shitenDir, "telemetry");
     if (!existsSync(telemetryDir)) {
       mkdirSync(telemetryDir, { recursive: true });
     }
@@ -198,27 +198,27 @@ export async function executeRules(
 // ── Engine Initialization ────────────────────────────────────────────────────
 
 /** Inicializa o directório de regras com regras padrão se vazio. */
-export function initializeRules(nexusDir: string): void {
-  const rulesPath = join(nexusDir, RULES_DIR);
+export function initializeRules(shitenDir: string): void {
+  const rulesPath = join(shitenDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
 
-  const existingRules = loadRules(nexusDir);
+  const existingRules = loadRules(shitenDir);
   if (existingRules.length > 0) return;
 
   const defaultRules = getDefaultRules();
   for (const rule of defaultRules) {
-    saveRule(nexusDir, rule);
+    saveRule(shitenDir, rule);
   }
 }
 
 // ── Event Bus Integration ───────────────────────────────────────────────────
 
-import { getEventBus, type NexusEventType } from "../event-bus.js";
+import { getEventBus, type ShitenEventType } from "../event-bus.js";
 
 /** Map event bus events to rule engine triggers. */
-const EVENT_TO_TRIGGER: Partial<Record<NexusEventType, TriggerType>> = {
+const EVENT_TO_TRIGGER: Partial<Record<ShitenEventType, TriggerType>> = {
   "session.start": "session_start",
   "session.end": "session_end",
   "analysis.complete": "file_change",
@@ -266,13 +266,13 @@ const EVENT_TO_TRIGGER: Partial<Record<NexusEventType, TriggerType>> = {
 /** Subscribe to event bus events and execute matching rules. */
 export function initializeRuleEngine(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): void {
   const bus = getEventBus();
 
   for (const [eventType, trigger] of Object.entries(EVENT_TO_TRIGGER)) {
-    bus.subscribe(eventType as NexusEventType, async (payload: unknown) => {
-      const rules = loadRules(nexusDir);
+    bus.subscribe(eventType as ShitenEventType, async (payload: unknown) => {
+      const rules = loadRules(shitenDir);
       if (rules.length === 0) {
         logger.debug(
           "rule-engine",
@@ -291,9 +291,9 @@ export function initializeRuleEngine(
         trigger: actualTrigger,
         eventData: payload as Record<string, unknown>,
         projectRoot,
-        nexusDir,
+        shitenDir,
         timestamp: new Date().toISOString(),
-        installedCapabilities: loadMaturityProfile(nexusDir)?.installedCapabilities ?? ["core"],
+        installedCapabilities: loadMaturityProfile(shitenDir)?.installedCapabilities ?? ["core"],
       };
 
       await executeRules(rules, context);

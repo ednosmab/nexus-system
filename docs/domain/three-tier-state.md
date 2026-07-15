@@ -4,7 +4,7 @@
 
 ## The Principle
 
-Every piece of information in Nexus belongs to exactly one of three tiers. Mixing these tiers causes confusion, bugs, and governance failures.
+Every piece of information in Shiten belongs to exactly one of three tiers. Mixing these tiers causes confusion, bugs, and governance failures.
 
 ---
 

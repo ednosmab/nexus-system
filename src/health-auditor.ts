@@ -36,16 +36,16 @@ import { buildDetectorMap } from "./audit/detector-map.js";
 
 export function auditHealth(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   level: AuditLevel = "standard"
 ): HealthAuditReport {
   const startTime = Date.now();
-  const history = readHistory(nexusDir);
-  const rules = readRules(nexusDir);
+  const history = readHistory(shitenDir);
+  const rules = readRules(shitenDir);
   const activeDetectors = new Set(DETECTORS_BY_LEVEL[level]);
   const sourceFiles = collectSourceFiles(projectRoot);
 
-  const detectorMap = buildDetectorMap(projectRoot, nexusDir, sourceFiles, rules, history);
+  const detectorMap = buildDetectorMap(projectRoot, shitenDir, sourceFiles, rules, history);
 
   const issues: HealthIssue[] = [];
   for (const [name, fn] of Object.entries(detectorMap)) {
@@ -89,8 +89,8 @@ export function auditHealth(
   };
 }
 
-export function writeHealthReport(nexusDir: string, report: HealthAuditReport): string | null {
-  const reportsDir = join(nexusDir, "reports");
+export function writeHealthReport(shitenDir: string, report: HealthAuditReport): string | null {
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

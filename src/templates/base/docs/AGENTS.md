@@ -71,33 +71,33 @@ Sempre que o usuário enviar uma nova mensagem ou comando, você DEVE executar r
 3. Adapte o comportamento baseado nos alertas e recomendações do briefing
 
 **APÓS completar a tarefa:**
-1. Execute `nexus feedback --outcome success` se a tarefa foi concluída com sucesso
-2. Execute `nexus feedback --outcome failure --notes "<descrição do problema>"` se falhou
-3. Execute `nexus feedback --outcome partial --areas <áreas>"` se parcialmente concluída
+1. Execute `shiten feedback --outcome success` se a tarefa foi concluída com sucesso
+2. Execute `shiten feedback --outcome failure --notes "<descrição do problema>"` se falhou
+3. Execute `shiten feedback --outcome partial --areas <áreas>"` se parcialmente concluída
 4. O sistema aprenderá com o resultado e ajustará recomendações futuras
 
 **Ver resumo de feedback:**
-- `nexus feedback --summary` — mostra taxa de sucesso, hotspots de falha, e estatísticas
+- `shiten feedback --summary` — mostra taxa de sucesso, hotspots de falha, e estatísticas
 
 **Comandos disponíveis:**
-- `nexus briefing` — output markdown detalhado (opcional, uso manual: `--json`, `--write`, `--diff`, `--summary`)
-- `nexus feedback` — registar resultado da sessão (opções: `--outcome success|failure|partial`, `--areas <lista>`, `--notes <texto>`, `--user-rating <1-5>`, `--user-comment <texto>`, `--user-tags <lista>`, `--summary`, `--personalized`)
-- `nexus status` — estado actual do projecto e capabilities instaladas
-- `nexus detect` — detectar padrões no histórico e propor regras candidatas
-- `nexus audit` — auditoria de saúde completa (opções: `--level quick|standard|full`, `--json`, `--auto-backlog`)
-- `nexus assess` — avaliar maturidade e recomendar próximo passo
-- `nexus doctor` — diagnóstico rápido de problemas comuns
-- `nexus bench` — benchmark de tokens e economia
-- `nexus dashboard` — métricas de token economy
-- `nexus upgrade` — adicionar capabilities novas (opções: `--capability <nome>`, `--accept-recommended`)
-- `nexus validate` — verificar integridade da sessão (opções: `--fix`)
-- `nexus clean` — limpar artefactos desactualizados
-- `nexus run` — executar pipeline completo de análise
-- `nexus evolve` — gerar recomendações de evolução
-- `nexus sync` — sincronizar regras e governance com o estado actual
-- `nexus report` — gerar relatório de complexidade
-- `nexus update` — actualizar templates do nexus-cli (opções: `--apply`, `--dry-run`, `--backup`)
-- `nexus profile` — configurar perfil do utilizador
+- `shiten briefing` — output markdown detalhado (opcional, uso manual: `--json`, `--write`, `--diff`, `--summary`)
+- `shiten feedback` — registar resultado da sessão (opções: `--outcome success|failure|partial`, `--areas <lista>`, `--notes <texto>`, `--user-rating <1-5>`, `--user-comment <texto>`, `--user-tags <lista>`, `--summary`, `--personalized`)
+- `shiten status` — estado actual do projecto e capabilities instaladas
+- `shiten detect` — detectar padrões no histórico e propor regras candidatas
+- `shiten audit` — auditoria de saúde completa (opções: `--level quick|standard|full`, `--json`, `--auto-backlog`)
+- `shiten assess` — avaliar maturidade e recomendar próximo passo
+- `shiten doctor` — diagnóstico rápido de problemas comuns
+- `shiten bench` — benchmark de tokens e economia
+- `shiten dashboard` — métricas de token economy
+- `shiten upgrade` — adicionar capabilities novas (opções: `--capability <nome>`, `--accept-recommended`)
+- `shiten validate` — verificar integridade da sessão (opções: `--fix`)
+- `shiten clean` — limpar artefactos desactualizados
+- `shiten run` — executar pipeline completo de análise
+- `shiten evolve` — gerar recomendações de evolução
+- `shiten sync` — sincronizar regras e governance com o estado actual
+- `shiten report` — gerar relatório de complexidade
+- `shiten update` — actualizar templates do shitenno-cli (opções: `--apply`, `--dry-run`, `--backup`)
+- `shiten profile` — configurar perfil do utilizador
 
 ---
 
@@ -278,11 +278,11 @@ Fluxo: Implementar → Documentar → Testar → Decidir → Actualizar → Só 
 
 22. **[PERSONALIZÁVEL]:** Adicionar regras específicas do projecto aqui (ex: padrões de componentes, convenções de states, propriedades dinâmicas, etc.).
 
-23. **DETECÇÃO PROATIVA DE GAPS:** Quando uma regra referencia infraestrutura ausente (ex: WORKFLOW.md, context buffer, agent contracts), o agente DEVE informar ao usuário que `nexus upgrade --capability <name>` desbloqueia essa funcionalidade. Nunca assumir que o usuário sabe o que falta — o sistema deve recomendar.
+23. **DETECÇÃO PROATIVA DE GAPS:** Quando uma regra referencia infraestrutura ausente (ex: WORKFLOW.md, context buffer, agent contracts), o agente DEVE informar ao usuário que `shiten upgrade --capability <name>` desbloqueia essa funcionalidade. Nunca assumir que o usuário sabe o que falta — o sistema deve recomendar.
 
-24. **VALIDAÇÃO DE INFRAESTRUTURA PRÉ-TAREFA:** Antes de iniciar qualquer tarefa, o agente DEVE executar `nexus status` ou `nexus doctor` para detectar gaps. Se houver capacidades desactualizadas ou em falta, informar ao utilizador antes de prosseguir.
+24. **VALIDAÇÃO DE INFRAESTRUTURA PRÉ-TAREFA:** Antes de iniciar qualquer tarefa, o agente DEVE executar `shiten status` ou `shiten doctor` para detectar gaps. Se houver capacidades desactualizadas ou em falta, informar ao utilizador antes de prosseguir.
 
-25. **RECOMENDAÇÃO AUTOMÁTICA:** O usuário NÃO deve precisar descobrir manualmente que capacidade está em falta. O sistema DEVE recomendar `nexus upgrade --capacity <name>` sempre que detectar uma dependência não satisfeita.
+25. **RECOMENDAÇÃO AUTOMÁTICA:** O usuário NÃO deve precisar descobrir manualmente que capacidade está em falta. O sistema DEVE recomendar `shiten upgrade --capacity <name>` sempre que detectar uma dependência não satisfeita.
 
 ---
 
@@ -379,10 +379,10 @@ Sempre que o usuário enviar uma nova mensagem ou comando, você DEVE executar r
 
 ---
 
-<!-- NEXUS_CONTEXT_RULES -->
-<!-- As regras abaixo são geradas automaticamente pelo Nexus baseadas no contexto do projeto.
-     Não edite manualmente. Execute `nexus status` para atualizar. -->
-<!-- /NEXUS_CONTEXT_RULES -->
+<!-- SHITEN_CONTEXT_RULES -->
+<!-- As regras abaixo são geradas automaticamente pelo Shiten baseadas no contexto do projeto.
+     Não edite manualmente. Execute `shiten status` para atualizar. -->
+<!-- /SHITEN_CONTEXT_RULES -->
 
 ---
 
@@ -394,30 +394,30 @@ Sempre que o usuário enviar uma nova mensagem ou comando, você DEVE executar r
 3. Adapte o comportamento baseado nos alertas e recomendações do briefing
 
 **APÓS completar a tarefa:**
-1. Execute `nexus feedback --outcome success` se a tarefa foi concluída com sucesso
-2. Execute `nexus feedback --outcome failure --notes "<descrição do problema>"` se falhou
-3. Execute `nexus feedback --outcome partial --areas <áreas>"` se parcialmente concluída
+1. Execute `shiten feedback --outcome success` se a tarefa foi concluída com sucesso
+2. Execute `shiten feedback --outcome failure --notes "<descrição do problema>"` se falhou
+3. Execute `shiten feedback --outcome partial --areas <áreas>"` se parcialmente concluída
 4. O sistema aprenderá com o resultado e ajustará recomendações futuras
 
 **Ver resumo de feedback:**
-- `nexus feedback --summary` — mostra taxa de sucesso, hotspots de falha, e estatísticas
+- `shiten feedback --summary` — mostra taxa de sucesso, hotspots de falha, e estatísticas
 
 **Comandos disponíveis:**
-- `nexus briefing` — output markdown detalhado (opcional, uso manual: `--json`, `--write`, `--diff`, `--summary`)
-- `nexus feedback` — registar resultado da sessão (opções: `--outcome success|failure|partial`, `--areas <lista>`, `--notes <texto>`, `--user-rating <1-5>`, `--user-comment <texto>`, `--user-tags <lista>`, `--summary`, `--personalized`)
-- `nexus status` — estado actual do projecto e capabilities instaladas
-- `nexus detect` — detectar padrões no histórico e propor regras candidatas
-- `nexus audit` — auditoria de saúde completa (opções: `--level quick|standard|full`, `--json`, `--auto-backlog`)
-- `nexus assess` — avaliar maturidade e recomendar próximo passo
-- `nexus doctor` — diagnóstico rápido de problemas comuns
-- `nexus bench` — benchmark de tokens e economia
-- `nexus dashboard` — métricas de token economy
-- `nexus upgrade` — adicionar capabilities novas (opções: `--capability <nome>`, `--accept-recommended`)
-- `nexus validate` — verificar integridade da sessão (opções: `--fix`)
-- `nexus clean` — limpar artefactos desactualizados
-- `nexus run` — executar pipeline completo de análise
-- `nexus evolve` — gerar recomendações de evolução
-- `nexus sync` — sincronizar regras e governance com o estado actual
-- `nexus report` — gerar relatório de complexidade
-- `nexus update` — actualizar templates do nexus-cli (opções: `--apply`, `--dry-run`, `--backup`)
-- `nexus profile` — configurar perfil do utilizador
+- `shiten briefing` — output markdown detalhado (opcional, uso manual: `--json`, `--write`, `--diff`, `--summary`)
+- `shiten feedback` — registar resultado da sessão (opções: `--outcome success|failure|partial`, `--areas <lista>`, `--notes <texto>`, `--user-rating <1-5>`, `--user-comment <texto>`, `--user-tags <lista>`, `--summary`, `--personalized`)
+- `shiten status` — estado actual do projecto e capabilities instaladas
+- `shiten detect` — detectar padrões no histórico e propor regras candidatas
+- `shiten audit` — auditoria de saúde completa (opções: `--level quick|standard|full`, `--json`, `--auto-backlog`)
+- `shiten assess` — avaliar maturidade e recomendar próximo passo
+- `shiten doctor` — diagnóstico rápido de problemas comuns
+- `shiten bench` — benchmark de tokens e economia
+- `shiten dashboard` — métricas de token economy
+- `shiten upgrade` — adicionar capabilities novas (opções: `--capability <nome>`, `--accept-recommended`)
+- `shiten validate` — verificar integridade da sessão (opções: `--fix`)
+- `shiten clean` — limpar artefactos desactualizados
+- `shiten run` — executar pipeline completo de análise
+- `shiten evolve` — gerar recomendações de evolução
+- `shiten sync` — sincronizar regras e governance com o estado actual
+- `shiten report` — gerar relatório de complexidade
+- `shiten update` — actualizar templates do shitenno-cli (opções: `--apply`, `--dry-run`, `--backup`)
+- `shiten profile` — configurar perfil do utilizador

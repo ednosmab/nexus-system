@@ -11,7 +11,7 @@
 
 ## Context
 
-Documentation in software projects typically becomes stale because it's maintained separately from the code. The Nexus system needs documentation that reflects the actual state of the system, not a historical snapshot that drifts over time.
+Documentation in software projects typically becomes stale because it's maintained separately from the code. The Shiten system needs documentation that reflects the actual state of the system, not a historical snapshot that drifts over time.
 
 ## Decision
 
@@ -46,4 +46,4 @@ Use the Knowledge Graph as the foundational data structure for all documentation
 
 - `src/knowledge-graph.ts` (668 lines, 14 relation types)
 - `src/engineering-state.ts` (graph integration at lines 530-534)
-- `nexus-system/governance/knowledge-graph/` (persistence directory)
+- `shitenno-go/governance/knowledge-graph/` (persistence directory)

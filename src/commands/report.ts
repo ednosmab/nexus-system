@@ -142,14 +142,14 @@ export function reportCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("report", ctx.projectRoot, ctx.nexusDir, isJson)) {
+      if (!checkLifecycleGate("report", ctx.projectRoot, ctx.shitenDir, isJson)) {
         return;
       }
 
       const spinner = ora({ spinner: "dots" }).start(isJson ? "Generating" : "A gerar relatório...");
 
       try {
-        const report = generatePerformanceReport(ctx.projectRoot, ctx.nexusDir, { days });
+        const report = generatePerformanceReport(ctx.projectRoot, ctx.shitenDir, { days });
 
         spinner.stop();
 
@@ -161,7 +161,7 @@ export function reportCommand(): Command {
 
         // Save if requested
         if (options.save) {
-          const filename = writePerformanceReport(ctx.nexusDir, report);
+          const filename = writePerformanceReport(ctx.shitenDir, report);
           if (filename && !isJson) {
             output(chalk.gray(`  Relatório salvo em: reports/${filename}`));
           }

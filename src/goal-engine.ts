@@ -67,8 +67,8 @@ const GOALS_DIR = "governance/goals";
 export class FileGoalRepository implements GoalRepository {
   private dir: string;
 
-  constructor(nexusDir: string) {
-    this.dir = join(nexusDir, GOALS_DIR);
+  constructor(shitenDir: string) {
+    this.dir = join(shitenDir, GOALS_DIR);
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }
@@ -270,9 +270,9 @@ export class GoalEngine {
 
 let defaultEngine: GoalEngine | null = null;
 
-export function getGoalEngine(nexusDir: string): GoalEngine {
+export function getGoalEngine(shitenDir: string): GoalEngine {
   if (!defaultEngine) {
-    defaultEngine = new GoalEngine(new FileGoalRepository(nexusDir));
+    defaultEngine = new GoalEngine(new FileGoalRepository(shitenDir));
   }
   return defaultEngine;
 }

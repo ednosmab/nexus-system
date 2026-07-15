@@ -4,7 +4,7 @@
 
 import type { Rule } from "../domain/rules/rule.js";
 
-/** Gera regras padrão para o Nexus System. */
+/** Gera regras padrão para o Shitenno-go. */
 export function getDefaultRules(): Rule[] {
   return [
     {
@@ -44,7 +44,7 @@ export function getDefaultRules(): Rule[] {
       ],
       actions: [
         { type: "trigger_health_check", params: {} },
-        { type: "create_reminder", params: { message: "Multiple validation failures detected — run 'nexus audit'" } },
+        { type: "create_reminder", params: { message: "Multiple validation failures detected — run 'shiten audit'" } },
       ],
       priority: 2,
       dependencies: [],
@@ -60,7 +60,7 @@ export function getDefaultRules(): Rule[] {
         { field: "eventData.delta", operator: "greater_than", value: 10 },
       ],
       actions: [
-        { type: "update_quick_board", params: { item: "Run 'nexus upgrade --accept-recommended'", section: "proximo" } },
+        { type: "update_quick_board", params: { item: "Run 'shiten upgrade --accept-recommended'", section: "proximo" } },
       ],
       priority: 3,
       dependencies: [],
@@ -109,7 +109,7 @@ export function getDefaultRules(): Rule[] {
         { field: "eventData.healthScore", operator: "less_than", value: 50 },
       ],
       actions: [
-        { type: "create_reminder", params: { message: "Health score is below 50 — run 'nexus audit' to improve" } },
+        { type: "create_reminder", params: { message: "Health score is below 50 — run 'shiten audit' to improve" } },
       ],
       priority: 2,
       dependencies: [],
@@ -172,7 +172,7 @@ export function getDefaultRules(): Rule[] {
         { field: "eventData.status", operator: "equals", value: "critical" },
       ],
       actions: [
-        { type: "run_nexus_command", params: { command: "validate" } },
+        { type: "run_shiten_command", params: { command: "validate" } },
         { type: "create_reminder", params: { message: "Health status is CRITICAL — immediate action required" } },
       ],
       priority: 1,
@@ -236,7 +236,7 @@ export function getDefaultRules(): Rule[] {
       trigger: "session_end",
       conditions: [],
       actions: [
-        { type: "log_event", params: { event: "session_end_plans", message: "Session ended — run 'nexus plan md lifecycle' to archive active plans" } },
+        { type: "log_event", params: { event: "session_end_plans", message: "Session ended — run 'shiten plan md lifecycle' to archive active plans" } },
       ],
       priority: 3,
       dependencies: [],
@@ -308,8 +308,8 @@ export function getDefaultRules(): Rule[] {
       trigger: "plan_created",
       conditions: [],
       actions: [
-        { type: "log_event", params: { event: "plan_created", message: "New plan detected — run 'nexus plan prepare <planId>' to format header, extract checklist, and sync backlog" } },
-        { type: "create_reminder", params: { message: "New plan detected — run 'nexus plan prepare' to prepare it", priority: "medium", category: "plan" } },
+        { type: "log_event", params: { event: "plan_created", message: "New plan detected — run 'shiten plan prepare <planId>' to format header, extract checklist, and sync backlog" } },
+        { type: "create_reminder", params: { message: "New plan detected — run 'shiten plan prepare' to prepare it", priority: "medium", category: "plan" } },
       ],
       priority: 1,
       dependencies: [],

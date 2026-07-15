@@ -8,7 +8,7 @@ import { calculateComplexityScore } from "../scorer.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-edge-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-edge-"));
 });
 
 afterEach(() => {
@@ -32,11 +32,11 @@ describe("Edge Cases", () => {
     expect(analysis.hasPackageJson).toBe(false);
   });
 
-  it("handles project with no nexus-system", async () => {
+  it("handles project with no shitenno-go", async () => {
     const analysis = analyseProject(tempDir);
     const report = await calculateComplexityScore(
       tempDir,
-      join(tempDir, "nexus-system"),
+      join(tempDir, "shitenno-go"),
       analysis
     );
     expect(report.score).toBe(0);
@@ -58,7 +58,7 @@ describe("Edge Cases", () => {
     const start = Date.now();
     const report = await calculateComplexityScore(
       tempDir,
-      join(tempDir, "nexus-system"),
+      join(tempDir, "shitenno-go"),
       analysis
     );
     const elapsed = Date.now() - start;

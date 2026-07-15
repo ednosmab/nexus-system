@@ -1,6 +1,6 @@
 # Problem Statement
 
-> The problem that the Nexus System exists to solve.
+> The problem that the Shitenno-go exists to solve.
 
 ## The Problem
 
@@ -29,11 +29,11 @@ The problem is not limited to large enterprises. It affects any team that makes 
 
 ---
 
-## What Nexus Does
+## What Shiten Does
 
-Nexus provides a systematic approach to engineering governance:
+Shiten provides a systematic approach to engineering governance:
 
-| Without Nexus | With Nexus |
+| Without Shiten | With Shiten |
 |---------------|------------|
 | Knowledge is documented but disconnected | Knowledge is graphed with explicit relations |
 | Complexity is felt but not measured | Complexity is scored with static + behavioral metrics |
@@ -46,13 +46,13 @@ Nexus provides a systematic approach to engineering governance:
 
 ## Non-Goals
 
-Nexus explicitly does NOT:
+Shiten explicitly does NOT:
 
 1. **Replace engineering judgment** — It recommends; humans decide
 2. **Enforce processes** — It suggests; teams choose
 3. **Monitor runtime** — It analyzes governance, not uptime
 4. **Manage tickets** — It tracks knowledge, not tasks
-5. **Auto-apply changes** — It proposes; the principle "Nexus proposes, never applies" is absolute
+5. **Auto-apply changes** — It proposes; the principle "Shiten proposes, never applies" is absolute
 6. **Replace CI/CD** — It complements; it does not compete
 7. **Work for non-software projects** — It is an engineering governance tool, not a general project manager
 
@@ -60,7 +60,7 @@ Nexus explicitly does NOT:
 
 ## Success Criteria
 
-Nexus is successful when:
+Shiten is successful when:
 
 1. A team can explain their engineering state in real-time
 2. Knowledge Debt is detected before it compounds
@@ -88,7 +88,7 @@ The Problem Statement defines why the following concepts exist:
 - **Capabilities** — the units of governance that address the problem
 - **Knowledge Lifecycle** — the process that transforms knowledge from tacit to operational
 
-Without this problem, Nexus would not exist.
+Without this problem, Shiten would not exist.
 
 ---
 

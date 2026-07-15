@@ -1,6 +1,6 @@
 # Documentation Governance
 
-> Official governance rules for all documentation maintained by the Nexus project.
+> Official governance rules for all documentation maintained by the Shiten project.
 
 ## Documentation Principles
 
@@ -43,7 +43,7 @@
 | Domain glossary | docs/domain/ubiquitous-language.md |
 | Engineering principles | docs/handbook/philosophy/principles.md |
 | Module validation | docs/architecture/validation-matrix.md |
-| Active work | nexus-system/docs/BACKLOG.md |
+| Active work | shitenno-go/docs/BACKLOG.md |
 
 ## Quality Gates
 

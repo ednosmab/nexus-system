@@ -1,17 +1,17 @@
 /**
  * feedback.ts — Context Pipeline: Feedback CLI Command
  *
- * The `nexus feedback` command. Lets AI agents report session outcomes
+ * The `shiten feedback` command. Lets AI agents report session outcomes
  * after completing work, closing the feedback loop.
  *
  * Usage:
- *   nexus feedback --outcome success
- *   nexus feedback --outcome failure --notes "Type error in auth module"
- *   nexus feedback --outcome partial --areas src/auth,src/payments
- *   nexus feedback --outcome success --user-rating 4 --user-comment "Great session"
- *   nexus feedback --json
- *   nexus feedback --summary
- *   nexus feedback --personalized
+ *   shiten feedback --outcome success
+ *   shiten feedback --outcome failure --notes "Type error in auth module"
+ *   shiten feedback --outcome partial --areas src/auth,src/payments
+ *   shiten feedback --outcome success --user-rating 4 --user-comment "Great session"
+ *   shiten feedback --json
+ *   shiten feedback --summary
+ *   shiten feedback --personalized
  */
 
 import { Command } from "commander";
@@ -59,29 +59,29 @@ export function feedbackCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("feedback", ctx.projectRoot, ctx.nexusDir, isJson)) {
+      if (!checkLifecycleGate("feedback", ctx.projectRoot, ctx.shitenDir, isJson)) {
         return;
       }
 
       // ── Personalized mode ────────────────────────────────────────
       if (options.personalized) {
-        const records = getFeedbackRecords(ctx.nexusDir);
+        const records = getFeedbackRecords(ctx.shitenDir);
         const latestRecord = records.at(-1);
 
         if (!latestRecord) {
           if (isJson) {
             outputJson({
               error: "no_feedback",
-              message: "No feedback records found. Run 'nexus feedback --outcome <type>' first.",
+              message: "No feedback records found. Run 'shiten feedback --outcome <type>' first.",
             });
           } else {
             outputError("No feedback records found.");
-            output(chalk.gray("    Run 'nexus feedback --outcome <type>' first."));
+            output(chalk.gray("    Run 'shiten feedback --outcome <type>' first."));
           }
           return;
         }
 
-        const profile = loadUserProfile(ctx.nexusDir);
+        const profile = loadUserProfile(ctx.shitenDir);
         const feedback = generatePersonalizedFeedback(latestRecord, profile);
         const markdown = formatFeedbackAsMarkdown(feedback);
 
@@ -95,7 +95,7 @@ export function feedbackCommand(): Command {
 
         // Save to feedback directory
         const { existsSync, mkdirSync } = await import("node:fs");
-        const feedbackDir = join(ctx.nexusDir, "docs", "feedback");
+        const feedbackDir = join(ctx.shitenDir, "docs", "feedback");
         if (!existsSync(feedbackDir)) {
           mkdirSync(feedbackDir, { recursive: true });
         }
@@ -114,14 +114,14 @@ export function feedbackCommand(): Command {
 
       // ── List mode ─────────────────────────────────────────────────
       if (options.list) {
-        const records = getFeedbackRecords(ctx.nexusDir);
+        const records = getFeedbackRecords(ctx.shitenDir);
 
         if (records.length === 0) {
           if (isJson) {
             outputJson({ type: "feedback_list", records: [] });
           } else {
             outputWarning("No feedback records found.");
-            output(chalk.gray("  Run 'nexus feedback --outcome <type>' to record feedback."));
+            output(chalk.gray("  Run 'shiten feedback --outcome <type>' to record feedback."));
           }
           return;
         }
@@ -132,7 +132,7 @@ export function feedbackCommand(): Command {
         }
 
         output("");
-        outputSection("nexus feedback — Session History");
+        outputSection("shiten feedback — Session History");
         outputBlank();
 
         for (const record of records.slice(-20)) {
@@ -155,7 +155,7 @@ export function feedbackCommand(): Command {
 
       // ── Summary mode ─────────────────────────────────────────────
       if (options.summary) {
-        const records = getFeedbackRecords(ctx.nexusDir);
+        const records = getFeedbackRecords(ctx.shitenDir);
         const summary = computeFeedbackSummary(records);
 
         if (isJson) {
@@ -164,7 +164,7 @@ export function feedbackCommand(): Command {
         }
 
         output("");
-        outputSection("nexus feedback — Session Summary");
+        outputSection("shiten feedback — Session Summary");
         outputBlank();
         outputSection("Statistics");
         output(`     Total sessions: ${chalk.cyan(String(summary.totalSessions))}`);
@@ -204,8 +204,8 @@ export function feedbackCommand(): Command {
           });
         } else {
           outputError("Provide --outcome with one of: success, failure, partial, session-start, session-end");
-          output(chalk.gray("    Example: nexus feedback --outcome success"));
-          output(chalk.gray("    Example: nexus feedback --outcome failure --notes 'Build broke'"));
+          output(chalk.gray("    Example: shiten feedback --outcome success"));
+          output(chalk.gray("    Example: shiten feedback --outcome failure --notes 'Build broke'"));
         }
         return;
       }
@@ -219,7 +219,7 @@ export function feedbackCommand(): Command {
         : undefined;
 
       // Read current briefing hash from cache
-      const cache = readCache(ctx.nexusDir);
+      const cache = readCache(ctx.shitenDir);
       const briefingHash = cache?.entry?.inputHash ?? "";
       const briefingTimestamp = cache?.entry?.computedAt ?? "";
 
@@ -229,7 +229,7 @@ export function feedbackCommand(): Command {
         ? String(options["user-comment"])
         : undefined;
 
-      const storage = createFileStorage(ctx.nexusDir);
+      const storage = createFileStorage(ctx.shitenDir);
       const record = recordOutcome(storage, {
         outcome: outcome as SessionOutcome,
         briefingHash,
@@ -246,12 +246,12 @@ export function feedbackCommand(): Command {
 
       // Update user profile based on session outcome
       const updatedProfile = updateProfileFromSession(
-        ctx.nexusDir,
+        ctx.shitenDir,
         record.outcome,
         true, // followedRecommendations (default assumption)
         record.durationMinutes
       );
-      saveUserProfile(ctx.nexusDir, updatedProfile);
+      saveUserProfile(ctx.shitenDir, updatedProfile);
 
       if (isJson) {
         outputJson({
@@ -288,7 +288,7 @@ export function feedbackCommand(): Command {
       // Auto-link: suggest areas on failure
       if (outcome === "failure" && (!modifiedAreas || modifiedAreas.length === 0)) {
         try {
-          const records = getFeedbackRecords(ctx.nexusDir);
+          const records = getFeedbackRecords(ctx.shitenDir);
           if (records.length > 1) {
             const summary = computeFeedbackSummary(records);
             if (summary.failureHotspots.length > 0) {
@@ -310,7 +310,7 @@ export function feedbackCommand(): Command {
       const sessionId = options["session-id"] ? String(options["session-id"]) : getSessionId();
       if (sessionId) {
         trackFeedback(
-          ctx.nexusDir,
+          ctx.shitenDir,
           sessionId,
           outcome as "accepted" | "rejected" | "deferred"
         );

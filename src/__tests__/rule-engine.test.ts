@@ -21,17 +21,17 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function createTmpDir(): string {
-  const dir = join(tmpdir(), `nexus-rule-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(tmpdir(), `shiten-rule-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
 
-function createNexusDir(tmpDir: string): string {
-  const nexusDir = join(tmpDir, "nexus-system");
-  mkdirSync(nexusDir, { recursive: true });
-  mkdirSync(join(nexusDir, "governance", "rules"), { recursive: true });
-  mkdirSync(join(nexusDir, "docs", "history"), { recursive: true });
-  return nexusDir;
+function createShitenDir(tmpDir: string): string {
+  const shitenDir = join(tmpDir, "shitenno-go");
+  mkdirSync(shitenDir, { recursive: true });
+  mkdirSync(join(shitenDir, "governance", "rules"), { recursive: true });
+  mkdirSync(join(shitenDir, "docs", "history"), { recursive: true });
+  return shitenDir;
 }
 
 function createMockRule(overrides: Partial<Rule> = {}): Rule {
@@ -56,7 +56,7 @@ function createMockContext(overrides: Partial<RuleContext> = {}): RuleContext {
     trigger: "session_start",
     eventData: {},
     projectRoot: "/tmp/test",
-    nexusDir: "/tmp/test/nexus-system",
+    shitenDir: "/tmp/test/shitenno-go",
     timestamp: new Date().toISOString(),
     ...overrides,
   };
@@ -66,11 +66,11 @@ function createMockContext(overrides: Partial<RuleContext> = {}): RuleContext {
 
 describe("rule-engine", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    nexusDir = createNexusDir(tmpDir);
+    shitenDir = createShitenDir(tmpDir);
   });
 
   afterEach(() => {
@@ -85,29 +85,29 @@ describe("rule-engine", () => {
 
     it("loads rules from directory", () => {
       const rule = createMockRule();
-      saveRule(nexusDir, rule);
+      saveRule(shitenDir, rule);
 
-      const rules = loadRules(nexusDir);
+      const rules = loadRules(shitenDir);
       expect(rules).toHaveLength(1);
       expect(rules[0]?.id).toBe("RULE-TEST-001");
     });
 
     it("ignores invalid JSON files", () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
-      const rulesPath = join(nexusDir, "governance", "rules");
+      const rulesPath = join(shitenDir, "governance", "rules");
       writeFileSync(join(rulesPath, "invalid.json"), "not json", "utf-8");
       writeFileSync(join(rulesPath, "valid.json"), JSON.stringify(createMockRule()), "utf-8");
 
-      const rules = loadRules(nexusDir);
+      const rules = loadRules(shitenDir);
       expect(rules).toHaveLength(1);
     });
 
     it("ignores files starting with underscore", () => {
-      const rulesPath = join(nexusDir, "governance", "rules");
+      const rulesPath = join(shitenDir, "governance", "rules");
       writeFileSync(join(rulesPath, "_template.json"), JSON.stringify(createMockRule()), "utf-8");
       writeFileSync(join(rulesPath, "active.json"), JSON.stringify(createMockRule({ id: "RULE-002" })), "utf-8");
 
-      const rules = loadRules(nexusDir);
+      const rules = loadRules(shitenDir);
       expect(rules).toHaveLength(1);
       expect(rules[0]?.id).toBe("RULE-002");
     });
@@ -116,9 +116,9 @@ describe("rule-engine", () => {
   describe("saveRule", () => {
     it("saves rule to file", () => {
       const rule = createMockRule();
-      saveRule(nexusDir, rule);
+      saveRule(shitenDir, rule);
 
-      const filepath = join(nexusDir, "governance", "rules", "RULE-TEST-001.json");
+      const filepath = join(shitenDir, "governance", "rules", "RULE-TEST-001.json");
       expect(existsSync(filepath)).toBe(true);
 
       const saved = JSON.parse(readFileSync(filepath, "utf-8"));
@@ -127,17 +127,17 @@ describe("rule-engine", () => {
 
     it("throws on invalid rule ID", () => {
       const rule = createMockRule({ id: "invalid id with spaces" });
-      expect(() => saveRule(nexusDir, rule)).toThrow("Invalid rule ID");
+      expect(() => saveRule(shitenDir, rule)).toThrow("Invalid rule ID");
     });
 
     it("creates directory if it does not exist", () => {
-      const newNexusDir = join(tmpDir, "new-nexus");
-      mkdirSync(newNexusDir, { recursive: true });
+      const newShitenDir = join(tmpDir, "new-shiten");
+      mkdirSync(newShitenDir, { recursive: true });
 
       const rule = createMockRule();
-      saveRule(newNexusDir, rule);
+      saveRule(newShitenDir, rule);
 
-      const filepath = join(newNexusDir, "governance", "rules", "RULE-TEST-001.json");
+      const filepath = join(newShitenDir, "governance", "rules", "RULE-TEST-001.json");
       expect(existsSync(filepath)).toBe(true);
     });
   });
@@ -248,8 +248,8 @@ describe("rule-engine", () => {
     });
 
     it("executes update_context_buffer action", async () => {
-      const bufPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
-      mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
+      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
       writeFileSync(bufPath, "current_task:\n  id: null\n  description: \"idle\"\n  status: \"in_progress\"\n", "utf-8");
 
       const rule = createMockRule({
@@ -259,7 +259,7 @@ describe("rule-engine", () => {
           { type: "update_context_buffer", params: { field: "current_task.status", value: "completed" } },
         ],
       });
-      const context = createMockContext({ trigger: "session_start", nexusDir });
+      const context = createMockContext({ trigger: "session_start", shitenDir });
 
       const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
@@ -270,8 +270,8 @@ describe("rule-engine", () => {
     });
 
     it("executes update_backlog action", async () => {
-      const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
-      mkdirSync(join(nexusDir, "docs"), { recursive: true });
+      const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+      mkdirSync(join(shitenDir, "docs"), { recursive: true });
       writeFileSync(backlogPath, "# BACKLOG\n\nExisting items\n", "utf-8");
 
       const rule = createMockRule({
@@ -281,7 +281,7 @@ describe("rule-engine", () => {
           { type: "update_backlog", params: { item: "Test item added by rule" } },
         ],
       });
-      const context = createMockContext({ trigger: "session_start", nexusDir });
+      const context = createMockContext({ trigger: "session_start", shitenDir });
 
       const result = await executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);

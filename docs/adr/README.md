@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-> Tracking architectural decisions for the Nexus System.
+> Tracking architectural decisions for the Shitenno-go.
 
 ## What is an ADR?
 

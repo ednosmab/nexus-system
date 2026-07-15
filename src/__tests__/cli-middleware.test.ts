@@ -31,7 +31,7 @@ describe("installMiddleware", () => {
     const program = { hook: mockHook } as any;
     const ctx: MiddlewareContext = {
       projectRoot: "/project",
-      nexusDir: "/project/nexus-system",
+      shitenDir: "/project/shitenno-go",
       sessionId: "session-123",
     };
 
@@ -52,7 +52,7 @@ describe("installMiddleware", () => {
     const program = { hook: mockHook } as any;
     const ctx: MiddlewareContext = {
       projectRoot: "/project",
-      nexusDir: "/project/nexus-system",
+      shitenDir: "/project/shitenno-go",
       sessionId: "session-abc",
     };
 
@@ -66,7 +66,7 @@ describe("installMiddleware", () => {
 
     const { trackCommand } = await import("../session-tracker.js");
     expect(vi.mocked(trackCommand)).toHaveBeenCalledWith(
-      "/project/nexus-system",
+      "/project/shitenno-go",
       "session-abc",
       "status"
     );
@@ -81,7 +81,7 @@ describe("installMiddleware", () => {
     const program = { hook: mockHook } as any;
     const ctx: MiddlewareContext = {
       projectRoot: "/project",
-      nexusDir: "/project/nexus-system",
+      shitenDir: "/project/shitenno-go",
       sessionId: null,
     };
 
@@ -105,7 +105,7 @@ describe("installMiddleware", () => {
     const program = { hook: mockHook } as any;
     const ctx: MiddlewareContext = {
       projectRoot: "/project",
-      nexusDir: "/project/nexus-system",
+      shitenDir: "/project/shitenno-go",
       sessionId: "session-123",
     };
 

@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Formalizar o domínio do Nexus System.
+Formalizar o domínio do Shitenno-go.
 
 Este documento representa a fonte oficial da linguagem ubíqua utilizada pelo projeto.
 

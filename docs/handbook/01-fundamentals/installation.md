@@ -1,6 +1,6 @@
 # Instalação
 
-> Como instalar o Nexus no seu ambiente.
+> Como instalar o Shiten no seu ambiente.
 
 ---
 
@@ -22,16 +22,16 @@ git --version    # Opcional
 
 ## Método 1: Instalação Global (recomendado)
 
-Instala o `nexus` como comando global no sistema:
+Instala o `shiten` como comando global no sistema:
 
 ```bash
-npm install -g nexus-system
+npm install -g shitenno-go
 ```
 
 Após instalar, execute:
 
 ```bash
-nexus --version
+shiten --version
 ```
 
 Se mostrar a versão, está tudo certo.
@@ -40,17 +40,17 @@ Se mostrar a versão, está tudo certo.
 
 ## Método 2: Instalação Local (por projeto)
 
-Instala o `nexus` como dependência do projeto:
+Instala o `shiten` como dependência do projeto:
 
 ```bash
 cd seu-projeto
-npm install nexus-system
+npm install shitenno-go
 ```
 
 Para usar:
 
 ```bash
-npx nexus --version
+npx shiten --version
 ```
 
 ---
@@ -61,8 +61,8 @@ Para contribuir ou usar a versão mais recente:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/ednosmab/nexus-system.git
-cd nexus-system
+git clone https://github.com/ednosmab/shitenno-go.git
+cd shitenno-go
 
 # Instale dependências
 pnpm install
@@ -71,7 +71,7 @@ pnpm install
 pnpm build
 
 # Teste
-npx nexus --version
+npx shiten --version
 ```
 
 ---
@@ -81,7 +81,7 @@ npx nexus --version
 Após a instalação, verifique se tudo funciona:
 
 ```bash
-nexus --version
+shiten --version
 ```
 
 Saída esperada:
@@ -98,16 +98,16 @@ Navegue até seu projeto e execute:
 
 ```bash
 cd seu-projeto
-nexus init
+shiten init
 ```
 
-O Nexus irá:
+O Shiten irá:
 
 1. Analisar seu projeto (stack, packages, estrutura)
 2. Fazer perguntas sobre maturidade
 3. Calcular seu perfil de maturidade
 4. Instalar capabilities recomendadas
-5. Criar a pasta `nexus-system/`
+5. Criar a pasta `shitenno-go/`
 
 → Veja [Primeiros Passos](quick-start.md) para detalhes.
 
@@ -115,7 +115,7 @@ O Nexus irá:
 
 ## Solução de problemas
 
-### "nexus: command not found"
+### "shiten: command not found"
 
 Se instalou globalmente, verifique o PATH:
 
@@ -130,7 +130,7 @@ Adicione o resultado ao seu PATH se necessário.
 Use `sudo` (Linux/Mac):
 
 ```bash
-sudo npm install -g nexus-system
+sudo npm install -g shitenno-go
 ```
 
 Ou configure npm para não precisar de sudo:

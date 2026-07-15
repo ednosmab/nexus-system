@@ -52,15 +52,15 @@ const CHALLENGE_ADAPTATION_WINDOW = 10;
 
 // ── Storage ─────────────────────────────────────────────────────────────────
 
-function getProfilePath(nexusDir: string): string {
-  return join(nexusDir, PROFILE_FILENAME);
+function getProfilePath(shitenDir: string): string {
+  return join(shitenDir, PROFILE_FILENAME);
 }
 
 // ── Load / Save ─────────────────────────────────────────────────────────────
 
 /** Load growth profile from disk. Returns default profile if not found. */
-export function loadGrowthProfile(nexusDir: string, projectId?: string): GrowthProfile {
-  const profilePath = getProfilePath(nexusDir);
+export function loadGrowthProfile(shitenDir: string, projectId?: string): GrowthProfile {
+  const profilePath = getProfilePath(shitenDir);
 
   if (!existsSync(profilePath)) {
     return createDefaultProfile(projectId || "default");
@@ -75,25 +75,25 @@ export function loadGrowthProfile(nexusDir: string, projectId?: string): GrowthP
 }
 
 /** Save growth profile to disk. */
-export function saveGrowthProfile(nexusDir: string, profile: GrowthProfile): void {
-  const dir = join(nexusDir);
+export function saveGrowthProfile(shitenDir: string, profile: GrowthProfile): void {
+  const dir = join(shitenDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
 
   const updatedProfile = { ...profile, updatedAt: new Date().toISOString() };
-  writeFileSync(getProfilePath(nexusDir), JSON.stringify(updatedProfile, null, 2), "utf-8");
+  writeFileSync(getProfilePath(shitenDir), JSON.stringify(updatedProfile, null, 2), "utf-8");
 }
 
 // ── Record Choices ──────────────────────────────────────────────────────────
 
 /** Record a path choice and update the profile. Returns updated profile. */
 export function recordPathChoice(
-  nexusDir: string,
+  shitenDir: string,
   choice: Omit<PathChoice, "id" | "timestamp">,
   projectId?: string
 ): GrowthProfile {
-  const profile = loadGrowthProfile(nexusDir, projectId);
+  const profile = loadGrowthProfile(shitenDir, projectId);
 
   const fullChoice: PathChoice = {
     ...choice,
@@ -113,7 +113,7 @@ export function recordPathChoice(
   profile.challengeLevel = calculateChallengeLevel(profile);
   profile.patterns = detectGrowthPatterns(profile);
 
-  saveGrowthProfile(nexusDir, profile);
+  saveGrowthProfile(shitenDir, profile);
   return profile;
 }
 

@@ -1,12 +1,12 @@
 # Primeiros Passos
 
-> Guia rápido para começar a usar o Nexus em 5 minutos.
+> Guia rápido para começar a usar o Shiten em 5 minutos.
 
 ---
 
 ## Visão geral
 
-O fluxo básico do Nexus é:
+O fluxo básico do Shiten é:
 
 ```
 init → status → detect → briefing → daemon → watch → trabalhar → feedback
@@ -19,16 +19,16 @@ Vamos passar por cada etapa.
 ## Passo 1: Inicializar o projeto
 
 ```bash
-nexus init
+shiten init
 ```
 
 O que acontece:
 
-1. **Análise do projeto** — Nexus detecta stack, packages, estrutura
+1. **Análise do projeto** — Shiten detecta stack, packages, estrutura
 2. **Questionário de maturidade** — Perguntas sobre práticas de engenharia
 3. **Cálculo do perfil** — Score de 0-100 em 7 dimensões
 4. **Instalação de capabilities** — Módulos recomendados para seu projeto
-5. **Criação de estrutura** — Pasta `nexus-system/` com arquivos de governança
+5. **Criação de estrutura** — Pasta `shitenno-go/` com arquivos de governança
 
 Saída esperada:
 
@@ -49,7 +49,7 @@ Saída esperada:
 
   Overall: 50/100
 
-✅ Nexus inicializado com sucesso!
+✅ Shiten inicializado com sucesso!
 ```
 
 ---
@@ -57,7 +57,7 @@ Saída esperada:
 ## Passo 2: Verificar saúde do projeto
 
 ```bash
-nexus status
+shiten status
 ```
 
 Mostra:
@@ -88,7 +88,7 @@ Saída esperada:
 ## Passo 3: Detectar padrões
 
 ```bash
-nexus detect
+shiten detect
 ```
 
 Analisa o histórico do projeto e encontra:
@@ -119,7 +119,7 @@ Saída esperada:
 ## Passo 4: Gerar briefing (para AI)
 
 ```bash
-nexus briefing
+shiten briefing
 ```
 
 Gera um briefing pré-sessão para agentes AI:
@@ -150,7 +150,7 @@ Recomendações
 ## Passo 5: Iniciar o daemon (automatização)
 
 ```bash
-nexus daemon start
+shiten daemon start
 ```
 
 O daemon corre em background e:
@@ -163,7 +163,7 @@ O daemon corre em background e:
 Verificar estado:
 
 ```bash
-nexus daemon status
+shiten daemon status
 ```
 
 ---
@@ -171,7 +171,7 @@ nexus daemon status
 ## Passo 6: Monitorizar eventos (watch)
 
 ```bash
-nexus watch
+shiten watch
 ```
 
 Mostra eventos em tempo real — mudanças de plano, sessões, daemon, etc.
@@ -179,7 +179,7 @@ Mostra eventos em tempo real — mudanças de plano, sessões, daemon, etc.
 Filtrar por tipo:
 
 ```bash
-nexus watch --events plan.*,daemon.*
+shiten watch --events plan.*,daemon.*
 ```
 
 Parar com `Ctrl+C`.
@@ -188,7 +188,7 @@ Parar com `Ctrl+C`.
 
 ## Passo 7: Trabalhar no projeto
 
-Agora trabalhe normalmente. O Nexus observa em segundo plano:
+Agora trabalhe normalmente. O Shiten observa em segundo plano:
 
 - **Daemon** — Automatiza tarefas de governança
 - **File watcher** — Detecta mudanças em arquivos
@@ -203,13 +203,13 @@ Ao terminar uma sessão de trabalho:
 
 ```bash
 # Se deu tudo certo
-nexus feedback --outcome success
+shiten feedback --outcome success
 
 # Se teve problemas
-nexus feedback --outcome failure --notes "erro de tipagem em auth.ts"
+shiten feedback --outcome failure --notes "erro de tipagem em auth.ts"
 
 # Se ficou parcial
-nexus feedback --outcome partial --areas "auth,dashboard"
+shiten feedback --outcome partial --areas "auth,dashboard"
 ```
 
 Isso alimenta o **Context Pipeline** e melhora recomendações futuras.
@@ -220,16 +220,16 @@ Isso alimenta o **Context Pipeline** e melhora recomendações futuras.
 
 ```bash
 # Início do dia
-nexus briefing          # Ver contexto do projeto
-nexus status            # Ver saúde
-nexus daemon start      # Iniciar automação
+shiten briefing          # Ver contexto do projeto
+shiten status            # Ver saúde
+shiten daemon start      # Iniciar automação
 
 # Durante o trabalho
-nexus detect            # Ver padrões (opcional)
-nexus watch --events plan.*  # Monitorizar planos (opcional)
+shiten detect            # Ver padrões (opcional)
+shiten watch --events plan.*  # Monitorizar planos (opcional)
 
 # Fim do dia
-nexus feedback --outcome success  # Fechar sessão
+shiten feedback --outcome success  # Fechar sessão
 ```
 
 ---
@@ -238,15 +238,15 @@ nexus feedback --outcome success  # Fechar sessão
 
 | Comando | O que faz | Quando usar |
 |---|---|---|
-| `nexus init` | Inicializa governança | Primeira vez no projeto |
-| `nexus status` | Mostra saúde do projeto | Diariamente |
-| `nexus detect` | Detecta padrões | Semanalmente |
-| `nexus briefing` | Gera briefing para AI | Início de sessão AI |
-| `nexus daemon start` | Inicia automação | Início do dia |
-| `nexus watch` | Monitoriza eventos | Quando precisar de visibilidade |
-| `nexus feedback` | Fecha loop de feedback | Fim de sessão |
-| `nexus audit` | Auditoria completa | Mensalmente |
-| `nexus doctor` | Diagnóstico de riscos | Quando há dúvidas |
+| `shiten init` | Inicializa governança | Primeira vez no projeto |
+| `shiten status` | Mostra saúde do projeto | Diariamente |
+| `shiten detect` | Detecta padrões | Semanalmente |
+| `shiten briefing` | Gera briefing para AI | Início de sessão AI |
+| `shiten daemon start` | Inicia automação | Início do dia |
+| `shiten watch` | Monitoriza eventos | Quando precisar de visibilidade |
+| `shiten feedback` | Fecha loop de feedback | Fim de sessão |
+| `shiten audit` | Auditoria completa | Mensalmente |
+| `shiten doctor` | Diagnóstico de riscos | Quando há dúvidas |
 
 ---
 

@@ -69,7 +69,7 @@ describe("FileExecutionRepository", () => {
   let repo: FileExecutionRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-exec-repo-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shiten-exec-repo-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     repo = new FileExecutionRepository(tmpDir);
   });
@@ -198,7 +198,7 @@ describe("Built-in Executors", () => {
 
   it("ScriptExecutor executes allowed script", async () => {
     const executor = new ScriptExecutor();
-    const result = await executor.execute({ script: "nexus audit" });
+    const result = await executor.execute({ script: "shiten audit" });
     expect(result.executed).toBe(true);
   });
 

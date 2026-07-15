@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Representar todo o conhecimento do Nexus.
+Representar todo o conhecimento do Shiten.
 
 ---
 

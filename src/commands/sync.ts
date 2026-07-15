@@ -7,7 +7,7 @@ import fse from "fs-extra";
 import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
 import { checkLifecycleGate } from "../shared.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputError } from "../output.js";
 
 const { copySync, ensureDirSync, writeFileSync } = fse;
@@ -19,61 +19,61 @@ interface FileChange {
 }
 
 export const syncCommand = new Command("sync")
-  .description("Sync project governance files from nexus-system")
+  .description("Sync project governance files from shitenno-go")
   .option("-d, --dir <path>", "Target project directory (default: current)", ".")
-  .option("-n, --nexus-path <path>", "Path to nexus-system directory")
+  .option("-n, --shiten-path <path>", "Path to shitenno-go directory")
   .option("--dry-run", "Show what would be changed without making changes")
   .option("--force", "Overwrite all files without asking")
   .option("--json", "Output results as JSON")
   .action(async (options) => {
     const targetDir = resolve(options.dir);
-    const nexusPath = options.nexusPath || process.env.NEXUS_SYSTEM_PATH;
+    const shitenPath = options.shitenPath || process.env.SHITENNO_GO_PATH;
     const isJson = options.json === true;
 
     // Lifecycle gate check
-    if (existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
-      const gateNexusDir = resolve(targetDir, NEXUS_DIR_NAME);
-      if (!checkLifecycleGate("sync", targetDir, gateNexusDir, isJson)) return;
+    if (existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
+      const gateShitenDir = resolve(targetDir, SHITEN_DIR_NAME);
+      if (!checkLifecycleGate("sync", targetDir, gateShitenDir, isJson)) return;
     }
 
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║      nexus sync — Update Project     ║"));
+      output(chalk.bold.cyan("  ║      shiten sync — Update Project     ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
 
-    // Validate nexus-system path
-    if (!nexusPath) {
+    // Validate shitenno-go path
+    if (!shitenPath) {
       if (isJson) {
-        outputJson({ error: "missing_path", message: "nexus-system path not specified. Use --nexus-path or NEXUS_SYSTEM_PATH env var." });
+        outputJson({ error: "missing_path", message: "shitenno-go path not specified. Use --shiten-path or SHITENNO_GO_PATH env var." });
       } else {
-        output(chalk.red("  ✘ nexus-system path not specified."));
-        output(chalk.gray("  Use --nexus-path <path> or set NEXUS_SYSTEM_PATH environment variable."));
-        output(chalk.gray("  Example: nexus sync --nexus-path /path/to/nexus-system"));
-        output(chalk.gray("  Or: NEXUS_SYSTEM_PATH=/path/to/nexus-system nexus sync"));
+        output(chalk.red("  ✘ shitenno-go path not specified."));
+        output(chalk.gray("  Use --shiten-path <path> or set SHITENNO_GO_PATH environment variable."));
+        output(chalk.gray("  Example: shiten sync --shiten-path /path/to/shitenno-go"));
+        output(chalk.gray("  Or: SHITENNO_GO_PATH=/path/to/shitenno-go shiten sync"));
       }
       return;
     }
 
-    const nexusDir = resolve(nexusPath);
-    if (!existsSync(nexusDir)) {
+    const shitenDir = resolve(shitenPath);
+    if (!existsSync(shitenDir)) {
       if (isJson) {
-        outputJson({ error: "missing_nexus_dir", message: `nexus-system directory not found: ${nexusDir}` });
+        outputJson({ error: "missing_shiten_dir", message: `shitenno-go directory not found: ${shitenDir}` });
       } else {
-        output(chalk.red(`  ✘ nexus-system directory not found: ${nexusDir}`));
+        output(chalk.red(`  ✘ shitenno-go directory not found: ${shitenDir}`));
       }
       return;
     }
 
-    // Check if target project has nexus-system/ (initialized)
-    if (!existsSync(resolve(targetDir, NEXUS_DIR_NAME))) {
+    // Check if target project has shitenno-go/ (initialized)
+    if (!existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
       if (isJson) {
-        outputJson({ error: "not_initialized", message: "Run 'nexus init' first, then 'nexus sync' to update." });
+        outputJson({ error: "not_initialized", message: "Run 'shiten init' first, then 'shiten sync' to update." });
       } else {
-        output(chalk.yellow("  ⚠ This project doesn't seem to be initialized with nexus."));
-        output(chalk.gray("  Run 'nexus init' first, then 'nexus sync' to update."));
+        output(chalk.yellow("  ⚠ This project doesn't seem to be initialized with shiten."));
+        output(chalk.gray("  Run 'shiten init' first, then 'shiten sync' to update."));
       }
       return;
     }
@@ -82,21 +82,21 @@ export const syncCommand = new Command("sync")
 
     try {
       // Get list of files to sync
-      const filesToSync = getFilesToSync(nexusDir, targetDir);
+      const filesToSync = getFilesToSync(shitenDir, targetDir);
       const changes: FileChange[] = [];
 
       // Analyse each file
       for (const file of filesToSync) {
-        const nexusFile = join(nexusDir, file);
+        const shitenFile = join(shitenDir, file);
         const targetFile = join(targetDir, file);
 
         if (!existsSync(targetFile)) {
           changes.push({ path: file, action: "create" });
         } else {
-          const nexusContent = readFileSync(nexusFile, "utf-8");
+          const shitenContent = readFileSync(shitenFile, "utf-8");
           const targetContent = readFileSync(targetFile, "utf-8");
 
-          if (nexusContent !== targetContent) {
+          if (shitenContent !== targetContent) {
             changes.push({ path: file, action: "update" });
           } else {
             changes.push({ path: file, action: "skip", reason: "identical" });
@@ -170,29 +170,29 @@ export const syncCommand = new Command("sync")
       for (const change of changes) {
         if (change.action === "skip") continue;
 
-        const nexusFile = join(nexusDir, change.path);
+        const shitenFile = join(shitenDir, change.path);
         const targetFile = join(targetDir, change.path);
 
         if (change.action === "create") {
           ensureDirSync(resolve(targetFile, ".."));
-          copySync(nexusFile, targetFile);
+          copySync(shitenFile, targetFile);
         } else if (change.action === "update") {
           // Preserve project-specific customizations for certain files
           if (shouldPreserveCustomizations(change.path)) {
             const merged = mergeWithCustomizations(
-              nexusFile,
+              shitenFile,
               targetFile
             );
             writeFileSync(targetFile, merged, "utf-8");
           } else {
-            copySync(nexusFile, targetFile);
+            copySync(shitenFile, targetFile);
           }
         }
       }
 
       applySpinner.stop();
 
-      // Invalidate cache since nexus-system/ may have changed
+      // Invalidate cache since shitenno-go/ may have changed
       invalidateCache(targetDir);
 
       if (isJson) {
@@ -222,27 +222,27 @@ export const syncCommand = new Command("sync")
     }
   });
 
-export function getFilesToSync(nexusDir: string, _targetDir: string): string[] {
+export function getFilesToSync(shitenDir: string, _targetDir: string): string[] {
   const files: string[] = [];
 
   // Core files
   const coreFiles = [
     "docs/AGENTS.md",
     "docs/opencode-context.md",
-    "docs/Nexus-System_GUIDE.md",
+    "docs/Shitenno-go_GUIDE.md",
     "opencode.json",
     "scripts/validate-session.ts",
     "scripts/close-session.ts",
   ];
 
   for (const file of coreFiles) {
-    if (existsSync(join(nexusDir, file))) {
+    if (existsSync(join(shitenDir, file))) {
       files.push(file);
     }
   }
 
   // Skills
-  const skillsDir = join(nexusDir, "docs/skills");
+  const skillsDir = join(shitenDir, "docs/skills");
   if (existsSync(skillsDir)) {
     const skillFiles = fse.readdirSync(skillsDir).filter((f: string) =>
       f.endsWith(".md")
@@ -260,44 +260,44 @@ export function shouldPreserveCustomizations(filePath: string): boolean {
   const preserveList = [
     "docs/AGENTS.md",
     "docs/opencode-context.md",
-    "docs/Nexus-System_GUIDE.md",
+    "docs/Shitenno-go_GUIDE.md",
     "opencode.json",
   ];
   return preserveList.includes(filePath);
 }
 
 export function mergeWithCustomizations(
-  nexusFile: string,
+  shitenFile: string,
   targetFile: string
 ): string {
-  const nexusContent = readFileSync(nexusFile, "utf-8");
+  const shitenContent = readFileSync(shitenFile, "utf-8");
   const targetContent = readFileSync(targetFile, "utf-8");
 
   // JSON files: merge preserving project-specific values
-  if (nexusFile.endsWith(".json")) {
-    return mergeJsonFiles(nexusContent, targetContent);
+  if (shitenFile.endsWith(".json")) {
+    return mergeJsonFiles(shitenContent, targetContent);
   }
 
-  // Markdown files: preserve custom sections, update/add nexus sections
-  if (nexusFile.endsWith(".md")) {
-    return mergeMarkdownFiles(nexusContent, targetContent);
+  // Markdown files: preserve custom sections, update/add shiten sections
+  if (shitenFile.endsWith(".md")) {
+    return mergeMarkdownFiles(shitenContent, targetContent);
   }
 
-  // For other files, use nexus content
-  return nexusContent;
+  // For other files, use shiten content
+  return shitenContent;
 }
 
-export function mergeJsonFiles(nexusContent: string, targetContent: string): string {
+export function mergeJsonFiles(shitenContent: string, targetContent: string): string {
   try {
-    const nexus = JSON.parse(nexusContent);
+    const shiten = JSON.parse(shitenContent);
     const target = JSON.parse(targetContent);
 
     // Preserve project-specific models and permissions
     const preserved: Record<string, unknown> = {};
 
     // Preserve agent models and permissions from target
-    if (target.agent && nexus.agent) {
-      preserved.agent = { ...nexus.agent };
+    if (target.agent && shiten.agent) {
+      preserved.agent = { ...shiten.agent };
       for (const [agentName, agentConfig] of Object.entries(target.agent)) {
         if (preserved.agent && typeof preserved.agent === "object" && preserved.agent[agentName as keyof typeof preserved.agent]) {
           const preservedAgent = preserved.agent[agentName as keyof typeof preserved.agent] as Record<string, unknown>;
@@ -319,34 +319,34 @@ export function mergeJsonFiles(nexusContent: string, targetContent: string): str
       preserved.mcp = target.mcp;
     }
 
-    return JSON.stringify({ ...nexus, ...preserved }, null, 2);
+    return JSON.stringify({ ...shiten, ...preserved }, null, 2);
   } catch {
-    // If parsing fails, use nexus content
-    return nexusContent;
+    // If parsing fails, use shiten content
+    return shitenContent;
   }
 }
 
-export function mergeMarkdownFiles(nexusContent: string, targetContent: string): string {
+export function mergeMarkdownFiles(shitenContent: string, targetContent: string): string {
   // Extract sections from both files
-  const nexusSections = extractSections(nexusContent);
+  const shitenSections = extractSections(shitenContent);
   const targetSections = extractSections(targetContent);
 
-  // Start with nexus content as base
-  let result = nexusContent;
+  // Start with shiten content as base
+  let result = shitenContent;
 
   // For each section in target, check if it's a custom section
   for (const [sectionTitle, sectionContent] of Object.entries(targetSections)) {
-    // If section doesn't exist in nexus, it's custom - preserve it
-    if (!nexusSections[sectionTitle]) {
+    // If section doesn't exist in shiten, it's custom - preserve it
+    if (!shitenSections[sectionTitle]) {
       // Add custom section at the end
       result += `\n\n${sectionContent}`;
     }
     // If section exists but content differs, check if it's personalized
-    else if (nexusSections[sectionTitle] !== sectionContent) {
+    else if (shitenSections[sectionTitle] !== sectionContent) {
       // Check if target section contains personalized content (not placeholders)
       if (!sectionContent.includes("[PERSONALIZAR:") && !sectionContent.includes("[Adicionar")) {
         // Preserve user's personalized content
-        result = result.replace(nexusSections[sectionTitle], sectionContent);
+        result = result.replace(shitenSections[sectionTitle], sectionContent);
       }
     }
   }

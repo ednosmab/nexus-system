@@ -1,5 +1,5 @@
 /**
- * logger.ts — Centralized Logging for Nexus
+ * logger.ts — Centralized Logging for Shiten
  *
  * Replaces console.* in library code.
  * Allows suppressing output in tests.
@@ -37,7 +37,7 @@ export function muteLogs(): void {
 
 function shouldLog(level: LogLevel): boolean {
   // Respect --quiet flag via env var
-  if (process.env.NEXUS_QUIET === "1" && LEVEL_PRIORITY[level] < LEVEL_PRIORITY["error"]) {
+  if (process.env.SHITEN_QUIET === "1" && LEVEL_PRIORITY[level] < LEVEL_PRIORITY["error"]) {
     return false;
   }
   return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentLevel];

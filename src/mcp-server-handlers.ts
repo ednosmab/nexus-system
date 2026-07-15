@@ -19,13 +19,13 @@ type ToolResponse = { content: Array<{ type: string; text: string }> };
 
 export function handleGetBriefing(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
   const format = (args.format as string) ?? "json";
   const depth = (args.depth as string) ?? "standard";
 
-  const snapshot = collectContext(projectRoot, nexusDir);
+  const snapshot = collectContext(projectRoot, shitenDir);
   const briefing: Briefing = snapshot.briefing;
 
   if (format === "markdown") {
@@ -69,11 +69,11 @@ export function handleGetBriefing(
 
 export function handleGetRiskMap(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
   const format = (args.format as string) ?? "json";
-  const riskMap: RiskMap = generateRiskMap(projectRoot, nexusDir);
+  const riskMap: RiskMap = generateRiskMap(projectRoot, shitenDir);
 
   if (format === "summary") {
     const lines: string[] = [
@@ -105,7 +105,7 @@ export function handleGetRiskMap(
 
 export function handleGetRules(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
   const type = (args.type as string) ?? "all";
@@ -118,21 +118,21 @@ export function handleGetRules(
   } = { contextRules: [], dynamicRules: [], engineRules: [] };
 
   if (type === "all" || type === "context") {
-    const snapshot = collectContext(projectRoot, nexusDir);
+    const snapshot = collectContext(projectRoot, shitenDir);
     result.contextRules = snapshot.contextRules.map((r) => ({
       id: r.id, rule: r.rule, rationale: r.rationale, priority: r.priority, area: r.area, basedOn: r.basedOn,
     }));
   }
 
   if (type === "all" || type === "dynamic") {
-    const dynamicRules = generateDynamicRules(projectRoot, nexusDir);
+    const dynamicRules = generateDynamicRules(projectRoot, shitenDir);
     result.dynamicRules = dynamicRules.map((r) => ({
       id: r.id, rule: r.rule, severity: r.severity, evidence: r.evidence, source: r.source,
     }));
   }
 
   if (type === "all" || type === "engine") {
-    const engineRules = loadRules(nexusDir);
+    const engineRules = loadRules(shitenDir);
     result.engineRules = engineRules.map((r) => ({
       id: r.id, description: r.description, trigger: r.trigger, priority: r.priority, enabled: r.enabled, conditions: r.conditions, actions: r.actions,
     }));
@@ -172,11 +172,11 @@ export function handleGetRules(
 
 export function handleGetEngineeringState(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   _args: Record<string, unknown>
 ): ToolResponse {
   try {
-    const state = getEngineeringState(projectRoot, nexusDir);
+    const state = getEngineeringState(projectRoot, shitenDir);
     return { content: [{ type: "text", text: JSON.stringify(state, null, 2) }] };
   } catch (error) {
     throw new Error(`Failed to get engineering state: ${error}`);
@@ -185,10 +185,10 @@ export function handleGetEngineeringState(
 
 export function handleGetBacklog(
   _projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
-  const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
   let items = parseBacklog(backlogPath);
 
   if (args.state && typeof args.state === "string") {
@@ -201,10 +201,10 @@ export function handleGetBacklog(
 
 export function handleGetPlans(
   _projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
-  const plansDir = join(nexusDir, "governance", "plans");
+  const plansDir = join(shitenDir, "governance", "plans");
   if (!existsSync(plansDir)) {
     return { content: [{ type: "text", text: "[]" }] };
   }
@@ -224,7 +224,7 @@ export function handleGetPlans(
 
 export function handleSubmitFeedback(
   _projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
   const outcome = args.outcome as "success" | "failure" | "partial";
@@ -234,12 +234,12 @@ export function handleSubmitFeedback(
     throw new Error("Missing required arguments: outcome, notes");
   }
 
-  const cache = readCache(nexusDir);
+  const cache = readCache(shitenDir);
   if (!cache || !cache.entry) {
     throw new Error("No briefing cache found. A briefing must be generated first.");
   }
 
-  const storage = createFileStorage(nexusDir);
+  const storage = createFileStorage(shitenDir);
   recordOutcome(storage, {
     briefingHash: cache.entry.inputHash,
     briefingTimestamp: cache.entry.computedAt,

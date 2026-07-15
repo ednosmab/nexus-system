@@ -1,19 +1,19 @@
 /**
  * reminders.ts — Reminders Management Command
  *
- * The `nexus reminders` command. List, add, remove, and manage reminders
+ * The `shiten reminders` command. List, add, remove, and manage reminders
  * with priority levels and categories.
  *
  * Usage:
- *   nexus reminders                                  # List all active reminders
- *   nexus reminders add "msg"                        # Add reminder (default: medium, feature)
- *   nexus reminders add "msg" --priority high        # Add with priority
- *   nexus reminders add "msg" --category bug         # Add with category
- *   nexus reminders add "msg" --notify               # Add with desktop notification
- *   nexus reminders rm <index>                       # Remove by index
- *   nexus reminders rm --message "partial match"     # Remove by message
- *   nexus reminders clear                            # Remove all
- *   nexus reminders --json                           # Output as JSON
+ *   shiten reminders                                  # List all active reminders
+ *   shiten reminders add "msg"                        # Add reminder (default: medium, feature)
+ *   shiten reminders add "msg" --priority high        # Add with priority
+ *   shiten reminders add "msg" --category bug         # Add with category
+ *   shiten reminders add "msg" --notify               # Add with desktop notification
+ *   shiten reminders rm <index>                       # Remove by index
+ *   shiten reminders rm --message "partial match"     # Remove by message
+ *   shiten reminders clear                            # Remove all
+ *   shiten reminders --json                           # Output as JSON
  */
 
 import { Command } from "commander";
@@ -25,7 +25,7 @@ import { execSync } from "node:child_process";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { output, outputBlank } from "../output.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import type { Reminder, ReminderPriority, ReminderCategory } from "../briefing.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────
@@ -51,12 +51,12 @@ const CATEGORY_ICONS: Record<ReminderCategory, string> = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getBufferPath(projectRoot: string): string {
-  return join(projectRoot, NEXUS_DIR_NAME, "governance", "context", "context_buffer.yaml");
+  return join(projectRoot, SHITEN_DIR_NAME, "governance", "context", "context_buffer.yaml");
 }
 
 function ensureBuffer(projectRoot: string): string {
   const bufferPath = getBufferPath(projectRoot);
-  const dir = join(projectRoot, NEXUS_DIR_NAME, "governance", "context");
+  const dir = join(projectRoot, SHITEN_DIR_NAME, "governance", "context");
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
@@ -157,7 +157,7 @@ export function remindersCommand(): Command {
     outputBlank();
     if (reminders.length === 0) {
       output(chalk.dim("  No active reminders."));
-      output(chalk.dim("  Use 'nexus reminders add \"message\"' to create one."));
+      output(chalk.dim("  Use 'shiten reminders add \"message\"' to create one."));
     } else {
       output(chalk.bold(`  Active Reminders (${reminders.length})`));
       output(chalk.dim("  " + "─".repeat(60)));
@@ -239,7 +239,7 @@ export function remindersCommand(): Command {
 
       // Send desktop notification if requested
       if (opts.notify) {
-        sendDesktopNotification("Nexus Reminder Added", message, priority);
+        sendDesktopNotification("Shiten Reminder Added", message, priority);
       }
 
       if (isJson) {

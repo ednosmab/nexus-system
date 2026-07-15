@@ -27,7 +27,7 @@ export const docsAuditCommand = new Command("docs-audit")
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║  nexus docs-audit — Plans + ADRs    ║"));
+      output(chalk.bold.cyan("  ║  shiten docs-audit — Plans + ADRs    ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
@@ -35,13 +35,13 @@ export const docsAuditCommand = new Command("docs-audit")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("docs-audit", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("docs-audit", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
     const spinner = isJson ? null : ora("Auditing Plans + ADRs lifecycle...").start();
 
     try {
-      const report = auditDocLifecycle(ctx.projectRoot, ctx.nexusDir);
-      const reportFile = writeDocLifecycleReport(ctx.nexusDir, report);
+      const report = auditDocLifecycle(ctx.projectRoot, ctx.shitenDir);
+      const reportFile = writeDocLifecycleReport(ctx.shitenDir, report);
 
       if (spinner) {
         spinner.succeed(`Audit complete — ${report.totalPlans} plan(s), ${report.totalAdrs} ADR(s)`);
@@ -107,7 +107,7 @@ export const docsAuditCommand = new Command("docs-audit")
         output(chalk.bold("  📁 Applying moves..."));
         outputBlank();
 
-        const result = applyMoves(report, ctx.nexusDir, false);
+        const result = applyMoves(report, ctx.shitenDir, false);
 
         if (result.movesApplied > 0) {
           output(chalk.green(`    ✔ ${result.movesApplied} move(s) applied successfully`));
@@ -129,7 +129,7 @@ export const docsAuditCommand = new Command("docs-audit")
       outputBlank();
 
       if (reportFile) {
-        output(chalk.gray(`  📄 Report saved: nexus-system/reports/${reportFile}`));
+        output(chalk.gray(`  📄 Report saved: shitenno-go/reports/${reportFile}`));
         outputBlank();
       }
 

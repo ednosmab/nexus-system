@@ -21,7 +21,7 @@ describe("task-completion", () => {
     it("returns result with 5 gates", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: process.cwd(),
+        shitenDir: process.cwd(),
         taskId: "TEST-001",
         execFn: mockExecSuccess(),
       });
@@ -32,7 +32,7 @@ describe("task-completion", () => {
     it("returns gate names in order", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: process.cwd(),
+        shitenDir: process.cwd(),
         taskId: "TEST-002",
         execFn: mockExecSuccess(),
       });
@@ -46,7 +46,7 @@ describe("task-completion", () => {
     it("returns all gates passed when exec succeeds", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: process.cwd(),
+        shitenDir: process.cwd(),
         taskId: "TEST-005",
         execFn: mockExecSuccess(),
       });
@@ -56,7 +56,7 @@ describe("task-completion", () => {
     it("reports failed gates when exec fails", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: process.cwd(),
+        shitenDir: process.cwd(),
         taskId: "TEST-006",
         execFn: mockExecFailure(),
       });
@@ -68,7 +68,7 @@ describe("task-completion", () => {
     it("skips documentation check when no affected files", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: process.cwd(),
+        shitenDir: process.cwd(),
         taskId: "TEST-004",
         execFn: mockExecSuccess(),
       });
@@ -81,7 +81,7 @@ describe("task-completion", () => {
     it("skips backlog check when no backlog file exists", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: "/nonexistent-nexus",
+        shitenDir: "/nonexistent-shiten",
         taskId: "NONEXISTENT",
         execFn: mockExecSuccess(),
       });
@@ -99,7 +99,7 @@ describe("task-completion", () => {
 
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: dir,
+        shitenDir: dir,
         taskId: "TASK-010",
         execFn: mockExecSuccess(),
       });
@@ -119,7 +119,7 @@ describe("task-completion", () => {
 
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: dir,
+        shitenDir: dir,
         taskId: "TASK-020",
         execFn: mockExecSuccess(),
       });
@@ -134,7 +134,7 @@ describe("task-completion", () => {
     it("skips plan_status check when no plans directory", () => {
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: "/nonexistent-nexus",
+        shitenDir: "/nonexistent-shiten",
         taskId: "TEST-PLAN",
         execFn: mockExecSuccess(),
       });
@@ -150,7 +150,7 @@ describe("task-completion", () => {
 
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: dir,
+        shitenDir: dir,
         taskId: "NONEXISTENT-PLAN",
         execFn: mockExecSuccess(),
       });
@@ -170,7 +170,7 @@ describe("task-completion", () => {
 
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: dir,
+        shitenDir: dir,
         taskId: "test-plan",
         execFn: mockExecSuccess(),
       });
@@ -190,7 +190,7 @@ describe("task-completion", () => {
 
       const result = validateCompletionGate({
         projectRoot: process.cwd(),
-        nexusDir: dir,
+        shitenDir: dir,
         taskId: "test-plan",
         execFn: mockExecSuccess(),
       });

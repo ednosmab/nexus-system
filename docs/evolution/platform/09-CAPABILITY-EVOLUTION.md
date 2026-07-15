@@ -2,7 +2,7 @@
 
 ## Problema Atual
 
-As capabilities representam um dos principais conceitos do Nexus.
+As capabilities representam um dos principais conceitos do Shiten.
 
 Entretanto ainda são tratadas como módulos.
 

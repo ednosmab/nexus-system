@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { logger } from "../logger.js";
 import type { HealthIssue } from "./types.js";
 
-export function detectScriptWiring(projectRoot: string, nexusDir: string): HealthIssue[] {
+export function detectScriptWiring(projectRoot: string, shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const pkgPath = join(projectRoot, "package.json");
   if (!existsSync(pkgPath)) return issues;
@@ -29,7 +29,7 @@ export function detectScriptWiring(projectRoot: string, nexusDir: string): Healt
   const referenced = new Set<string>();
 
   for (const doc of docsToScan) {
-    const path = join(nexusDir, doc);
+    const path = join(shitenDir, doc);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
@@ -47,22 +47,22 @@ export function detectScriptWiring(projectRoot: string, nexusDir: string): Healt
       severity: 3,
       description: `${missing.length} script(s) referenciado(s) em docs não existem no root package.json: ${missing.join(", ")}`,
       location: "package.json",
-      recommendation: `Adicionar scripts ao root package.json: ${missing.map((s) => `"${s}": "tsx nexus-system/scripts/..."`).join(", ")}`,
+      recommendation: `Adicionar scripts ao root package.json: ${missing.map((s) => `"${s}": "tsx shitenno-go/scripts/..."`).join(", ")}`,
     });
   }
   return issues;
 }
 
-export function detectAgentContractRefs(nexusDir: string): HealthIssue[] {
+export function detectAgentContractRefs(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const agentsDir = join(nexusDir, "governance/agents");
+  const agentsDir = join(shitenDir, "governance/agents");
   if (!existsSync(agentsDir)) return issues;
 
-  const projectRoot = join(nexusDir, "..");
+  const projectRoot = join(shitenDir, "..");
   const files = readdirSync(agentsDir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
   const TEMPLATE_PATTERNS = ["YYYY", "MM-DD", "<", "*", "[camada]"];
-  const SKIP_DIRS = ["governance/", "docs/", "nexus-system/"];
+  const SKIP_DIRS = ["governance/", "docs/", "shitenno-go/"];
 
   for (const file of files) {
     const path = join(agentsDir, file);
@@ -74,14 +74,14 @@ export function detectAgentContractRefs(nexusDir: string): HealthIssue[] {
       while ((match = refRegex.exec(content)) !== null) {
         const ref = match[1];
         if (!ref || ref.includes("<") || ref.includes("YYYY")) continue;
-        const refNexus = join(nexusDir, ref);
+        const refShiten = join(shitenDir, ref);
         const refRoot = join(projectRoot, ref);
-        if (!existsSync(refNexus) && !existsSync(refRoot)) {
+        if (!existsSync(refShiten) && !existsSync(refRoot)) {
           issues.push({
             type: "agent_contract_ref",
             severity: 2,
             description: `Referência quebrada em "${file}": "${ref}" não existe`,
-            location: `nexus-system/governance/agents/${file}`,
+            location: `shitenno-go/governance/agents/${file}`,
             recommendation: `Corrigir referência "${ref}" em "${file}" ou criar o ficheiro`,
           });
         }
@@ -95,14 +95,14 @@ export function detectAgentContractRefs(nexusDir: string): HealthIssue[] {
         if (TEMPLATE_PATTERNS.some((p) => ref.includes(p))) continue;
         if (SKIP_DIRS.some((d) => ref.startsWith(d))) continue;
 
-        const refNexus = join(nexusDir, ref);
+        const refShiten = join(shitenDir, ref);
         const refRoot = join(projectRoot, ref);
-        if (!existsSync(refNexus) && !existsSync(refRoot)) {
+        if (!existsSync(refShiten) && !existsSync(refRoot)) {
           issues.push({
             type: "agent_contract_ref",
             severity: 2,
             description: `Referência quebrada em "${file}": directório "${ref}" não existe`,
-            location: `nexus-system/governance/agents/${file}`,
+            location: `shitenno-go/governance/agents/${file}`,
             recommendation: `Criar directório "${ref}" ou corrigir referência em "${file}"`,
           });
         }
@@ -112,10 +112,10 @@ export function detectAgentContractRefs(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBufferSchemaMismatch(nexusDir: string): HealthIssue[] {
+export function detectBufferSchemaMismatch(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(nexusDir, "governance/context/context_buffer.yaml");
-  const agentsPath = join(nexusDir, "docs/AGENTS.md");
+  const bufferPath = join(shitenDir, "governance/context/context_buffer.yaml");
+  const agentsPath = join(shitenDir, "docs/AGENTS.md");
   if (!existsSync(bufferPath) || !existsSync(agentsPath)) return issues;
 
   try {
@@ -131,7 +131,7 @@ export function detectBufferSchemaMismatch(nexusDir: string): HealthIssue[] {
           type: "buffer_schema_mismatch",
           severity: 2,
           description: `AGENTS.md referencia secção "${section}" mas context_buffer.yaml não a contém`,
-          location: "nexus-system/governance/context/context_buffer.yaml",
+          location: "shitenno-go/governance/context/context_buffer.yaml",
           recommendation: `Adicionar secção "${section}" ao context_buffer.yaml`,
         });
       }
@@ -140,7 +140,7 @@ export function detectBufferSchemaMismatch(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectRuleTypo(nexusDir: string): HealthIssue[] {
+export function detectRuleTypo(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const knownTypos: { pattern: RegExp; fix: string; file: string }[] = [
     { pattern: /REGRRA/, fix: "REGRA", file: "docs/AGENTS.md" },
@@ -150,7 +150,7 @@ export function detectRuleTypo(nexusDir: string): HealthIssue[] {
   ];
 
   for (const typo of knownTypos) {
-    const path = join(nexusDir, typo.file);
+    const path = join(shitenDir, typo.file);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
@@ -159,7 +159,7 @@ export function detectRuleTypo(nexusDir: string): HealthIssue[] {
           type: "rule_typo",
           severity: 2,
           description: `Typo detectado em "${typo.file}": "${typo.pattern.source}" → "${typo.fix}"`,
-          location: `nexus-system/${typo.file}`,
+          location: `shitenno-go/${typo.file}`,
           recommendation: `Corrigir "${typo.pattern.source}" para "${typo.fix}" em "${typo.file}"`,
         });
       }
@@ -168,10 +168,10 @@ export function detectRuleTypo(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectNumberingGap(nexusDir: string): HealthIssue[] {
+export function detectNumberingGap(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const foPath = join(nexusDir, "docs/FORBIDDEN_OPERATIONS.md");
+  const foPath = join(shitenDir, "docs/FORBIDDEN_OPERATIONS.md");
   if (existsSync(foPath)) {
     try {
       const content = readFileSync(foPath, "utf-8");
@@ -183,7 +183,7 @@ export function detectNumberingGap(nexusDir: string): HealthIssue[] {
             type: "numbering_gap",
             severity: 2,
             description: `Gap na numeração em FORBIDDEN_OPERATIONS.md: F-${uniqueF[i - 1]} → F-${uniqueF[i]} (F-${uniqueF[i - 1]! + 1} ausente)`,
-            location: "nexus-system/docs/FORBIDDEN_OPERATIONS.md",
+            location: "shitenno-go/docs/FORBIDDEN_OPERATIONS.md",
             recommendation: `Verificar se F-${uniqueF[i - 1]! + 1} foi removido ou renumerado`,
           });
         }
@@ -191,7 +191,7 @@ export function detectNumberingGap(nexusDir: string): HealthIssue[] {
     } catch (err) { logger.debug("governance-detectors", "Error scanning FORBIDDEN_OPERATIONS:", err); }
   }
 
-  const agentsPath = join(nexusDir, "docs/AGENTS.md");
+  const agentsPath = join(shitenDir, "docs/AGENTS.md");
   if (existsSync(agentsPath)) {
     try {
       const content = readFileSync(agentsPath, "utf-8");
@@ -206,7 +206,7 @@ export function detectNumberingGap(nexusDir: string): HealthIssue[] {
               type: "numbering_gap",
               severity: 2,
               description: `Gap na lettering em AGENTS.md: ${from}→${to} (letra ${String.fromCharCode(letters[i - 1]! + 1)} ausente)`,
-              location: "nexus-system/docs/AGENTS.md",
+              location: "shitenno-go/docs/AGENTS.md",
               recommendation: `Verificar se a letra ${String.fromCharCode(letters[i - 1]! + 1)} foi removida ou renumerada`,
             });
           }
@@ -218,11 +218,11 @@ export function detectNumberingGap(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectPhantomRuleRefs(nexusDir: string): HealthIssue[] {
+export function detectPhantomRuleRefs(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const foPath = join(nexusDir, "docs/FORBIDDEN_OPERATIONS.md");
-  const agentsPath = join(nexusDir, "docs/AGENTS.md");
+  const foPath = join(shitenDir, "docs/FORBIDDEN_OPERATIONS.md");
+  const agentsPath = join(shitenDir, "docs/AGENTS.md");
   if (!existsSync(foPath) || !existsSync(agentsPath)) return issues;
 
   try {
@@ -273,9 +273,9 @@ export function detectPhantomRuleRefs(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
+export function detectDocCountMismatch(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const guidePath = join(nexusDir, "docs/Nexus-System_GUIDE.md");
+  const guidePath = join(shitenDir, "docs/Shitenno-go_GUIDE.md");
   if (!existsSync(guidePath)) return issues;
 
   try {
@@ -284,7 +284,7 @@ export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
     const reportMatch = content.match(/(\d+)\s+relat/);
     if (reportMatch) {
       const claimed = Number(reportMatch[1]);
-      const reportsDir = join(nexusDir, "reports");
+      const reportsDir = join(shitenDir, "reports");
       if (existsSync(reportsDir)) {
         const actual = readdirSync(reportsDir).filter((f) => f.endsWith(".json") && f.startsWith("complexity-")).length;
         if (actual !== claimed) {
@@ -292,7 +292,7 @@ export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
             type: "doc_count_mismatch",
             severity: 2,
             description: `GUIDE diz "${claimed} relatórios" mas existem ${actual} ficheiros complexity-*.json`,
-            location: "nexus-system/docs/Nexus-System_GUIDE.md",
+            location: "shitenno-go/docs/Shitenno-go_GUIDE.md",
             recommendation: `Actualizar contagem de relatórios para ${actual}`,
           });
         }
@@ -302,7 +302,7 @@ export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
     const feedbackMatch = content.match(/(\d+)\s+registos\s+de\s+feedback/);
     if (feedbackMatch) {
       const claimed = Number(feedbackMatch[1]);
-      const recordsDir = join(nexusDir, "feedback/records");
+      const recordsDir = join(shitenDir, "feedback/records");
       if (existsSync(recordsDir)) {
         const actual = readdirSync(recordsDir).filter((f) => f.endsWith(".json")).length;
         if (actual !== claimed) {
@@ -310,7 +310,7 @@ export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
             type: "doc_count_mismatch",
             severity: 2,
             description: `GUIDE diz "${claimed} registos de feedback" mas existem ${actual}`,
-            location: "nexus-system/docs/Nexus-System_GUIDE.md",
+            location: "shitenno-go/docs/Shitenno-go_GUIDE.md",
             recommendation: `Actualizar contagem de registos para ${actual}`,
           });
         }
@@ -320,18 +320,18 @@ export function detectDocCountMismatch(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectCrossDocP0Contradiction(nexusDir: string): HealthIssue[] {
+export function detectCrossDocP0Contradiction(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const files = [
     "governance/WORKFLOW.md",
     "cognition/context/CONTEXT_HIERARCHY.md",
-    "docs/Nexus-System_GUIDE.md",
+    "docs/Shitenno-go_GUIDE.md",
   ];
 
   const p0Map = new Map<string, Set<string>>();
 
   for (const file of files) {
-    const path = join(nexusDir, file);
+    const path = join(shitenDir, file);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
@@ -373,7 +373,7 @@ export function detectCrossDocP0Contradiction(nexusDir: string): HealthIssue[] {
           type: "cross_doc_p0_contradiction",
           severity: 2,
           description: `Hierarquia P0 inconsistente entre docs: ${parts.join("; ")}`,
-          location: `nexus-system/${fileA}`,
+          location: `shitenno-go/${fileA}`,
           recommendation: "Reconciliar listas P0 em todos os documentos",
         });
       }
@@ -382,7 +382,7 @@ export function detectCrossDocP0Contradiction(nexusDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectEmptyDataFiles(nexusDir: string): HealthIssue[] {
+export function detectEmptyDataFiles(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const dirsToScan = [
     "telemetry",
@@ -392,7 +392,7 @@ export function detectEmptyDataFiles(nexusDir: string): HealthIssue[] {
   ];
 
   for (const dir of dirsToScan) {
-    const dirPath = join(nexusDir, dir);
+    const dirPath = join(shitenDir, dir);
     if (!existsSync(dirPath)) continue;
     try {
       const files = readdirSync(dirPath);
@@ -405,7 +405,7 @@ export function detectEmptyDataFiles(nexusDir: string): HealthIssue[] {
               type: "empty_data_file",
               severity: 1,
               description: `Ficheiro vazio (0 bytes): ${dir}/${file}`,
-              location: `nexus-system/${dir}/${file}`,
+              location: `shitenno-go/${dir}/${file}`,
               recommendation: `Verificar se ${file} deveria ter conteúdo ou removê-lo`,
             });
           }

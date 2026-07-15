@@ -174,7 +174,7 @@ For example:
 - A project with AI agents but no contracts → `contract_missing` debt
 - A project with operational tasks but no runbooks → `runbook_missing` debt
 
-Nexus detects these gaps and recommends creating the missing assets.
+Shiten detects these gaps and recommends creating the missing assets.
 
 ---
 
@@ -189,6 +189,6 @@ Nexus detects these gaps and recommends creating the missing assets.
 
 ---
 
-*This document defines what engineering assets are in the Nexus System. For the formal specification of asset types, see [ubiquitous-language.md](./ubiquitous-language.md).*
+*This document defines what engineering assets are in the Shitenno-go. For the formal specification of asset types, see [ubiquitous-language.md](./ubiquitous-language.md).*
 
 *Last updated: 2026-06-28*

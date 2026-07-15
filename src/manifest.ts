@@ -2,7 +2,7 @@
  * manifest.ts — Installation Manifest for Change Detection
  *
  * Tracks what was installed, when, and with what hashes.
- * Used by `nexus update` to detect changes in templates.
+ * Used by `shiten update` to detect changes in templates.
  */
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -16,7 +16,7 @@ export interface Manifest {
   cliVersion: string;
   /** ISO timestamp of last install/upgrade */
   installedAt: string;
-  /** SHA-256 hashes of each template file relative to nexus-system/ */
+  /** SHA-256 hashes of each template file relative to shitenno-go/ */
   templateHashes: Record<string, string>;
   /** Capabilities installed */
   capabilities: string[];
@@ -45,11 +45,11 @@ export function computeFileHash(content: string): string {
 }
 
 /**
- * Read manifest from nexus-system/manifest.json.
+ * Read manifest from shitenno-go/manifest.json.
  * Returns null if not found or invalid.
  */
-export function readManifest(nexusDir: string): Manifest | null {
-  const manifestPath = join(nexusDir, "manifest.json");
+export function readManifest(shitenDir: string): Manifest | null {
+  const manifestPath = join(shitenDir, "manifest.json");
 
   if (!existsSync(manifestPath)) return null;
 
@@ -74,18 +74,18 @@ export function readManifest(nexusDir: string): Manifest | null {
 }
 
 /**
- * Write manifest to nexus-system/manifest.json.
+ * Write manifest to shitenno-go/manifest.json.
  */
-export function writeManifest(nexusDir: string, manifest: Manifest): void {
-  const manifestPath = join(nexusDir, "manifest.json");
+export function writeManifest(shitenDir: string, manifest: Manifest): void {
+  const manifestPath = join(shitenDir, "manifest.json");
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf-8");
 }
 
 /**
- * Scan nexus-system/ directory and compute hashes for all files.
+ * Scan shitenno-go/ directory and compute hashes for all files.
  * Returns record of relative paths → SHA-256 hashes.
  */
-export function scanTemplateHashes(nexusDir: string): Record<string, string> {
+export function scanTemplateHashes(shitenDir: string): Record<string, string> {
   const hashes: Record<string, string> = {};
 
   function walkDir(dir: string, prefix: string): void {
@@ -110,7 +110,7 @@ export function scanTemplateHashes(nexusDir: string): Record<string, string> {
     }
   }
 
-  walkDir(nexusDir, "");
+  walkDir(shitenDir, "");
   return hashes;
 }
 
@@ -119,14 +119,14 @@ export function scanTemplateHashes(nexusDir: string): Record<string, string> {
  */
 export function createManifest(
   cliVersion: string,
-  nexusDir: string,
+  shitenDir: string,
   capabilities: string[],
   maturityScore: number
 ): Manifest {
   return {
     cliVersion,
     installedAt: new Date().toISOString(),
-    templateHashes: scanTemplateHashes(nexusDir),
+    templateHashes: scanTemplateHashes(shitenDir),
     capabilities,
     maturityScore,
   };
@@ -175,11 +175,11 @@ export function diffManifests(
 export function updateManifest(
   currentManifest: Manifest | null,
   cliVersion: string,
-  nexusDir: string,
+  shitenDir: string,
   capabilities: string[],
   maturityScore: number
 ): Manifest {
-  const newHashes = scanTemplateHashes(nexusDir);
+  const newHashes = scanTemplateHashes(shitenDir);
 
   if (currentManifest) {
     // Merge: keep old hashes, update with new ones
@@ -192,5 +192,5 @@ export function updateManifest(
     };
   }
 
-  return createManifest(cliVersion, nexusDir, capabilities, maturityScore);
+  return createManifest(cliVersion, shitenDir, capabilities, maturityScore);
 }

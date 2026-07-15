@@ -2,7 +2,7 @@ import { writeFileSync, existsSync, mkdirSync, chmodSync, readFileSync } from "n
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-const HOOK_MARKER = "# nexus-managed-hook";
+const HOOK_MARKER = "# shiten-managed-hook";
 
 function findGitHooksDir(projectRoot: string): string | null {
   try {
@@ -19,7 +19,7 @@ function usesHusky(projectRoot: string): boolean {
 
 export function installReactiveHooks(
   projectRoot: string,
-  nexusBinPath: string
+  shitenBinPath: string
 ): { installed: string[]; skipped: string[] } {
   const installed: string[] = [];
   const skipped: string[] = [];
@@ -34,7 +34,7 @@ export function installReactiveHooks(
 
   for (const hookName of ["post-commit", "post-merge"] as const) {
     const hookPath = join(targetDir, hookName);
-    const nexusLine = `${nexusBinPath} detect --auto 2>/dev/null &`;
+    const shitenLine = `${shitenBinPath} detect --auto 2>/dev/null &`;
 
     if (existsSync(hookPath)) {
       const existing = readFileSync(hookPath, "utf-8");
@@ -42,9 +42,9 @@ export function installReactiveHooks(
         skipped.push(`${hookName} (já instalado)`);
         continue;
       }
-      writeFileSync(hookPath, `${existing}\n${HOOK_MARKER}\n${nexusLine}\n`);
+      writeFileSync(hookPath, `${existing}\n${HOOK_MARKER}\n${shitenLine}\n`);
     } else {
-      writeFileSync(hookPath, `#!/bin/sh\n${HOOK_MARKER}\n${nexusLine}\n`);
+      writeFileSync(hookPath, `#!/bin/sh\n${HOOK_MARKER}\n${shitenLine}\n`);
     }
     chmodSync(hookPath, 0o755);
     installed.push(hookName);

@@ -1,12 +1,12 @@
 # Contributing
 
-Guia para contribuidores do Nexus.
+Guia para contribuidores do Shiten.
 
 ---
 
 ## Visão Geral
 
-O Nexus é um projeto open-source e contribuições são bem-vindas!
+O Shiten é um projeto open-source e contribuições são bem-vindas!
 
 ---
 
@@ -15,8 +15,8 @@ O Nexus é um projeto open-source e contribuições são bem-vindas!
 ### 1. Fork e Clone
 
 ```bash
-git clone https://github.com/seu-usuario/nexus-cli.git
-cd nexus-cli
+git clone https://github.com/seu-usuario/shitenno-cli.git
+cd shitenno-cli
 ```
 
 ### 2. Instale Dependências
@@ -86,13 +86,13 @@ Abra um Pull Request na interface do GitHub.
 ## Estrutura do Projeto
 
 ```
-nexus-cli/
+shitenno-cli/
 ├── src/
 │   ├── commands/          # Comandos CLI
 │   ├── engine/            # Motor de análise
 │   ├── governance/        # Governança
 │   └── __tests__/         # Testes
-├── nexus-system/          # Sistema Nexus
+├── shitenno-go/          # Sistema Shiten
 │   ├── governance/        # Regras e políticas
 │   └── docs/              # Documentação
 └── docs/                  # Documentação do projeto
@@ -112,7 +112,7 @@ nexus-cli/
 
 ### Como adicionar uma nova regra?
 
-1. Crie o arquivo JSON em `nexus-system/governance/rules/`
+1. Crie o arquivo JSON em `shitenno-go/governance/rules/`
 2. Valide o schema
 3. Teste a regra
 4. Documente
@@ -129,6 +129,6 @@ Abra uma issue no GitHub com:
 
 ## Contato
 
-- **GitHub**: [nexus-cli](https://github.com/seu-usuario/nexus-cli)
-- **Issues**: [Issues](https://github.com/seu-usuario/nexus-cli/issues)
-- **Discussions**: [Discussions](https://github.com/seu-usuario/nexus-cli/discussions)
+- **GitHub**: [shitenno-cli](https://github.com/seu-usuario/shitenno-cli)
+- **Issues**: [Issues](https://github.com/seu-usuario/shitenno-cli/issues)
+- **Discussions**: [Discussions](https://github.com/seu-usuario/shitenno-cli/discussions)

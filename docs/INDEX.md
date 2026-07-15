@@ -1,10 +1,10 @@
-# Nexus System — Knowledge Organization
+# Shitenno-go — Knowledge Organization
 
-> This is the Constitution of the Nexus System. Every document here is a source of truth for humans and AI agents.
+> This is the Constitution of the Shitenno-go. Every document here is a source of truth for humans and AI agents.
 
 ## The Four Levels
 
-The Nexus documentation is organized into four hierarchical levels. Each level answers a specific question and depends only on the levels above it.
+The Shiten documentation is organized into four hierarchical levels. Each level answers a specific question and depends only on the levels above it.
 
 ```
 Philosophy
@@ -16,7 +16,7 @@ Architecture
 Implementation
 ```
 
-Every decision in the Nexus System must answer four questions:
+Every decision in the Shitenno-go must answer four questions:
 1. Does this respect the Philosophy?
 2. Does this make sense within the Domain?
 3. Does this preserve the Architecture?
@@ -26,25 +26,25 @@ Every decision in the Nexus System must answer four questions:
 
 ### Philosophy (Why)
 
-**Question:** Why does the Nexus exist?
+**Question:** Why does the Shiten exist?
 
 Documents in this layer contain no implementation details, no code, no technology references. They define the identity of the project.
 
 | Document | Purpose |
 |----------|---------|
-| [Engineering Manifesto](./handbook/philosophy/engineering-manifesto.md) | Why Nexus exists — the problem, the role of AI, the role of the engineer |
+| [Engineering Manifesto](./handbook/philosophy/engineering-manifesto.md) | Why Shiten exists — the problem, the role of AI, the role of the engineer |
 | [Principles](./handbook/philosophy/principles.md) | Six immutable principles that govern all decisions |
 | [Vision](./handbook/philosophy/vision.md) | Long-term direction — three phases of evolution |
 
-**Read this first** if you want to understand what Nexus is and why it exists.
+**Read this first** if you want to understand what Shiten is and why it exists.
 
 ---
 
 ### Domain (What)
 
-**Question:** How does Nexus interpret a project of engineering?
+**Question:** How does Shiten interpret a project of engineering?
 
-Documents in this layer define the mental model of Nexus. They describe concepts, responsibilities, relationships, and rules. They contain no implementation details.
+Documents in this layer define the mental model of Shiten. They describe concepts, responsibilities, relationships, and rules. They contain no implementation details.
 
 | Document | Purpose |
 |----------|---------|
@@ -54,12 +54,12 @@ Documents in this layer define the mental model of Nexus. They describe concepts
 | [Knowledge Lifecycle](./domain/knowledge-lifecycle.md) | 9 stages: Observation → Hypothesis → Experiment → Decision → ADR → Skill → Contract → Automation → Command |
 | [Capability Model](./domain/capability-model.md) | 9 capabilities, dependencies, maturity dimensions |
 | [Engineering State](./domain/engineering-state.md) | Measurable condition of engineering practices |
-| [Problem Statement](./domain/problem-statement.md) | The problem Nexus exists to solve |
-| [Knowledge](./domain/knowledge.md) | What knowledge means in the Nexus context |
+| [Problem Statement](./domain/problem-statement.md) | The problem Shiten exists to solve |
+| [Knowledge](./domain/knowledge.md) | What knowledge means in the Shiten context |
 | [Engineering Assets](./domain/engineering-assets.md) | What characterizes an engineering asset |
 | [Decisions](./domain/decisions.md) | How decisions are modeled |
 
-**Read this** if you want to understand how Nexus thinks.
+**Read this** if you want to understand how Shiten thinks.
 
 ---
 
@@ -95,7 +95,7 @@ Documents in this layer describe how domain concepts are implemented in software
 | [Anti-Patterns](./architecture/anti-patterns.md) | What NOT to do |
 | [Ubiquitous Language (Quick)](./architecture/ubiquitous-language-quick.md) | Quick reference for daily development |
 
-**Read this** if you want to understand how Nexus is built.
+**Read this** if you want to understand how Shiten is built.
 
 ---
 
@@ -130,7 +130,7 @@ Documents in this layer describe the target architecture, migration strategy, an
 | [Master Evolution Plan](./evolution/ai/MASTER_EVOLUTION_PLAN.md) | Strategic objectives and roadmap |
 | [Migration Waves](./evolution/roadmap/) | Wave 1-4 migration plans |
 
-**Read this** if you want to understand where Nexus is heading.
+**Read this** if you want to understand where Shiten is heading.
 
 ---
 
@@ -144,7 +144,7 @@ Documents in this layer describe development process, contributing guidelines, a
 |----------|---------|
 | [Backlog](./BACKLOG.md) | Active work tracker with P0-P3 priorities |
 
-**Read this** if you want to contribute to Nexus.
+**Read this** if you want to contribute to Shiten.
 
 ---
 
@@ -152,7 +152,7 @@ Documents in this layer describe development process, contributing guidelines, a
 
 | Task | Read |
 |------|------|
-| Understand why Nexus exists | Philosophy: engineering-manifesto.md |
+| Understand why Shiten exists | Philosophy: engineering-manifesto.md |
 | Learn the domain model | Domain: meta-model.md |
 | Understand a concept | Domain: ubiquitous-language.md |
 | See how concepts are implemented | Architecture: domain-model-mapping.md |
@@ -163,7 +163,7 @@ Documents in this layer describe development process, contributing guidelines, a
 
 ## For AI Agents
 
-When working on Nexus, read only the document(s) relevant to your task:
+When working on Shiten, read only the document(s) relevant to your task:
 
 | Task | Read |
 |------|------|
@@ -177,6 +177,6 @@ When working on Nexus, read only the document(s) relevant to your task:
 
 ---
 
-*This document is the master index of the Nexus System. It organizes knowledge into four levels: Philosophy, Domain, Architecture, Implementation.*
+*This document is the master index of the Shitenno-go. It organizes knowledge into four levels: Philosophy, Domain, Architecture, Implementation.*
 
 *Last updated: 2026-06-28*

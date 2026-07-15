@@ -1,5 +1,5 @@
 /**
- * daemon.ts — Nexus Background Daemon
+ * daemon.ts — Shiten Background Daemon
  *
  * Runs as a long-lived process to:
  * 1. Watch governance files in real-time (chokidar)
@@ -9,9 +9,9 @@
  * Security:
  * - Socket is chmod 0600 (owner only)
  * - First client message must include version handshake
- * - NEXUS_NO_DAEMON=1 / CI=true: daemon is never started
+ * - SHITEN_NO_DAEMON=1 / CI=true: daemon is never started
  *
- * Invocation: node daemon-process.js <nexusDir>
+ * Invocation: node daemon-process.js <shitenDir>
  * (Spawned by daemon-client.ts#startDaemon)
  *
  * PRINCIPLE: A process that can't be stopped safely should never be started.
@@ -53,13 +53,13 @@ const DAEMON_VERSION = getVersion();
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
 
-function getPaths(nexusDir: string) {
-  const daemonDir = join(nexusDir, "daemon");
+function getPaths(shitenDir: string) {
+  const daemonDir = join(shitenDir, "daemon");
   return {
     daemonDir,
     pidPath: join(daemonDir, "daemon.pid"),
     sockPath: join(daemonDir, "daemon.sock"),
-    logPath: process.env["NEXUS_DAEMON_LOG"] ?? join(daemonDir, "daemon.log"),
+    logPath: process.env["SHITEN_DAEMON_LOG"] ?? join(daemonDir, "daemon.log"),
     approvedPath: join(daemonDir, "daemon.approved"),
   };
 }
@@ -93,15 +93,15 @@ function sendJson(socket: Socket, obj: object): void {
 
 // ── Daemon ────────────────────────────────────────────────────────────────────
 
-export async function runDaemon(nexusDir: string): Promise<void> {
-  const paths = getPaths(nexusDir);
+export async function runDaemon(shitenDir: string): Promise<void> {
+  const paths = getPaths(shitenDir);
   const { daemonDir, pidPath, sockPath, logPath, approvedPath } = paths;
 
   if (!existsSync(daemonDir)) {
     mkdirSync(daemonDir, { recursive: true });
   }
 
-  daemonLog(logPath, "INFO", `Nexus Daemon v${DAEMON_VERSION} starting — nexusDir: ${nexusDir}`);
+  daemonLog(logPath, "INFO", `Shiten Daemon v${DAEMON_VERSION} starting — shitenDir: ${shitenDir}`);
 
   // ── Write PID ──────────────────────────────────────────────────────────────
 
@@ -137,7 +137,7 @@ export async function runDaemon(nexusDir: string): Promise<void> {
         if (!line.trim()) continue;
         try {
           const msg = JSON.parse(line) as IpcMessage;
-          handleMessage(msg, socket, nexusDir, sockPath, startedAt, logPath);
+          handleMessage(msg, socket, shitenDir, sockPath, startedAt, logPath);
         } catch {
           sendJson(socket, { type: "error", message: "Invalid JSON" });
         }
@@ -160,11 +160,11 @@ export async function runDaemon(nexusDir: string): Promise<void> {
   // ── File Watcher & Reactive Logic ──────────────────────────────────────────
 
   const bus = getEventBus();
-  const stopWatcher = startWatching(nexusDir);
+  const stopWatcher = startWatching(shitenDir);
 
   bus.subscribe("plan.file_changed", () => {
     try {
-      const result = checkAndArchiveDonePlans(nexusDir);
+      const result = checkAndArchiveDonePlans(shitenDir);
       if (result.archived > 0) {
         daemonLog(logPath, "INFO", `Auto-archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
       }
@@ -175,7 +175,7 @@ export async function runDaemon(nexusDir: string): Promise<void> {
 
   // ── Circuit Breaker: Reset after stable uptime ─────────────────────────────
 
-  const breaker = new DaemonCircuitBreaker(nexusDir);
+  const breaker = new DaemonCircuitBreaker(shitenDir);
   const stableTimer = setTimeout(() => {
     breaker.reset();
     daemonLog(logPath, "INFO", "Stable uptime reached — circuit breaker reset");
@@ -215,7 +215,7 @@ export async function runDaemon(nexusDir: string): Promise<void> {
 function handleMessage(
   msg: IpcMessage,
   socket: Socket,
-  nexusDir: string,
+  shitenDir: string,
   sockPath: string,
   startedAt: number,
   logPath: string
@@ -244,7 +244,7 @@ function handleMessage(
         type: "status",
         pid: process.pid,
         version: DAEMON_VERSION,
-        nexusDir,
+        shitenDir,
         socketPath: sockPath,
         uptimeSeconds: uptimeSec,
       });
@@ -272,10 +272,10 @@ function cleanup(pidPath: string, sockPath: string): void {
 
 // ── Entry Point ───────────────────────────────────────────────────────────────
 
-// When run directly as a script (nexus.ts spawns this via startDaemon)
-const nexusDirArg = process.argv[2];
-if (nexusDirArg) {
-  runDaemon(nexusDirArg).catch((err) => {
+// When run directly as a script (shiten.ts spawns this via startDaemon)
+const shitenDirArg = process.argv[2];
+if (shitenDirArg) {
+  runDaemon(shitenDirArg).catch((err) => {
     outputError(`[daemon] Fatal error: ${err}`);
     process.exit(1);
   });

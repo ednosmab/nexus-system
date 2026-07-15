@@ -19,7 +19,7 @@ describe("getCapabilityMapping", () => {
   it("returns mapping for knowledge capability", () => {
     const mapping = getCapabilityMapping("knowledge");
     expect(mapping).toBeDefined();
-    expect(mapping.directories).toContain("nexus-system/docs/skills");
+    expect(mapping.directories).toContain("shitenno-go/docs/skills");
   });
 
   it("returns mapping for architecture capability", () => {
@@ -49,7 +49,7 @@ describe("getCapabilityMapping", () => {
   it("returns mapping for metrics capability", () => {
     const mapping = getCapabilityMapping("metrics");
     expect(mapping).toBeDefined();
-    expect(mapping.directories).toContain("nexus-system/reports");
+    expect(mapping.directories).toContain("shitenno-go/reports");
   });
 
   it("returns mapping for operations capability", () => {
@@ -61,7 +61,7 @@ describe("getCapabilityMapping", () => {
   it("returns mapping for compliance capability", () => {
     const mapping = getCapabilityMapping("compliance");
     expect(mapping).toBeDefined();
-    expect(mapping.directories).toContain("nexus-system/governance/premortem");
+    expect(mapping.directories).toContain("shitenno-go/governance/premortem");
   });
 });
 
@@ -108,18 +108,18 @@ describe("getCapabilityDirectories", () => {
   it("returns directories for core", () => {
     const dirs = getCapabilityDirectories("core");
     expect(dirs.length).toBeGreaterThan(0);
-    expect(dirs).toContain("nexus-system");
-    expect(dirs).toContain("nexus-system/docs");
+    expect(dirs).toContain("shitenno-go");
+    expect(dirs).toContain("shitenno-go/docs");
   });
 
   it("core directories include governance", () => {
     const dirs = getCapabilityDirectories("core");
-    expect(dirs).toContain("nexus-system/governance");
+    expect(dirs).toContain("shitenno-go/governance");
   });
 
   it("ai directories include cognition", () => {
     const dirs = getCapabilityDirectories("ai");
-    expect(dirs).toContain("nexus-system/cognition");
+    expect(dirs).toContain("shitenno-go/cognition");
   });
 
   it("quality has empty directories", () => {
@@ -129,7 +129,7 @@ describe("getCapabilityDirectories", () => {
 
   it("operations includes runbooks", () => {
     const dirs = getCapabilityDirectories("operations");
-    expect(dirs).toContain("nexus-system/docs/runbooks");
+    expect(dirs).toContain("shitenno-go/docs/runbooks");
   });
 });
 

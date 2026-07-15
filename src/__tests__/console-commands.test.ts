@@ -72,9 +72,9 @@ describe("Command Definitions", () => {
     }
   });
 
-  it("should have nexus as the command for all definitions", () => {
+  it("should have shiten as the command for all definitions", () => {
     for (const cmd of COMMAND_DEFINITIONS) {
-      expect(cmd.command).toBe("nexus");
+      expect(cmd.command).toBe("shiten");
     }
   });
 

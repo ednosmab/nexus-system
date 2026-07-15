@@ -28,20 +28,20 @@ current_task:
   status: "in_progress"
 `;
 
-function createTmpProject(): { projectRoot: string; nexusDir: string } {
-  const projectRoot = join(tmpdir(), `nexus-sync-test-${Date.now()}`);
-  const nexusDir = join(projectRoot, "nexus-system");
-  const governanceDir = join(nexusDir, "governance", "context");
+function createTmpProject(): { projectRoot: string; shitenDir: string } {
+  const projectRoot = join(tmpdir(), `shiten-sync-test-${Date.now()}`);
+  const shitenDir = join(projectRoot, "shitenno-go");
+  const governanceDir = join(shitenDir, "governance", "context");
   const docsDir = join(projectRoot, "docs");
   mkdirSync(governanceDir, { recursive: true });
   mkdirSync(docsDir, { recursive: true });
   writeFileSync(join(governanceDir, "context_buffer.yaml"), SAMPLE_BUFFER, "utf-8");
   writeFileSync(join(docsDir, "README.md"), "# Test\n", "utf-8");
-  return { projectRoot, nexusDir };
+  return { projectRoot, shitenDir };
 }
 
 describe("runSemanticDocSync", () => {
-  let tmpDir: { projectRoot: string; nexusDir: string };
+  let tmpDir: { projectRoot: string; shitenDir: string };
 
   beforeEach(() => {
     tmpDir = createTmpProject();
@@ -70,7 +70,7 @@ describe("runSemanticDocSync", () => {
 
     const result = runSemanticDocSync({
       projectRoot: tmpDir.projectRoot,
-      nexusDir: tmpDir.nexusDir,
+      shitenDir: tmpDir.shitenDir,
     });
 
     expect(result.driftFound).toBe(1);
@@ -78,7 +78,7 @@ describe("runSemanticDocSync", () => {
     expect(result.remindersSkipped).toBe(0);
 
     const content = readFileSync(
-      join(tmpDir.nexusDir, "governance", "context", "context_buffer.yaml"),
+      join(tmpDir.shitenDir, "governance", "context", "context_buffer.yaml"),
       "utf-8"
     );
     expect(content).toContain('Doc desatualizada: docs/README.md');
@@ -104,13 +104,13 @@ describe("runSemanticDocSync", () => {
 
     const first = runSemanticDocSync({
       projectRoot: tmpDir.projectRoot,
-      nexusDir: tmpDir.nexusDir,
+      shitenDir: tmpDir.shitenDir,
     });
     expect(first.remindersWritten).toBe(1);
 
     const second = runSemanticDocSync({
       projectRoot: tmpDir.projectRoot,
-      nexusDir: tmpDir.nexusDir,
+      shitenDir: tmpDir.shitenDir,
     });
     expect(second.remindersWritten).toBe(0);
     expect(second.remindersSkipped).toBe(1);
@@ -127,7 +127,7 @@ describe("runSemanticDocSync", () => {
 
     const result = runSemanticDocSync({
       projectRoot: tmpDir.projectRoot,
-      nexusDir: tmpDir.nexusDir,
+      shitenDir: tmpDir.shitenDir,
     });
 
     expect(result.driftFound).toBe(0);
@@ -145,7 +145,7 @@ describe("runSemanticDocSync", () => {
 
     const result = runSemanticDocSync({
       projectRoot: tmpDir.projectRoot,
-      nexusDir: tmpDir.nexusDir,
+      shitenDir: tmpDir.shitenDir,
       docsDir: "/nonexistent/docs",
     });
 

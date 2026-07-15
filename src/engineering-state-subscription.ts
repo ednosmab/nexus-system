@@ -17,13 +17,13 @@ import { consolidateEngineeringState, type EngineeringState } from "./engineerin
  */
 export function subscribeToEngineeringState(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): { getState: () => EngineeringState; unsubscribe: () => void } {
   const bus = getEventBus();
-  let latestState = consolidateEngineeringState(projectRoot, nexusDir);
+  let latestState = consolidateEngineeringState(projectRoot, shitenDir);
 
   const unsubscribe = bus.subscribe("engineering_state.consolidated", () => {
-    latestState = consolidateEngineeringState(projectRoot, nexusDir);
+    latestState = consolidateEngineeringState(projectRoot, shitenDir);
   });
 
   return {

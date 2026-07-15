@@ -1,17 +1,17 @@
-# Nexus System — Documentation
+# Shitenno-go — Documentation
 
-> Knowledge organization for the Nexus governance framework.
+> Knowledge organization for the Shiten governance framework.
 
 ## Quick Start
 
 | I want to... | Read |
 |--------------|------|
-| Understand why Nexus exists | [Philosophy](./handbook/philosophy/) |
+| Understand why Shiten exists | [Philosophy](./handbook/philosophy/) |
 | Learn the domain model | [Domain](./domain/) |
 | See how it's built | [Architecture](./architecture/) |
 | Understand implementation | [Implementation](./implementation/) |
 | Know where it's heading | [Evolution](./evolution/) |
-| Contribute to Nexus | [Engineering](./engineering/) |
+| Contribute to Shiten | [Engineering](./engineering/) |
 | Find the active work tracker | [BACKLOG.md](./BACKLOG.md) |
 
 ## Documentation Structure
@@ -19,7 +19,7 @@
 ```
 docs/
 ├── handbook/
-│   ├── philosophy/    Why Nexus exists
+│   ├── philosophy/    Why Shiten exists
 │   ├── 01-fundamentals/  Getting started
 │   ├── 02-commands/      CLI reference
 │   └── 03-architecture/  Internal design

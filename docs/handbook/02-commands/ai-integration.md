@@ -4,12 +4,12 @@ Comandos para integração com agentes AI e workflows.
 
 ---
 
-## `nexus briefing`
+## `shiten briefing`
 
 Gere um briefing pré-sessão para agentes AI.
 
 ```bash
-nexus briefing [options]
+shiten briefing [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ nexus briefing [options]
 ### Exemplos
 
 ```bash
-nexus briefing             # Briefing completo
-nexus briefing --json      # Saída JSON
+shiten briefing             # Briefing completo
+shiten briefing --json      # Saída JSON
 ```
 
 ### Dicas
@@ -32,12 +32,12 @@ nexus briefing --json      # Saída JSON
 
 ---
 
-## `nexus feedback`
+## `shiten feedback`
 
 Registre feedback de sessão para melhoria contínua.
 
 ```bash
-nexus feedback [options]
+shiten feedback [options]
 ```
 
 ### Opções
@@ -51,19 +51,19 @@ nexus feedback [options]
 ### Exemplos
 
 ```bash
-nexus feedback --outcome success
-nexus feedback --outcome failure --notes "Build failed"
-nexus feedback --outcome partial --areas "auth,dashboard"
+shiten feedback --outcome success
+shiten feedback --outcome failure --notes "Build failed"
+shiten feedback --outcome partial --areas "auth,dashboard"
 ```
 
 ---
 
-## `nexus profile`
+## `shiten profile`
 
 Gerencie o perfil do usuário para calibrar respostas.
 
 ```bash
-nexus profile [options]
+shiten profile [options]
 ```
 
 ### Opções
@@ -75,18 +75,18 @@ nexus profile [options]
 ### Exemplos
 
 ```bash
-nexus profile              # Ver perfil atual
-nexus profile --json       # Saída JSON
+shiten profile              # Ver perfil atual
+shiten profile --json       # Saída JSON
 ```
 
 ---
 
-## `nexus dashboard`
+## `shiten dashboard`
 
 Dashboard interativo com visão geral do projeto.
 
 ```bash
-nexus dashboard [options]
+shiten dashboard [options]
 ```
 
 ### Opções
@@ -98,32 +98,32 @@ nexus dashboard [options]
 ### Exemplos
 
 ```bash
-nexus dashboard            # Dashboard completo
-nexus dashboard --json     # Saída JSON
+shiten dashboard            # Dashboard completo
+shiten dashboard --json     # Saída JSON
 ```
 
 ---
 
-## `nexus reminders`
+## `shiten reminders`
 
 Gerencie lembretes para o usuário.
 
 ```bash
-nexus reminders [options]
+shiten reminders [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus reminders list` | Listar lembretes |
-| `nexus reminders add` | Adicionar lembrete |
-| `nexus reminders remove <id>` | Remover lembrete |
+| `shiten reminders list` | Listar lembretes |
+| `shiten reminders add` | Adicionar lembrete |
+| `shiten reminders remove <id>` | Remover lembrete |
 
 ### Exemplos
 
 ```bash
-nexus reminders list       # Listar lembretes
-nexus reminders add "Revisar handbook" --priority medium
-nexus reminders remove reminder-001
+shiten reminders list       # Listar lembretes
+shiten reminders add "Revisar handbook" --priority medium
+shiten reminders remove reminder-001
 ```

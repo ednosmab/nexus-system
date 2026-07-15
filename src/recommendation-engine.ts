@@ -98,8 +98,8 @@ function generateFromCapabilityEngine(
       description: capRec.reason,
       expectedImpact: capRec.expectedImpact,
       action: `Activate and configure ${capRec.capability} capability`,
-      command: `nexus upgrade --capability ${capRec.capability}`,
-      affectedArtifacts: [`nexus-system/ (${capRec.capability})`],
+      command: `shiten upgrade --capability ${capRec.capability}`,
+      affectedArtifacts: [`shitenno-go/ (${capRec.capability})`],
       dependencies: capRec.dependencies.map((d) => `REC-CAP-${d.toUpperCase()}`),
       confidence: 0.8,
       evidence: [capRec.reason],
@@ -255,7 +255,7 @@ function generateFromAIReadiness(
       description: "Project has significant code but no AI agent contracts",
       expectedImpact: "Enables structured AI assistance with defined roles",
       action: "Create AI agent contracts for planner, executor, and reviewer roles",
-      command: "nexus upgrade --capability ai",
+      command: "shiten upgrade --capability ai",
       affectedArtifacts: ["governance/agents/"],
       dependencies: [],
       confidence: 0.7,
@@ -323,7 +323,7 @@ function generateFromAssetManagement(
 export function runRecommendationEngine(
   state: EngineeringState,
   capResult: CapabilityEngineResult,
-  nexusDir: string,
+  shitenDir: string,
   patternReport: PatternDetectionReport | null = null,
   knowledgeDebtReport: KnowledgeDebtReport | null = null
 ): RecommendationEngineResult {
@@ -338,7 +338,7 @@ export function runRecommendationEngine(
   ];
 
   // Apply feedback loop: adjust confidence and suppress frequently rejected recommendations
-  const feedbackSummaries = getAllFeedbackSummaries(nexusDir);
+  const feedbackSummaries = getAllFeedbackSummaries(shitenDir);
   const adjustedRecommendations: Recommendation[] = [];
 
   for (const rec of allRecommendations) {
@@ -425,18 +425,18 @@ export function runRecommendationEngine(
 
 /** Save recommendation engine result to disk. */
 export function saveRecommendationResult(
-  nexusDir: string,
+  shitenDir: string,
   result: RecommendationEngineResult
 ): void {
-  const filePath = join(nexusDir, "recommendation-engine.json");
+  const filePath = join(shitenDir, "recommendation-engine.json");
   writeFileSync(filePath, JSON.stringify(result, null, 2), "utf-8");
 }
 
 /** Load recommendation engine result from disk. */
 export function loadRecommendationResult(
-  nexusDir: string
+  shitenDir: string
 ): RecommendationEngineResult | null {
-  const filePath = join(nexusDir, "recommendation-engine.json");
+  const filePath = join(shitenDir, "recommendation-engine.json");
   if (!existsSync(filePath)) return null;
 
   try {

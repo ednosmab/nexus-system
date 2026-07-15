@@ -4,12 +4,12 @@ Real-time event log for governance monitoring.
 
 ---
 
-## `nexus watch`
+## `shiten watch`
 
-Starts a foreground process that displays governance events as they happen. Monitors file changes in `nexus-system/governance/` and `nexus-system/docs/`, and subscribes to the event bus for real-time updates.
+Starts a foreground process that displays governance events as they happen. Monitors file changes in `shitenno-go/governance/` and `shitenno-go/docs/`, and subscribes to the event bus for real-time updates.
 
 ```bash
-nexus watch [--events <types>] [--dir <path>]
+shiten watch [--events <types>] [--dir <path>]
 ```
 
 ### Options
@@ -21,7 +21,7 @@ nexus watch [--events <types>] [--dir <path>]
 
 ### What It Does
 
-- Watches `nexus-system/governance/` and `nexus-system/docs/` for file changes
+- Watches `shitenno-go/governance/` and `shitenno-go/docs/` for file changes
 - Subscribes to 44+ event types on the event bus
 - Displays each event with timestamp, color-coded category, and label
 - Shows heartbeat every 30 seconds with total event count
@@ -45,15 +45,15 @@ nexus watch [--events <types>] [--dir <path>]
 Filter events by type using the `--events` flag with glob patterns:
 
 ```bash
-nexus watch                              # Watch all events
-nexus watch --events "plan.*"            # Only plan events
-nexus watch --events "plan.*,backlog.*"  # Plan and backlog events
-nexus watch --events "session.*"         # Only session events
+shiten watch                              # Watch all events
+shiten watch --events "plan.*"            # Only plan events
+shiten watch --events "plan.*,backlog.*"  # Plan and backlog events
+shiten watch --events "session.*"         # Only session events
 ```
 
 ### Differences from Daemon
 
-| Aspect | `nexus watch` | `nexus daemon` |
+| Aspect | `shiten watch` | `shiten daemon` |
 |--------|---------------|----------------|
 | Process | Foreground (occupies terminal) | Background (detached) |
 | IPC | None (stdout only) | Unix socket server |

@@ -1,7 +1,7 @@
 /**
- * event-payloads.ts — Typed Payloads for All Nexus Events
+ * event-payloads.ts — Typed Payloads for All Shiten Events
  *
- * Provides strongly-typed interfaces for every NexusEventType.
+ * Provides strongly-typed interfaces for every ShitenEventType.
  * Ensures compile-time safety when publishing and subscribing to events.
  *
  * PRINCIPLE: Every event carries a typed payload — no `unknown` at call sites.
@@ -355,7 +355,7 @@ export interface SystemUpdatedPayload extends EventMeta {
 // ── Payload Map ────────────────────────────────────────────────────────────
 
 /**
- * Maps each NexusEventType to its typed payload.
+ * Maps each ShitenEventType to its typed payload.
  * Use this for type-safe publish/subscribe:
  *   bus.publish("session.start", { ...SessionStartPayload })
  *   bus.subscribe("session.start", (payload: EventPayloadMap["session.start"]) => { ... })

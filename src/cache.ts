@@ -1,8 +1,8 @@
 /**
- * cache.ts — Disk cache for nexus scoring results
+ * cache.ts — Disk cache for shiten scoring results
  *
  * Strategy: SHA256 checksum per key file.
- * Cache stored at project root as .nexus-cache.json.
+ * Cache stored at project root as .shiten-cache.json.
  * Invalidated when any tracked file changes.
  */
 
@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync, renameSync, chmodSync } from "node:fs";
 import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 import { logger } from "./logger.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ export interface CacheEntry<T> {
   data: T;
 }
 
-export interface NexusCache {
+export interface ShitenCache {
   /** Cache schema version for future migration. */
   version: 1;
   /** Project root relative path. */
@@ -86,7 +86,7 @@ function dirChecksum(dirPath: string, maxDepth = 3): string {
  * Compute checksums for all key files that affect scoring results.
  * Returns a map of file/dir path → SHA256.
  */
-export function computeKeyChecksums(projectRoot: string, nexusDir: string): Record<string, string> {
+export function computeKeyChecksums(projectRoot: string, shitenDir: string): Record<string, string> {
   const checksums: Record<string, string> = {};
 
   // 1. git HEAD (most important — any commit invalidates)
@@ -105,11 +105,11 @@ export function computeKeyChecksums(projectRoot: string, nexusDir: string): Reco
   const opencodeHash = fileChecksum(join(projectRoot, "opencode.json"));
   if (opencodeHash) checksums["opencode.json"] = opencodeHash;
 
-  // 4. nexus-system/profile/ (area config)
-  checksums[`${NEXUS_DIR_NAME}/profile/`] = dirChecksum(join(projectRoot, NEXUS_DIR_NAME, "profile"));
+  // 4. shitenno-go/profile/ (area config)
+  checksums[`${SHITEN_DIR_NAME}/profile/`] = dirChecksum(join(projectRoot, SHITEN_DIR_NAME, "profile"));
 
-  // 5. nexus-system/ — aggregate hash of the whole governance directory
-  checksums[`${NEXUS_DIR_NAME}/`] = dirChecksum(nexusDir);
+  // 5. shitenno-go/ — aggregate hash of the whole governance directory
+  checksums[`${SHITEN_DIR_NAME}/`] = dirChecksum(shitenDir);
 
   return checksums;
 }
@@ -138,15 +138,15 @@ function isCacheValid(
 
 // ── Cache Read/Write ────────────────────────────────────────────────────────
 
-const CACHE_FILENAME = ".nexus-cache.json";
+const CACHE_FILENAME = ".shiten-cache.json";
 
-function readCache(projectRoot: string): NexusCache | null {
+function readCache(projectRoot: string): ShitenCache | null {
   const cachePath = join(projectRoot, CACHE_FILENAME);
   if (!existsSync(cachePath)) return null;
 
   try {
     const content = readFileSync(cachePath, "utf-8");
-    const parsed = JSON.parse(content) as NexusCache;
+    const parsed = JSON.parse(content) as ShitenCache;
     if (parsed.version !== 1) return null;
     return parsed;
   } catch {
@@ -154,9 +154,9 @@ function readCache(projectRoot: string): NexusCache | null {
   }
 }
 
-function writeCache(projectRoot: string, cache: NexusCache): void {
+function writeCache(projectRoot: string, cache: ShitenCache): void {
   const cachePath = join(projectRoot, CACHE_FILENAME);
-  const tmpPath = join(tmpdir(), `nexus-cache-${Date.now()}.json`);
+  const tmpPath = join(tmpdir(), `shiten-cache-${Date.now()}.json`);
   try {
     writeFileSync(tmpPath, JSON.stringify(cache, null, 2), "utf-8");
     renameSync(tmpPath, cachePath);
@@ -172,13 +172,13 @@ function writeCache(projectRoot: string, cache: NexusCache): void {
  * Try to get a cached result. Returns null if cache miss.
  *
  * @param projectRoot - Root directory of the project
- * @param nexusDir - Path to nexus-system/
+ * @param shitenDir - Path to shitenno-go/
  * @param key - Which cache entry to check ("complexity" | "patterns" | "health")
  * @param computeChecksumsFn - Function to compute current checksums
  */
 export function getCached<T>(
   projectRoot: string,
-  _nexusDir: string,
+  _shitenDir: string,
   key: "complexity" | "patterns" | "health",
   computeChecksumsFn: () => Record<string, string>
 ): T | null {
@@ -199,7 +199,7 @@ export function getCached<T>(
  */
 export function setCache<T>(
   projectRoot: string,
-  _nexusDir: string,
+  _shitenDir: string,
   key: "complexity" | "patterns" | "health",
   data: T,
   checksums: Record<string, string>

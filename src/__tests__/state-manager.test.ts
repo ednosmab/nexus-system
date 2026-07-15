@@ -20,32 +20,32 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function createTmpDir(): string {
-  const dir = join(tmpdir(), `nexus-state-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(tmpdir(), `shiten-state-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
 
-function createNexusDir(tmpDir: string): string {
-  const nexusDir = join(tmpDir, "nexus-system");
-  mkdirSync(join(nexusDir, "docs", "adrs"), { recursive: true });
-  mkdirSync(join(nexusDir, "docs", "skills"), { recursive: true });
-  mkdirSync(join(nexusDir, "governance", "agents"), { recursive: true });
-  mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
-  mkdirSync(join(nexusDir, "scripts"), { recursive: true });
-  mkdirSync(join(nexusDir, "docs", "runbooks"), { recursive: true });
-  mkdirSync(join(nexusDir, "reports"), { recursive: true });
-  return nexusDir;
+function createShitenDir(tmpDir: string): string {
+  const shitenDir = join(tmpDir, "shitenno-go");
+  mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
+  mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
+  mkdirSync(join(shitenDir, "governance", "agents"), { recursive: true });
+  mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
+  mkdirSync(join(shitenDir, "scripts"), { recursive: true });
+  mkdirSync(join(shitenDir, "docs", "runbooks"), { recursive: true });
+  mkdirSync(join(shitenDir, "reports"), { recursive: true });
+  return shitenDir;
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 describe("state-manager", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    nexusDir = createNexusDir(tmpDir);
+    shitenDir = createShitenDir(tmpDir);
   });
 
   afterEach(() => {
@@ -53,8 +53,8 @@ describe("state-manager", () => {
   });
 
   describe("readKnowledgeState", () => {
-    it("returns empty state when nexus dir is empty", () => {
-      const state = readKnowledgeState(nexusDir);
+    it("returns empty state when shiten dir is empty", () => {
+      const state = readKnowledgeState(shitenDir);
       expect(state.adrs).toEqual([]);
       expect(state.skills).toEqual([]);
       expect(state.contracts).toEqual([]);
@@ -64,9 +64,9 @@ describe("state-manager", () => {
     });
 
     it("reads ADRs from docs/adrs", () => {
-      writeFileSync(join(nexusDir, "docs", "adrs", "ADR-001.md"), "# ADR 001\n\nEstado: accepted");
-      writeFileSync(join(nexusDir, "docs", "adrs", "ADR-002.md"), "# ADR 002\n\nStatus: draft");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "docs", "adrs", "ADR-001.md"), "# ADR 001\n\nEstado: accepted");
+      writeFileSync(join(shitenDir, "docs", "adrs", "ADR-002.md"), "# ADR 002\n\nStatus: draft");
+      const state = readKnowledgeState(shitenDir);
       expect(state.adrs).toHaveLength(2);
       if (state.adrs[0]) {
         expect(state.adrs[0].status).toBe("accepted");
@@ -77,8 +77,8 @@ describe("state-manager", () => {
     });
 
     it("reads skills from docs/skills", () => {
-      writeFileSync(join(nexusDir, "docs", "skills", "my-skill.md"), "# My Skill");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "docs", "skills", "my-skill.md"), "# My Skill");
+      const state = readKnowledgeState(shitenDir);
       expect(state.skills).toHaveLength(1);
       if (state.skills[0]) {
         expect(state.skills[0].id).toBe("my-skill");
@@ -86,8 +86,8 @@ describe("state-manager", () => {
     });
 
     it("reads contracts from governance/agents", () => {
-      writeFileSync(join(nexusDir, "governance", "agents", "planner.yaml"), "name: AI-Planner\nagent: planner");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "governance", "agents", "planner.yaml"), "name: AI-Planner\nagent: planner");
+      const state = readKnowledgeState(shitenDir);
       expect(state.contracts).toHaveLength(1);
       if (state.contracts[0]) {
         expect(state.contracts[0].name).toBe("AI-Planner");
@@ -95,61 +95,61 @@ describe("state-manager", () => {
     });
 
     it("reads governance docs", () => {
-      writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "# Agents");
-      writeFileSync(join(nexusDir, "governance", "WORKFLOW.md"), "# Workflow");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "# Agents");
+      writeFileSync(join(shitenDir, "governance", "WORKFLOW.md"), "# Workflow");
+      const state = readKnowledgeState(shitenDir);
       expect(state.governanceDocs.length).toBeGreaterThanOrEqual(2);
     });
 
     it("reads scripts", () => {
-      writeFileSync(join(nexusDir, "scripts", "deploy.ts"), "export {}");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "scripts", "deploy.ts"), "export {}");
+      const state = readKnowledgeState(shitenDir);
       expect(state.scripts).toHaveLength(1);
     });
 
     it("reads runbooks", () => {
-      writeFileSync(join(nexusDir, "docs", "runbooks", "incident-001.md"), "# Incident 001");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "docs", "runbooks", "incident-001.md"), "# Incident 001");
+      const state = readKnowledgeState(shitenDir);
       expect(state.runbooks).toHaveLength(1);
     });
 
     it("skips ADR template files", () => {
-      writeFileSync(join(nexusDir, "docs", "adrs", "ADR-TEMPLATE.md"), "# Template");
-      writeFileSync(join(nexusDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
-      const state = readKnowledgeState(nexusDir);
+      writeFileSync(join(shitenDir, "docs", "adrs", "ADR-TEMPLATE.md"), "# Template");
+      writeFileSync(join(shitenDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
+      const state = readKnowledgeState(shitenDir);
       expect(state.adrs).toHaveLength(1);
     });
   });
 
   describe("readProjectState", () => {
     it("returns default state when no files exist", () => {
-      const state = readProjectState(tmpDir, nexusDir);
+      const state = readProjectState(tmpDir, shitenDir);
       expect(state.maturity).toBeNull();
       expect(state.knowledgeDebt).toBeNull();
       expect(state.projectInfo.hasGit).toBe(false);
     });
 
     it("reads maturity profile when it exists", () => {
-      writeFileSync(join(nexusDir, "maturity-profile.json"), JSON.stringify({
+      writeFileSync(join(shitenDir, "maturity-profile.json"), JSON.stringify({
         overallScore: 65,
         dimensions: { architecture: 70, governance: 60 },
         computedAt: new Date().toISOString(),
         installedCapabilities: ["init"],
         recommendedCapabilities: ["upgrade"],
       }));
-      const state = readProjectState(tmpDir, nexusDir);
+      const state = readProjectState(tmpDir, shitenDir);
       expect(state.maturity).not.toBeNull();
       expect(state.maturity!.overallScore).toBe(65);
       expect(state.installedCapabilities).toContain("init");
     });
 
     it("reads knowledge debt report when it exists", () => {
-      writeFileSync(join(nexusDir, "reports", "knowledge-debt-2026-01-01.json"), JSON.stringify({
+      writeFileSync(join(shitenDir, "reports", "knowledge-debt-2026-01-01.json"), JSON.stringify({
         totalGaps: 5,
         healthScore: 75,
         generatedAt: "2026-01-01T00:00:00Z",
       }));
-      const state = readProjectState(tmpDir, nexusDir);
+      const state = readProjectState(tmpDir, shitenDir);
       expect(state.knowledgeDebt).not.toBeNull();
       expect(state.knowledgeDebt!.totalGaps).toBe(5);
     });
@@ -157,7 +157,7 @@ describe("state-manager", () => {
 
   describe("readSessionMemory", () => {
     it("returns default memory when no buffer exists", () => {
-      const memory = readSessionMemory(nexusDir);
+      const memory = readSessionMemory(shitenDir);
       expect(memory.sessionId).toBeNull();
       expect(memory.branch).toBeNull();
       expect(memory.reminders).toEqual([]);
@@ -179,8 +179,8 @@ next_steps:
 blockers:
   - "Blocked by issue #1"
 `;
-      writeFileSync(join(nexusDir, "governance", "context", "context_buffer.yaml"), yaml);
-      const memory = readSessionMemory(nexusDir);
+      writeFileSync(join(shitenDir, "governance", "context", "context_buffer.yaml"), yaml);
+      const memory = readSessionMemory(shitenDir);
       expect(memory.sessionId).toBe("session-001");
       expect(memory.branch).toBe("main");
       expect(memory.currentTask.description).toBe("Test task");
@@ -191,8 +191,8 @@ blockers:
   });
 
   describe("consolidateState", () => {
-    it("returns a complete NexusState", () => {
-      const state = consolidateState(tmpDir, nexusDir);
+    it("returns a complete ShitenState", () => {
+      const state = consolidateState(tmpDir, shitenDir);
       expect(state).toBeDefined();
       expect(state.knowledge).toBeDefined();
       expect(state.project).toBeDefined();
@@ -201,7 +201,7 @@ blockers:
     });
 
     it("all sections have correct types", () => {
-      const state = consolidateState(tmpDir, nexusDir);
+      const state = consolidateState(tmpDir, shitenDir);
       expect(Array.isArray(state.knowledge.adrs)).toBe(true);
       expect(typeof state.project.projectInfo).toBe("object");
       expect(state.memory.sessionId === null || typeof state.memory.sessionId === "string").toBe(true);
@@ -210,17 +210,17 @@ blockers:
 
   describe("stateToText", () => {
     it("produces readable text output", () => {
-      const state = consolidateState(tmpDir, nexusDir);
+      const state = consolidateState(tmpDir, shitenDir);
       const text = stateToText(state);
-      expect(text).toContain("Nexus State Report");
+      expect(text).toContain("Shiten State Report");
       expect(text).toContain("Knowledge (Permanent)");
       expect(text).toContain("Project State (Current)");
       expect(text).toContain("Session Memory (Temporary)");
     });
 
     it("includes ADR count", () => {
-      writeFileSync(join(nexusDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
-      const state = consolidateState(tmpDir, nexusDir);
+      writeFileSync(join(shitenDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
+      const state = consolidateState(tmpDir, shitenDir);
       const text = stateToText(state);
       expect(text).toContain("ADRs: 1");
     });

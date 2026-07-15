@@ -18,7 +18,7 @@ import type { ProjectAnalysis } from "../analyser.js";
 // ── Test Fixtures ──────────────────────────────────────────────────────────
 
 const EMPTY_ANSWERS: MaturityAnswers = {
-  usedNexusBefore: false,
+  usedShitenBefore: false,
   isFirstProject: true,
   projectAge: "new",
   teamSize: "solo",
@@ -38,7 +38,7 @@ const EMPTY_ANSWERS: MaturityAnswers = {
 };
 
 const FULL_ANSWERS: MaturityAnswers = {
-  usedNexusBefore: true,
+  usedShitenBefore: true,
   isFirstProject: false,
   projectAge: "mature",
   teamSize: "large",
@@ -61,7 +61,7 @@ const BASE_ANALYSIS: ProjectAnalysis = {
   rootDir: "/tmp/test",
   hasGit: false,
   hasPackageJson: true,
-  hasNexus: false,
+  hasShiten: false,
   stack: ["react"],
   packageManager: "pnpm",
   monorepo: false,
@@ -79,7 +79,7 @@ const BASE_ANALYSIS: ProjectAnalysis = {
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-maturity-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-maturity-"));
 });
 
 afterEach(() => {
@@ -108,7 +108,7 @@ describe("calculateMaturityProfile", () => {
       expect(profile.overallScore).toBeLessThanOrEqual(5);
     });
 
-    it("installs only core capability when no nexusDir", () => {
+    it("installs only core capability when no shitenDir", () => {
       const profile = calculateMaturityProfile(EMPTY_ANSWERS, BASE_ANALYSIS);
       expect(profile.installedCapabilities).toEqual(["core"]);
     });
@@ -398,7 +398,7 @@ describe("governance integration with calculateMaturityProfile", () => {
     expect(profile.dimensions.governance).toBeGreaterThanOrEqual(10);
   });
 
-  it("does not add artifact score when nexusDir is undefined", () => {
+  it("does not add artifact score when shitenDir is undefined", () => {
     mkdirSync(join(tempDir, "governance"), { recursive: true });
     writeFileSync(join(tempDir, "governance", "WORKFLOW.md"), "# W");
     const profile = calculateMaturityProfile(EMPTY_ANSWERS, BASE_ANALYSIS);
@@ -414,7 +414,7 @@ describe("recommendation engine", () => {
         ...EMPTY_ANSWERS,
         hasArchitectureDocs: true,
         hasADRs: true,
-        usedNexusBefore: true,
+        usedShitenBefore: true,
       };
       const profile = calculateMaturityProfile(answers, BASE_ANALYSIS, tempDir);
       expect(profile.recommendedCapabilities).toContain("knowledge");

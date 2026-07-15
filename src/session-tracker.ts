@@ -2,7 +2,7 @@
  * session-tracker.ts — Session Tracking for User Performance
  *
  * Tracks session start/end, commands executed, and duration.
- * Persists to nexus-system/telemetry/sessions.jsonl (append-only).
+ * Persists to shitenno-go/telemetry/sessions.jsonl (append-only).
  *
  * PRINCIPLE: To report on performance, we must first observe it.
  */
@@ -44,16 +44,16 @@ export interface SessionMetrics {
 
 let sessionCounter = 0;
 
-function getTelemetryDir(nexusDir: string): string {
-  return join(nexusDir, "telemetry");
+function getTelemetryDir(shitenDir: string): string {
+  return join(shitenDir, "telemetry");
 }
 
-function getSessionsPath(nexusDir: string): string {
-  return join(getTelemetryDir(nexusDir), "sessions.jsonl");
+function getSessionsPath(shitenDir: string): string {
+  return join(getTelemetryDir(shitenDir), "sessions.jsonl");
 }
 
-function ensureTelemetryDir(nexusDir: string): void {
-  const dir = getTelemetryDir(nexusDir);
+function ensureTelemetryDir(shitenDir: string): void {
+  const dir = getTelemetryDir(shitenDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -62,8 +62,8 @@ function ensureTelemetryDir(nexusDir: string): void {
 // ── Core Functions ───────────────────────────────────────────────────────────
 
 /** Start a new session. Returns the session record. */
-export function startSession(nexusDir: string): SessionRecord {
-  ensureTelemetryDir(nexusDir);
+export function startSession(shitenDir: string): SessionRecord {
+  ensureTelemetryDir(shitenDir);
 
   const now = new Date();
   const ts = now.toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
@@ -79,30 +79,30 @@ export function startSession(nexusDir: string): SessionRecord {
     pathChoices: { comfortable: 0, challenging: 0 },
   };
 
-  appendSession(nexusDir, session);
+  appendSession(shitenDir, session);
   logger.debug("SessionTracker", `Session started: ${session.id}`);
   return session;
 }
 
 /** Track a command executed during the session. */
-export function trackCommand(nexusDir: string, sessionId: string, command: string): void {
-  const sessions = readAllSessions(nexusDir);
+export function trackCommand(shitenDir: string, sessionId: string, command: string): void {
+  const sessions = readAllSessions(shitenDir);
   const session = sessions.find((s) => s.id === sessionId);
   if (!session) return;
 
   session.commands.push(command);
   session.lastActivityAt = new Date().toISOString();
-  appendSession(nexusDir, session);
+  appendSession(shitenDir, session);
 }
 
 /** Record a feedback event in the session. */
 export function trackFeedback(
-  nexusDir: string,
+  shitenDir: string,
   sessionId: string,
   action: "accepted" | "rejected" | "deferred",
   pathChoice?: "comfortable" | "challenging"
 ): void {
-  const sessions = readAllSessions(nexusDir);
+  const sessions = readAllSessions(shitenDir);
   const session = sessions.find((s) => s.id === sessionId);
   if (!session) return;
 
@@ -112,12 +112,12 @@ export function trackFeedback(
   if (pathChoice === "comfortable") session.pathChoices.comfortable++;
   if (pathChoice === "challenging") session.pathChoices.challenging++;
   session.lastActivityAt = new Date().toISOString();
-  appendSession(nexusDir, session);
+  appendSession(shitenDir, session);
 }
 
 /** End a session and calculate duration. */
-export function endSession(nexusDir: string, sessionId: string): SessionRecord | null {
-  const sessions = readAllSessions(nexusDir);
+export function endSession(shitenDir: string, sessionId: string): SessionRecord | null {
+  const sessions = readAllSessions(shitenDir);
   const session = sessions.find((s) => s.id === sessionId);
   if (!session) return null;
 
@@ -128,17 +128,17 @@ export function endSession(nexusDir: string, sessionId: string): SessionRecord |
   const startedAt = new Date(session.startedAt);
   session.duration = Math.round((endedAt.getTime() - startedAt.getTime()) / 60000);
 
-  appendSession(nexusDir, session);
+  appendSession(shitenDir, session);
   logger.debug("SessionTracker", `Session ended: ${session.id} (${session.duration}min)`);
   return session;
 }
 
 /** Get all sessions, optionally filtered. */
 export function getSessions(
-  nexusDir: string,
+  shitenDir: string,
   options?: { since?: string; limit?: number }
 ): SessionRecord[] {
-  let sessions = readAllSessions(nexusDir);
+  let sessions = readAllSessions(shitenDir);
 
   if (options?.since) {
     const sinceDate = new Date(options.since);
@@ -153,11 +153,11 @@ export function getSessions(
 }
 
 /** Get aggregated session metrics. */
-export function getSessionMetrics(nexusDir: string, days?: number): SessionMetrics {
+export function getSessionMetrics(shitenDir: string, days?: number): SessionMetrics {
   const since = days
     ? new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
     : undefined;
-  const sessions = getSessions(nexusDir, { since });
+  const sessions = getSessions(shitenDir, { since });
 
   const commandFrequency: Record<string, number> = {};
   let totalCommands = 0;
@@ -203,14 +203,14 @@ export function getSessionMetrics(nexusDir: string, days?: number): SessionMetri
 
 
 
-function appendSession(nexusDir: string, session: SessionRecord): void {
-  const sessionsPath = getSessionsPath(nexusDir);
+function appendSession(shitenDir: string, session: SessionRecord): void {
+  const sessionsPath = getSessionsPath(shitenDir);
   appendFileSync(sessionsPath, JSON.stringify(session) + "\n", "utf-8");
 }
 
 /** Read all sessions and deduplicate by ID (keep latest entry per session). */
-function readAllSessions(nexusDir: string): SessionRecord[] {
-  const sessionsPath = getSessionsPath(nexusDir);
+function readAllSessions(shitenDir: string): SessionRecord[] {
+  const sessionsPath = getSessionsPath(shitenDir);
   if (!existsSync(sessionsPath)) return [];
 
   try {

@@ -3,7 +3,7 @@
 
 Objetivo
 
-Transformar Nexus em plataforma.
+Transformar Shiten em plataforma.
 
 ---
 

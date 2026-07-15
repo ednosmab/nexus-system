@@ -91,7 +91,7 @@ importers:
         specifier: ^0.10.1
         version: 0.10.1(@vitest/utils@4.1.9)(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0))(vitest@4.1.9)
 
-  apps/nexus-dashboard:
+  apps/shitenno-dashboard:
     dependencies:
       gray-matter:
         specifier: ^4.0.3

@@ -3,13 +3,13 @@
  * sync-docs.ts — Documentation Sync Script (Template)
  *
  * Regenerates SYSTEM_MAP.md from the current directory structure
- * under nexus-system/. Called automatically by doc-sync-hook or
- * manually via `nexus sync-docs`.
+ * under shitenno-go/. Called automatically by doc-sync-hook or
+ * manually via `shiten sync-docs`.
  *
  * PRINCIPLE: Documentation stays in sync with actual structure.
  *
- * This is the template version installed via `nexus init`.
- * The full-featured version lives in the nexus-cli repo.
+ * This is the template version installed via `shiten init`.
+ * The full-featured version lives in the shitenno-cli repo.
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -22,8 +22,8 @@ const __dirname = dirname(__filename);
 // ── Config ──────────────────────────────────────────────────────────────
 
 const ROOT = join(__dirname, "..", "..");
-const NEXUS_DIR = join(ROOT, "nexus-system");
-const SYSTEM_MAP_PATH = join(NEXUS_DIR, "governance", "SYSTEM_MAP.md");
+const SHITEN_DIR = join(ROOT, "shitenno-go");
+const SYSTEM_MAP_PATH = join(SHITEN_DIR, "governance", "SYSTEM_MAP.md");
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -51,8 +51,8 @@ function walkDir(dir: string, prefix = ""): string[] {
 // ── SYSTEM_MAP Regeneration ─────────────────────────────────────────────
 
 function regenerateSystemMap(): boolean {
-  if (!existsSync(NEXUS_DIR)) {
-    console.log("  ⚠ nexus-system/ not found, skipping");
+  if (!existsSync(SHITEN_DIR)) {
+    console.log("  ⚠ shitenno-go/ not found, skipping");
     return false;
   }
 
@@ -61,7 +61,7 @@ function regenerateSystemMap(): boolean {
     return false;
   }
 
-  const files = walkDir(NEXUS_DIR);
+  const files = walkDir(SHITEN_DIR);
   const tree = files
     .map((f) => `│   ${f}`)
     .join("\n");

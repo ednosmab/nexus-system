@@ -9,7 +9,7 @@ const HOOKS_DIR = ".husky";
 const POST_COMMIT_HOOK = "post-commit";
 const POST_MERGE_HOOK = "post-merge";
 
-const NEXUS_HOOK_LINE = "nexus detect --auto 2>/dev/null &";
+const SHITEN_HOOK_LINE = "shiten detect --auto 2>/dev/null &";
 
 export function ensureHooksDir(projectRoot: string): string {
   const hooksPath = join(projectRoot, HOOKS_DIR);
@@ -37,7 +37,7 @@ export function appendToHook(hooksPath: string, hookName: string, line: string):
     content = "#!/bin/sh\n";
   }
 
-  content += `\n# Nexus System hook\n${line}\n`;
+  content += `\n# Shitenno-go hook\n${line}\n`;
   writeFileSync(hookPath, content, { mode: 0o755 });
   return { added: true, alreadyExists: false };
 }
@@ -56,7 +56,7 @@ export function removeFromHook(hooksPath: string, hookName: string, line: string
   // Simple line removal (preserves other content)
   const newContent = content
     .split("\n")
-    .filter((l) => l.trim() !== line.trim() && l.trim() !== "# Nexus System hook")
+    .filter((l) => l.trim() !== line.trim() && l.trim() !== "# Shitenno-go hook")
     .join("\n");
 
   writeFileSync(hookPath, newContent, { mode: 0o755 });
@@ -64,12 +64,12 @@ export function removeFromHook(hooksPath: string, hookName: string, line: string
 }
 
 export const hooksCommand = new Command("hooks")
-  .description("Install or uninstall Nexus git hooks (Husky compatible)")
+  .description("Install or uninstall Shiten git hooks (Husky compatible)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
-  .option("--uninstall", "Remove Nexus hooks from existing git hooks")
+  .option("--uninstall", "Remove Shiten hooks from existing git hooks")
   .action((options) => {
     outputBlank();
-    banner("nexus hooks", "Git Hooks Management");
+    banner("shiten hooks", "Git Hooks Management");
     outputBlank();
 
     const projectRoot = options.dir ? resolve(options.dir) : process.cwd();
@@ -84,20 +84,20 @@ export const hooksCommand = new Command("hooks")
     const hooksPath = ensureHooksDir(projectRoot);
 
     if (options.uninstall) {
-      output(chalk.bold("  Uninstalling Nexus hooks..."));
-      const postCommit = removeFromHook(hooksPath, POST_COMMIT_HOOK, NEXUS_HOOK_LINE);
-      const postMerge = removeFromHook(hooksPath, POST_MERGE_HOOK, NEXUS_HOOK_LINE);
+      output(chalk.bold("  Uninstalling Shiten hooks..."));
+      const postCommit = removeFromHook(hooksPath, POST_COMMIT_HOOK, SHITEN_HOOK_LINE);
+      const postMerge = removeFromHook(hooksPath, POST_MERGE_HOOK, SHITEN_HOOK_LINE);
 
       if (postCommit.removed || postMerge.removed) {
-        output(chalk.green("  ✓ Nexus hooks removed."));
+        output(chalk.green("  ✓ Shiten hooks removed."));
       } else {
-        output(chalk.yellow("  No Nexus hooks found to remove."));
+        output(chalk.yellow("  No Shiten hooks found to remove."));
       }
     } else {
-      output(chalk.bold("  Installing Nexus hooks..."));
+      output(chalk.bold("  Installing Shiten hooks..."));
       
       // 1. Post-commit (append)
-      const pc = appendToHook(hooksPath, POST_COMMIT_HOOK, NEXUS_HOOK_LINE);
+      const pc = appendToHook(hooksPath, POST_COMMIT_HOOK, SHITEN_HOOK_LINE);
       if (pc.added) {
         output(chalk.green(`  ✓ Added to ${POST_COMMIT_HOOK}`));
       } else {
@@ -105,7 +105,7 @@ export const hooksCommand = new Command("hooks")
       }
 
       // 2. Post-merge (append or create)
-      const pm = appendToHook(hooksPath, POST_MERGE_HOOK, NEXUS_HOOK_LINE);
+      const pm = appendToHook(hooksPath, POST_MERGE_HOOK, SHITEN_HOOK_LINE);
       if (pm.added) {
         output(chalk.green(`  ✓ Created/Updated ${POST_MERGE_HOOK}`));
       } else {

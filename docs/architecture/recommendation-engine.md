@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, Nexus generates recommendations but they are static. The same project gets the same recommendations regardless of history, feedback, or context changes.
+Today, Shiten generates recommendations but they are static. The same project gets the same recommendations regardless of history, feedback, or context changes.
 
 The recommendation engine makes recommendations dynamic, context-aware, and learning.
 
@@ -47,7 +47,7 @@ interface EvolutionRecommendation {
 
 ```typescript
 function generateCapabilityRecommendations(
-  state: NexusState
+  state: ShitenState
 ): EvolutionRecommendation[] {
   const recs: EvolutionRecommendation[] = [];
   
@@ -59,8 +59,8 @@ function generateCapabilityRecommendations(
         priority: "high",
         title: `Install ${cap} capability`,
         description: `The ${cap} capability is recommended for your project maturity level.`,
-        action: `Run: nexus upgrade --capability ${cap}`,
-        command: `nexus upgrade --capability ${cap}`,
+        action: `Run: shiten upgrade --capability ${cap}`,
+        command: `shiten upgrade --capability ${cap}`,
         confidence: 0.8,
         evidence: [`Maturity score: ${state.project.maturity?.overallScore}`],
       });
@@ -75,7 +75,7 @@ function generateCapabilityRecommendations(
 
 ```typescript
 function generateKnowledgeRecommendations(
-  state: NexusState,
+  state: ShitenState,
   debt: KnowledgeDebtReport
 ): EvolutionRecommendation[] {
   const recs: EvolutionRecommendation[] = [];
@@ -116,7 +116,7 @@ function generateKnowledgeRecommendations(
 
 ```typescript
 function generateGovernanceRecommendations(
-  state: NexusState
+  state: ShitenState
 ): EvolutionRecommendation[] {
   const recs: EvolutionRecommendation[] = [];
   
@@ -145,7 +145,7 @@ function generateGovernanceRecommendations(
 
 ```typescript
 function generateAutomationRecommendations(
-  state: NexusState
+  state: ShitenState
 ): EvolutionRecommendation[] {
   const recs: EvolutionRecommendation[] = [];
   

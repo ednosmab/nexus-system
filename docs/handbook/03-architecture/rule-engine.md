@@ -73,7 +73,7 @@ Regras são definidas em JSON e ativadas por triggers específicos, executando a
 
 ### 1. Criar Arquivo JSON
 
-Crie um arquivo em `nexus-system/governance/rules/RULE-XXX.json`:
+Crie um arquivo em `shitenno-go/governance/rules/RULE-XXX.json`:
 
 ```json
 {
@@ -97,13 +97,13 @@ Crie um arquivo em `nexus-system/governance/rules/RULE-XXX.json`:
 ### 2. Validar Schema
 
 ```bash
-nexus validate --rule RULE-XXX
+shiten validate --rule RULE-XXX
 ```
 
 ### 3. Testar
 
 ```bash
-nexus rule test RULE-XXX
+shiten rule test RULE-XXX
 ```
 
 ---

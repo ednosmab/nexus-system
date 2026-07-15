@@ -11,7 +11,7 @@ import { getEngineeringState } from "../engineering-state-access.js";
 import { generateForecast } from "../trend-engine.js";
 import { logger } from "../logger.js";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank } from "../output.js";
 import { Command } from "commander";
 
@@ -65,17 +65,17 @@ export interface ContextOutput {
 /**
  * Generate context output for AI agents.
  */
-export function generateContext(nexusDir: string): ContextOutput | null {
+export function generateContext(shitenDir: string): ContextOutput | null {
   const projectRoot = process.cwd();
   let state;
   try {
-    state = getEngineeringState(projectRoot, nexusDir);
+    state = getEngineeringState(projectRoot, shitenDir);
   } catch {
     logger.debug("context", "No engineering state found");
     return null;
   }
 
-  const trend = generateForecast(loadHistoricalStates(nexusDir));
+  const trend = generateForecast(loadHistoricalStates(shitenDir));
   const challenges = loadChallenges(state);
 
   const trendDirection = trend?.trends.find((t) => t.metric === "health")?.direction ?? "unknown";
@@ -117,10 +117,10 @@ export function generateContext(nexusDir: string): ContextOutput | null {
 /**
  * Load historical states for trend analysis.
  */
-function loadHistoricalStates(nexusDir: string) {
+function loadHistoricalStates(shitenDir: string) {
   const projectRoot = process.cwd();
   try {
-    const state = getEngineeringState(projectRoot, nexusDir);
+    const state = getEngineeringState(projectRoot, shitenDir);
     return [state];
   } catch {
     return [];
@@ -167,11 +167,11 @@ function loadChallenges(state: ReturnType<typeof getEngineeringState>): ContextO
  */
 export async function executeContextCommand(options: { json?: boolean; forAgent?: string }): Promise<void> {
   const projectRoot = process.cwd();
-  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
-  let context = generateContext(nexusDir);
+  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+  let context = generateContext(shitenDir);
 
   if (!context) {
-    output("No engineering state found. Run 'nexus init' first.");
+    output("No engineering state found. Run 'shiten init' first.");
     return;
   }
 
