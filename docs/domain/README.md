@@ -1,10 +1,10 @@
 # Domain
 
-> How Nexus interprets a project of engineering. The mental model.
+> How Shiten interprets a project of engineering. The mental model.
 
 ## Purpose
 
-This directory defines the conceptual framework of Nexus. Documents here describe concepts, responsibilities, relationships, and rules. They contain no implementation details.
+This directory defines the conceptual framework of Shiten. Documents here describe concepts, responsibilities, relationships, and rules. They contain no implementation details.
 
 ## Audience
 
@@ -22,8 +22,8 @@ This directory defines the conceptual framework of Nexus. Documents here describ
 | [Knowledge Lifecycle](./knowledge-lifecycle.md) | 9 stages from Observation to Command |
 | [Capability Model](./capability-model.md) | 9 capabilities with dependencies |
 | [Engineering State](./engineering-state.md) | Measurable conditions of engineering practices |
-| [Problem Statement](./problem-statement.md) | The problem Nexus exists to solve |
-| [Knowledge](./knowledge.md) | What knowledge means in Nexus |
+| [Problem Statement](./problem-statement.md) | The problem Shiten exists to solve |
+| [Knowledge](./knowledge.md) | What knowledge means in Shiten |
 | [Engineering Assets](./engineering-assets.md) | What characterizes an engineering asset |
 | [Decisions](./decisions.md) | How decisions are modeled |
 

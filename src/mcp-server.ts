@@ -1,5 +1,5 @@
 /**
- * mcp-server.ts — MCP Server for Nexus Context Pipeline
+ * mcp-server.ts — MCP Server for Shiten Context Pipeline
  *
  * Thin facade — handlers split into mcp-server-handlers.ts.
  */
@@ -114,11 +114,11 @@ const TOOLS = [
   },
 ];
 
-export function createMcpServer(projectRoot: string, nexusDir?: string): Server {
-  const resolvedNexusDir = nexusDir ?? `${projectRoot}/nexus-system`;
+export function createMcpServer(projectRoot: string, shitenDir?: string): Server {
+  const resolvedShitenDir = shitenDir ?? `${projectRoot}/shitenno-go`;
 
   const server = new Server(
-    { name: "nexus-mcp", version: "0.1.0" },
+    { name: "shiten-mcp", version: "0.1.0" },
     { capabilities: { tools: {} } }
   );
 
@@ -131,19 +131,19 @@ export function createMcpServer(projectRoot: string, nexusDir?: string): Server 
     try {
       switch (name) {
         case "getBriefing":
-          return handleGetBriefing(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetBriefing(projectRoot, resolvedShitenDir, toolArgs);
         case "getRiskMap":
-          return handleGetRiskMap(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetRiskMap(projectRoot, resolvedShitenDir, toolArgs);
         case "getRules":
-          return handleGetRules(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetRules(projectRoot, resolvedShitenDir, toolArgs);
         case "getEngineeringState":
-          return handleGetEngineeringState(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetEngineeringState(projectRoot, resolvedShitenDir, toolArgs);
         case "getBacklog":
-          return handleGetBacklog(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetBacklog(projectRoot, resolvedShitenDir, toolArgs);
         case "getPlans":
-          return handleGetPlans(projectRoot, resolvedNexusDir, toolArgs);
+          return handleGetPlans(projectRoot, resolvedShitenDir, toolArgs);
         case "submitFeedback":
-          return handleSubmitFeedback(projectRoot, resolvedNexusDir, toolArgs);
+          return handleSubmitFeedback(projectRoot, resolvedShitenDir, toolArgs);
         default:
           return {
             content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }],
@@ -161,8 +161,8 @@ export function createMcpServer(projectRoot: string, nexusDir?: string): Server 
   return server;
 }
 
-export async function startMcpServer(projectRoot: string, nexusDir?: string): Promise<void> {
-  const server = createMcpServer(projectRoot, nexusDir);
+export async function startMcpServer(projectRoot: string, shitenDir?: string): Promise<void> {
+  const server = createMcpServer(projectRoot, shitenDir);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

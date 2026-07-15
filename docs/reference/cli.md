@@ -1,6 +1,6 @@
 # CLI Reference
 
-> Complete reference for all Nexus CLI commands.
+> Complete reference for all Shiten CLI commands.
 
 ## Global Options
 
@@ -13,12 +13,12 @@
 
 ## Commands
 
-### nexus init
+### shiten init
 
-Initialize Nexus in a project.
+Initialize Shiten in a project.
 
 ```bash
-nexus init [--dir <path>] [--answers-file <path>] [--force]
+shiten init [--dir <path>] [--answers-file <path>] [--force]
 ```
 
 **Options:**
@@ -26,25 +26,25 @@ nexus init [--dir <path>] [--answers-file <path>] [--force]
 | Option | Description |
 |--------|-------------|
 | `--answers-file <path>` | JSON file with pre-filled answers (skips interactive prompts) |
-| `--force` | Force creation even inside nexus-cli directory |
+| `--force` | Force creation even inside shitenno-cli directory |
 
 **What it does:**
 - Analyzes project structure (stack, packages, apps, TypeScript, tests, CI)
 - Runs interactive questionnaire to assess maturity (or loads from `--answers-file`)
 - Calculates maturity profile across 7 dimensions
-- Scaffolds governance structure: `nexus-system/`, `opencode.json`, `nexus-system/profile/`
+- Scaffolds governance structure: `shitenno-go/`, `opencode.json`, `shitenno-go/profile/`
 - Installs core capability + recommended capabilities based on maturity
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### nexus status
+### shiten status
 
 Health check, complexity scoring, and maturity overview.
 
 ```bash
-nexus status [--dir <path>] [--json] [--no-cache]
+shiten status [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -64,12 +64,12 @@ nexus status [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### nexus detect
+### shiten detect
 
 Detect patterns from project history and session logs.
 
 ```bash
-nexus detect [--dir <path>] [--json] [--no-cache]
+shiten detect [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -88,12 +88,12 @@ nexus detect [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### nexus audit
+### shiten audit
 
 Audit governance health and knowledge graph.
 
 ```bash
-nexus audit [--dir <path>] [--json] [--no-cache]
+shiten audit [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -112,12 +112,12 @@ nexus audit [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### nexus evolve
+### shiten evolve
 
 Show evolution recommendations with dual paths.
 
 ```bash
-nexus evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason <text>] [--comfortable] [--challenging]
+shiten evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason <text>] [--comfortable] [--challenging]
 ```
 
 **Options:**
@@ -141,12 +141,12 @@ nexus evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason <
 
 ---
 
-### nexus run
+### shiten run
 
 Execute the full 5-stage analysis pipeline.
 
 ```bash
-nexus run [--dir <path>] [--json]
+shiten run [--dir <path>] [--json]
 ```
 
 **Stages:**
@@ -163,12 +163,12 @@ nexus run [--dir <path>] [--json]
 
 ---
 
-### nexus upgrade
+### shiten upgrade
 
 Install or upgrade governance capabilities.
 
 ```bash
-nexus upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommended] [--json]
+shiten upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommended] [--json]
 ```
 
 **Options:**
@@ -190,12 +190,12 @@ nexus upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommende
 
 ---
 
-### nexus validate
+### shiten validate
 
 Validate configuration files and session state.
 
 ```bash
-nexus validate [--dir <path>] [--json] [--fix]
+shiten validate [--dir <path>] [--json] [--fix]
 ```
 
 **Options:**
@@ -214,38 +214,38 @@ nexus validate [--dir <path>] [--json] [--fix]
 
 ---
 
-### nexus sync
+### shiten sync
 
-Synchronize files from a local nexus-system directory.
+Synchronize files from a local shitenno-go directory.
 
 ```bash
-nexus sync [--dir <path>] --nexus-path <path> [--dry-run] [--force] [--json]
+shiten sync [--dir <path>] --shiten-path <path> [--dry-run] [--force] [--json]
 ```
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--nexus-path <path>` | Path to source nexus-system directory (or `NEXUS_SYSTEM_PATH` env) |
+| `--shiten-path <path>` | Path to source shitenno-go directory (or `SHITENNO_GO_PATH` env) |
 | `--dry-run` | Show what would be changed without making changes |
 | `--force` | Overwrite all files without asking |
 
 **What it does:**
-- Copies files from source nexus-system to target project
+- Copies files from source shitenno-go to target project
 - Preserves project-specific customizations during merge
 - Supports JSON merge for opencode.json (preserves agent models/permissions)
-- Supports Markdown section merge for AGENTS.md, opencode-context.md, Nexus-System_GUIDE.md
+- Supports Markdown section merge for AGENTS.md, opencode-context.md, Shitenno-go_GUIDE.md
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### nexus assess
+### shiten assess
 
 Re-evaluate maturity profile and show deltas.
 
 ```bash
-nexus assess [--dir <path>] [--json]
+shiten assess [--dir <path>] [--json]
 ```
 
 **What it does:**
@@ -259,16 +259,16 @@ nexus assess [--dir <path>] [--json]
 
 ---
 
-### nexus clean
+### shiten clean
 
 Clean cache and temporary files.
 
 ```bash
-nexus clean [--dir <path>] [--json]
+shiten clean [--dir <path>] [--json]
 ```
 
 **What it does:**
-- Removes `.nexus-cache.json` from project root
+- Removes `.shiten-cache.json` from project root
 - Removes `*.tsbuildinfo` files
 - Invalidates internal cache
 
@@ -276,12 +276,12 @@ nexus clean [--dir <path>] [--json]
 
 ---
 
-### nexus doctor
+### shiten doctor
 
 System diagnostics with risks, improvements, and teaching moments.
 
 ```bash
-nexus doctor [--dir <path>] [--json]
+shiten doctor [--dir <path>] [--json]
 ```
 
 **What it does:**
@@ -296,12 +296,12 @@ nexus doctor [--dir <path>] [--json]
 
 ---
 
-### nexus report
+### shiten report
 
 Generate user performance report with dimensions, trends, and insights.
 
 ```bash
-nexus report [--dir <path>] [--json] [--period <days>] [--save]
+shiten report [--dir <path>] [--json] [--period <days>] [--save]
 ```
 
 **Options:**
@@ -322,12 +322,12 @@ nexus report [--dir <path>] [--json] [--period <days>] [--save]
 
 ---
 
-### nexus daemon
+### shiten daemon
 
 Manage the background automation daemon.
 
 ```bash
-nexus daemon <start|stop|status|restart>
+shiten daemon <start|stop|status|restart>
 ```
 
 **Subcommands:**
@@ -349,12 +349,12 @@ nexus daemon <start|stop|status|restart>
 
 ---
 
-### nexus watch
+### shiten watch
 
 Real-time event log for governance monitoring.
 
 ```bash
-nexus watch [--events <types>] [--dir <path>]
+shiten watch [--events <types>] [--dir <path>]
 ```
 
 **Options:**
@@ -373,34 +373,34 @@ nexus watch [--events <types>] [--dir <path>]
 
 ---
 
-### nexus hooks
+### shiten hooks
 
-Install or uninstall Nexus git hooks.
+Install or uninstall Shiten git hooks.
 
 ```bash
-nexus hooks [--uninstall] [--dir <path>]
+shiten hooks [--uninstall] [--dir <path>]
 ```
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--uninstall` | Remove Nexus hooks from git hooks |
+| `--uninstall` | Remove Shiten hooks from git hooks |
 
 **What it does:**
-- Installs `nexus detect --auto` in `.husky/post-commit` and `.husky/post-merge`
+- Installs `shiten detect --auto` in `.husky/post-commit` and `.husky/post-merge`
 - Idempotent: detects if already installed
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### nexus events
+### shiten events
 
 Show rule engine execution trace.
 
 ```bash
-nexus events [--last <n>] [--trigger <type>] [--json]
+shiten events [--last <n>] [--trigger <type>] [--json]
 ```
 
 **Options:**
@@ -419,12 +419,12 @@ nexus events [--last <n>] [--trigger <type>] [--json]
 
 ---
 
-### nexus context
+### shiten context
 
 Full project context for AI agents.
 
 ```bash
-nexus context [--json] [--for-agent <name>]
+shiten context [--json] [--for-agent <name>]
 ```
 
 **Options:**
@@ -441,12 +441,12 @@ nexus context [--json] [--for-agent <name>]
 
 ---
 
-### nexus history
+### shiten history
 
 View engineering state history with optional diffs.
 
 ```bash
-nexus history [--from <date>] [--to <date>] [--diff] [--json]
+shiten history [--from <date>] [--to <date>] [--diff] [--json]
 ```
 
 **Options:**
@@ -466,12 +466,12 @@ nexus history [--from <date>] [--to <date>] [--diff] [--json]
 
 ---
 
-### nexus handbook
+### shiten handbook
 
 Browse the project handbook in the terminal.
 
 ```bash
-nexus handbook [--print] [--level <1|2|3>] [--list]
+shiten handbook [--print] [--level <1|2|3>] [--list]
 ```
 
 **Options:**
@@ -491,13 +491,13 @@ nexus handbook [--print] [--level <1|2|3>] [--list]
 
 ---
 
-### nexus mcp
+### shiten mcp
 
 MCP server management for AI integration.
 
 ```bash
-nexus mcp [--dir <path>]
-nexus mcp install [--check] [--upgrade] [--json]
+shiten mcp [--dir <path>]
+shiten mcp install [--check] [--upgrade] [--json]
 ```
 
 **Subcommands:**
@@ -519,12 +519,12 @@ nexus mcp install [--check] [--upgrade] [--json]
 
 ---
 
-### nexus briefing
+### shiten briefing
 
 Pre-session briefing for AI agents (Context Pipeline).
 
 ```bash
-nexus briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
+shiten briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 ```
 
 **Options:**
@@ -532,7 +532,7 @@ nexus briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 | Option | Description |
 |--------|-------------|
 | `--summary` | One-line summary only |
-| `--write` | Write briefing to `.nexus/BRIEFING.md` |
+| `--write` | Write briefing to `.shiten/BRIEFING.md` |
 | `--depth <level>` | Briefing depth: `minimal`, `standard`, or `full` |
 
 **What it does:**
@@ -545,12 +545,12 @@ nexus briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 
 ---
 
-### nexus feedback
+### shiten feedback
 
 Report session outcome for the Context Pipeline feedback loop.
 
 ```bash
-nexus feedback --outcome <success|failure|partial> [--areas <list>] [--notes <text>] [--json] [--summary] [--list] [--personalized]
+shiten feedback --outcome <success|failure|partial> [--areas <list>] [--notes <text>] [--json] [--summary] [--list] [--personalized]
 ```
 
 **Options:**
@@ -571,12 +571,12 @@ nexus feedback --outcome <success|failure|partial> [--areas <list>] [--notes <te
 
 ---
 
-### nexus digest
+### shiten digest
 
 Daily digest of project health and recent changes.
 
 ```bash
-nexus digest [--json]
+shiten digest [--json]
 ```
 
 **What it does:**
@@ -589,12 +589,12 @@ nexus digest [--json]
 
 ---
 
-### nexus bench
+### shiten bench
 
 Benchmark token economy and Context Pipeline performance.
 
 ```bash
-nexus bench [--json] [--iterations <n>] [--compare]
+shiten bench [--json] [--iterations <n>] [--compare]
 ```
 
 **Options:**
@@ -614,12 +614,12 @@ nexus bench [--json] [--iterations <n>] [--compare]
 
 ---
 
-### nexus console
+### shiten console
 
 Token economy console with session metrics.
 
 ```bash
-nexus console [--json] [--period <days>]
+shiten console [--json] [--period <days>]
 ```
 
 **Options:**
@@ -639,12 +639,12 @@ nexus console [--json] [--period <days>]
 
 ---
 
-### nexus dashboard
+### shiten dashboard
 
 Interactive engineering dashboard with tabs, mouse, and accessibility.
 
 ```bash
-nexus dashboard [--json] [--live <seconds>] [--screen-reader]
+shiten dashboard [--json] [--live <seconds>] [--screen-reader]
 ```
 
 **Options:**
@@ -665,12 +665,12 @@ nexus dashboard [--json] [--live <seconds>] [--screen-reader]
 
 ---
 
-### nexus profile
+### shiten profile
 
 View and update your user profile for personalized feedback.
 
 ```bash
-nexus profile [--set] [--name <name>] [--role <role>] [--architecture <level>] [--coding <level>] [--json]
+shiten profile [--set] [--name <name>] [--role <role>] [--architecture <level>] [--coding <level>] [--json]
 ```
 
 **Options:**
@@ -692,12 +692,12 @@ nexus profile [--set] [--name <name>] [--role <role>] [--architecture <level>] [
 
 ---
 
-### nexus goal
+### shiten goal
 
 Manage governance goals.
 
 ```bash
-nexus goal <subcommand> [options]
+shiten goal <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -718,15 +718,15 @@ nexus goal <subcommand> [options]
 
 ---
 
-### nexus decide
+### shiten decide
 
 Evaluate proposed actions using specialized evaluators.
 
 ```bash
-nexus decide "<action>" [--category <cat>] [--risk <level>] [--impact <level>] [--json]
-nexus decide list [--category <cat>] [--json]
-nexus decide show <id> [--json]
-nexus decide stats [--json]
+shiten decide "<action>" [--category <cat>] [--risk <level>] [--impact <level>] [--json]
+shiten decide list [--category <cat>] [--json]
+shiten decide show <id> [--json]
+shiten decide stats [--json]
 ```
 
 **Options:**
@@ -748,12 +748,12 @@ nexus decide stats [--json]
 
 ---
 
-### nexus policy
+### shiten policy
 
 Manage and evaluate declarative governance policies.
 
 ```bash
-nexus policy <subcommand> [options]
+shiten policy <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -776,12 +776,12 @@ nexus policy <subcommand> [options]
 
 ---
 
-### nexus act
+### shiten act
 
 Execute actions with idempotency guarantees.
 
 ```bash
-nexus act <subcommand> [options]
+shiten act <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -801,12 +801,12 @@ nexus act <subcommand> [options]
 
 ---
 
-### nexus plan
+### shiten plan
 
 Manage coordinated action sequences (plans).
 
 ```bash
-nexus plan <subcommand> [options]
+shiten plan <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -833,12 +833,12 @@ nexus plan <subcommand> [options]
 
 ---
 
-### nexus reminders
+### shiten reminders
 
 List, add, remove, and manage session reminders.
 
 ```bash
-nexus reminders [add|rm|clear] [options]
+shiten reminders [add|rm|clear] [options]
 ```
 
 **Subcommands:**
@@ -863,12 +863,12 @@ nexus reminders [add|rm|clear] [options]
 
 ---
 
-### nexus update
+### shiten update
 
 Detect changes in templates and apply updates.
 
 ```bash
-nexus update [--apply] [--json]
+shiten update [--apply] [--json]
 ```
 
 **Options:**
@@ -886,12 +886,12 @@ nexus update [--apply] [--json]
 
 ---
 
-### nexus docs-audit
+### shiten docs-audit
 
 Audit documentation lifecycle and propose organization.
 
 ```bash
-nexus docs-audit [--apply] [--json]
+shiten docs-audit [--apply] [--json]
 ```
 
 **Options:**
@@ -909,12 +909,12 @@ nexus docs-audit [--apply] [--json]
 
 ---
 
-### nexus shell-init
+### shiten shell-init
 
 Output shell hooks for session tracking.
 
 ```bash
-nexus shell-init [--shell <type>]
+shiten shell-init [--shell <type>]
 ```
 
 **Options:**
@@ -925,7 +925,7 @@ nexus shell-init [--shell <type>]
 
 **What it does:**
 - Outputs shell integration code for session tracking
-- Add to `.bashrc`/`.zshrc`: `eval $(nexus shell-init)`
+- Add to `.bashrc`/`.zshrc`: `eval $(shiten shell-init)`
 
 **Exit codes:** 0 (success), 1 (error)
 

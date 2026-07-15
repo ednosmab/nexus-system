@@ -76,7 +76,7 @@ describe("loadAnswers", () => {
   });
 
   it("parses valid answers.json", () => {
-    const dir = join(tmpdir(), `nexus-answers-${Date.now()}`);
+    const dir = join(tmpdir(), `shiten-answers-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "answers.json"), JSON.stringify({ principalModel: "gpt-4" }), "utf-8");
     const answers = loadAnswers(dir);
@@ -85,7 +85,7 @@ describe("loadAnswers", () => {
   });
 
   it("returns null for invalid JSON", () => {
-    const dir = join(tmpdir(), `nexus-answers-${Date.now()}`);
+    const dir = join(tmpdir(), `shiten-answers-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "answers.json"), "invalid json", "utf-8");
     expect(loadAnswers(dir)).toBeNull();

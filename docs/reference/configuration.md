@@ -1,10 +1,10 @@
 # Configuration Reference
 
-> How Nexus CLI reads and writes configuration.
+> How Shiten CLI reads and writes configuration.
 
 ## opencode.json
 
-The AI agent configuration file, created by `nexus init` at the project root.
+The AI agent configuration file, created by `shiten init` at the project root.
 
 ```json
 {
@@ -67,7 +67,7 @@ Each agent under `agent` supports:
 ```json
 {
   "skills": {
-    "paths": ["nexus-system/docs/skills"]
+    "paths": ["shitenno-go/docs/skills"]
   }
 }
 ```
@@ -88,12 +88,12 @@ Each agent under `agent` supports:
 
 ---
 
-## nexus-system/ Directory
+## shitenno-go/ Directory
 
-Created by `nexus init`. Structure:
+Created by `shiten init`. Structure:
 
 ```
-nexus-system/
+shitenno-go/
 ├── docs/              # Documentation, skills, ADRs, plans
 │   ├── skills/        # Engineering skills (21+)
 │   ├── plans/         # Execution plans (archived)
@@ -114,9 +114,9 @@ nexus-system/
 
 ---
 
-## nexus-system/profile/ ProjectProfile
+## shitenno-go/profile/ ProjectProfile
 
-Defines how Nexus adapts to your project type.
+Defines how Shiten adapts to your project type.
 
 ```json
 {
@@ -158,11 +158,11 @@ Override with `loading_profile` field in `opencode.json`.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `NEXUS_HOME` | Nexus home directory | `~/.nexus` |
-| `NEXUS_PLUGINS` | Plugin directory | `nexus-system/plugins/` |
-| `NEXUS_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
-| `NEXUS_NO_DAEMON` | Set to `1` to disable daemon auto-start | unset |
-| `NEXUS_DAEMON` | Force daemon mode | unset |
+| `SHITEN_HOME` | Shiten home directory | `~/.shiten` |
+| `SHITEN_PLUGINS` | Plugin directory | `shitenno-go/plugins/` |
+| `SHITEN_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
+| `SHITEN_NO_DAEMON` | Set to `1` to disable daemon auto-start | unset |
+| `SHITEN_DAEMON` | Force daemon mode | unset |
 | `CI` | Disables daemon in CI environments | unset |
 
 ---
@@ -172,7 +172,7 @@ Override with `loading_profile` field in `opencode.json`.
 1. CLI flags (`--dir`, `--json`, `--force`)
 2. Environment variables
 3. `opencode.json`
-4. `nexus-system/profile/<project>.config.ts`
+4. `shitenno-go/profile/<project>.config.ts`
 5. Defaults
 
 ---

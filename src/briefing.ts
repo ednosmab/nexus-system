@@ -163,9 +163,9 @@ export function generateBriefing(
   }
 
   // Token economy estimate:
-  // Without nexus, agent reads: package.json (~500) + AGENTS.md (~3k) +
+  // Without shiten, agent reads: package.json (~500) + AGENTS.md (~3k) +
   // risk analysis (~2k) + history (~1k) + rules (~1.5k) = ~8k tokens
-  // With nexus: briefing provides all of that in ~500 tokens
+  // With shiten: briefing provides all of that in ~500 tokens
   // Rules add targeted context (~100 tokens each) vs agent discovering (~500 each)
   const estimatedTokensSaved = 8000
     + (contextRules.length * 400) // 500 (manual) - 100 (briefing) per rule

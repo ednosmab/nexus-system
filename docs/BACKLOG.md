@@ -1,4 +1,4 @@
-# BACKLOG — Nexus System
+# BACKLOG — Shitenno-go
 
 > **Priorizacao:** P0 (imediato, ≤ 7d), P1 (curto prazo, ≤ 30d), P2 (medio prazo, ≤ 90d), P3 (baixa prioridade, sem SLA).
 >
@@ -16,7 +16,7 @@
 
 | Item | Severidade | Resolucao |
 |---|---|---|
-| Renomear "nexus-governance" → "nexus-system" | Critico | package.json, init.ts, audit.ts |
+| Renomear "shiten-governance" → "shitenno-go" | Critico | package.json, init.ts, audit.ts |
 | Executar Plano Estrategico (10 pilares) | Alto | conceptual model, knowledge lifecycle, capabilities, etc. |
 | Comando `evolve` com dual-path | Alto | src/commands/evolve.ts (251 linhas) |
 | Comando `run` (pipeline) | Alto | src/commands/run.ts (206 linhas) |
@@ -29,9 +29,9 @@
 | Atomic writes no cache | Medio | writeCache() usa tmp + renameSync |
 | Coverage configurado com thresholds | Alto | vitest.config.ts com @vitest/coverage-v8 |
 | Context Pipeline completo | Alto | collectContext(), briefing-cache, session-feedback |
-| Comando `feedback` | Alto | nexus feedback --outcome success/failure/partial |
-| Comando `bench` | Medio | nexus bench — token benchmark automatizado |
-| Comando `dashboard` | Medio | nexus dashboard — token economy metrics |
+| Comando `feedback` | Alto | shiten feedback --outcome success/failure/partial |
+| Comando `bench` | Medio | shiten bench — token benchmark automatizado |
+| Comando `dashboard` | Medio | shiten dashboard — token economy metrics |
 | Token optimizer | Medio | suggestDepth, compressedSummary, differentialBriefing |
 | Gap 1: status.ts usa collectContext() | Alto | Substituido ad-hoc por pipeline unificado |
 | Gap 2: feedback.ts briefingHash conectado | Alto | Le do briefing-cache em vez de hardcoded "" |
@@ -45,7 +45,7 @@
 | P0 0.4: Dead code dashboard.ts | Baixo | Removido trendArrow() |
 | P0 0.5: Simplificar getLatestFeedback | Baixo | Refatorado para records.at(-1) ?? null |
 | 1.12 Coverage gap: comandos CLI | Alto | 36 novos testes em digest.test.ts + commands-action.test.ts (580 total) |
-| Auto-backlog feature | Alto | nexus audit --auto-backlog — detecta gaps e escreve no BACKLOG.md (606 testes) |
+| Auto-backlog feature | Alto | shiten audit --auto-backlog — detecta gaps e escreve no BACKLOG.md (606 testes) |
 | AUDIT-EXPANSION | Alto | Expandir audit coverage 79% → ~93% (taint, rule-engine) — 2026-07-04 |
 | QUICK-BOARD-FIX | Alto | Corrigir loadQuickBoard() — require() em contexto ESM — 2026-07-04 |
 | SA1 | Critico | governance/WORKFLOW.md criado — 2026-07-01 |
@@ -56,14 +56,14 @@
 | 2.3 | Medio | Criado src/commands/update.ts e src/manifest.ts — 2026-07-05 |
 | AUDIT-CLEANUP-01 | Baixo | Testes knowledge-debt.test.ts e state-manager.test.ts criados — 2026-07-05 |
 | AUDIT-CLEANUP-02 | Baixo | Health score deductions extraidos para formatting.ts (HEALTH_SCORE_DEDUCTIONS) — 2026-07-05 |
-| AUDIT-CLEANUP-03 | Baixo | Removidos 4 casts as NexusEventType em pipeline.ts — 2026-07-05 |
+| AUDIT-CLEANUP-03 | Baixo | Removidos 4 casts as ShitenEventType em pipeline.ts — 2026-07-05 |
 | AUDIT-CLEANUP-04 | Baixo | run_script → run_local_script (deprecated fallback) — 2026-07-05 |
 | AUDIT-CLEANUP-05 | Baixo | Planos de auditoria movidos para plans/done/ — 2026-07-05 |
-| DESOPLAMENTO A.1-A.4 | Critico | Desacoplamento de opencode.json — shared.ts, nexus-state-machine.ts, analyser.ts, capability-engine.ts — 2026-07-07 |
+| DESOPLAMENTO A.1-A.4 | Critico | Desacoplamento de opencode.json — shared.ts, shiten-state-machine.ts, analyser.ts, capability-engine.ts — 2026-07-07 |
 | DESOPLAMENTO A.5 | Alto | MCP multi-formato (.mcp.json + .cursor/mcp.json) — init.ts — 2026-07-07 |
 | DESOPLAMENTO B.1 | Alto | Path do BACKLOG.md corrigido no scaffolder — capability-mapping.ts — 2026-07-07 |
 | DESOPLAMENTO B.2 | Medio | Falso positivo de XSS eliminado — engineering-detectors.ts — 2026-07-07 |
-| DESOPLAMENTO B.3 | Medio | Sync restaurado em bin/nexus.ts, gate valido — 2026-07-07 |
+| DESOPLAMENTO B.3 | Medio | Sync restaurado em bin/shiten.ts, gate valido — 2026-07-07 |
 | DESOPLAMENTO B.5 | Alto | OOM em vitest resolvido — programCache no TaintAnalyzer — 2026-07-07 |
 | DESOPLAMENTO B.6 | Medio | healthScore recalibrado com sqrt e normalizacao — 2026-07-07 |
 | DESOPLAMENTO B.7 | Alto | Rule engine auto-cria directories (history/, context/) — ensureContextBuffer() — 2026-07-07 |
@@ -84,7 +84,7 @@
 | 3.5 | Baixo | Plugin system com registerPlugin(), hooks, validacao — 2026-07-08 |
 | 3.29 | Medio | Session-tracker ja usa appendFileSync (append-only) — 2026-07-08 |
 | 2.11 | Baixo | ROI.md linkado em README.md:133 — 2026-07-08 |
-| 3.6 | Baixo | nexus dashboard --live (--live <seconds>) — 2026-07-08 |
+| 3.6 | Baixo | shiten dashboard --live (--live <seconds>) — 2026-07-08 |
 | 3.21 | Baixo | Briefing --profile com minimal/standard/full — 2026-07-08 |
 | 3.24 | Baixo | Event history query API (getHistory()) — 2026-07-08 |
 | 2.14 | Baixo | KNOWN_LIMITATIONS.md ja existe com 12 limitacoes documentadas — 2026-07-09 |
@@ -152,7 +152,7 @@
 | **Severidade** | Critico |
 | **Owner** | Edson |
 | **Descricao** | Dois problemas combinados: (A) A documentacao (AGENTS.md, SYSTEM_MAP.md) descreve a arquitetura completa como se tudo estivesse presente, mas o sistema ja suporta entrega incremental por capacidades. A documentacao nao indica claramente o que esta instalado vs disponivel vs futuro. (B) O AGENTS.md nao inclui regras que obriguem o agente a detectar gaps proativamente e informar ao usuario. A capacidade tecnica ja existe (auto-evolution.ts, doctor.ts, status.ts, knowledge-debt.ts) mas nao esta acionada pelas regras do time. |
-| **Resolucao parcial** | (2026-07-01) `nexus init` agora re-analisa complexidade quando projeto ja inicializado. `nexus assess` mostra proximo passo claro com `nexus upgrade --accept-recommended`. |
+| **Resolucao parcial** | (2026-07-01) `shiten init` agora re-analisa complexidade quando projeto ja inicializado. `shiten assess` mostra proximo passo claro com `shiten upgrade --accept-recommended`. |
 | **Fase 1** | ✅ Done (2026-07-05) — SYSTEM_MAP.md com legenda ✅/📋/🔮 + CAPABILITY_STATUS dinamico, `docs/capabilities.md` com mapeamento capacidade→regras→arquivos, `scaffolder.ts` com `updateSystemMapCapabilityStatus()`, 9 novos testes (24/24 passing). AGENTS.md condicional ja existia. Regras 23-25 (proactivas) ja existiam. |
 | **Fase 2** | ✅ Done (2026-07-05) — upgrade.ts agora actualiza SYSTEM_MAP.md status ao adicionar capacidades (\`--capability\` e \`--accept-recommended\`). Exportado \`updateSystemMapCapabilityStatus()\` de scaffolder.ts. |
 | **Commits** | `3070cc1` (P0.6 Phase 1), `56af5be` (P0.6 Phase 2 — upgrade.ts sync) |
@@ -166,7 +166,7 @@
 | **Owner** | Agente IA |
 | **Resolucao** | Todos os 6 ficheiros actualizados (2026-07-05) — README.md (27 comandos, 1045+ testes), AGENTS.md (refs partidas removidas), GUIDE.md (contagens correctas), CONCEPTUAL_MODEL.md (paths corrigidos), SYSTEM_MAP.md (árvore actualizada), CHANGELOG.md (v0.2.0) |
 | **Plano** | `plans/2026-07-04-docs-sync-critical.md` |
-| **Arquivos** | README.md, docs/AGENTS.md, Nexus-System_GUIDE.md, CONCEPTUAL_MODEL.md, SYSTEM_MAP.md, CHANGELOG.md |
+| **Arquivos** | README.md, docs/AGENTS.md, Shitenno-go_GUIDE.md, CONCEPTUAL_MODEL.md, SYSTEM_MAP.md, CHANGELOG.md |
 
 ---
 
@@ -179,7 +179,7 @@
 | **Status** | Done |
 | **Severidade** | Alto |
 | **Owner** | Edson |
-| **Resolucao** | Adicionado --session-id ao nexus feedback (2026-06-30) |
+| **Resolucao** | Adicionado --session-id ao shiten feedback (2026-06-30) |
 | **Arquivo** | `src/commands/feedback.ts` |
 
 ### 1.2 Logging de erros no enrichment
@@ -229,7 +229,7 @@
 | **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | Edson |
-| **Resolucao** | Corrigido de .nexus para nexus-system/ (2026-06-30) |
+| **Resolucao** | Corrigido de .shiten para shitenno-go/ (2026-06-30) |
 | **Arquivo** | `src/commands/briefing.ts` |
 
 ### 1.7 Evitar race condition no cache
@@ -242,14 +242,14 @@
 | **Resolucao** | Aceito que ultimo writer vence — documentar limitacao (2026-06-30) |
 | **Arquivo** | `src/briefing-cache.ts` |
 
-### 1.8 Validar nexusDir antes de operacoes
+### 1.8 Validar shitenDir antes de operacoes
 
 | Campo | Valor |
 |---|---|
 | **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | Edson |
-| **Resolucao** | Adicionado existsSync(nexusDir) no guardNotInitialized() (2026-06-30) |
+| **Resolucao** | Adicionado existsSync(shitenDir) no guardNotInitialized() (2026-06-30) |
 | **Arquivo** | `src/shared.ts` |
 
 ---
@@ -332,7 +332,7 @@
 | **Owner** | Edson |
 | **Arquivos** | `src/pattern-detector.ts` (CandidateRule), `src/commands/detect.ts` |
 | **Descricao** | `detectPatterns()` gera `candidateRules` com status "proposed" mas nao existe mecanismo para aprovar/rejeitar. |
-| **Correcao** | Criar `nexus detect --approve RULE-001` e `nexus detect --reject RULE-001`. Persistir decisoes em `nexus-system/governance/rules-decisions.json`. |
+| **Correcao** | Criar `shiten detect --approve RULE-001` e `shiten detect --reject RULE-001`. Persistir decisoes em `shitenno-go/governance/rules-decisions.json`. |
 
 ### 2.2a Feedback do utilizador (user rating + comment)
 
@@ -345,7 +345,7 @@
 | **Arquivos** | `src/session-feedback.ts`, `src/commands/feedback.ts` |
 | **Descricao** | Feedback completo com user ratings e comment. |
 
-### 2.3 Nexus update — comando de actualizacao com change detection
+### 2.3 Shiten update — comando de actualizacao com change detection
 
 | Campo | Valor |
 |---|---|
@@ -354,10 +354,10 @@
 | **Owner** | Edson |
 | **Prioridade** | P2 |
 | **Data** | 2026-07-04 |
-| **Fonte** | Sessao 2026-07-04 — nao existe `nexus update`, templates congelados no install time |
-| **Arquivos** | `src/commands/update.ts` (novo), `src/manifest.ts` (novo), `src/commands/init.ts`, `src/commands/upgrade.ts`, `bin/nexus.ts` |
-| **Descricao** | Nao existe `nexus update`. O `nexus upgrade` so adiciona capabilities novas, nunca actualiza existentes. Templates estao congelados no install time. Nexus-system precisa saber que houve mudanças no nexus-cli. |
-| **Resolucao** | (1) Criado `src/manifest.ts` para rastrear hashes de templates e cliVersion. (2) Integrado manifest em init e upgrade. (3) Criado comando `nexus update` com suporte a `--apply`, `--dry-run`, `--backup` e `--force` (2026-07-05). |
+| **Fonte** | Sessao 2026-07-04 — nao existe `shiten update`, templates congelados no install time |
+| **Arquivos** | `src/commands/update.ts` (novo), `src/manifest.ts` (novo), `src/commands/init.ts`, `src/commands/upgrade.ts`, `bin/shiten.ts` |
+| **Descricao** | Nao existe `shiten update`. O `shiten upgrade` so adiciona capabilities novas, nunca actualiza existentes. Templates estao congelados no install time. Shiten-system precisa saber que houve mudanças no shitenno-cli. |
+| **Resolucao** | (1) Criado `src/manifest.ts` para rastrear hashes de templates e cliVersion. (2) Integrado manifest em init e upgrade. (3) Criado comando `shiten update` com suporte a `--apply`, `--dry-run`, `--backup` e `--force` (2026-07-05). |
 | **Plano** | `plans/2026-07-04-feedback-and-update.md` (Parte 2) |
 
 ### 2.2b Feedback ↔ capability-engine
@@ -371,7 +371,7 @@
 | **Descricao** | O capability-engine recomenda instalacoes mas nao aprende com falhas. |
 | **Correcao** | No `evaluateCapabilities()`, consultar `failureHotspots` do feedback. Se uma area com capability instalada tem muitos failures, sugerir downgrade. |
 
-### 2.3b nexus bench --compare historico
+### 2.3b shiten bench --compare historico
 
 | Campo | Valor |
 |---|---|
@@ -380,9 +380,9 @@
 | **Owner** | Edson |
 | **Arquivo** | `src/commands/bench.ts` |
 | **Descricao** | Benchmark mostra resultados atuais mas nao compara com execucoes anteriores. |
-| **Correcao** | Salvar resultado em `nexus-system/reports/bench-YYYY-MM-DD.json`. Adicionar `--compare` que mostra tendencia. |
+| **Correcao** | Salvar resultado em `shitenno-go/reports/bench-YYYY-MM-DD.json`. Adicionar `--compare` que mostra tendencia. |
 
-### 2.4 nexus feedback --list
+### 2.4 shiten feedback --list
 
 | Campo | Valor |
 |---|---|
@@ -532,11 +532,11 @@
 | **Prioridade** | P2 |
 | **Owner** | Edson |
 | **Data** | 2026-07-03 |
-| **Fonte** | Briefing de onboarding (briefing-onboarding-nexus.md, criterio de aceite #5) |
-| **Arquivos** | `docs/tests/onboarding-5min-test.md`, README.md, `apps/nexus-dashboard/src/pages/discover/`, `apps/nexus-dashboard/src/pages/use/` |
-| **Descricao** | Validar que o reescrita de onboarding (README + dashboard discover/use) atinge o criterio dos 5 minutos: pessoa sem contexto consegue correr `nexus init` e entender o output sem perguntar nada. Teste manual com participante real. |
-| **Correcao** | (1) Seguir o protocolo em `docs/tests/onboarding-5min-test.md`. (2) Participante deve ser alguem que nunca usou Nexus. (3) Cronometrar tempo ate primeiro comando e tempo ate compreensao. (4) Se falhar, identificar a pagina/secao que causou confusao e corrigir. (5) Repetir apos correcao. |
-| **Criterio de aceite** | Todos os 4 criterios do teste passam: encontrou install em ≤60s, rodou init em ≤3min, explicou o que Nexus faz em ≤5min, nao pediu ajuda. |
+| **Fonte** | Briefing de onboarding (briefing-onboarding-shiten.md, criterio de aceite #5) |
+| **Arquivos** | `docs/tests/onboarding-5min-test.md`, README.md, `apps/shitenno-dashboard/src/pages/discover/`, `apps/shitenno-dashboard/src/pages/use/` |
+| **Descricao** | Validar que o reescrita de onboarding (README + dashboard discover/use) atinge o criterio dos 5 minutos: pessoa sem contexto consegue correr `shiten init` e entender o output sem perguntar nada. Teste manual com participante real. |
+| **Correcao** | (1) Seguir o protocolo em `docs/tests/onboarding-5min-test.md`. (2) Participante deve ser alguem que nunca usou Shiten. (3) Cronometrar tempo ate primeiro comando e tempo ate compreensao. (4) Se falhar, identificar a pagina/secao que causou confusao e corrigir. (5) Repetir apos correcao. |
+| **Criterio de aceite** | Todos os 4 criterios do teste passam: encontrou install em ≤60s, rodou init em ≤3min, explicou o que Shiten faz em ≤5min, nao pediu ajuda. |
 
 ---
 
@@ -585,36 +585,36 @@
 | 3.3 | Suportar monorepos com workspaces | Medio | pnpm/yarn workspaces, deteccao automatica |
 | 3.4 | Integrar com GitHub API | Baixo | Churn real baseado em PR reviews, issues abertas |
 | ~~3.5~~ | ~~Plugin system para skills customizadas~~ | ~~Baixo~~ | ~~Done: plugin-system.ts com registerPlugin(), hooks, validacao~~ |
-| ~~3.6~~ | ~~nexus dashboard --live~~ | ~~Baixo~~ | ~~Done: --live <seconds> opção existe em dashboard.tsx~~ |
+| ~~3.6~~ | ~~shiten dashboard --live~~ | ~~Baixo~~ | ~~Done: --live <seconds> opção existe em dashboard.tsx~~ |
 | 3.7 | Suportar projectos sem Git | Medio | Fallback para metricas estaticas apenas |
 | 3.8 | Shell completion (bash/zsh/fish) | Baixo | Auto-complete para comandos e opcoes |
-| ~~3.10~~ | ~~nexus --quiet / --no-color~~ | ~~Baixo~~ | ~~Done: --quiet (NEXUS_QUIET) + --no-color (chalk.level=0) em bin/nexus.ts + logger.ts — 2026-07-12~~ |
-| 3.11 | nexus init --dry-run | Baixo | Preview do que seria criado sem criar |
-| 3.12 | nexus upgrade --dry-run | Baixo | Preview do que seria instalado sem instalar |
-| 3.13 | nexus audit --fix | Medio | Auto-fix para problemas de governance detectados |
-| ~~3.14~~ | ~~Changelog automatico~~ | ~~Baixo~~ | ~~Done: nexus-system/scripts/generate-changelog.ts — conventional commits~~ |
+| ~~3.10~~ | ~~shiten --quiet / --no-color~~ | ~~Baixo~~ | ~~Done: --quiet (SHITEN_QUIET) + --no-color (chalk.level=0) em bin/shiten.ts + logger.ts — 2026-07-12~~ |
+| 3.11 | shiten init --dry-run | Baixo | Preview do que seria criado sem criar |
+| 3.12 | shiten upgrade --dry-run | Baixo | Preview do que seria instalado sem instalar |
+| 3.13 | shiten audit --fix | Medio | Auto-fix para problemas de governance detectados |
+| ~~3.14~~ | ~~Changelog automatico~~ | ~~Baixo~~ | ~~Done: shitenno-go/scripts/generate-changelog.ts — conventional commits~~ |
 | 3.15 | Version bumping automatizado | Baixo | Semver automatico baseado em conventional commits |
 | 3.16 | Metrics export (Prometheus/OpenTelemetry) | Baixo | Exportar metricas de uso para observabilidade |
 | 3.17 | Structured logging | Baixo | JSON logs em vez de console.log para parsing |
 | 3.18 | Plugin versioning e dependency resolution | Baixo | Versao minima de plugins, dependencias entre plugins |
-| ~~3.19~~ | ~~nexus detect --approve/--reject~~ | ~~Medio~~ | ~~Done: --approve e --reject implementados em src/commands/detect.ts~~ |
-| ~~3.20~~ | ~~nexus feedback --outcome failure auto-link~~ | ~~Baixo~~ | ~~Done: sugere failure hotspots quando --areas nao fornecido~~ |
+| ~~3.19~~ | ~~shiten detect --approve/--reject~~ | ~~Medio~~ | ~~Done: --approve e --reject implementados em src/commands/detect.ts~~ |
+| ~~3.20~~ | ~~shiten feedback --outcome failure auto-link~~ | ~~Baixo~~ | ~~Done: sugere failure hotspots quando --areas nao fornecido~~ |
 | ~~3.21~~ | ~~Briefing --profile no briefingToMarkdown~~ | ~~Baixo~~ | ~~Done: --profile com minimal/standard/full em briefing.ts~~ |
 | ~~3.22~~ | ~~HealthBar compartilhado~~ | ~~Baixo~~ | ~~Done: dashboard.tsx importa healthBar de formatting.ts~~ |
 | 3.23 | Colorblind-friendly mode | Baixo | Usar icons/texto em vez de apenas cores |
 | ~~3.24~~ | ~~Event history query API~~ | ~~Baixo~~ | ~~Done: getHistory() publico em event-bus.ts~~ |
-| ~~3.25~~ | ~~nexus bench --save / --load~~ | ~~Baixo~~ | ~~Done: loadBenchHistory, saveBenchResult + --compare em bench.ts~~ |
-| 3.26 | nexus status --fix | Baixo | Auto-fix para problemas de governance (como doctor) |
+| ~~3.25~~ | ~~shiten bench --save / --load~~ | ~~Baixo~~ | ~~Done: loadBenchHistory, saveBenchResult + --compare em bench.ts~~ |
+| 3.26 | shiten status --fix | Baixo | Auto-fix para problemas de governance (como doctor) |
 | 3.27 | Briefing cache com TTL configuravel | Baixo | Permitir configurar tempo de vida do cache |
 | 3.28 | Briefing --watch | Baixo | Regenerar briefing automaticamente a cada N segundos |
 | ~~3.29~~ | ~~Session-tracker com append-only (remover overwrite)~~ | ~~Medio~~ | ~~Done: ja usa appendFileSync (nao writeFileSync)~~ |
 | 3.30 | Validacao de schema com zod/io-ts | Baixo | Validar todos os tipos de record lidos de disco |
-| ~~3.31~~ | ~~nexus detect --format markdown~~ | ~~Baixo~~ | ~~Done: --format text/json/markdown em detect.ts~~ |
+| ~~3.31~~ | ~~shiten detect --format markdown~~ | ~~Baixo~~ | ~~Done: --format text/json/markdown em detect.ts~~ |
 | 3.32 | Briefing cache com compressao | Baixo | Comprimir cache JSON para reduzir tamanho em disco |
 | ~~3.33~~ | ~~Feedback com campo `briefingProfile`~~ | ~~Baixo~~ | ~~Done: campo no schema + --profile option em feedback.ts~~ |
-| 3.34 | nexus dashboard --export csv | Baixo | Exportar dados do dashboard em CSV |
+| 3.34 | shiten dashboard --export csv | Baixo | Exportar dados do dashboard em CSV |
 | 3.35 | Plugin sandboxing | Baixo | Isolar plugins em workers para seguranca |
-| 3.36 | Decidir nome do produto | Baixo | Nexus Gaude, Prism, Codex, ou outro — decisao estrategica pendente |
+| 3.36 | Decidir nome do produto | Baixo | Shiten Gaude, Prism, Codex, ou outro — decisao estrategica pendente |
 | 3.37 | Refinamento do logo | Baixo | Vetorizacao, variações, assets finais — logo atual e AI-generated com watermark |
 | 3.38 | Optimizar economia de tokens na abertura de sessão | Baixo | Reduzir consumo actual de 12% por sessão. Ficheiros alvo: opencode-context.md (3.8KB→1.5KB), quick-board-enforcement.md (3.4KB→1.5KB), AGENTS.md (8.8KB→5KB), BRIEFING.md (1.7KB→0.8KB). Potencial: ~50% redução |
 
@@ -627,11 +627,11 @@
 | Campo | Valor |
 |---|---|
 | **Status** | Done |
-| **Resolucao** | mcp-server.ts com 3 tools (getBriefing, getRiskMap, getRules). mcp-install.ts para filesystem server. Comando nexus mcp registado em bin/nexus.ts. |
+| **Resolucao** | mcp-server.ts com 3 tools (getBriefing, getRiskMap, getRules). mcp-install.ts para filesystem server. Comando shiten mcp registado em bin/shiten.ts. |
 | **Severidade** | Alto |
 | **Owner** | Edson |
-| **Descricao** | Servidor MCP (Model Context Protocol) para agentes IA consumirem contexto do Nexus. Ferramentas: getBriefing, getRiskMap, getRules. |
-| **Correcao** | Criar `src/mcp-server.ts` com ferramentas MCP. Publicar como `@nexus/mcp`. |
+| **Descricao** | Servidor MCP (Model Context Protocol) para agentes IA consumirem contexto do Shiten. Ferramentas: getBriefing, getRiskMap, getRules. |
+| **Correcao** | Criar `src/mcp-server.ts` com ferramentas MCP. Publicar como `@shiten/mcp`. |
 
 ### A2 OpenCode plugin
 
@@ -641,7 +641,7 @@
 | **Severidade** | Alto |
 | **Owner** | Edson |
 | **Descricao** | Hook automatico antes de cada tarefa no OpenCode. Injeta briefing no contexto do agente. |
-| **Correcao** | Criar plugin OpenCode que chama `nexus briefing --summary` antes de cada tarefa e injeta no system prompt. |
+| **Correcao** | Criar plugin OpenCode que chama `shiten briefing --summary` antes de cada tarefa e injeta no system prompt. |
 
 ### A3 Cursor integration
 
@@ -651,7 +651,7 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Descricao** | Extensao para Cursor IDE que mostra briefing no sidebar. |
-| **Correcao** | Criar extensao VS Code (Cursor e compativel) que le `.nexus/BRIEFING.md` e exibe em panel. |
+| **Correcao** | Criar extensao VS Code (Cursor e compativel) que le `.shiten/BRIEFING.md` e exibe em panel. |
 
 ### A4 Git hooks
 
@@ -661,7 +661,7 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Descricao** | Pre-commit: auto-briefing. Pre-push: validation. Post-commit: feedback automatico. |
-| **Resolucao** | nexus hooks --install/--uninstall implementado em src/commands/hooks.ts 2014 2026-07-11 |
+| **Resolucao** | shiten hooks --install/--uninstall implementado em src/commands/hooks.ts 2014 2026-07-11 |
 
 ### A5 Webhook de sessao
 
@@ -671,7 +671,7 @@
 | **Severidade** | Baixo |
 | **Owner** | Edson |
 | **Descricao** | POST briefing result para API externa (Slack, Discord, webhook custom). |
-| **Correcao** | Adicionar `--webhook <url>` ao `nexus briefing`. Enviar JSON via POST apos gerar. |
+| **Correcao** | Adicionar `--webhook <url>` ao `shiten briefing`. Enviar JSON via POST apos gerar. |
 
 ### A6 Context injection API
 
@@ -681,16 +681,16 @@
 | **Severidade** | Baixo |
 | **Owner** | Edson |
 | **Descricao** | Endpoint REST para briefing sob demanda. Agentes podem chamar HTTP em vez de CLI. |
-| **Correcao** | Adicionar `nexus serve` que inicia servidor HTTP com endpoints: GET /briefing, GET /risk-map, GET /rules. |
+| **Correcao** | Adicionar `shiten serve` que inicia servidor HTTP com endpoints: GET /briefing, GET /risk-map, GET /rules. |
 
-### A7 Skill template para nexus-cli
+### A7 Skill template para shitenno-cli
 
 | Campo | Valor |
 |---|---|
 | **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | Edson |
-| **Descricao** | nexus-cli precisa prover um template para criar novas skills. Atualmente as 14 skills em `nexus-system/docs/skills/` foram criadas manualmente sem padrao formal. O template deve definir: frontmatter obrigatorio (name, description), estrutura de secoes (objetivo, regras, onde aplicar), e validacao. Comando: `nexus skill:create <nome>` que scaffolds um novo arquivo `.md` com o template preenchido. |
+| **Descricao** | shitenno-cli precisa prover um template para criar novas skills. Atualmente as 14 skills em `shitenno-go/docs/skills/` foram criadas manualmente sem padrao formal. O template deve definir: frontmatter obrigatorio (name, description), estrutura de secoes (objetivo, regras, onde aplicar), e validacao. Comando: `shiten skill:create <nome>` que scaffolds um novo arquivo `.md` com o template preenchido. |
 | **Correcao** | Criar `src/templates/base/skills/SKILL_TEMPLATE.md` com frontmatter + secoes padrao. Adicionar comando `skill:create` em `src/commands/skill-create.ts`. Validar frontmatter contra schema existente. |
 
 ### A8 Feedback personalizado agente + usuario com calibragem de perfil
@@ -700,7 +700,7 @@
 | **Status** | Done |
 | **Severidade** | Alto |
 | **Owner** | Edson |
-| **Resolucao** | Implementado feedback-engine.ts com calibragem de tom por perfil (2026-07-01). Comando `nexus feedback --personalized` gera feedback duplo (agente + usuario) com 3 tons (mentor/peer/relatorio) baseado no perfil do usuario. Comando `nexus profile` para configurar perfil. Perguntas de perfil no `nexus init`. Funcao `inferProfile()` infere perfil do comportamento. Atualizacao automatica do perfil apos cada sessao. 19 testes novos. |
+| **Resolucao** | Implementado feedback-engine.ts com calibragem de tom por perfil (2026-07-01). Comando `shiten feedback --personalized` gera feedback duplo (agente + usuario) com 3 tons (mentor/peer/relatorio) baseado no perfil do usuario. Comando `shiten profile` para configurar perfil. Perguntas de perfil no `shiten init`. Funcao `inferProfile()` infere perfil do comportamento. Atualizacao automatica do perfil apos cada sessao. 19 testes novos. |
 | **Arquivo** | `src/feedback-engine.ts`, `src/commands/feedback.ts`, `src/commands/profile.ts`, `src/prompts.ts`, `src/commands/init.ts` |
 
 ---
@@ -714,7 +714,7 @@
 | **Status** | Done |
 | **Severidade** | Medio |
 | **Owner** | Edson |
-| **Descricao** | `nexus tutorial` — guided tour interativo que mostra cada comando com exemplos reais. |
+| **Descricao** | `shiten tutorial` — guided tour interativo que mostra cada comando com exemplos reais. |
 | **Correcao** | Criar `src/commands/tutorial.ts` com 7 passos: init, status, detect, briefing, feedback, run, evolve. |
 
 ### D2 Example projects
@@ -725,7 +725,7 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Descricao** | 3 templates: web-app (Next.js), API (Express), library (TypeScript). Cada um com governance pre-configurada. |
-| **Correcao** | Criar `examples/` com 3 diretorios. `nexus init --template web-app` para usar. |
+| **Correcao** | Criar `examples/` com 3 diretorios. `shiten init --template web-app` para usar. |
 
 ### D3 Migration guide
 
@@ -734,7 +734,7 @@
 | **Status** | Done |
 | **Severidade** | Baixo |
 | **Owner** | Edson |
-| **Descricao** | Como migrar de outros tools (ESLint, Prettier, SonarQube) para Nexus. |
+| **Descricao** | Como migrar de outros tools (ESLint, Prettier, SonarQube) para Shiten. |
 | **Correcao** | Criar `docs/migration.md` com tabelas de equivalencia. |
 
 ### D4 API documentation
@@ -754,8 +754,8 @@
 | **Status** | Done |
 | **Severidade** | Baixo |
 | **Owner** | Edson |
-| **Descricao** | Uso como biblioteca Node.js, nao CLI. `import { generateBriefing } from 'nexus-system'`. |
-| **Correcao** | Separar core de CLI. Criar `nexus-system/core` export. |
+| **Descricao** | Uso como biblioteca Node.js, nao CLI. `import { generateBriefing } from 'shitenno-go'`. |
+| **Correcao** | Separar core de CLI. Criar `shitenno-go/core` export. |
 
 ### D6 Video walkthrough
 
@@ -779,7 +779,7 @@
 | **Severidade** | Medio |
 | **Owner** | Edson |
 | **Descricao** | Quais comandos sao mais usados, horarios de pico, taxa de sucesso por comando. |
-| **Correcao** | Dashboard `nexus analytics` que le `usage.jsonl` e gera graficos. |
+| **Correcao** | Dashboard `shiten analytics` que le `usage.jsonl` e gera graficos. |
 
 ### DA2 Error tracking
 
@@ -867,9 +867,9 @@
 
 ---
 
-## Auto-análise 2026-06-30 (nexus-cli)
+## Auto-análise 2026-06-30 (shitenno-cli)
 
-> **Gerado por:** nexus assess + nexus doctor + nexus audit + nexus status + análise manual
+> **Gerado por:** shiten assess + shiten doctor + shiten audit + shiten status + análise manual
 > **Score de maturidade:** 55/100 | **Saúde:** 85/100 | **Auditoria:** 77/100
 > **Data da auto-análise:** 2026-06-30
 
@@ -883,7 +883,7 @@
 | **Owner** | Agente IA |
 | **Data** | 2026-06-30 |
 | **Resolucao** | Criado governance/WORKFLOW.md (2026-07-01) |
-| **Modulos** | nexus-system/governance/ |
+| **Modulos** | shitenno-go/governance/ |
 | **Descricao** | Documento governance/WORKFLOW.md nao encontrado. Critico para lifecycle state — impede comandos que requerem estado governed. |
 | **Correcao** | Criar WORKFLOW.md com fluxo de governanca do projeto. |
 
@@ -896,7 +896,7 @@
 | **Prioridade** | P0 |
 | **Owner** | Edson |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus digest --json (erro) |
+| **Fonte** | shiten digest --json (erro) |
 | **Modulos** | src/commands/digest.ts |
 | **Descricao** | Comando digest falha com "Dynamic require of fs is not supported". Usa require() em vez de import, incompativel com ESM. |
 | **Resolucao** | Substituído require("node:fs") por import estático no início do arquivo (2026-07-05). |
@@ -911,7 +911,7 @@
 | **Prioridade** | P0 |
 | **Owner** | Edson |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus assess --json (dimension: governance = 0) |
+| **Fonte** | shiten assess --json (dimension: governance = 0) |
 | **Modulos** | src/ (global) |
 | **Descricao** | Dimensao Governance do score de maturidade esta em 0%. Nenhuma pratica de governanca formalizada no codigo. |
 | **Correcao** | Criar governance/WORKFLOW.md, adicionar ADRs, definir processos de review. |
@@ -925,7 +925,7 @@
 | **Prioridade** | P1 |
 | **Owner** | Edson |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus assess --json (dimension: architecture = 15) |
+| **Fonte** | shiten assess --json (dimension: architecture = 15) |
 | **Modulos** | src/ (global) |
 | **Descricao** | Dimensao Architecture do score de maturidade esta em 15%. 46 arquivos flat em src/, sem camadas, sem bounded contexts. |
 | **Correcao** | Reestruturar em domain/infrastructure/commands/interfaces. Adicionar abstracoes. |
@@ -939,7 +939,7 @@
 | **Prioridade** | P1 |
 | **Owner** | Edson |
 | **Resolucao** | 4 ADRs criados (ADR-001 a ADR-005) + template — 2026-07-08 |
-| **Modulos** | `nexus-system/docs/adrs/` |
+| **Modulos** | `shitenno-go/docs/adrs/` |
 | **Descricao** | ADRs de arquitetura documentados: Single Agent, Event-Driven, Knowledge Graph, Orphan Events. |
 
 ### SA6 15 artifacts orfaos no knowledge graph
@@ -952,7 +952,7 @@
 | **Owner** | Agente IA |
 | **Data** | 2026-06-30 |
 | **Resolucao** | SYSTEM_MAP.md actualizado com referências a todos os ficheiros (2026-07-01) |
-| **Modulos** | nexus-system/ |
+| **Modulos** | shitenno-go/ |
 | **Descricao** | 15 artifacts no knowledge graph sem relacoes conectando-os. Impossivel rastrear fluxo de conhecimento. |
 | **Correcao** | Adicionar relacoes entre artifacts órfãos e existentes. |
 
@@ -965,8 +965,8 @@
 | **Prioridade** | P1 |
 | **Owner** | Edson |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus audit --json (knowledgeGraph.suggestions) |
-| **Modulos** | nexus-system/ |
+| **Fonte** | shiten audit --json (knowledgeGraph.suggestions) |
+| **Modulos** | shitenno-go/ |
 | **Descricao** | Relacao baixa entre artifacts (24 relacoes para 26 artifacts). Sugestao: adicionar mais conexoes. |
 | **Correcao** | Mapear dependencias entre modulos e criar relacoes no knowledge graph. |
 
@@ -978,7 +978,7 @@
 | **Severidade** | Alto |
 | **Prioridade** | P1 |
 | **Owner** | Edson |
-| **Resolucao** | context_buffer.yaml movido para core capability, sempre criado no nexus init — 2026-07-08 |
+| **Resolucao** | context_buffer.yaml movido para core capability, sempre criado no shiten init — 2026-07-08 |
 | **Modulos** | `src/capability-mapping.ts` |
 | **Descricao** | Arquivo context_buffer.yaml movido de governance para core. |
 
@@ -991,7 +991,7 @@
 | **Prioridade** | P1 |
 | **Owner** | Edson |
 | **Resolucao** | 4 contracts criados: planner, executor, reviewer, orchestrator — 2026-07-08 |
-| **Modulos** | `nexus-system/governance/agents/` |
+| **Modulos** | `shitenno-go/governance/agents/` |
 | **Descricao** | Agent contracts com papeis e responsabilidades definidos. |
 
 ### SA10 Clean Architecture violado
@@ -1019,7 +1019,7 @@
 | **Data** | 2026-06-30 |
 | **Fonte** | Analise manual |
 | **Modulos** | src/ (global) |
-| **Descricao** | God modules (feedback-loops.ts 396 linhas, state-manager.ts 438 linhas). Sem dependency injection. Interface Segregation violada (NexusState com 60+ campos). |
+| **Descricao** | God modules (feedback-loops.ts 396 linhas, state-manager.ts 438 linhas). Sem dependency injection. Interface Segregation violada (ShitenState com 60+ campos). |
 | **Correcao** | Dividir modules grandes. Adicionar DI. Criar interfaces menores. |
 
 ### SA12 Knowledge graph nao inicializado
@@ -1031,10 +1031,10 @@
 | **Prioridade** | P2 |
 | **Owner** | Edson |
 | **Data** | 2026-06-30 |
-| **Fonte** | nexus doctor --json |
-| **Modulos** | nexus-system/ |
+| **Fonte** | shiten doctor --json |
+| **Modulos** | shitenno-go/ |
 | **Descricao** | Knowledge graph nao inicializado. Impossivel rastrear como conhecimento flui pelo projeto. |
-| **Correcao** | Executar `nexus audit` para popular knowledge graph automaticamente. |
+| **Correcao** | Executar `shiten audit` para popular knowledge graph automaticamente. |
 
 ### SA13 ADRs criados
 
@@ -1045,7 +1045,7 @@
 | **Prioridade** | P2 |
 | **Owner** | Edson |
 | **Resolucao** | 4 ADRs documentados (ADR-001 a ADR-005) — 2026-07-08 |
-| **Modulos** | `nexus-system/docs/adrs/` |
+| **Modulos** | `shitenno-go/docs/adrs/` |
 | **Descricao** | ADRs de arquitetura: Single Agent, Event-Driven, Knowledge Graph, Orphan Events. |
 
 ### SA14 docs/session-template.md faltando
@@ -1058,7 +1058,7 @@
 | **Owner** | Agente IA |
 | **Data** | 2026-06-30 |
 | **Resolucao** | Criado docs/session-template.md (2026-07-01) |
-| **Modulos** | nexus-system/docs/ |
+| **Modulos** | shitenno-go/docs/ |
 | **Descricao** | Documento session-template.md nao encontrado. Recomendado para estruturar sessoes de trabalho. |
 | **Correcao** | Criar session-template.md a partir do template base. |
 
@@ -1109,7 +1109,7 @@
 ## Metricas de Qualidade (snapshot 2026-07-12)
 
 ```
-Projeto:       nexus-cli v0.1.0
+Projeto:       shitenno-cli v0.1.0
 TypeScript:    strict: true, 0 erros
 Testes:        1898/1898 passando (119 arquivos)
 Coverage:      ~51% (linhas) | ~82% (funcoes) | ~76% (branches)
@@ -1120,7 +1120,7 @@ Commands:      36 (init, status, audit, assess, detect, run, evolve,
                report, doctor, upgrade, validate, sync, clean, digest,
                briefing, feedback, bench, dashboard, hooks, handbook, etc.)
 Context Pipeline: collectContext → cache → briefing → feedback → dashboard
-Auto-backlog:  nexus audit --auto-backlog (detect gaps → BACKLOG.md)
+Auto-backlog:  shiten audit --auto-backlog (detect gaps → BACKLOG.md)
 Auto-analise:  17 gaps identificados (3 P0, 8 P1, 6 P2)
 Race Fix:      Lock inter-processo (wx flag) + cooldown persistido (15s)
 ```

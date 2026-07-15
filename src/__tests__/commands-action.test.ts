@@ -15,7 +15,7 @@ let tempDir: string;
 let stdoutSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-action-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-action-"));
   stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 });
 
@@ -24,19 +24,19 @@ afterEach(() => {
   stdoutSpy.mockRestore();
 });
 
-function setupNexusDir(dir: string) {
-  const nexusDir = join(dir, "nexus-system");
-  mkdirSync(join(nexusDir, "governance"), { recursive: true });
-  mkdirSync(join(nexusDir, "docs", "skills"), { recursive: true });
+function setupShitenDir(dir: string) {
+  const shitenDir = join(dir, "shitenno-go");
+  mkdirSync(join(shitenDir, "governance"), { recursive: true });
+  mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
   writeFileSync(join(dir, "opencode.json"), JSON.stringify({ agent: {} }));
-  return nexusDir;
+  return shitenDir;
 }
 
-function setupNexusDirGoverned(dir: string) {
-  const nexusDir = setupNexusDir(dir);
-  writeFileSync(join(nexusDir, "maturity-profile.json"), JSON.stringify({ overallScore: 50, dimensions: {}, installedCapabilities: [], recommendedCapabilities: [], futureCapabilities: [] }));
-  writeFileSync(join(nexusDir, "governance", "WORKFLOW.md"), "# Workflow");
-  return nexusDir;
+function setupShitenDirGoverned(dir: string) {
+  const shitenDir = setupShitenDir(dir);
+  writeFileSync(join(shitenDir, "maturity-profile.json"), JSON.stringify({ overallScore: 50, dimensions: {}, installedCapabilities: [], recommendedCapabilities: [], futureCapabilities: [] }));
+  writeFileSync(join(shitenDir, "governance", "WORKFLOW.md"), "# Workflow");
+  return shitenDir;
 }
 
 function getJsonOutput(): Record<string, unknown> {
@@ -66,17 +66,17 @@ function getJsonOutput(): Record<string, unknown> {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("clean command action handler", () => {
-  it("removes .nexus-cache.json", () => {
-    setupNexusDirGoverned(tempDir);
-    writeFileSync(join(tempDir, ".nexus-cache.json"), "{}");
+  it("removes .shiten-cache.json", () => {
+    setupShitenDirGoverned(tempDir);
+    writeFileSync(join(tempDir, ".shiten-cache.json"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
-    expect(existsSync(join(tempDir, ".nexus-cache.json"))).toBe(false);
+    expect(existsSync(join(tempDir, ".shiten-cache.json"))).toBe(false);
   });
 
   it("removes *.tsbuildinfo files", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
     writeFileSync(join(tempDir, "tsconfig.tsbuildinfo"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -85,8 +85,8 @@ describe("clean command action handler", () => {
   });
 
   it("outputs JSON with itemsRemoved array", () => {
-    setupNexusDirGoverned(tempDir);
-    writeFileSync(join(tempDir, ".nexus-cache.json"), "{}");
+    setupShitenDirGoverned(tempDir);
+    writeFileSync(join(tempDir, ".shiten-cache.json"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -98,7 +98,7 @@ describe("clean command action handler", () => {
   });
 
   it("outputs empty itemsRemoved when nothing to clean", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -114,7 +114,7 @@ describe("clean command action handler", () => {
 
 describe("doctor command action handler", () => {
   it("outputs JSON with health report structure", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     doctorCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -129,7 +129,7 @@ describe("doctor command action handler", () => {
   });
 
   it("returns valid health score range", () => {
-    setupNexusDir(tempDir);
+    setupShitenDir(tempDir);
 
     doctorCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -145,7 +145,7 @@ describe("doctor command action handler", () => {
 
 describe("report command action handler", () => {
   it("outputs JSON with report structure", () => {
-    setupNexusDir(tempDir);
+    setupShitenDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -158,7 +158,7 @@ describe("report command action handler", () => {
   });
 
   it("uses default period of 30 days", () => {
-    setupNexusDir(tempDir);
+    setupShitenDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -169,7 +169,7 @@ describe("report command action handler", () => {
   });
 
   it("respects --period flag", () => {
-    setupNexusDir(tempDir);
+    setupShitenDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json", "--period", "7"], { from: "user" });
@@ -186,7 +186,7 @@ describe("report command action handler", () => {
 
 describe("assess command action handler", () => {
   it("outputs JSON with assessment structure", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -197,7 +197,7 @@ describe("assess command action handler", () => {
   });
 
   it("newProfile has dimensions and scores", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -211,12 +211,12 @@ describe("assess command action handler", () => {
   });
 
   it("records maturity snapshot in telemetry dir", () => {
-    const nexusDir = setupNexusDir(tempDir);
+    const shitenDir = setupShitenDir(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
-    expect(existsSync(join(nexusDir, "maturity-profile.json"))).toBe(true);
-    const telemetryDir = join(nexusDir, "telemetry");
+    expect(existsSync(join(shitenDir, "maturity-profile.json"))).toBe(true);
+    const telemetryDir = join(shitenDir, "telemetry");
     expect(existsSync(telemetryDir)).toBe(true);
   });
 });
@@ -227,7 +227,7 @@ describe("assess command action handler", () => {
 
 describe("evolve command action handler", () => {
   it("outputs JSON with evolution report", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     evolveCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -240,7 +240,7 @@ describe("evolve command action handler", () => {
   });
 
   it("accept records feedback", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--accept", "EVO-001", "--comfortable"],
@@ -252,7 +252,7 @@ describe("evolve command action handler", () => {
   });
 
   it("reject records feedback with reason", () => {
-    setupNexusDirGoverned(tempDir);
+    setupShitenDirGoverned(tempDir);
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--reject", "EVO-002", "--reason", "Not now"],
@@ -269,8 +269,8 @@ describe("evolve command action handler", () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("sync command action handler", () => {
-  it("errors when nexus-path not specified", () => {
-    setupNexusDir(tempDir);
+  it("errors when shiten-path not specified", () => {
+    setupShitenDir(tempDir);
 
     syncCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -278,11 +278,11 @@ describe("sync command action handler", () => {
     expect(output.error).toBe("lifecycle_gate");
   });
 
-  it("errors when nexus-system directory not found", () => {
-    setupNexusDir(tempDir);
+  it("errors when shitenno-go directory not found", () => {
+    setupShitenDir(tempDir);
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--nexus-path", "/nonexistent"],
+      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", "/nonexistent"],
       { from: "user" }
     );
 
@@ -291,13 +291,13 @@ describe("sync command action handler", () => {
   });
 
   it("errors when project not initialized (lifecycle gate blocks first)", () => {
-    // After decoupling from opencode.json, nexus-system/ alone = initialized.
+    // After decoupling from opencode.json, shitenno-go/ alone = initialized.
     // sync requires governed state; discovered state triggers lifecycle_gate first.
-    const nexusDir = setupNexusDir(tempDir);
+    const shitenDir = setupShitenDir(tempDir);
     rmSync(join(tempDir, "opencode.json"));
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--nexus-path", nexusDir],
+      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", shitenDir],
       { from: "user" }
     );
 
@@ -305,23 +305,23 @@ describe("sync command action handler", () => {
     expect(output.error).toBe("lifecycle_gate");
   });
 
-  it("errors when nexus-system/ missing (truly uninitialized)", () => {
+  it("errors when shitenno-go/ missing (truly uninitialized)", () => {
     syncCommand.parse(
       ["node", "test", "--dir", tempDir, "--json"],
       { from: "user" }
     );
 
     const output = getJsonOutput();
-    // sync checks nexus-dir existence first, returns missing_nexus_dir
-    expect(output.error).toBe("missing_nexus_dir");
+    // sync checks shiten-dir existence first, returns missing_shiten_dir
+    expect(output.error).toBe("missing_shiten_dir");
   });
 
   it("--dry-run does not modify files", () => {
-    const nexusDir = setupNexusDirGoverned(tempDir);
-    writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "# Agents");
+    const shitenDir = setupShitenDirGoverned(tempDir);
+    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "# Agents");
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--nexus-path", nexusDir, "--dry-run"],
+      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", shitenDir, "--dry-run"],
       { from: "user" }
     );
 

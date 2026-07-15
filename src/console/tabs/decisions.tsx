@@ -105,7 +105,7 @@ export function DecisionsTab({ data, scrollOffset = 0, expandedItem, onExpandIte
     return (
       <SectionBox title="Decisions">
         <Text dimColor>No decisions recorded yet.</Text>
-        <Text dimColor>Use "nexus decide" to evaluate an action.</Text>
+        <Text dimColor>Use "shiten decide" to evaluate an action.</Text>
       </SectionBox>
     );
   }

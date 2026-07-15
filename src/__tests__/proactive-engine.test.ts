@@ -18,7 +18,7 @@ describe("initializeProactiveEngine", () => {
   it("returns an unsubscribe function", () => {
     const unsubscribe = initializeProactiveEngine(
       "/tmp/project",
-      "/tmp/project/nexus-system"
+      "/tmp/project/shitenno-go"
     );
     expect(typeof unsubscribe).toBe("function");
     unsubscribe();
@@ -28,7 +28,7 @@ describe("initializeProactiveEngine", () => {
     const bus = getEventBus();
     const unsubscribe = initializeProactiveEngine(
       "/tmp/project",
-      "/tmp/project/nexus-system"
+      "/tmp/project/shitenno-go"
     );
 
     expect(bus.listenerCount("engineering_state.consolidated")).toBeGreaterThanOrEqual(1);
@@ -40,7 +40,7 @@ describe("initializeProactiveEngine", () => {
     const bus = getEventBus();
     const unsubscribe = initializeProactiveEngine(
       "/tmp/project",
-      "/tmp/project/nexus-system"
+      "/tmp/project/shitenno-go"
     );
 
     const before = bus.listenerCount("engineering_state.consolidated");

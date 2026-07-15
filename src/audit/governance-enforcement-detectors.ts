@@ -12,9 +12,9 @@ import type { HealthIssue } from "./types.js";
 
 // ── 2.1 Incomplete Session Close ────────────────────────────────────────────
 
-export function detectIncompleteSessionClose(nexusDir: string): HealthIssue[] {
+export function detectIncompleteSessionClose(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return issues;
 
   try {
@@ -52,16 +52,16 @@ export function detectIncompleteSessionClose(nexusDir: string): HealthIssue[] {
 
 // ── 2.2 Missing Feedback ────────────────────────────────────────────────────
 
-export function detectMissingFeedback(nexusDir: string): HealthIssue[] {
+export function detectMissingFeedback(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const feedbackDir = join(nexusDir, "feedback", "records");
+  const feedbackDir = join(shitenDir, "feedback", "records");
   if (!existsSync(feedbackDir)) {
     issues.push({
       type: "missing_feedback_dir",
       severity: 1,
       description: "Directório feedback/records/ não existe — feedback de sessão não está a ser registado",
-      location: "nexus-system/feedback/records/",
-      recommendation: "Criar directório e executar 'nexus feedback --outcome success' após cada sessão.",
+      location: "shitenno-go/feedback/records/",
+      recommendation: "Criar directório e executar 'shiten feedback --outcome success' após cada sessão.",
     });
     return issues;
   }
@@ -73,8 +73,8 @@ export function detectMissingFeedback(nexusDir: string): HealthIssue[] {
         type: "no_feedback_records",
         severity: 1,
         description: "Directório feedback/records/ está vazio — nenhum registo de feedback encontrado",
-        location: "nexus-system/feedback/records/",
-        recommendation: "Executar 'nexus feedback --outcome success' ou 'nexus feedback --outcome failure' após sessões.",
+        location: "shitenno-go/feedback/records/",
+        recommendation: "Executar 'shiten feedback --outcome success' ou 'shiten feedback --outcome failure' após sessões.",
       });
     }
   } catch {
@@ -92,9 +92,9 @@ const VALID_BACKLOG_STATES = new Set([
   "concluído", "encerrado", "pausado", "adiado",
 ]);
 
-export function detectInvalidBacklogStates(nexusDir: string): HealthIssue[] {
+export function detectInvalidBacklogStates(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
   if (!existsSync(backlogPath)) return issues;
 
   try {
@@ -115,7 +115,7 @@ export function detectInvalidBacklogStates(nexusDir: string): HealthIssue[] {
         type: "invalid_backlog_state",
         severity: 2,
         description: `${invalidStates.length} estado(s) inválido(s) no BACKLOG.md: ${[...new Set(invalidStates)].join(", ")}`,
-        location: "nexus-system/docs/BACKLOG.md",
+        location: "shitenno-go/docs/BACKLOG.md",
         recommendation: `Estados válidos: ${[...VALID_BACKLOG_STATES].join(", ")}. Actualizar para um dos estados permitidos.`,
       });
     }
@@ -128,9 +128,9 @@ export function detectInvalidBacklogStates(nexusDir: string): HealthIssue[] {
 
 // ── 2.4 Plan Format (Status field vs checkboxes) ───────────────────────────
 
-export function detectPlanFormat(nexusDir: string): HealthIssue[] {
+export function detectPlanFormat(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const plansDir = join(nexusDir, "governance", "plans");
+  const plansDir = join(shitenDir, "governance", "plans");
   if (!existsSync(plansDir)) return issues;
 
   try {
@@ -146,7 +146,7 @@ export function detectPlanFormat(nexusDir: string): HealthIssue[] {
           type: "plan_format_violation",
           severity: 1,
           description: `Plano "${file}" usa checkboxes em vez de campo "Status:" —.Workflow.md requer campo Status`,
-          location: `nexus-system/governance/plans/${file}`,
+          location: `shitenno-go/governance/plans/${file}`,
           recommendation: "Substituir checkboxes por '**Status:** [em execução|concluído|pendente]'.",
         });
       }
@@ -160,9 +160,9 @@ export function detectPlanFormat(nexusDir: string): HealthIssue[] {
 
 // ── 2.5 Rule Execution Compliance ───────────────────────────────────────────
 
-export function detectRuleExecutionCompliance(nexusDir: string): HealthIssue[] {
+export function detectRuleExecutionCompliance(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const rulesDir = join(nexusDir, "governance", "rules");
+  const rulesDir = join(shitenDir, "governance", "rules");
   if (!existsSync(rulesDir)) return issues;
 
   try {
@@ -178,7 +178,7 @@ export function detectRuleExecutionCompliance(nexusDir: string): HealthIssue[] {
             type: "invalid_rule_structure",
             severity: 2,
             description: `Regra "${file}" tem estrutura inválida — campos obrigatórios em falta (id, trigger, action/actions)`,
-            location: `nexus-system/governance/rules/${file}`,
+            location: `shitenno-go/governance/rules/${file}`,
             recommendation: "Cada regra JSON deve ter: id, trigger, action (ou actions), requiredCapability.",
           });
         }
@@ -187,7 +187,7 @@ export function detectRuleExecutionCompliance(nexusDir: string): HealthIssue[] {
           type: "malformed_rule_json",
           severity: 2,
           description: `Regra "${file}" não é JSON válido`,
-          location: `nexus-system/governance/rules/${file}`,
+          location: `shitenno-go/governance/rules/${file}`,
           recommendation: "Corrigir sintaxe JSON da regra.",
         });
       }
@@ -201,15 +201,15 @@ export function detectRuleExecutionCompliance(nexusDir: string): HealthIssue[] {
 
 // ── 2.6 Policy Structure ────────────────────────────────────────────────────
 
-export function detectPolicyStructure(nexusDir: string): HealthIssue[] {
+export function detectPolicyStructure(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const policiesDir = join(nexusDir, "governance", "policies");
+  const policiesDir = join(shitenDir, "governance", "policies");
   if (!existsSync(policiesDir)) {
     issues.push({
       type: "missing_policies_dir",
       severity: 2,
       description: "Directório governance/policies/ não existe — políticas de commit/branch/review não documentadas",
-      location: "nexus-system/governance/policies/",
+      location: "shitenno-go/governance/policies/",
       recommendation: "Criar directório com COMMIT-POLICY.md, BRANCH-POLICY.md, REVIEW-POLICY.md.",
     });
     return issues;
@@ -224,7 +224,7 @@ export function detectPolicyStructure(nexusDir: string): HealthIssue[] {
           type: "missing_policy",
           severity: 2,
           description: `Política "${policy}" não encontrada em governance/policies/`,
-          location: `nexus-system/governance/policies/${policy}`,
+          location: `shitenno-go/governance/policies/${policy}`,
           recommendation: `Criar "${policy}" com regras de governança.`,
         });
       }
@@ -238,9 +238,9 @@ export function detectPolicyStructure(nexusDir: string): HealthIssue[] {
 
 // ── 2.7 Missing Premortem ───────────────────────────────────────────────────
 
-export function detectMissingPremortem(nexusDir: string): HealthIssue[] {
+export function detectMissingPremortem(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return issues;
 
   try {
@@ -248,13 +248,13 @@ export function detectMissingPremortem(nexusDir: string): HealthIssue[] {
     const hasComplexTask = content.includes("complexity: high") || content.includes("complexity: critical");
 
     if (hasComplexTask) {
-      const premortemDir = join(nexusDir, "docs", "premortems");
+      const premortemDir = join(shitenDir, "docs", "premortems");
       if (!existsSync(premortemDir) || readdirSync(premortemDir).length === 0) {
         issues.push({
           type: "missing_premortem",
           severity: 2,
           description: "Tarefa complexa detectada mas nenhum premortem encontrado — WORKFLOW.md requer premortem antes de features complexas",
-          location: "nexus-system/docs/premortems/",
+          location: "shitenno-go/docs/premortems/",
           recommendation: "Executar 'pnpm run premortem:check' antes de iniciar tarefa complexa.",
         });
       }
@@ -268,9 +268,9 @@ export function detectMissingPremortem(nexusDir: string): HealthIssue[] {
 
 // ── 2.8 Missing ADR for Architectural Changes ───────────────────────────────
 
-export function detectMissingAdrForChanges(nexusDir: string): HealthIssue[] {
+export function detectMissingAdrForChanges(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
   if (!existsSync(adrDir)) return issues;
 
   try {
@@ -280,7 +280,7 @@ export function detectMissingAdrForChanges(nexusDir: string): HealthIssue[] {
         type: "no_adrs_created",
         severity: 1,
         description: "Nenhum ADR encontrado em docs/adrs/ — decisões arquiteturais não rastreadas",
-        location: "nexus-system/docs/adrs/",
+        location: "shitenno-go/docs/adrs/",
         recommendation: "Criar ADRs para decisões arquiteturais significativas (DESDO §4).",
       });
     }

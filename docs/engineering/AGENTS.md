@@ -1,11 +1,11 @@
 # AI Agent Rules
 
-> Rules for AI agents working on the Nexus CLI codebase.
+> Rules for AI agents working on the Shiten CLI codebase.
 
 ## Repository Structure
 
 ```
-nexus-cli/
+shitenno-cli/
 ├── src/              # Source code
 │   ├── commands/     # CLI commands (13 commands)
 │   ├── __tests__/    # Test suite

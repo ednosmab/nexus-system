@@ -98,10 +98,10 @@ function analyzeRecentChanges(projectRoot: string): DigestData["recentChanges"] 
   }
 }
 
-export function generateDigest(projectRoot: string, nexusDir: string): DigestData {
+export function generateDigest(projectRoot: string, shitenDir: string): DigestData {
   // Read maturity profile
   let maturityScore: number | null = null;
-  const profilePath = join(nexusDir, "maturity-profile.json");
+  const profilePath = join(shitenDir, "maturity-profile.json");
   if (existsSync(profilePath)) {
     try {
       const profile = JSON.parse(readFileSync(profilePath, "utf-8"));
@@ -113,7 +113,7 @@ export function generateDigest(projectRoot: string, nexusDir: string): DigestDat
 
   // Read knowledge debt
   let knowledgeDebt = 0;
-  const debtPath = join(nexusDir, "knowledge-debt.json");
+  const debtPath = join(shitenDir, "knowledge-debt.json");
   if (existsSync(debtPath)) {
     try {
       const debt = JSON.parse(readFileSync(debtPath, "utf-8"));
@@ -134,8 +134,8 @@ export function generateDigest(projectRoot: string, nexusDir: string): DigestDat
 
   // Generate recommendations
   const recommendations: string[] = [];
-  if (knowledgeDebt > 30) recommendations.push("Run `nexus audit` to reduce knowledge debt");
-  if (recentChanges.filesModified === 0) recommendations.push("No changes detected today — consider running `nexus assess`");
+  if (knowledgeDebt > 30) recommendations.push("Run `shiten audit` to reduce knowledge debt");
+  if (recentChanges.filesModified === 0) recommendations.push("No changes detected today — consider running `shiten assess`");
   if (maturityScore !== null && maturityScore < 50) recommendations.push("Project is in early maturity — focus on foundation practices");
   if (recommendations.length === 0) recommendations.push("Project is healthy — continue current practices");
 
@@ -226,14 +226,14 @@ export function digestCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("digest", ctx.projectRoot, ctx.nexusDir, isJson)) {
+      if (!checkLifecycleGate("digest", ctx.projectRoot, ctx.shitenDir, isJson)) {
         return;
       }
 
       const spinner = ora({ spinner: "dots" }).start(isJson ? "Generating" : "Generating digest...");
 
       try {
-        const digest = generateDigest(ctx.projectRoot, ctx.nexusDir);
+        const digest = generateDigest(ctx.projectRoot, ctx.shitenDir);
 
         spinner.stop();
 

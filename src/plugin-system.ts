@@ -1,7 +1,7 @@
 /**
  * plugin-system.ts — Extensibility Framework
  *
- * Allows projects to extend Nexus without modifying core.
+ * Allows projects to extend Shiten without modifying core.
  * Plugins provide hooks that execute at specific points in the pipeline.
  *
  * PRINCIPLE: Extensibility without modification.
@@ -9,7 +9,7 @@
 
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ export type HookName =
   | "custom-recommendation"
   | "custom-metric";
 
-export interface NexusPlugin {
+export interface ShitenPlugin {
   name: string;
   version: string;
   description: string;
@@ -34,7 +34,7 @@ export interface PluginManifest {
   name: string;
   version: string;
   description: string;
-  nexusVersion?: string;
+  shitenVersion?: string;
   hooks?: string[];
   author?: string;
 }
@@ -42,10 +42,10 @@ export interface PluginManifest {
 // ── Hook Bus ─────────────────────────────────────────────────────────────────
 
 export class HookBus {
-  private plugins: NexusPlugin[] = [];
+  private plugins: ShitenPlugin[] = [];
 
   /** Register a plugin. */
-  registerPlugin(plugin: NexusPlugin): void {
+  registerPlugin(plugin: ShitenPlugin): void {
     // Check for duplicate names
     if (this.plugins.some((p) => p.name === plugin.name)) {
       logger.warn("PluginSystem", `Plugin "${plugin.name}" already registered, skipping.`);
@@ -55,7 +55,7 @@ export class HookBus {
   }
 
   /** Get all registered plugins. */
-  getPlugins(): NexusPlugin[] {
+  getPlugins(): ShitenPlugin[] {
     return [...this.plugins];
   }
 
@@ -63,7 +63,7 @@ export class HookBus {
   async executeHook<T>(
     hookName: HookName,
     input: T,
-    transformer: (plugin: NexusPlugin, input: T) => T | Promise<T>
+    transformer: (plugin: ShitenPlugin, input: T) => T | Promise<T>
   ): Promise<T> {
     let current = input;
 
@@ -87,7 +87,7 @@ export class HookBus {
   /** Execute a hook that collects results. */
   async collectHook<T>(
     hookName: HookName,
-    collector: (plugin: NexusPlugin) => T | Promise<T | null>
+    collector: (plugin: ShitenPlugin) => T | Promise<T | null>
   ): Promise<T[]> {
     const results: T[] = [];
 
@@ -115,10 +115,10 @@ export class HookBus {
 // ── Plugin Loader ────────────────────────────────────────────────────────────
 
 /** Load plugins from a directory. */
-export async function loadPluginsFromDir(pluginsDir: string): Promise<NexusPlugin[]> {
+export async function loadPluginsFromDir(pluginsDir: string): Promise<ShitenPlugin[]> {
   if (!existsSync(pluginsDir)) return [];
 
-  const plugins: NexusPlugin[] = [];
+  const plugins: ShitenPlugin[] = [];
   const entries = readdirSync(pluginsDir, { withFileTypes: true }).filter(
     (e) => e.isDirectory()
   );
@@ -134,7 +134,7 @@ export async function loadPluginsFromDir(pluginsDir: string): Promise<NexusPlugi
       try {
         const mod = await import(filePath);
         const plugin = mod.default || mod;
-        if (isNexusPlugin(plugin)) {
+        if (isShitenPlugin(plugin)) {
           plugins.push(plugin);
         }
       } catch (error) {
@@ -147,17 +147,17 @@ export async function loadPluginsFromDir(pluginsDir: string): Promise<NexusPlugi
 }
 
 /** Load all plugins for a project. */
-export async function loadPlugins(projectRoot: string): Promise<NexusPlugin[]> {
-  const plugins: NexusPlugin[] = [];
+export async function loadPlugins(projectRoot: string): Promise<ShitenPlugin[]> {
+  const plugins: ShitenPlugin[] = [];
 
   // Project-level plugins
-  const projectPluginsDir = join(projectRoot, NEXUS_DIR_NAME, "plugins");
+  const projectPluginsDir = join(projectRoot, SHITEN_DIR_NAME, "plugins");
   plugins.push(...(await loadPluginsFromDir(projectPluginsDir)));
 
   // Global plugins
   const homeDir = process.env.HOME || process.env.USERPROFILE || "";
   if (homeDir) {
-    const globalPluginsDir = join(homeDir, ".config", "nexus", "plugins");
+    const globalPluginsDir = join(homeDir, ".config", "shiten", "plugins");
     plugins.push(...(await loadPluginsFromDir(globalPluginsDir)));
   }
 
@@ -173,7 +173,7 @@ const VALID_HOOK_NAMES = new Set([
 
 const SAFE_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
-function isNexusPlugin(obj: unknown): obj is NexusPlugin {
+function isShitenPlugin(obj: unknown): obj is ShitenPlugin {
   if (typeof obj !== "object" || obj === null) return false;
   const plugin = obj as Record<string, unknown>;
 

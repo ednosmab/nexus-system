@@ -29,14 +29,14 @@ export const detectCommand = new Command("detect")
 
     if (!isJson && !isAuto) {
       output("");
-      banner("nexus detect", "Pattern Detection");
+      banner("shiten detect", "Pattern Detection");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("detect", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("detect", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
     // ── Approve/Reject mode ────────────────────────────────────────
     if (options.approve || options.reject) {
@@ -44,15 +44,15 @@ export const detectCommand = new Command("detect")
       const action = options.approve ? "approve" : "reject";
 
       // Read existing report
-      const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.nexusDir, "patterns",
-        () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+      const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitenDir, "patterns",
+        () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
 
       if (!cached) {
         if (isJson) {
-        outputJson({ error: "no_report", message: "No detection report found. Run 'nexus detect' first." });
+        outputJson({ error: "no_report", message: "No detection report found. Run 'shiten detect' first." });
         } else {
         outputError("No detection report found.");
-        output(chalk.gray("    Run 'nexus detect' first."));
+        output(chalk.gray("    Run 'shiten detect' first."));
         }
         return;
       }
@@ -72,7 +72,7 @@ export const detectCommand = new Command("detect")
       }
 
       // Record the decision
-      recordFeedback(ctx.nexusDir, {
+      recordFeedback(ctx.shitenDir, {
         recommendationId: `rule-${ruleId}`,
         action: action === "approve" ? "accepted" : "rejected",
         context: { maturityScore: 0, installedCapabilities: [], knowledgeDebt: 0 },
@@ -96,14 +96,14 @@ export const detectCommand = new Command("detect")
     // Step 2.4: In --auto mode, also check for Done plans to archive
     if (isAuto) {
       try {
-        const result = checkAndArchiveDonePlans(ctx.nexusDir);
+        const result = checkAndArchiveDonePlans(ctx.shitenDir);
         if (result.archived > 0) {
           // Log minimal info for hooks (goes to stderr which is /dev/null usually, but good practice)
-          logger.error("detect", `[nexus detect --auto] Archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
+          logger.error("detect", `[shiten detect --auto] Archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
         }
       } catch (err) {
         // Don't crash the hook if archiving fails
-        logger.error("detect", `[nexus detect --auto] Plan archiving failed: ${err}`);
+        logger.error("detect", `[shiten detect --auto] Plan archiving failed: ${err}`);
       }
     }
 
@@ -114,22 +114,22 @@ export const detectCommand = new Command("detect")
       let report: PatternDetectionReport;
       let cacheHit = false;
       if (options.cache !== false) {
-        const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.nexusDir, "patterns",
-          () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+        const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitenDir, "patterns",
+          () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
         if (cached) {
           report = cached;
           cacheHit = true;
         } else {
-          report = detectPatterns(ctx.projectRoot, ctx.nexusDir);
-          setCache(ctx.projectRoot, ctx.nexusDir, "patterns", report,
-            computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+          report = detectPatterns(ctx.projectRoot, ctx.shitenDir);
+          setCache(ctx.projectRoot, ctx.shitenDir, "patterns", report,
+            computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
         }
       } else {
-        report = detectPatterns(ctx.projectRoot, ctx.nexusDir);
+        report = detectPatterns(ctx.projectRoot, ctx.shitenDir);
       }
 
       // Write report
-      const reportFile = writePatternReport(ctx.nexusDir, report);
+      const reportFile = writePatternReport(ctx.shitenDir, report);
 
       if (!isJson && !isAuto) {
         spinner?.succeed(`Analyzed ${report.historyEntriesAnalyzed} history entries, ${report.reportsAnalyzed} reports`);
@@ -137,7 +137,7 @@ export const detectCommand = new Command("detect")
 
       // JSON output
       if (format === "json") {
-        const growthProfile = loadGrowthProfile(ctx.nexusDir);
+        const growthProfile = loadGrowthProfile(ctx.shitenDir);
         outputJson({
           projectRoot: ctx.projectRoot,
           historyEntriesAnalyzed: report.historyEntriesAnalyzed,
@@ -268,7 +268,7 @@ export const detectCommand = new Command("detect")
       outputBlank();
 
       if (reportFile) {
-        output(chalk.gray(`  Report saved: nexus-system/reports/${reportFile}`));
+        output(chalk.gray(`  Report saved: shitenno-go/reports/${reportFile}`));
         outputBlank();
       }
 
@@ -278,7 +278,7 @@ export const detectCommand = new Command("detect")
       outputBlank();
 
       // Growth profile
-      const growthProfile = loadGrowthProfile(ctx.nexusDir);
+      const growthProfile = loadGrowthProfile(ctx.shitenDir);
       output(formatGrowthProgress(growthProfile));
       outputBlank();
 
@@ -298,7 +298,7 @@ export const detectCommand = new Command("detect")
 
       // Record feedback for candidate rules
       for (const rule of report.candidateRules) {
-        recordFeedback(ctx.nexusDir, {
+        recordFeedback(ctx.shitenDir, {
           recommendationId: `rule-${rule.id}`,
           action: "deferred",
           context: { maturityScore: 0, installedCapabilities: [], knowledgeDebt: 0 },

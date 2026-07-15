@@ -5,82 +5,82 @@
 ## Core Capability
 
 - [ ] `opencode.json` exists at project root
-- [ ] `nexus-system/` directory exists
-- [ ] `nexus-system/docs/AGENTS.md` exists
-- [ ] `nexus-system/docs/FORBIDDEN_OPERATIONS.md` exists (from `src/templates/base/docs/FORBIDDEN_OPERATIONS.md`)
-- [ ] `nexus-system/docs/DESDO.md` exists
-- [ ] `nexus-system/docs/CONCEPTUAL_MODEL.md` exists
-- [ ] `nexus-system/docs/KNOWLEDGE_LIFECYCLE.md` exists
-- [ ] `nexus-system/docs/BACKLOG.md` exists
-- [ ] `nexus-system/governance/SYSTEM_MAP.md` exists
-- [ ] `nexus-system/docs/opencode-context.md` exists
-- [ ] `nexus-system/docs/Nexus-System_GUIDE.md` exists
-- [ ] `nexus-system/core/complexity/types.ts` exists
-- [ ] `nexus-system/docs/feedback/README.md` exists
+- [ ] `shitenno-go/` directory exists
+- [ ] `shitenno-go/docs/AGENTS.md` exists
+- [ ] `shitenno-go/docs/FORBIDDEN_OPERATIONS.md` exists (from `src/templates/base/docs/FORBIDDEN_OPERATIONS.md`)
+- [ ] `shitenno-go/docs/DESDO.md` exists
+- [ ] `shitenno-go/docs/CONCEPTUAL_MODEL.md` exists
+- [ ] `shitenno-go/docs/KNOWLEDGE_LIFECYCLE.md` exists
+- [ ] `shitenno-go/docs/BACKLOG.md` exists
+- [ ] `shitenno-go/governance/SYSTEM_MAP.md` exists
+- [ ] `shitenno-go/docs/opencode-context.md` exists
+- [ ] `shitenno-go/docs/Shitenno-go_GUIDE.md` exists
+- [ ] `shitenno-go/core/complexity/types.ts` exists
+- [ ] `shitenno-go/docs/feedback/README.md` exists
 
 ## Knowledge Capability
 
-- [ ] `nexus-system/docs/skills/` directory exists
+- [ ] `shitenno-go/docs/skills/` directory exists
 - [ ] At least 1 skill file present
 - [ ] Skills match project stack
 
 ## Architecture Capability
 
-- [ ] `nexus-system/docs/adrs/` directory exists
-- [ ] `nexus-system/docs/adrs/ADR-TEMPLATE.md` exists
-- [ ] `nexus-system/docs/sdr/` directory exists
-- [ ] `nexus-system/docs/sdr/SDR-TEMPLATE.md` exists
-- [ ] `nexus-system/governance/plans/` directory exists
-- [ ] `nexus-system/governance/plans/TEMPLATE.md` exists
+- [ ] `shitenno-go/docs/adrs/` directory exists
+- [ ] `shitenno-go/docs/adrs/ADR-TEMPLATE.md` exists
+- [ ] `shitenno-go/docs/sdr/` directory exists
+- [ ] `shitenno-go/docs/sdr/SDR-TEMPLATE.md` exists
+- [ ] `shitenno-go/governance/plans/` directory exists
+- [ ] `shitenno-go/governance/plans/TEMPLATE.md` exists
 
 ## Governance Capability
 
-- [ ] `nexus-system/governance/context/` directory exists
-- [ ] `nexus-system/governance/WORKFLOW.md` exists
-- [ ] `nexus-system/governance/context/context_buffer.yaml` exists
+- [ ] `shitenno-go/governance/context/` directory exists
+- [ ] `shitenno-go/governance/WORKFLOW.md` exists
+- [ ] `shitenno-go/governance/context/context_buffer.yaml` exists
 - [ ] Context buffer is valid YAML
 
 ## AI Capability
 
-- [ ] `nexus-system/governance/agents/` directory exists
+- [ ] `shitenno-go/governance/agents/` directory exists
 - [ ] At least 1 agent contract exists
 - [ ] Agent contracts are valid YAML
-- [ ] `nexus-system/governance/contracts/CONTRACTS_INDEX.md` exists
-- [ ] `nexus-system/governance/handoffs/TEMPLATE.md` exists
-- [ ] `nexus-system/cognition/context/CONTEXT_HIERARCHY.md` exists
-- [ ] `nexus-system/cognition/memory/MEM-operational-state-v1.json` exists
+- [ ] `shitenno-go/governance/contracts/CONTRACTS_INDEX.md` exists
+- [ ] `shitenno-go/governance/handoffs/TEMPLATE.md` exists
+- [ ] `shitenno-go/cognition/context/CONTEXT_HIERARCHY.md` exists
+- [ ] `shitenno-go/cognition/memory/MEM-operational-state-v1.json` exists
 
 ## Quality Capability
 
-- [ ] `nexus-system/scripts/validate-session.ts` exists
+- [ ] `shitenno-go/scripts/validate-session.ts` exists
 - [ ] Script is syntactically valid TypeScript
 
 ## Metrics Capability
 
-- [ ] `nexus-system/reports/` directory exists
-- [ ] `nexus-system/docs/history/` directory exists
-- [ ] `nexus-system/reports/README.md` exists
+- [ ] `shitenno-go/reports/` directory exists
+- [ ] `shitenno-go/docs/history/` directory exists
+- [ ] `shitenno-go/reports/README.md` exists
 
 ## Operations Capability
 
-- [ ] `nexus-system/docs/runbooks/` directory exists
-- [ ] `nexus-system/scripts/close-session.ts` exists
-- [ ] `nexus-system/scripts/premortem-check.ts` exists
-- [ ] `nexus-system/docs/runbooks/merge.md` exists
+- [ ] `shitenno-go/docs/runbooks/` directory exists
+- [ ] `shitenno-go/scripts/close-session.ts` exists
+- [ ] `shitenno-go/scripts/premortem-check.ts` exists
+- [ ] `shitenno-go/docs/runbooks/merge.md` exists
 
 ## Compliance Capability
 
-- [ ] `nexus-system/governance/premortem/` directory exists
-- [ ] `nexus-system/governance/premortem/PREMORTEM.md` exists
-- [ ] `nexus-system/governance/reviews/` directory exists
-- [ ] `nexus-system/governance/reviews/SESSION_REVIEW.md` exists
+- [ ] `shitenno-go/governance/premortem/` directory exists
+- [ ] `shitenno-go/governance/premortem/PREMORTEM.md` exists
+- [ ] `shitenno-go/governance/reviews/` directory exists
+- [ ] `shitenno-go/governance/reviews/SESSION_REVIEW.md` exists
 
 ## System-Wide Checks
 
-- [ ] `nexus status` runs without errors
-- [ ] `nexus validate` passes all checks
-- [ ] `nexus detect` completes successfully
-- [ ] `nexus audit` completes successfully
-- [ ] `nexus doctor` completes successfully
+- [ ] `shiten status` runs without errors
+- [ ] `shiten validate` passes all checks
+- [ ] `shiten detect` completes successfully
+- [ ] `shiten audit` completes successfully
+- [ ] `shiten doctor` completes successfully
 - [ ] No TypeScript errors (`npx tsc --noEmit`)
 - [ ] All tests pass (`npm test`)

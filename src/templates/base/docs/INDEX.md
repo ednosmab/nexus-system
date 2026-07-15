@@ -1,6 +1,6 @@
-# Nexus System — Documentacao
+# Shitenno-go — Documentacao
 
-> Este e o indice dos documentos do Nexus System. Organizados por nivel hierarquico.
+> Este e o indice dos documentos do Shitenno-go. Organizados por nivel hierarquico.
 
 ## Estrutura
 
@@ -27,7 +27,7 @@
 | Documento | Proposito |
 |---|---|
 | `capabilities.md` | Lista de capabilities disponiveis |
-| `Nexus-System_GUIDE.md` | Guia completo do sistema |
+| `Shitenno-go_GUIDE.md` | Guia completo do sistema |
 
 ### Nivel 3: Regras Modulares (carregadas por capability)
 
@@ -62,7 +62,7 @@
 
 | Tarefa | Ler |
 |---|---|
-| Entender por que o Nexus existe | CONCEPTUAL_MODEL.md |
+| Entender por que o Shiten existe | CONCEPTUAL_MODEL.md |
 | Aprender o modelo de dominio | KNOWLEDGE_LIFECYCLE.md |
 | Verificar regras | AGENTS.md + FORBIDDEN_OPERATIONS.md |
 | Configurar projecto | opencode-context.md |
@@ -72,4 +72,4 @@
 
 ---
 
-*Indice gerado automaticamente pelo nexus-cli.*
+*Indice gerado automaticamente pelo shitenno-cli.*

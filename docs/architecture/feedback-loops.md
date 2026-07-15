@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, Nexus generates recommendations but never learns from them. If it recommends installing `governance` capability and the user accepts, the system doesn't know. If the user rejects the same recommendation 10 times, the system still recommends it.
+Today, Shiten generates recommendations but never learns from them. If it recommends installing `governance` capability and the user accepts, the system doesn't know. If the user rejects the same recommendation 10 times, the system still recommends it.
 
 Feedback loops close this gap.
 
@@ -55,7 +55,7 @@ interface FeedbackSummary {
 Feedback is stored as JSON files:
 
 ```
-nexus-system/feedback/
+shitenno-go/feedback/
 ├── records/
 │   ├── 2026-06-27-001.json
 │   ├── 2026-06-27-002.json
@@ -198,6 +198,6 @@ const summary = getFeedbackSummary();
 ## Implementation
 
 - **File:** `src/feedback-loops.ts` (~180 lines)
-- **Storage:** `nexus-system/feedback/`
+- **Storage:** `shitenno-go/feedback/`
 - **Integration:** `src/auto-evolution.ts` consumes feedback
-- **CLI:** `nexus feedback` command (view history)
+- **CLI:** `shiten feedback` command (view history)

@@ -15,8 +15,8 @@ const ALLOWED_SCRIPTS: Record<string, string> = {
   "list-files": "find . -maxdepth 2 -type f | head -20",
 };
 
-/** Comandos Nexus permitidos para execução via regras. */
-const ALLOWED_NEXUS_COMMANDS: Record<string, string> = {
+/** Comandos Shiten permitidos para execução via regras. */
+const ALLOWED_SHITEN_COMMANDS: Record<string, string> = {
   "briefing": "briefing --summary",
   "docs-audit": "docs-audit --json",
   "status": "status --quiet",
@@ -27,16 +27,16 @@ export function isScriptAllowed(script: string): boolean {
   return script in ALLOWED_SCRIPTS;
 }
 
-export function isNexusCommandAllowed(command: string): boolean {
-  return command in ALLOWED_NEXUS_COMMANDS;
+export function isShitenCommandAllowed(command: string): boolean {
+  return command in ALLOWED_SHITEN_COMMANDS;
 }
 
 export function getAllowedScriptCommand(script: string): string | undefined {
   return ALLOWED_SCRIPTS[script];
 }
 
-export function getAllowedNexusCommand(command: string): string | undefined {
-  return ALLOWED_NEXUS_COMMANDS[command];
+export function getAllowedShitenCommand(command: string): string | undefined {
+  return ALLOWED_SHITEN_COMMANDS[command];
 }
 
 // ── Rule ID Validation ───────────────────────────────────────────────────────

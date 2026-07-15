@@ -37,7 +37,7 @@ describe("Pipeline", () => {
 
     const pipeline = new Pipeline().addStage(stageA).addStage(stageB);
     const result = await pipeline.execute(
-      createPipelineContext("/test", "/test/nexus-system")
+      createPipelineContext("/test", "/test/shitenno-go")
     );
 
     expect(order).toEqual(["a", "b"]);
@@ -62,7 +62,7 @@ describe("Pipeline", () => {
 
     const pipeline = new Pipeline().addStage(failingStage).addStage(successStage);
     const result = await pipeline.execute(
-      createPipelineContext("/test", "/test/nexus-system")
+      createPipelineContext("/test", "/test/shitenno-go")
     );
 
     expect(result.errors).toHaveLength(1);
@@ -79,7 +79,7 @@ describe("Pipeline", () => {
 
     const pipeline = new Pipeline().addStage(stage);
     const result = await pipeline.execute(
-      createPipelineContext("/test", "/test/nexus-system")
+      createPipelineContext("/test", "/test/shitenno-go")
     );
 
     expect(result.stageResults).toHaveLength(1);
@@ -91,7 +91,7 @@ describe("Pipeline", () => {
   it("sets completedAt when done", async () => {
     const pipeline = new Pipeline();
     const result = await pipeline.execute(
-      createPipelineContext("/test", "/test/nexus-system")
+      createPipelineContext("/test", "/test/shitenno-go")
     );
 
     expect(result.completedAt).toBeDefined();
@@ -109,10 +109,10 @@ describe("Pipeline", () => {
   });
 
   it("createPipelineContext initializes correctly", () => {
-    const ctx = createPipelineContext("/project", "/project/nexus-system");
+    const ctx = createPipelineContext("/project", "/project/shitenno-go");
 
     expect(ctx.projectRoot).toBe("/project");
-    expect(ctx.nexusDir).toBe("/project/nexus-system");
+    expect(ctx.shitenDir).toBe("/project/shitenno-go");
     expect(ctx.errors).toHaveLength(0);
     expect(ctx.stageResults).toHaveLength(0);
     expect(ctx.startedAt).toBeDefined();

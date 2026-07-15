@@ -1,14 +1,14 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 import { walkSourceFiles } from "./utils.js";
 
 export interface ProjectAnalysis {
   rootDir: string;
   hasGit: boolean;
   hasPackageJson: boolean;
-  hasNexus: boolean;
+  hasShiten: boolean;
   stack: string[];
   packageManager: "pnpm" | "npm" | "yarn" | "unknown";
   monorepo: boolean;
@@ -41,7 +41,7 @@ export function analyseProject(rootDir: string): ProjectAnalysis {
     rootDir,
     hasGit: existsSync(join(rootDir, ".git")),
     hasPackageJson: existsSync(join(rootDir, "package.json")),
-    hasNexus: existsSync(join(rootDir, NEXUS_DIR_NAME)),
+    hasShiten: existsSync(join(rootDir, SHITEN_DIR_NAME)),
     stack: detectStack(rootDir),
     packageManager: detectPackageManager(rootDir),
     monorepo: detectMonorepo(rootDir),

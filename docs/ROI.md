@@ -1,8 +1,8 @@
-# 📊 ROI — Return on Investment do Nexus System
+# 📊 ROI — Return on Investment do Shitenno-go
 
 ## Resumo Executivo
 
-O Nexus System é um investimento em engenharia que se paga rapidamente através de:
+O Shitenno-go é um investimento em engenharia que se paga rapidamente através de:
 - **Redução de tokens AI** (~60-80% por sessão)
 - **Eliminação de retrabalho** (~40-60% menos iterações)
 - **Prevenção de erros** (~50-70% menos bugs evitáveis)
@@ -11,7 +11,7 @@ O Nexus System é um investimento em engenharia que se paga rapidamente através
 
 ## 1. Economia de Tokens
 
-### O problema sem Nexus
+### O problema sem Shiten
 
 Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 
@@ -23,18 +23,18 @@ Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 | Erros conhecidos | ~2-3k | histórico de bugs, reverts |
 | **Total por sessão** | **~11-20k** | **Múltiplos arquivos, repetido toda sessão** |
 
-### A solução com Nexus
+### A solução com Shiten
 
 | Comando | Tokens | Informação obtida |
 |---|---|---|
-| `nexus briefing --summary` | ~20 | Domain, scale, risk, regras, recomendações |
-| `nexus briefing` | ~500-1000 | Briefing completo com contexto |
-| `nexus briefing` (cache hit) | ~0 | Mesmo resultado, 0 custo |
-| `nexus briefing --write` + leitura | ~500 | Briefing persistido para reuso |
+| `shiten briefing --summary` | ~20 | Domain, scale, risk, regras, recomendações |
+| `shiten briefing` | ~500-1000 | Briefing completo com contexto |
+| `shiten briefing` (cache hit) | ~0 | Mesmo resultado, 0 custo |
+| `shiten briefing --write` + leitura | ~500 | Briefing persistido para reuso |
 
 ### Economia por cenário
 
-| Cenário | Sem Nexus | Com Nexus | Economia |
+| Cenário | Sem Shiten | Com Shiten | Economia |
 |---|---|---|---|
 | Sessão média (feature) | ~15-25k tokens | ~2-5k tokens | **60-80%** |
 | Sessão com cache hit | ~15-25k tokens | ~0-1k tokens | **95-100%** |
@@ -43,7 +43,7 @@ Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 
 ### Projeção mensal (10 sessões/mês)
 
-| Métrica | Sem Nexus | Com Nexus | Economia |
+| Métrica | Sem Shiten | Com Shiten | Economia |
 |---|---|---|---|
 | Tokens/mês | ~150-250k | ~20-50k | **~100-200k tokens** |
 | Custo estimado* | ~$0.75-1.25 | ~$0.10-0.25 | **~$0.50-1.00/mês** |
@@ -55,19 +55,19 @@ Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 
 ## 2. Eliminação de Retrabalho
 
-### Sem Nexus
+### Sem Shiten
 - O agente comete erros por falta de contexto → iterações de correção
 - Cada iteração gasta ~5-15k tokens adicionais
 - Média de 2-3 iterações por erro evitável
 
-### Com Nexus
+### Com Shiten
 - Briefing alerta sobre áreas sensíveis antes do trabalho
 - Regras contextuais previnem erros conhecidos
 - Feedback loop aprende com sessões passadas
 
 ### Impacto estimado
 
-| Métrica | Sem Nexus | Com Nexus | Melhoria |
+| Métrica | Sem Shiten | Com Shiten | Melhoria |
 |---|---|---|---|
 | Iterações por erro | 2-3 | 0-1 | **50-70% redução** |
 | Erros evitáveis/sessão | 1-2 | 0-1 | **40-60% redução** |
@@ -77,7 +77,7 @@ Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 
 ## 3. Prevenção de Erros
 
-### Erros que o Nexus previne
+### Erros que o Shiten previne
 
 | Tipo de Erro | Como previne | Impacto |
 |---|---|---|
@@ -96,7 +96,7 @@ Um agente AI sem contexto do projeto precisa "descobrir" tudo a cada sessão:
 | Impacto no usuário | Variável |
 | Custo reputacional | Incalculável |
 
-O Nexus reduz a probabilidade desses erros em ~50-70%.
+O Shiten reduz a probabilidade desses erros em ~50-70%.
 
 ---
 
@@ -119,7 +119,7 @@ O AGENTS.md suporta 3 perfis de carregamento:
 O sistema de feedback permite medir efetividade real:
 
 ```bash
-nexus feedback --summary
+shiten feedback --summary
 ```
 
 Retorna:
@@ -136,8 +136,8 @@ Retorna:
 |---|---|---|---|---|
 | **Sem nenhum sistema** | ~15-25k | Zero | Nenhum | ~$0.75-1.25 |
 | **Só AGENTS.md manual** | ~8-12k | Estático | Nenhum | ~$0.40-0.60 |
-| **Nexus (sem cache)** | ~2-5k | Dinâmico | Sim | ~$0.10-0.25 |
-| **Nexus (com cache)** | ~0-1k | Dinâmico | Sim | ~$0.00-0.05 |
+| **Shiten (sem cache)** | ~2-5k | Dinâmico | Sim | ~$0.10-0.25 |
+| **Shiten (com cache)** | ~0-1k | Dinâmico | Sim | ~$0.00-0.05 |
 
 ---
 
@@ -156,7 +156,7 @@ Retorna:
 
 ## 8. Conclusão
 
-O Nexus System não é um custo — é um investimento que se paga na primeira sessão:
+O Shitenno-go não é um custo — é um investimento que se paga na primeira sessão:
 
 - **60-80% menos tokens** por sessão
 - **95-100% menos tokens** com cache hit

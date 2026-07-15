@@ -13,19 +13,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 
-const TEST_DIR = join(tmpdir(), "nexus-capability-test");
-const NEXUS_DIR = join(TEST_DIR, "nexus");
+const TEST_DIR = join(tmpdir(), "shiten-capability-test");
+const SHITEN_DIR = join(TEST_DIR, "shiten");
 
 beforeAll(() => {
-  mkdirSync(join(NEXUS_DIR, "governance", "rules"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "context"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "backlog"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "rules"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "context"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "backlog"), { recursive: true });
   writeFileSync(
-    join(NEXUS_DIR, "governance", "context", "context_buffer.yaml"),
+    join(SHITEN_DIR, "governance", "context", "context_buffer.yaml"),
     "reminders:\n  - test\n",
   );
   writeFileSync(
-    join(NEXUS_DIR, "governance", "context", "quick_board.md"),
+    join(SHITEN_DIR, "governance", "context", "quick_board.md"),
     "# Quick Board\n## Proximo\n- item\n",
   );
 });
@@ -95,7 +95,7 @@ function makeCapEntity(overrides: Partial<CapabilityEntity> = {}): CapabilityEnt
 
 describe("evaluateCapabilities", () => {
   it("returns a CapabilityEngineResult", () => {
-    const result = evaluateCapabilities(makeState(), NEXUS_DIR);
+    const result = evaluateCapabilities(makeState(), SHITEN_DIR);
     expect(result).toBeDefined();
     expect(Array.isArray(result.capabilities)).toBe(true);
     expect(typeof result.overallScore).toBe("number");
@@ -104,7 +104,7 @@ describe("evaluateCapabilities", () => {
   });
 
   it("capabilities have maturity levels", () => {
-    const result = evaluateCapabilities(makeState(), NEXUS_DIR);
+    const result = evaluateCapabilities(makeState(), SHITEN_DIR);
     for (const cap of result.capabilities) {
       expect(typeof cap.id).toBe("string");
       expect(typeof cap.name).toBe("string");
@@ -125,8 +125,8 @@ describe("saveCapabilityEngineResult / loadCapabilityEngineResult", () => {
       recommendations: [],
       summary: "test",
     };
-    saveCapabilityEngineResult(NEXUS_DIR, result);
-    const loaded = loadCapabilityEngineResult(NEXUS_DIR);
+    saveCapabilityEngineResult(SHITEN_DIR, result);
+    const loaded = loadCapabilityEngineResult(SHITEN_DIR);
     expect(loaded).toBeDefined();
     expect(loaded!.overallScore).toBe(75);
   });
@@ -140,7 +140,7 @@ describe("saveCapabilityEngineResult / loadCapabilityEngineResult", () => {
 
 describe("initializeCapabilityEngine", () => {
   it("subscribes to capability.installed event", () => {
-    expect(() => initializeCapabilityEngine(TEST_DIR, NEXUS_DIR)).not.toThrow();
+    expect(() => initializeCapabilityEngine(TEST_DIR, SHITEN_DIR)).not.toThrow();
   });
 });
 

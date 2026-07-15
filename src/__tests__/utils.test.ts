@@ -6,13 +6,13 @@ import {
   walkSourceFiles,
   countSourceFilesInDir,
   FileContentCache,
-  detectNexusProject,
+  detectShitenProject,
 } from "../utils.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-test-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-test-"));
 });
 
 afterEach(() => {
@@ -116,22 +116,22 @@ describe("FileContentCache", () => {
   });
 });
 
-// ── detectNexusProject ───────────────────────────────────────────────────────
+// ── detectShitenProject ───────────────────────────────────────────────────────
 
-describe("detectNexusProject", () => {
+describe("detectShitenProject", () => {
   it("detects project with opencode.json", () => {
     writeFileSync(join(tempDir, "opencode.json"), "{}");
 
-    const result = detectNexusProject(tempDir);
+    const result = detectShitenProject(tempDir);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
-    expect(result!.nexusDir).toBe(join(tempDir, "nexus-system"));
+    expect(result!.shitenDir).toBe(join(tempDir, "shitenno-go"));
   });
 
-  it("detects project with nexus-system/ directory", () => {
-    mkdirSync(join(tempDir, "nexus-system"), { recursive: true });
+  it("detects project with shitenno-go/ directory", () => {
+    mkdirSync(join(tempDir, "shitenno-go"), { recursive: true });
 
-    const result = detectNexusProject(tempDir);
+    const result = detectShitenProject(tempDir);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
   });
@@ -141,13 +141,13 @@ describe("detectNexusProject", () => {
     const child = join(tempDir, "sub", "deep");
     mkdirSync(child, { recursive: true });
 
-    const result = detectNexusProject(child);
+    const result = detectShitenProject(child);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
   });
 
-  it("returns null for non-nexus directory", () => {
-    const result = detectNexusProject("/tmp");
+  it("returns null for non-shiten directory", () => {
+    const result = detectShitenProject("/tmp");
     expect(result).toBeNull();
   });
 });

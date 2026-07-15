@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This directory contains process documentation for contributing to and maintaining the Nexus CLI project. It defines how we work, not what we build.
+This directory contains process documentation for contributing to and maintaining the Shiten CLI project. It defines how we work, not what we build.
 
 ## Audience
 
@@ -18,7 +18,7 @@ This directory contains process documentation for contributing to and maintainin
 |----------|---------|--------|
 | [Backlog](../BACKLOG.md) | Active work tracker with P0-P3 priorities | Active |
 | [Documentation Governance](./DOCUMENTATION_GOVERNANCE.md) | Rules for documentation maintenance | Planned |
-| [Contributing Guide](./CONTRIBUTING.md) | How to contribute to Nexus | Planned |
+| [Contributing Guide](./CONTRIBUTING.md) | How to contribute to Shiten | Planned |
 | [Workflow](./WORKFLOW.md) | Development workflow | Planned |
 | [AI Agent Rules](./AGENTS.md) | Rules for AI agents on this repo | Planned |
 | [Development Guide](./DEVELOPMENT.md) | Development environment setup | Planned |

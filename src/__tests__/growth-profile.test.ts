@@ -12,11 +12,11 @@ import {
 } from "../growth-profile.js";
 
 let tempDir: string;
-let nexusDir: string;
+let shitenDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-growth-"));
-  nexusDir = join(tempDir, "nexus-system");
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-growth-"));
+  shitenDir = join(tempDir, "shitenno-go");
 });
 
 afterEach(() => {
@@ -32,7 +32,7 @@ describe("Growth Profile", () => {
 
   describe("loadGrowthProfile", () => {
     it("returns default profile when no file exists", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       expect(profile).toBeDefined();
       expect(profile.growthCapacity).toBe(0.3);
       expect(profile.challengeLevel).toBe(0.36);
@@ -42,56 +42,56 @@ describe("Growth Profile", () => {
     });
 
     it("loads existing profile from disk", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       profile.growthCapacity = 0.7;
-      saveGrowthProfile(nexusDir, profile);
+      saveGrowthProfile(shitenDir, profile);
 
-      const loaded = loadGrowthProfile(nexusDir);
+      const loaded = loadGrowthProfile(shitenDir);
       expect(loaded.growthCapacity).toBe(0.7);
     });
 
     it("returns default profile for corrupted file", () => {
-      mkdirSync(nexusDir, { recursive: true });
-      writeFileSync(join(nexusDir, "growth-profile.json"), "{ invalid json");
+      mkdirSync(shitenDir, { recursive: true });
+      writeFileSync(join(shitenDir, "growth-profile.json"), "{ invalid json");
 
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       expect(profile.growthCapacity).toBe(0.3);
     });
   });
 
   describe("saveGrowthProfile", () => {
     it("creates file on disk", () => {
-      const profile = loadGrowthProfile(nexusDir);
-      saveGrowthProfile(nexusDir, profile);
+      const profile = loadGrowthProfile(shitenDir);
+      saveGrowthProfile(shitenDir, profile);
 
-      expect(existsSync(join(nexusDir, "growth-profile.json"))).toBe(true);
+      expect(existsSync(join(shitenDir, "growth-profile.json"))).toBe(true);
     });
 
     it("preserves all fields", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       profile.growthCapacity = 0.8;
       profile.challengeLevel = 0.65;
       profile.projectId = "test-project";
-      saveGrowthProfile(nexusDir, profile);
+      saveGrowthProfile(shitenDir, profile);
 
-      const content = JSON.parse(readFileSync(join(nexusDir, "growth-profile.json"), "utf-8"));
+      const content = JSON.parse(readFileSync(join(shitenDir, "growth-profile.json"), "utf-8"));
       expect(content.growthCapacity).toBe(0.8);
       expect(content.challengeLevel).toBe(0.65);
       expect(content.projectId).toBe("test-project");
     });
 
     it("creates directory if it does not exist", () => {
-      const newNexusDir = join(tempDir, "new-nexus");
-      const profile = loadGrowthProfile(newNexusDir, "test");
-      saveGrowthProfile(newNexusDir, profile);
+      const newShitenDir = join(tempDir, "new-shiten");
+      const profile = loadGrowthProfile(newShitenDir, "test");
+      saveGrowthProfile(newShitenDir, profile);
 
-      expect(existsSync(join(newNexusDir, "growth-profile.json"))).toBe(true);
+      expect(existsSync(join(newShitenDir, "growth-profile.json"))).toBe(true);
     });
   });
 
   describe("recordPathChoice", () => {
     it("records a comfortable choice", () => {
-      const profile = recordPathChoice(nexusDir, {
+      const profile = recordPathChoice(shitenDir, {
         pathChosen: "comfortable",
         context: defaultContext,
       });
@@ -103,7 +103,7 @@ describe("Growth Profile", () => {
     });
 
     it("records a challenging choice", () => {
-      const profile = recordPathChoice(nexusDir, {
+      const profile = recordPathChoice(shitenDir, {
         pathChosen: "challenging",
         context: defaultContext,
       });
@@ -113,30 +113,30 @@ describe("Growth Profile", () => {
     });
 
     it("accumulates choices over time", () => {
-      recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
-      recordPathChoice(nexusDir, { pathChosen: "challenging", context: defaultContext });
-      const profile = recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
+      recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
+      recordPathChoice(shitenDir, { pathChosen: "challenging", context: defaultContext });
+      const profile = recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
 
       expect(profile.pathHistory).toHaveLength(3);
     });
 
     it("updates growth capacity after each choice", () => {
       // Start with some comfortable choices to lower capacity
-      recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
-      recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
-      let profile = recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
+      recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
+      recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
+      let profile = recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
       const afterComfort = profile.growthCapacity;
 
       // Now add challenging choices to increase capacity
-      profile = recordPathChoice(nexusDir, { pathChosen: "challenging", context: defaultContext });
+      profile = recordPathChoice(shitenDir, { pathChosen: "challenging", context: defaultContext });
       const afterChallenging = profile.growthCapacity;
 
       expect(afterChallenging).toBeGreaterThan(afterComfort);
     });
 
     it("persists to disk", () => {
-      recordPathChoice(nexusDir, { pathChosen: "comfortable", context: defaultContext });
-      const loaded = loadGrowthProfile(nexusDir);
+      recordPathChoice(shitenDir, { pathChosen: "comfortable", context: defaultContext });
+      const loaded = loadGrowthProfile(shitenDir);
 
       expect(loaded.pathHistory).toHaveLength(1);
     });
@@ -144,12 +144,12 @@ describe("Growth Profile", () => {
 
   describe("calculateGrowthCapacity", () => {
     it("returns default for empty history", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       expect(calculateGrowthCapacity(profile)).toBe(0.3);
     });
 
     it("increases with challenging choices", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 5; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,
@@ -164,7 +164,7 @@ describe("Growth Profile", () => {
     });
 
     it("decreases with comfortable choices", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 5; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,
@@ -179,7 +179,7 @@ describe("Growth Profile", () => {
     });
 
     it("clamps to 0-1 range", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 50; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,
@@ -197,14 +197,14 @@ describe("Growth Profile", () => {
 
   describe("calculateChallengeLevel", () => {
     it("returns value above 0 for default profile", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const level = calculateChallengeLevel(profile);
       expect(level).toBeGreaterThan(0);
       expect(level).toBeLessThanOrEqual(1);
     });
 
     it("increases with growth capacity", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       profile.growthCapacity = 0.8;
       const level = calculateChallengeLevel(profile);
 
@@ -212,7 +212,7 @@ describe("Growth Profile", () => {
     });
 
     it("clamps to 0-1 range", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       profile.growthCapacity = 1.0;
       const level = calculateChallengeLevel(profile);
       expect(level).toBeLessThanOrEqual(1);
@@ -221,7 +221,7 @@ describe("Growth Profile", () => {
 
   describe("detectGrowthPatterns", () => {
     it("returns balanced pattern for empty history", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const patterns = detectGrowthPatterns(profile);
 
       expect(patterns).toHaveLength(1);
@@ -229,7 +229,7 @@ describe("Growth Profile", () => {
     });
 
     it("detects prefers_growth pattern", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 8; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,
@@ -245,7 +245,7 @@ describe("Growth Profile", () => {
     });
 
     it("detects prefers_comfort pattern", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 8; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,
@@ -261,7 +261,7 @@ describe("Growth Profile", () => {
     });
 
     it("detects balanced pattern", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       for (let i = 0; i < 10; i++) {
         profile.pathHistory.push({
           id: `test-${i}`,

@@ -1,21 +1,21 @@
 /**
  * profile.ts — User Profile Management
  *
- * The `nexus profile` command. Allows users to view, set, and update
+ * The `shiten profile` command. Allows users to view, set, and update
  * their profile for personalized feedback.
  *
  * Usage:
- *   nexus profile                    # Show current profile
- *   nexus profile --set              # Interactive setup
- *   nexus profile --name "Edson"     # Set name
- *   nexus profile --role "Tech Lead em Formação"  # Set role
- *   nexus profile --architecture senior  # Set architecture level
- *   nexus profile --coding pleno     # Set coding level
- *   nexus profile --leadership senior # Set leadership level
- *   nexus profile --tone mentor      # Set feedback tone
- *   nexus profile --language pt      # Set language
- *   nexus profile --code-free 95     # Set code-free percentage
- *   nexus profile --focus "visão,leadership"  # Set focus areas
+ *   shiten profile                    # Show current profile
+ *   shiten profile --set              # Interactive setup
+ *   shiten profile --name "Edson"     # Set name
+ *   shiten profile --role "Tech Lead em Formação"  # Set role
+ *   shiten profile --architecture senior  # Set architecture level
+ *   shiten profile --coding pleno     # Set coding level
+ *   shiten profile --leadership senior # Set leadership level
+ *   shiten profile --tone mentor      # Set feedback tone
+ *   shiten profile --language pt      # Set language
+ *   shiten profile --code-free 95     # Set code-free percentage
+ *   shiten profile --focus "visão,leadership"  # Set focus areas
  */
 
 import { Command } from "commander";
@@ -37,7 +37,7 @@ import { output, outputBlank, outputSection, outputSuccess, outputError } from "
 
 function displayProfile(profile: UserProfile): void {
   outputBlank();
-  outputSection("nexus profile — User Profile");
+  outputSection("shiten profile — User Profile");
   outputBlank();
   outputSection("📋 Perfil Actual");
   output(`     Nome:          ${chalk.cyan(profile.name)}`);
@@ -59,8 +59,8 @@ function displayProfile(profile: UserProfile): void {
   output(`     Tom:           ${toneLabel}`);
   output(`     No-code:       ${profile.codeFreePercent >= 80 ? "Forte (foco em visão/leadership)" : profile.codeFreePercent >= 50 ? "Moderado" : "Técnico (foco em código)"}`);
   outputBlank();
-  output(chalk.gray("  Para alterar: nexus profile --name 'Novo Nome'"));
-  output(chalk.gray("  Para configurar interactivamente: nexus profile --set"));
+  output(chalk.gray("  Para alterar: shiten profile --name 'Novo Nome'"));
+  output(chalk.gray("  Para configurar interactivamente: shiten profile --set"));
   outputBlank();
 }
 
@@ -87,11 +87,11 @@ export function profileCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("profile", ctx.projectRoot, ctx.nexusDir, isJson)) {
+      if (!checkLifecycleGate("profile", ctx.projectRoot, ctx.shitenDir, isJson)) {
         return;
       }
 
-      const profile = loadUserProfile(ctx.nexusDir);
+      const profile = loadUserProfile(ctx.shitenDir);
       let updated = false;
 
       // ── Interactive setup ────────────────────────────────────────
@@ -105,7 +105,7 @@ export function profileCommand(): Command {
         }
 
         output("");
-        outputSection("nexus profile — Setup Interactivo");
+        outputSection("shiten profile — Setup Interactivo");
         outputBlank();
         output(chalk.gray("  Pressiona Enter para manter o valor actual."));
         outputBlank();
@@ -238,7 +238,7 @@ export function profileCommand(): Command {
 
       // ── Save if updated ──────────────────────────────────────────
       if (updated) {
-        saveUserProfile(ctx.nexusDir, profile);
+        saveUserProfile(ctx.shitenDir, profile);
 
         if (isJson) {
           outputJson({ type: "profile_updated", ...profile });

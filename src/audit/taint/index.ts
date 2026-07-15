@@ -1,7 +1,7 @@
 /**
  * index.ts — Taint Analysis Module
  *
- * Public API for taint analysis in the nexus audit system.
+ * Public API for taint analysis in the shiten audit system.
  * Detects untrusted data flowing from sources to sinks without sanitization.
  */
 

@@ -34,8 +34,8 @@ export interface ActiveRulesResult {
 /**
  * Parse the REGISTRY.md file to get rule → capability mappings.
  */
-function loadRegistry(nexusDir: string): Map<number, string[]> {
-  const registryPath = join(nexusDir, "docs", "REGISTRY.md");
+function loadRegistry(shitenDir: string): Map<number, string[]> {
+  const registryPath = join(shitenDir, "docs", "REGISTRY.md");
   const map = new Map<number, string[]>();
 
   if (!existsSync(registryPath)) return map;
@@ -113,18 +113,18 @@ export function filterRulesByCapabilities(
  * Get active rules for the current project.
  *
  * @param projectRoot - Root directory of the project
- * @param nexusDir - Path to nexus-system/ directory
+ * @param shitenDir - Path to shitenno-go/ directory
  * @returns Filtered rules, complexity info, and counts
  */
 export function getActiveRules(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): ActiveRulesResult {
   const complexity = detectComplexity(projectRoot);
-  const agentsPath = join(nexusDir, "docs", "AGENTS.md");
+  const agentsPath = join(shitenDir, "docs", "AGENTS.md");
 
   // Load registry for capability metadata
-  const registry = loadRegistry(nexusDir);
+  const registry = loadRegistry(shitenDir);
 
   // Parse all rules from AGENTS.md
   const allRules = parseRules(agentsPath);

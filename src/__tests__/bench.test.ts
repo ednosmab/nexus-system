@@ -4,13 +4,13 @@ import { promisify } from "node:util";
 import { mkdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem } from "../scaffolder.js";
+import { scaffoldShitennoGo } from "../scaffolder.js";
 
 const execAsync = promisify(exec);
-const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/nexus.js");
+const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/shiten.js");
 
 describe("bench command", () => {
-  const TMP_DIR = join(tmpdir(), `nexus-bench-test-${Date.now()}`);
+  const TMP_DIR = join(tmpdir(), `shiten-bench-test-${Date.now()}`);
 
   beforeAll(() => {
     mkdirSync(TMP_DIR, { recursive: true });
@@ -18,15 +18,15 @@ describe("bench command", () => {
     mkdirSync(join(TMP_DIR, "src"), { recursive: true });
     writeFileSync(join(TMP_DIR, "src/index.ts"), "export const x = 1;");
 
-    // Scaffold nexus directly (non-interactive)
-    scaffoldNexusSystem(TMP_DIR, {
+    // Scaffold shiten directly (non-interactive)
+    scaffoldShitennoGo(TMP_DIR, {
       principalModel: "opencode/mimo-v2.5-free",
       executorModel: "opencode/deepseek-v4-flash-free",
       stack: ["typescript"],
       database: "none",
       styling: "none",
       maturity: {
-        usedNexusBefore: false,
+        usedShitenBefore: false,
         isFirstProject: false,
         projectAge: "new",
         teamSize: "solo",
@@ -55,7 +55,7 @@ describe("bench command", () => {
     const result = await execAsync(`node ${CLI_PATH} bench --json --iterations 1`, {
       cwd: TMP_DIR,
       timeout: 30000,
-      env: { ...process.env, NEXUS_CHILD: "1" },
+      env: { ...process.env, SHITEN_CHILD: "1", SHITEN_QUIET: "1" },
     });
 
     const data = JSON.parse(result.stdout);

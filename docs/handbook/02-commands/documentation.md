@@ -4,12 +4,12 @@ Comandos para auditoria e manutenção da documentação.
 
 ---
 
-## `nexus docs-audit`
+## `shiten docs-audit`
 
 Audite a documentação do projeto para inconsistências e problemas.
 
 ```bash
-nexus docs-audit [options]
+shiten docs-audit [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ nexus docs-audit [options]
 ### Exemplos
 
 ```bash
-nexus docs-audit           # Auditoria completa
-nexus docs-audit --json    # Saída JSON
+shiten docs-audit           # Auditoria completa
+shiten docs-audit --json    # Saída JSON
 ```
 
 ### Dicas

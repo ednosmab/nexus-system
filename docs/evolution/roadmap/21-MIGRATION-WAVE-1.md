@@ -55,7 +55,7 @@ Modo não interativo
 
 Adicionar
 
-nexus init --answers-file
+shiten init --answers-file
 
 ---
 

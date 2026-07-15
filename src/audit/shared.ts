@@ -43,10 +43,10 @@ export function collectSourceFiles(projectRoot: string): SourceFileInfo[] {
 }
 
 /**
- * Read history entries from nexus-system/docs/history/*.md.
+ * Read history entries from shitenno-go/docs/history/*.md.
  */
-export function readHistory(nexusDir: string): HistoryEntry[] {
-  const historyDir = join(nexusDir, "docs", "history");
+export function readHistory(shitenDir: string): HistoryEntry[] {
+  const historyDir = join(shitenDir, "docs", "history");
   if (!existsSync(historyDir)) return [];
 
   return readdirSync(historyDir)
@@ -61,8 +61,8 @@ export function readHistory(nexusDir: string): HistoryEntry[] {
 /**
  * Read rule names from AGENTS.md.
  */
-export function readRules(nexusDir: string): string[] {
-  const agentsPath = join(nexusDir, "docs", "AGENTS.md");
+export function readRules(shitenDir: string): string[] {
+  const agentsPath = join(shitenDir, "docs", "AGENTS.md");
   if (!existsSync(agentsPath)) return [];
 
   const content = readFileSync(agentsPath, "utf-8");

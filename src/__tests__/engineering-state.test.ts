@@ -31,15 +31,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 
-const TEST_DIR = join(tmpdir(), "nexus-eng-state-test");
-const NEXUS_DIR = join(TEST_DIR, "nexus");
+const TEST_DIR = join(tmpdir(), "shiten-eng-state-test");
+const SHITEN_DIR = join(TEST_DIR, "shiten");
 
 beforeAll(() => {
-  mkdirSync(join(NEXUS_DIR, "governance", "rules"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "context"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "backlog"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "rules"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "context"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "backlog"), { recursive: true });
   writeFileSync(
-    join(NEXUS_DIR, "governance", "context", "context_buffer.yaml"),
+    join(SHITEN_DIR, "governance", "context", "context_buffer.yaml"),
     "reminders:\n  - test\n",
   );
 });
@@ -49,7 +49,7 @@ afterAll(() => {
 
 describe("consolidateEngineeringState", () => {
   it("returns a valid EngineeringState", () => {
-    const state = consolidateEngineeringState(TEST_DIR, NEXUS_DIR);
+    const state = consolidateEngineeringState(TEST_DIR, SHITEN_DIR);
     expect(state).toBeDefined();
     expect(typeof state.consolidatedAt).toBe("string");
     expect(state.project).toBeDefined();
@@ -59,7 +59,7 @@ describe("consolidateEngineeringState", () => {
   });
 
   it("computes entropy metrics", () => {
-    const state = consolidateEngineeringState(TEST_DIR, NEXUS_DIR);
+    const state = consolidateEngineeringState(TEST_DIR, SHITEN_DIR);
     expect(typeof state.entropy.orphanedAssets).toBe("number");
     expect(typeof state.entropy.staleAssets).toBe("number");
     expect(typeof state.entropy.missingDependencies).toBe("number");
@@ -71,9 +71,9 @@ describe("consolidateEngineeringState", () => {
 
 describe("saveEngineeringState / loadEngineeringState", () => {
   it("round-trips through disk", () => {
-    const state = consolidateEngineeringState(TEST_DIR, NEXUS_DIR);
-    saveEngineeringState(NEXUS_DIR, state);
-    const loaded = loadEngineeringState(NEXUS_DIR);
+    const state = consolidateEngineeringState(TEST_DIR, SHITEN_DIR);
+    saveEngineeringState(SHITEN_DIR, state);
+    const loaded = loadEngineeringState(SHITEN_DIR);
     expect(loaded).toBeDefined();
     expect(loaded!.project.name).toBe(state.project.name);
     expect(loaded!.assets.length).toBe(state.assets.length);
@@ -88,14 +88,14 @@ describe("saveEngineeringState / loadEngineeringState", () => {
 
 describe("engineeringStateToText", () => {
   it("returns a non-empty string", () => {
-    const state = consolidateEngineeringState(TEST_DIR, NEXUS_DIR);
+    const state = consolidateEngineeringState(TEST_DIR, SHITEN_DIR);
     const text = engineeringStateToText(state);
     expect(typeof text).toBe("string");
     expect(text.length).toBeGreaterThan(0);
   });
 
   it("mentions entropy", () => {
-    const state = consolidateEngineeringState(TEST_DIR, NEXUS_DIR);
+    const state = consolidateEngineeringState(TEST_DIR, SHITEN_DIR);
     const text = engineeringStateToText(state);
     expect(text.toLowerCase()).toContain("entropy");
   });

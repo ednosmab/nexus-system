@@ -31,21 +31,21 @@ yarn-error.log*
 coverage/
 .vitest/
 
-# Nexus
-.nexus-cache.json
+# Shiten
+.shiten-cache.json
 
-# Nexus System — dados privados
-nexus-system/docs/feedback/
-nexus-system/telemetry/
-nexus-system/session-feedback/
-nexus-system/user-profile.json
-nexus-system/BRIEFING.md
+# Shitenno-go — dados privados
+shitenno-go/docs/feedback/
+shitenno-go/telemetry/
+shitenno-go/session-feedback/
+shitenno-go/user-profile.json
+shitenno-go/BRIEFING.md
 
-# Nexus System — auto-generated state files (mudam a cada execução)
-nexus-system/docs/history/
-nexus-system/reports/
-nexus-system/feedback/summary.json
-nexus-system/feedback/records/
+# Shitenno-go — auto-generated state files (mudam a cada execução)
+shitenno-go/docs/history/
+shitenno-go/reports/
+shitenno-go/feedback/summary.json
+shitenno-go/feedback/records/
 
 # Images
 logo.png

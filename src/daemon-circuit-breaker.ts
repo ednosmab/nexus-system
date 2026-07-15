@@ -42,11 +42,11 @@ export class DaemonCircuitBreaker {
   private stateFile: string;
 
   constructor(
-    nexusDir: string,
+    shitenDir: string,
     private readonly maxRetries: number = DEFAULT_MAX_RETRIES,
     private readonly windowMs: number = DEFAULT_WINDOW_MS
   ) {
-    this.stateFile = join(nexusDir, "daemon", "circuit-breaker.json");
+    this.stateFile = join(shitenDir, "daemon", "circuit-breaker.json");
     this.load();
   }
 
@@ -104,7 +104,7 @@ export class DaemonCircuitBreaker {
     logger.info("daemon-circuit-breaker", "Circuit reset — stable uptime reached");
   }
 
-  /** Get a snapshot of the current state (for `nexus daemon status`). */
+  /** Get a snapshot of the current state (for `shiten daemon status`). */
   getState(): Readonly<CircuitBreakerState> {
     return { ...this.state };
   }

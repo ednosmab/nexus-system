@@ -1,6 +1,6 @@
-# Plano de Implementação: Modernização de Layout & Design System (Nexus Dashboard)
+# Plano de Implementação: Modernização de Layout & Design System (Shitenno-go Dashboard)
 
-Este documento detalha o plano estratégico para reconstruir e elevar a qualidade visual do layout do `apps/nexus-dashboard`. O foco será a criação de uma interface premium, elegante, responsiva e moderna, integrando a logo original (`image1.png`) e derivando um **Design System** coeso baseado na paleta de cores da logo (tons profundos de dark blue/teal).
+Este documento detalha o plano estratégico para reconstruir e elevar a qualidade visual do layout do `apps/shitenno-dashboard`. O foco será a criação de uma interface premium, elegante, responsiva e moderna, integrando a logo original (`image1.png`) e derivando um **Design System** coeso baseado na paleta de cores da logo (tons profundos de dark blue/teal).
 
 ## User Review Required
 
@@ -22,7 +22,7 @@ Este documento detalha o plano estratégico para reconstruir e elevar a qualidad
 **Objetivo:** Garantir que a logo oficial e as fundações do projeto estejam no lugar correto.
 
 1. **Migração da Logo:**
-   - Copiar o arquivo `image1.png` da raiz para `apps/nexus-dashboard/public/logo.png`.
+   - Copiar o arquivo `image1.png` da raiz para `apps/shitenno-dashboard/public/logo.png`.
 2. **Atualização do Componente de Logo:**
    - [MODIFY] `src/components/shared/Logo.tsx`: Refatorar o componente para renderizar a imagem da logo oficial.
    - Ajustar as propriedades de dimensionamento (`size="sm" | "md" | "lg"`) para funcionar perfeitamente com a imagem preservando sua proporção (`aspect-ratio`).

@@ -10,8 +10,8 @@ import { join } from "node:path";
 
 const LOCK_STALE_MS = 30_000; // lock older than this = owner process likely dead/hung
 
-function lockPath(nexusDir: string): string {
-  const locksDir = join(nexusDir, ".locks");
+function lockPath(shitenDir: string): string {
+  const locksDir = join(shitenDir, ".locks");
   mkdirSync(locksDir, { recursive: true });
   return join(locksDir, "plan-backlog-sync.lock");
 }
@@ -21,8 +21,8 @@ function lockPath(nexusDir: string): string {
  * Atomic via "wx" flag — the OS guarantees the open fails with EEXIST
  * if the file already exists, without check-then-write race.
  */
-export function acquireScanLock(nexusDir: string): boolean {
-  const path = lockPath(nexusDir);
+export function acquireScanLock(shitenDir: string): boolean {
+  const path = lockPath(shitenDir);
   const payload = JSON.stringify({ pid: process.pid, acquiredAt: new Date().toISOString() });
 
   try {
@@ -53,9 +53,9 @@ export function acquireScanLock(nexusDir: string): boolean {
   return false;
 }
 
-export function releaseScanLock(nexusDir: string): void {
+export function releaseScanLock(shitenDir: string): void {
   try {
-    unlinkSync(lockPath(nexusDir));
+    unlinkSync(lockPath(shitenDir));
   } catch {
     // Already gone — nothing to do
   }

@@ -11,13 +11,13 @@ import { Command } from "commander";
 import chalk from "chalk";
 import { guardNotInitialized } from "../shared.js";
 import { startWatching } from "../file-watcher.js";
-import { getEventBus, type NexusEventType } from "../event-bus.js";
+import { getEventBus, type ShitenEventType } from "../event-bus.js";
 import { initPlanBacklogSync } from "../plan-backlog-sync.js";
 import { output, outputBlank } from "../output.js";
 
 // ── Event Formatting ────────────────────────────────────────────────────────
 
-const ALL_EVENTS: NexusEventType[] = [
+const ALL_EVENTS: ShitenEventType[] = [
   "session.start",
   "session.end",
   "analysis.complete",
@@ -65,7 +65,7 @@ const ALL_EVENTS: NexusEventType[] = [
 ];
 
 /** Color mapping for event categories. */
-function colorize(eventType: NexusEventType): (s: string) => string {
+function colorize(eventType: ShitenEventType): (s: string) => string {
   if (eventType.startsWith("plan.")) return chalk.cyan;
   if (eventType.startsWith("pipeline.")) return chalk.magenta;
   if (eventType.startsWith("session.")) return chalk.yellow;
@@ -119,16 +119,16 @@ export function watchCommand(): Command {
 
       // Banner
       outputBlank();
-      output(chalk.bold.cyan("  🔭 Nexus Watcher — Live System Log"));
-      output(chalk.gray(`  Watching: ${ctx.nexusDir}`));
+      output(chalk.bold.cyan("  🔭 Shiten Watcher — Live System Log"));
+      output(chalk.gray(`  Watching: ${ctx.shitenDir}`));
       output(chalk.gray("  Press Ctrl+C to stop."));
       outputBlank();
 
       // Init plan-backlog sync subscribers BEFORE starting watcher (prevents race condition)
-      initPlanBacklogSync(ctx.projectRoot, ctx.nexusDir);
+      initPlanBacklogSync(ctx.projectRoot, ctx.shitenDir);
 
       // Start file watcher
-      const stopWatcher = startWatching(ctx.nexusDir);
+      const stopWatcher = startWatching(ctx.shitenDir);
 
       // Subscribe to ALL events
       const bus = getEventBus();
@@ -136,7 +136,7 @@ export function watchCommand(): Command {
 
       // Filter events if --events flag provided
       const filterTypes = opts.events
-        ? (opts.events as string).split(",").map((s) => s.trim()) as NexusEventType[]
+        ? (opts.events as string).split(",").map((s) => s.trim()) as ShitenEventType[]
         : null;
 
       const subscribeTo = filterTypes ?? ALL_EVENTS;

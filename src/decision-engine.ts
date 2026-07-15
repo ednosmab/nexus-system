@@ -284,8 +284,8 @@ export interface DecisionRepository {
 export class FileDecisionRepository implements DecisionRepository {
   private dir: string;
 
-  constructor(nexusDir: string) {
-    this.dir = join(nexusDir, "governance", "decisions");
+  constructor(shitenDir: string) {
+    this.dir = join(shitenDir, "governance", "decisions");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }

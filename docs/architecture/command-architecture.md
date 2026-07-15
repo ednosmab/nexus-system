@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, each Nexus command duplicates:
+Today, each Shiten command duplicates:
 - Initialization guard (~20 lines each)
 - Banner display (~5 lines each)
 - JSON output mode (~10 lines each)
@@ -22,21 +22,21 @@ Replaces the duplicated initialization guard in every command:
 ```typescript
 interface ProjectContext {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
   isInitialized: boolean;
   hasMaturityProfile: boolean;
 }
 
 function resolveProjectContext(options: { dir?: string }): ProjectContext {
   const projectRoot = options.dir || process.cwd();
-  const nexusDir = join(projectRoot, "nexus-system");
+  const shitenDir = join(projectRoot, "shitenno-go");
   
   const isInitialized = existsSync(join(projectRoot, "opencode.json")) 
-    && existsSync(nexusDir);
+    && existsSync(shitenDir);
   
-  const hasMaturityProfile = existsSync(join(nexusDir, "maturity-profile.json"));
+  const hasMaturityProfile = existsSync(join(shitenDir, "maturity-profile.json"));
   
-  return { projectRoot, nexusDir, isInitialized, hasMaturityProfile };
+  return { projectRoot, shitenDir, isInitialized, hasMaturityProfile };
 }
 ```
 
@@ -66,7 +66,7 @@ function createCommand(
         const ctx = resolveProjectContext(options);
         
         if (!ctx.isInitialized) {
-          const error = { error: "not_initialized", message: "Run `nexus init` first" };
+          const error = { error: "not_initialized", message: "Run `shiten init` first" };
           if (isJson) {
             console.log(JSON.stringify(error));
           } else {
@@ -98,20 +98,20 @@ Wraps cache read/write:
 ```typescript
 async function withCache<T>(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   key: string,
   compute: () => Promise<T>,
   options?: { force?: boolean }
 ): Promise<{ data: T; cacheHit: boolean }> {
   if (!options?.force) {
-    const cached = getCached(projectRoot, nexusDir, key);
+    const cached = getCached(projectRoot, shitenDir, key);
     if (cached) {
       return { data: cached as T, cacheHit: true };
     }
   }
   
   const data = await compute();
-  setCache(projectRoot, nexusDir, key, data);
+  setCache(projectRoot, shitenDir, key, data);
   return { data, cacheHit: false };
 }
 ```
@@ -122,11 +122,11 @@ Replaces duplicated report writing:
 
 ```typescript
 function writeReport(
-  nexusDir: string,
+  shitenDir: string,
   prefix: string,
   report: Record<string, unknown>
 ): string | null {
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return null;
   
   const date = new Date().toISOString().split("T")[0];
@@ -177,22 +177,22 @@ function renderCheckResults(
 ```typescript
 // Duplicated in 8 commands (~20 lines each)
 const projectRoot = options.dir || process.cwd();
-const nexusDir = join(projectRoot, "nexus-system");
+const shitenDir = join(projectRoot, "shitenno-go");
 
 if (!existsSync(join(projectRoot, "opencode.json"))) {
   if (isJson) {
     console.log(JSON.stringify({ error: "not_initialized", message: "..." }));
   } else {
-    console.error("Project not initialized. Run `nexus init` first.");
+    console.error("Project not initialized. Run `shiten init` first.");
   }
   process.exit(1);
 }
 
-if (!existsSync(nexusDir)) {
+if (!existsSync(shitenDir)) {
   if (isJson) {
     console.log(JSON.stringify({ error: "not_initialized", message: "..." }));
   } else {
-    console.error("nexus-system/ directory not found. Run `nexus init`.");
+    console.error("shitenno-go/ directory not found. Run `shiten init`.");
   }
   process.exit(1);
 }
@@ -204,8 +204,8 @@ if (!existsSync(nexusDir)) {
 const cmd = createCommand("status", "Health check + complexity scoring", async (ctx) => {
   // Just the business logic, no boilerplate
   const { data: report, cacheHit } = await withCache(
-    ctx.projectRoot, ctx.nexusDir, "complexity",
-    () => calculateComplexityScore(ctx.projectRoot, ctx.nexusDir)
+    ctx.projectRoot, ctx.shitenDir, "complexity",
+    () => calculateComplexityScore(ctx.projectRoot, ctx.shitenDir)
   );
   
   if (isJson) {

@@ -32,7 +32,7 @@ describe("Orphaned Modules Activation (Phase E)", () => {
 
   it("errors.ts exports expected functions", async () => {
     const mod = await import("../errors.js");
-    expect(typeof mod.NexusError).toBe("function");
+    expect(typeof mod.ShitenError).toBe("function");
   });
 
   it("engineering-state-access.ts exports getEngineeringState", async () => {

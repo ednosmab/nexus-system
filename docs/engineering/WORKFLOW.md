@@ -1,6 +1,6 @@
 # Workflow
 
-> Development workflow for Nexus CLI contributors.
+> Development workflow for Shiten CLI contributors.
 
 ## Branch Strategy
 

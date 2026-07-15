@@ -4,7 +4,7 @@
  * Records the outcome of a session (success/failure) and associates it
  * with the briefing that was used. Enables learning from results.
  *
- * Storage: .nexus/session-feedback.jsonl (append-only).
+ * Storage: .shiten/session-feedback.jsonl (append-only).
  *
  * PRINCIPLE: Close the feedback loop — outcomes inform future briefings.
  */
@@ -88,16 +88,16 @@ export interface SessionFeedbackSummary {
 
 // ── Storage ────────────────────────────────────────────────────────────────
 
-function getFeedbackDir(nexusDir: string): string {
-  return join(nexusDir, "session-feedback");
+function getFeedbackDir(shitenDir: string): string {
+  return join(shitenDir, "session-feedback");
 }
 
-function getRecordsPath(nexusDir: string): string {
-  return join(getFeedbackDir(nexusDir), "records.jsonl");
+function getRecordsPath(shitenDir: string): string {
+  return join(getFeedbackDir(shitenDir), "records.jsonl");
 }
 
-function ensureDir(nexusDir: string): void {
-  const dir = getFeedbackDir(nexusDir);
+function ensureDir(shitenDir: string): void {
+  const dir = getFeedbackDir(shitenDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -125,9 +125,9 @@ export function recordOutcome(
 /**
  * Get a file-system based storage for session feedback.
  */
-export function createFileStorage(nexusDir: string) {
-  ensureDir(nexusDir);
-  const recordsPath = getRecordsPath(nexusDir);
+export function createFileStorage(shitenDir: string) {
+  ensureDir(shitenDir);
+  const recordsPath = getRecordsPath(shitenDir);
 
   return {
     read(): SessionFeedbackRecord[] {
@@ -158,7 +158,7 @@ export function createFileStorage(nexusDir: string) {
       }
     },
     append(record: SessionFeedbackRecord): void {
-      ensureDir(nexusDir);
+      ensureDir(shitenDir);
       appendFileSync(recordsPath, JSON.stringify(record) + "\n", "utf-8");
     },
   };
@@ -167,8 +167,8 @@ export function createFileStorage(nexusDir: string) {
 /**
  * Get all session feedback records.
  */
-export function getFeedbackRecords(nexusDir: string): SessionFeedbackRecord[] {
-  return createFileStorage(nexusDir).read();
+export function getFeedbackRecords(shitenDir: string): SessionFeedbackRecord[] {
+  return createFileStorage(shitenDir).read();
 }
 
 /**
@@ -176,17 +176,17 @@ export function getFeedbackRecords(nexusDir: string): SessionFeedbackRecord[] {
  * Bridges session-feedback with session-tracker.
  */
 export function getFeedbackForSession(
-  nexusDir: string,
+  shitenDir: string,
   sessionId: string
 ): SessionFeedbackRecord[] {
-  return getFeedbackRecords(nexusDir).filter((r) => r.sessionId === sessionId);
+  return getFeedbackRecords(shitenDir).filter((r) => r.sessionId === sessionId);
 }
 
 /**
  * Get the latest feedback record (for pattern analysis).
  */
-export function getLatestFeedback(nexusDir: string): SessionFeedbackRecord | null {
-  const records = getFeedbackRecords(nexusDir);
+export function getLatestFeedback(shitenDir: string): SessionFeedbackRecord | null {
+  const records = getFeedbackRecords(shitenDir);
   return records.at(-1) ?? null;
 }
 

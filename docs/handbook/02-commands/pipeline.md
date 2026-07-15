@@ -4,12 +4,12 @@ Comandos para executar pipelines de análise e ações de governança.
 
 ---
 
-## `nexus run`
+## `shiten run`
 
 Execute o pipeline de análise completo (analisar → pontuar → detectar → auditar → evoluir).
 
 ```bash
-nexus run [options]
+shiten run [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ nexus run [options]
 ### Exemplos
 
 ```bash
-nexus run                 # Pipeline completo
-nexus run --json          # Saída JSON
+shiten run                 # Pipeline completo
+shiten run --json          # Saída JSON
 ```
 
 ### Dicas
@@ -32,12 +32,12 @@ nexus run --json          # Saída JSON
 
 ---
 
-## `nexus evolve`
+## `shiten evolve`
 
 Mostre recomendações de evolução e gerencie feedback.
 
 ```bash
-nexus evolve [options]
+shiten evolve [options]
 ```
 
 ### Opções
@@ -49,26 +49,26 @@ nexus evolve [options]
 ### Exemplos
 
 ```bash
-nexus evolve              # Mostrar recomendações
-nexus evolve --json       # Saída JSON
+shiten evolve              # Mostrar recomendações
+shiten evolve --json       # Saída JSON
 ```
 
 ---
 
-## `nexus act`
+## `shiten act`
 
 Execute ações com garantias de idempotência.
 
 ```bash
-nexus act [options]
+shiten act [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus act create` | Criar nova ação |
-| `nexus act list` | Listar todas as ações |
+| `shiten act create` | Criar nova ação |
+| `shiten act list` | Listar todas as ações |
 
 ### Opções
 
@@ -80,36 +80,36 @@ nexus act [options]
 ### Exemplos
 
 ```bash
-nexus act create --title 'Fix auth' --action-type bugfix
-nexus act list            # Listar todas as ações
+shiten act create --title 'Fix auth' --action-type bugfix
+shiten act list            # Listar todas as ações
 ```
 
 ---
 
-## `nexus plan`
+## `shiten plan`
 
 Gerencie sequências de ações coordenadas (planos).
 
 ```bash
-nexus plan <subcommand> [options]
+shiten plan <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus plan create <name>` | Criar um plano |
-| `nexus plan execute <plan-id>` | Executar um plano |
-| `nexus plan list` | Listar todos os planos |
-| `nexus plan show <plan-id>` | Mostrar detalhes do plano |
-| `nexus plan md prepare <id>` | Preparar pipeline de validação |
+| `shiten plan create <name>` | Criar um plano |
+| `shiten plan execute <plan-id>` | Executar um plano |
+| `shiten plan list` | Listar todos os planos |
+| `shiten plan show <plan-id>` | Mostrar detalhes do plano |
+| `shiten plan md prepare <id>` | Preparar pipeline de validação |
 
 ### Exemplos
 
 ```bash
-nexus plan create my-plan           # Criar plano
-nexus plan execute plan-001         # Executar plano
-nexus plan list                     # Listar planos
-nexus plan show plan-001            # Detalhes do plano
-nexus plan md prepare plan-001      # Preparar pipeline
+shiten plan create my-plan           # Criar plano
+shiten plan execute plan-001         # Executar plano
+shiten plan list                     # Listar planos
+shiten plan show plan-001            # Detalhes do plano
+shiten plan md prepare plan-001      # Preparar pipeline
 ```

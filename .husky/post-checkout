@@ -2,4 +2,4 @@
 # post-checkout hook — branch-aware context update
 # Runs after git checkout/switch to update session context with current branch.
 
-nexus status --quiet 2>/dev/null &
+shiten status --quiet 2>/dev/null &

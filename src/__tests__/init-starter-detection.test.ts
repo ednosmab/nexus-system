@@ -7,7 +7,7 @@ function makeAnalysis(overrides: Partial<ProjectAnalysis> = {}): ProjectAnalysis
     rootDir: "/tmp/test",
     hasGit: false,
     hasPackageJson: false,
-    hasNexus: false,
+    hasShiten: false,
     stack: [],
     packageManager: "unknown",
     monorepo: false,

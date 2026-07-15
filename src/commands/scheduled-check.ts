@@ -25,7 +25,7 @@ function getUncommittedDrift(projectRoot: string): { filesChanged: number; minut
   return { filesChanged, minutesSinceLastCommit };
 }
 
-export function scheduledCheck(projectRoot: string, _nexusDir: string): void {
+export function scheduledCheck(projectRoot: string, _shitenDir: string): void {
   const drift = getUncommittedDrift(projectRoot);
   const driftIsSignificant =
     drift.filesChanged > UNCOMMITTED_FILES_THRESHOLD ||
@@ -47,6 +47,6 @@ export const internalScheduledCheckCommand = new Command("internal-scheduled-che
   .option("-d, --dir <path>", "Project root directory (default: current)")
   .action((options) => {
     const projectRoot = options.dir ? resolve(options.dir) : process.cwd();
-    // nexusDir is not strictly needed for drift check, but pass an empty string
+    // shitenDir is not strictly needed for drift check, but pass an empty string
     scheduledCheck(projectRoot, "");
   });

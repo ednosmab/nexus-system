@@ -6,7 +6,7 @@ import type { CapabilityMaturity, CapabilityEntity } from "./types.js";
 
 export function detectCapabilityMaturity(
   capability: Capability,
-  nexusDir: string,
+  shitenDir: string,
   installedCapabilities: Capability[]
 ): { level: CapabilityMaturity; score: number } {
   if (!installedCapabilities.includes(capability)) {
@@ -18,11 +18,11 @@ export function detectCapabilityMaturity(
 
   let score = 20;
 
-  if (checkCapabilityFiles(capability, nexusDir)) score += 20;
-  if (checkCapabilityRules(capability, nexusDir)) score += 20;
-  if (checkCapabilitySkills(capability, nexusDir)) score += 15;
-  if (checkCapabilityTemplates(capability, nexusDir)) score += 10;
-  if (checkCapabilityMetrics(capability, nexusDir)) score += 15;
+  if (checkCapabilityFiles(capability, shitenDir)) score += 20;
+  if (checkCapabilityRules(capability, shitenDir)) score += 20;
+  if (checkCapabilitySkills(capability, shitenDir)) score += 15;
+  if (checkCapabilityTemplates(capability, shitenDir)) score += 10;
+  if (checkCapabilityMetrics(capability, shitenDir)) score += 15;
 
   let level: CapabilityMaturity;
   if (score >= 80) level = "optimized";
@@ -33,13 +33,13 @@ export function detectCapabilityMaturity(
   return { level, score: Math.min(100, score) };
 }
 
-function checkCapabilityFiles(capability: Capability, nexusDir: string): boolean {
+function checkCapabilityFiles(capability: Capability, shitenDir: string): boolean {
   const mapping = getCapabilityFilesForEngine(capability);
-  return mapping.some((f) => existsSync(join(nexusDir, f)));
+  return mapping.some((f) => existsSync(join(shitenDir, f)));
 }
 
-function checkCapabilityRules(capability: Capability, nexusDir: string): boolean {
-  const rulesDir = join(nexusDir, "governance", "rules");
+function checkCapabilityRules(capability: Capability, shitenDir: string): boolean {
+  const rulesDir = join(shitenDir, "governance", "rules");
   if (!existsSync(rulesDir)) return false;
 
   const ruleFiles = readdirSync(rulesDir).filter((f) => f.endsWith(".json"));
@@ -54,22 +54,22 @@ function checkCapabilityRules(capability: Capability, nexusDir: string): boolean
   return false;
 }
 
-function checkCapabilitySkills(_capability: Capability, nexusDir: string): boolean {
-  const skillsDir = join(nexusDir, "docs", "skills");
+function checkCapabilitySkills(_capability: Capability, shitenDir: string): boolean {
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (!existsSync(skillsDir)) return false;
   return readdirSync(skillsDir).filter((f) => f.endsWith(".md")).length > 0;
 }
 
-function checkCapabilityTemplates(_capability: Capability, nexusDir: string): boolean {
-  const templatesDir = join(nexusDir, "templates");
+function checkCapabilityTemplates(_capability: Capability, shitenDir: string): boolean {
+  const templatesDir = join(shitenDir, "templates");
   if (!existsSync(templatesDir)) return false;
   return readdirSync(templatesDir).filter(
     (f) => f.endsWith(".md") || f.endsWith(".yaml")
   ).length > 0;
 }
 
-function checkCapabilityMetrics(_capability: Capability, nexusDir: string): boolean {
-  const reportsDir = join(nexusDir, "reports");
+function checkCapabilityMetrics(_capability: Capability, shitenDir: string): boolean {
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return false;
   return readdirSync(reportsDir).filter((f) => f.endsWith(".json")).length > 0;
 }
@@ -91,22 +91,22 @@ export function getCapabilityFilesForEngine(capability: Capability): string[] {
 
 export function buildCapabilityEntity(
   capInfo: CapabilityInfo,
-  nexusDir: string,
+  shitenDir: string,
   installedCapabilities: Capability[],
   assets: Array<{ type: string; path: string }>,
   _maturityScore: number
 ): CapabilityEntity {
   const isInstalled = installedCapabilities.includes(capInfo.id);
-  const { level, score } = detectCapabilityMaturity(capInfo.id, nexusDir, installedCapabilities);
+  const { level, score } = detectCapabilityMaturity(capInfo.id, shitenDir, installedCapabilities);
 
   const capabilityAssets = assets.filter((a) => {
     const mapping = getCapabilityFilesForEngine(capInfo.id);
     return mapping.some((m) => a.path.startsWith(m.replace(/\/$/, "")));
   });
 
-  const activePolicies = collectCapabilityPolicies(capInfo.id, nexusDir);
-  const activeSkills = collectCapabilitySkills(capInfo.id, nexusDir);
-  const templates = collectCapabilityTemplates(capInfo.id, nexusDir);
+  const activePolicies = collectCapabilityPolicies(capInfo.id, shitenDir);
+  const activeSkills = collectCapabilitySkills(capInfo.id, shitenDir);
+  const templates = collectCapabilityTemplates(capInfo.id, shitenDir);
 
   return {
     id: capInfo.id,
@@ -134,9 +134,9 @@ export function buildCapabilityEntity(
   };
 }
 
-function collectCapabilityPolicies(capability: Capability, nexusDir: string): string[] {
+function collectCapabilityPolicies(capability: Capability, shitenDir: string): string[] {
   const policies: string[] = [];
-  const rulesDir = join(nexusDir, "governance", "rules");
+  const rulesDir = join(shitenDir, "governance", "rules");
   if (!existsSync(rulesDir)) return policies;
 
   const ruleFiles = readdirSync(rulesDir).filter((f) => f.endsWith(".json"));
@@ -153,9 +153,9 @@ function collectCapabilityPolicies(capability: Capability, nexusDir: string): st
   return policies;
 }
 
-function collectCapabilitySkills(_capability: Capability, nexusDir: string): string[] {
+function collectCapabilitySkills(_capability: Capability, shitenDir: string): string[] {
   const skills: string[] = [];
-  const skillsDir = join(nexusDir, "docs", "skills");
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (!existsSync(skillsDir)) return skills;
 
   const skillFiles = readdirSync(skillsDir).filter((f) => f.endsWith(".md"));
@@ -165,9 +165,9 @@ function collectCapabilitySkills(_capability: Capability, nexusDir: string): str
   return skills;
 }
 
-function collectCapabilityTemplates(_capability: Capability, nexusDir: string): string[] {
+function collectCapabilityTemplates(_capability: Capability, shitenDir: string): string[] {
   const templates: string[] = [];
-  const templatesDir = join(nexusDir, "templates");
+  const templatesDir = join(shitenDir, "templates");
   if (!existsSync(templatesDir)) return templates;
 
   const templateFiles = readdirSync(templatesDir).filter(

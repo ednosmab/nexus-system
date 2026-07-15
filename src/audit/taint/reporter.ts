@@ -2,7 +2,7 @@
  * reporter.ts — Taint Analysis Reporter
  *
  * Converts taint analysis results into HealthIssue format
- * for integration with the nexus audit system.
+ * for integration with the shiten audit system.
  */
 
 import type { TaintIssue, TaintIssueType } from "./types.js";

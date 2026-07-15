@@ -18,11 +18,11 @@ A infraestrutura está completa (8 módulos, 226 testes). Mas os módulos são "
 
 | # | Gap | O que falta | Esforço | Impacto |
 |---|-----|-------------|---------|---------|
-| 1 | **Comando `nexus evolve`** | Criar comando que mostra recomendações e grava feedback | Médio | **Alto** |
+| 1 | **Comando `shiten evolve`** | Criar comando que mostra recomendações e grava feedback | Médio | **Alto** |
 | 2 | **Regras default em disco** | `initializeRules()` gravar 10 regras em `governance/rules/` | Baixo | **Alto** |
 | 3 | **Knowledge graph no audit** | Mostrar health score, órfãos, hubs, sugestões no audit | Baixo | **Médio** |
 | 4 | **Feedback influencia evolução** | `analyzeEvolution()` consultar feedback e ajustar confiança | Médio | **Alto** |
-| 5 | **Plugin de demonstração** | Criar `nexus-plugins/health-check/` com hooks reais | Baixo | **Médio** |
+| 5 | **Plugin de demonstração** | Criar `shiten-plugins/health-check/` com hooks reais | Baixo | **Médio** |
 | 6 | **Lifecycle gates restritivos** | Tornar gates mais exigentes (upgrade→assessed, sync→governed) | Baixo | **Médio** |
 
 ---
@@ -39,7 +39,7 @@ Gap 3 (graph audit) →  Gap 5 (plugin)  →  Gap 6 (gates)
 
 ## Detalhe por Gap
 
-### Gap 1 — Comando `nexus evolve`
+### Gap 1 — Comando `shiten evolve`
 
 **Ficheiro:** `src/commands/evolve.ts` (novo)
 
@@ -121,7 +121,7 @@ Gap 3 (graph audit) →  Gap 5 (plugin)  →  Gap 6 (gates)
 
 ### Gap 5 — Plugin de demonstração
 
-**Ficheiro:** `nexus-plugins/health-check/plugin.ts` (novo)
+**Ficheiro:** `shiten-plugins/health-check/plugin.ts` (novo)
 
 ```typescript
 // Plugin: health-check
@@ -132,20 +132,20 @@ export default {
   version: "1.0.0",
   description: "Verificações extras de saúde do projecto",
   hooks: {
-    "custom-check": async (projectRoot, nexusDir, report) => {
+    "custom-check": async (projectRoot, shitenDir, report) => {
       // 1. Verificar se ADRs têm >90 dias → warning
       // 2. Verificar se há testes (tests/ ou *.test.ts)
       // 3. Verificar se governance/WORKFLOW.md existe
       // Retorna issues adicionais
     },
-    "custom-recommendation": async (nexusDir) => {
+    "custom-recommendation": async (shitenDir) => {
       // Se 0 ADRs → recomendar "Criar primeiro ADR"
     }
   }
 }
 ```
 
-**Ficheiro:** `nexus-plugins/README.md` (novo)
+**Ficheiro:** `shiten-plugins/README.md` (novo)
 - Instruções de como criar plugins
 - Estrutura de directório
 - Hooks disponíveis com exemplos
@@ -154,7 +154,7 @@ export default {
 
 ### Gap 6 — Lifecycle gates restritivos
 
-**Ficheiro:** `src/nexus-state-machine.ts` (modificar `COMMAND_GATES`)
+**Ficheiro:** `src/shiten-state-machine.ts` (modificar `COMMAND_GATES`)
 
 | Comando | Gate Antes | Gate Depois |
 |---------|------------|-------------|
@@ -193,8 +193,8 @@ export default {
 Para cada gap:
 1. `npm test` → todos os 226+ testes passam
 2. Novos testes escritos para funcionalidade nova
-3. `nexus run` continua funcional
-4. `nexus audit` mostra knowledge graph
-5. `nexus evolve` mostra recomendações e grava feedback
+3. `shiten run` continua funcional
+4. `shiten audit` mostra knowledge graph
+5. `shiten evolve` mostra recomendações e grava feedback
 6. Regras existem em `governance/rules/`
-7. Plugin de demonstração é carregado em `nexus audit`
+7. Plugin de demonstração é carregado em `shiten audit`

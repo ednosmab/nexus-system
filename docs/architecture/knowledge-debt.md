@@ -27,14 +27,14 @@ Each debt type has a dedicated detection function:
 
 ```typescript
 // 8 detection functions
-function detectMissingADRs(nexusDir: string, analysis: ProjectAnalysis): KnowledgeGap[];
-function detectMissingRunbooks(nexusDir: string): KnowledgeGap[];
-function detectMissingSkills(nexusDir: string): KnowledgeGap[];
-function detectMissingDocs(nexusDir: string): KnowledgeGap[];
-function detectMissingAutomation(nexusDir: string, analysis: ProjectAnalysis): KnowledgeGap[];
-function detectMissingContracts(nexusDir: string): KnowledgeGap[];
-function detectMissingWorkflow(nexusDir: string): KnowledgeGap[];
-function detectStaleADRs(nexusDir: string): KnowledgeGap[];
+function detectMissingADRs(shitenDir: string, analysis: ProjectAnalysis): KnowledgeGap[];
+function detectMissingRunbooks(shitenDir: string): KnowledgeGap[];
+function detectMissingSkills(shitenDir: string): KnowledgeGap[];
+function detectMissingDocs(shitenDir: string): KnowledgeGap[];
+function detectMissingAutomation(shitenDir: string, analysis: ProjectAnalysis): KnowledgeGap[];
+function detectMissingContracts(shitenDir: string): KnowledgeGap[];
+function detectMissingWorkflow(shitenDir: string): KnowledgeGap[];
+function detectStaleADRs(shitenDir: string): KnowledgeGap[];
 ```
 
 ## The Knowledge Gap Interface

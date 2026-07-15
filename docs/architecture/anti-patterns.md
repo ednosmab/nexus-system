@@ -1,6 +1,6 @@
 # 27 — ANTI-PATTERNS
 
-> What NOT to do when working on Nexus.
+> What NOT to do when working on Shiten.
 
 ## Architecture Anti-Patterns
 
@@ -12,7 +12,7 @@
 ```typescript
 // BAD
 import { detectPatterns } from "./pattern-detector.js";
-const patterns = detectPatterns(nexusDir);
+const patterns = detectPatterns(shitenDir);
 
 // GOOD
 import { getEventBus } from "./event-bus.js";
@@ -138,10 +138,10 @@ function process(data: unknown) {
 
 ```typescript
 // BAD
-const path = nexusDir + "/docs/adrs/" + filename;
+const path = shitenDir + "/docs/adrs/" + filename;
 
 // GOOD
-const path = join(nexusDir, "docs", "adrs", filename);
+const path = join(shitenDir, "docs", "adrs", filename);
 ```
 
 ### 9. Synchronous File Operations in Hot Paths
@@ -165,8 +165,8 @@ const contents = await Promise.all(
 
 ### 10. Auto-Applying Changes
 
-**Bad:** Nexus modifying governance files without human approval.
-**Good:** Nexus proposing changes for human review.
+**Bad:** Shiten modifying governance files without human approval.
+**Good:** Shiten proposing changes for human review.
 
 ```typescript
 // BAD
@@ -174,7 +174,7 @@ writeFileSync(governancePath, newContent);
 
 // GOOD
 console.log("Proposed change:", diff);
-console.log("Run `nexus apply` to accept");
+console.log("Run `shiten apply` to accept");
 ```
 
 ### 11. Bypassing the Knowledge Lifecycle

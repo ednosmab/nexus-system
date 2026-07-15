@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "nexus-mcp": {
-      "command": "nexus",
+    "shiten-mcp": {
+      "command": "shiten",
       "args": ["mcp"]
     }
   }

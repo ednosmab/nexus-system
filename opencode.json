@@ -42,15 +42,15 @@
   },
 
   "instructions": [
-    "./nexus-system/docs/AGENTS.md",
-    "./nexus-system/docs/opencode-context.md",
-    "./nexus-system/docs/rules/*.md",
-    "./nexus-system/docs/skills/quick-board-enforcement.md",
-    "./nexus-system/governance/**/*.yaml",
-    "./nexus-system/governance/context/context_buffer.yaml"
+    "./shitenno-go/docs/AGENTS.md",
+    "./shitenno-go/docs/opencode-context.md",
+    "./shitenno-go/docs/rules/*.md",
+    "./shitenno-go/docs/skills/quick-board-enforcement.md",
+    "./shitenno-go/governance/**/*.yaml",
+    "./shitenno-go/governance/context/context_buffer.yaml"
   ],
   "skills": {
-    "paths": ["nexus-system/docs/skills"]
+    "paths": ["shitenno-go/docs/skills"]
   },
   "mcp": {
     "local-filesystem": {

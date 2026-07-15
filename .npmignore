@@ -3,7 +3,7 @@ src/
 bin/
 docs/
 plans/
-nexus-system/plugins/
+shitenno-go/plugins/
 .github/
 
 # Config

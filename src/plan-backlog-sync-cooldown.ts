@@ -14,14 +14,14 @@ interface ScanState {
 
 const SCAN_COOLDOWN_MS = 15_000; // 15 seconds cooldown
 
-function scanStatePath(nexusDir: string): string {
-  const cacheDir = join(nexusDir, ".cache");
+function scanStatePath(shitenDir: string): string {
+  const cacheDir = join(shitenDir, ".cache");
   mkdirSync(cacheDir, { recursive: true });
   return join(cacheDir, "retroactive-scan-state.json");
 }
 
-export function shouldSkipScan(nexusDir: string): boolean {
-  const path = scanStatePath(nexusDir);
+export function shouldSkipScan(shitenDir: string): boolean {
+  const path = scanStatePath(shitenDir);
   if (!existsSync(path)) return false;
   try {
     const state: ScanState = JSON.parse(readFileSync(path, "utf-8"));
@@ -31,6 +31,6 @@ export function shouldSkipScan(nexusDir: string): boolean {
   }
 }
 
-export function markScanRun(nexusDir: string): void {
-  writeFileSync(scanStatePath(nexusDir), JSON.stringify({ lastScanAt: new Date().toISOString() }));
+export function markScanRun(shitenDir: string): void {
+  writeFileSync(scanStatePath(shitenDir), JSON.stringify({ lastScanAt: new Date().toISOString() }));
 }

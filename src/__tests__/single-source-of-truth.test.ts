@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem } from "../scaffolder.js";
+import { scaffoldShitennoGo } from "../scaffolder.js";
 import { getEngineeringState } from "../engineering-state-access.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
@@ -10,7 +10,7 @@ import type { Capability } from "../maturity-profile.js";
 let testDir: string;
 
 beforeAll(() => {
-  testDir = join(tmpdir(), `nexus-sott-${Date.now()}`);
+  testDir = join(tmpdir(), `shiten-sott-${Date.now()}`);
   mkdirSync(testDir, { recursive: true });
   mkdirSync(join(testDir, "src"), { recursive: true });
   writeFileSync(join(testDir, "src", "index.ts"), 'console.log("hello");');
@@ -31,7 +31,7 @@ beforeAll(() => {
     database: "PostgreSQL",
     styling: "Tailwind CSS",
     maturity: {
-      usedNexusBefore: false, isFirstProject: false, projectAge: "new",
+      usedShitenBefore: false, isFirstProject: false, projectAge: "new",
       teamSize: "solo", hasDedicatedTeam: false, hasArchitectureDocs: false,
       hasADRs: false, hasTechnicalReviews: false, hasCICD: false,
       hasAutomatedTests: false, hasValidationPipeline: false,
@@ -41,9 +41,9 @@ beforeAll(() => {
   };
 
   const caps: Capability[] = ["core", "knowledge", "governance"];
-  scaffoldNexusSystem(testDir, answers, caps);
+  scaffoldShitennoGo(testDir, answers, caps);
 
-  const maturityPath = join(testDir, "nexus-system", "maturity-profile.json");
+  const maturityPath = join(testDir, "shitenno-go", "maturity-profile.json");
   writeFileSync(
     maturityPath,
     JSON.stringify({
@@ -63,8 +63,8 @@ afterAll(() => {
 
 describe("Engineering State is single source of truth", () => {
   it("capabilities come from persisted profile, not filesystem heuristic", () => {
-    const nexusDir = join(testDir, "nexus-system");
-    const state = getEngineeringState(testDir, nexusDir, true);
+    const shitenDir = join(testDir, "shitenno-go");
+    const state = getEngineeringState(testDir, shitenDir, true);
 
     // State.capabilities must match the persisted profile
     expect(state.capabilities).toEqual(["core", "knowledge", "governance"]);
@@ -74,8 +74,8 @@ describe("Engineering State is single source of truth", () => {
   });
 
   it("capabilityDrift detects mismatches between profile and filesystem", () => {
-    const nexusDir = join(testDir, "nexus-system");
-    const state = getEngineeringState(testDir, nexusDir, true);
+    const shitenDir = join(testDir, "shitenno-go");
+    const state = getEngineeringState(testDir, shitenDir, true);
 
     // Drift fields must exist
     expect(state.capabilityDrift).toBeDefined();
@@ -83,7 +83,7 @@ describe("Engineering State is single source of truth", () => {
     expect(Array.isArray(state.capabilityDrift.registeredNotDetected)).toBe(true);
   });
 
-  it("nexus run never reports a skipped stage as success", () => {
+  it("shiten run never reports a skipped stage as success", () => {
     // This test validates the pipeline status type includes "skipped"
     // The actual CLI test requires a built binary — validated manually
     expect(["success", "failed", "skipped"]).toContain("skipped");

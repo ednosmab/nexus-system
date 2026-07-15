@@ -13,16 +13,16 @@ import { InferenceEngine } from "../inference-engine.js";
 
 describe("InferenceEngine", () => {
   let tmpDir: string;
-  let nexusDir: string;
+  let shitenDir: string;
   let engine: InferenceEngine;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-inference-test-${Date.now()}`);
-    nexusDir = join(tmpDir, "nexus-system");
-    mkdirSync(join(nexusDir, "governance", "plans"), { recursive: true });
-    mkdirSync(join(nexusDir, "governance", "plans", "done"), { recursive: true });
-    mkdirSync(join(nexusDir, "governance", "plans", "reference"), { recursive: true });
-    engine = new InferenceEngine(nexusDir);
+    tmpDir = join(tmpdir(), `shiten-inference-test-${Date.now()}`);
+    shitenDir = join(tmpDir, "shitenno-go");
+    mkdirSync(join(shitenDir, "governance", "plans"), { recursive: true });
+    mkdirSync(join(shitenDir, "governance", "plans", "done"), { recursive: true });
+    mkdirSync(join(shitenDir, "governance", "plans", "reference"), { recursive: true });
+    engine = new InferenceEngine(shitenDir);
   });
 
   afterEach(() => {
@@ -31,7 +31,7 @@ describe("InferenceEngine", () => {
 
   describe("inferPlan", () => {
     it("infers done when all checkboxes are [x]", () => {
-      const planPath = join(nexusDir, "governance", "plans", "all-done.md");
+      const planPath = join(shitenDir, "governance", "plans", "all-done.md");
       writeFileSync(
         planPath,
         "# All Done Plan\n\n**Status:** In Progress\n\n- [x] Step 1\n- [x] Step 2\n- [x] Step 3\n",
@@ -50,7 +50,7 @@ describe("InferenceEngine", () => {
     });
 
     it("infers in_progress when some checkboxes are open", () => {
-      const planPath = join(nexusDir, "governance", "plans", "partial.md");
+      const planPath = join(shitenDir, "governance", "plans", "partial.md");
       writeFileSync(
         planPath,
         "# Partial Plan\n\n**Status:** In Progress\n\n- [x] Step 1\n- [ ] Step 2\n",
@@ -68,7 +68,7 @@ describe("InferenceEngine", () => {
     });
 
     it("infers obsolete when status is AGUARDA APROVACAO and old", () => {
-      const planPath = join(nexusDir, "governance", "plans", "old-plan.md");
+      const planPath = join(shitenDir, "governance", "plans", "old-plan.md");
       writeFileSync(
         planPath,
         "# Old Plan\n\n**Status:** In Progress\n**Estado:** AGUARDA APROVACAO\n\nSome content.\n",
@@ -84,7 +84,7 @@ describe("InferenceEngine", () => {
     });
 
     it("infers inconsistent when status is done but checkboxes are open", () => {
-      const planPath = join(nexusDir, "governance", "plans", "inconsistent.md");
+      const planPath = join(shitenDir, "governance", "plans", "inconsistent.md");
       writeFileSync(
         planPath,
         "# Inconsistent Plan\n\n**Status:** Done\n\n- [x] Step 1\n- [ ] Step 2\n",
@@ -100,7 +100,7 @@ describe("InferenceEngine", () => {
     });
 
     it("infers done from explicit status", () => {
-      const planPath = join(nexusDir, "governance", "plans", "explicit-done.md");
+      const planPath = join(shitenDir, "governance", "plans", "explicit-done.md");
       writeFileSync(
         planPath,
         "# Explicit Done\n\n**Status:** Done\n",
@@ -122,7 +122,7 @@ describe("InferenceEngine", () => {
     });
 
     it("infers paused from parado status", () => {
-      const planPath = join(nexusDir, "governance", "plans", "paused.md");
+      const planPath = join(shitenDir, "governance", "plans", "paused.md");
       writeFileSync(
         planPath,
         "# Paused Plan\n\n**Status:** Paused\n\n- [ ] Step 1\n",
@@ -138,7 +138,7 @@ describe("InferenceEngine", () => {
     });
 
     it("handles plan with no checkboxes", () => {
-      const planPath = join(nexusDir, "governance", "plans", "no-boxes.md");
+      const planPath = join(shitenDir, "governance", "plans", "no-boxes.md");
       writeFileSync(
         planPath,
         "# Design Document\n\n**Status:** In Progress\n\nJust text, no checkboxes.\n",
@@ -167,14 +167,14 @@ describe("InferenceEngine", () => {
     it("counts plans by inferred status", () => {
       // Plan 1: in progress (has open checkbox)
       writeFileSync(
-        join(nexusDir, "governance", "plans", "plan-wip.md"),
+        join(shitenDir, "governance", "plans", "plan-wip.md"),
         "# WIP Plan\n\n- [x] A\n- [ ] B\n",
         "utf-8"
       );
 
       // Plan 2: paused
       writeFileSync(
-        join(nexusDir, "governance", "plans", "plan-paused.md"),
+        join(shitenDir, "governance", "plans", "plan-paused.md"),
         "# Paused Plan\n\n**Status:** Paused\n\n- [ ] Step 1\n",
         "utf-8"
       );

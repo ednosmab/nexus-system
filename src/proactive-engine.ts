@@ -1,10 +1,10 @@
 /**
- * proactive-engine.ts — Proactive Engine for Nexus
+ * proactive-engine.ts — Proactive Engine for Shiten
  *
  * Subscribes to `engineering_state.consolidated` events and triggers
  * recommendations and challenges automatically.
  *
- * PRINCIPLE: Nexus should proactively suggest improvements,
+ * PRINCIPLE: Shiten should proactively suggest improvements,
  * not wait for the user to ask.
  */
 
@@ -17,8 +17,8 @@ import { join } from "node:path";
 /**
  * Load historical engineering state snapshots for trend analysis.
  */
-function loadHistoricalStates(nexusDir: string): EngineeringState[] {
-  const snapshotsDir = join(nexusDir, "history", "snapshots");
+function loadHistoricalStates(shitenDir: string): EngineeringState[] {
+  const snapshotsDir = join(shitenDir, "history", "snapshots");
   if (!existsSync(snapshotsDir)) return [];
 
   const files = readdirSync(snapshotsDir)
@@ -44,15 +44,15 @@ function loadHistoricalStates(nexusDir: string): EngineeringState[] {
  */
 export function initializeProactiveEngine(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): () => void {
   const bus = getEventBus();
 
   const onStateConsolidated = () => {
-    const state = consolidateEngineeringState(projectRoot, nexusDir);
+    const state = consolidateEngineeringState(projectRoot, shitenDir);
 
     // Trend-aware challenge generation
-    const historicalStates = loadHistoricalStates(nexusDir);
+    const historicalStates = loadHistoricalStates(shitenDir);
     const forecast = generateForecast(historicalStates);
 
     if (forecast) {

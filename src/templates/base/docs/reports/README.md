@@ -16,4 +16,4 @@ Lista completa de `ComplexityScore` (ver `core/complexity/types.ts`), uma entrad
 
 ## Por que isso é versionado
 
-Estes relatórios são o dado de entrada de qualquer fase futura do Nexus que dependa de observar evolução no tempo (ex: "esta área está ficando mais ou menos complexa ao longo das sessões"). Apagar ou não versionar isso destrói a única coisa que torna o sistema capaz de aprender com sua própria história.
+Estes relatórios são o dado de entrada de qualquer fase futura do Shiten que dependa de observar evolução no tempo (ex: "esta área está ficando mais ou menos complexa ao longo das sessões"). Apagar ou não versionar isso destrói a única coisa que torna o sistema capaz de aprender com sua própria história.

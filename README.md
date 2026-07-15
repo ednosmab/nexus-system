@@ -1,4 +1,4 @@
-# Nexus System
+# Shitenno-go
 
 > AI governance framework that grows with your project — scoring, pattern detection, health auditing.
 
@@ -11,24 +11,24 @@ A CLI tool that analyzes your project's complexity, detects patterns in engineer
 ### 1. Install
 
 ```bash
-npm install -g nexus-system
+npm install -g shitenno-go
 ```
 
 Or run directly with npx:
 
 ```bash
-npx nexus-system status
+npx shitenno-go status
 ```
 
 ### 2. Initialize your project
 
 ```bash
-nexus init
+shiten init
 ```
 
 ```
 ╔══════════════════════════════════════════╗
-║  nexus init — Maturity-Based Discovery   ║
+║  shiten init — Maturity-Based Discovery   ║
 ╚══════════════════════════════════════════╝
 
 - Analysing project...
@@ -45,17 +45,17 @@ nexus init
     CI/CD:     yes
 ```
 
-Nexus detects your stack, generates a maturity profile, and creates the governance structure (`opencode.json`, `nexus-system/`, skills, scripts).
+Shiten detects your stack, generates a maturity profile, and creates the governance structure (`opencode.json`, `shitenno-go/`, skills, scripts).
 
 ### 3. Check status
 
 ```bash
-nexus status
+shiten status
 ```
 
 ```
 ╔══════════════════════════════════════╗
-║      nexus status — Health Check     ║
+║      shiten status — Health Check     ║
 ╚══════════════════════════════════════╝
 
   Governance Health:
@@ -84,64 +84,64 @@ That's it. Your project now has governed context for you and your AI agents.
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `nexus init` | Initialize governance in a project | First time setup |
-| `nexus status` | Health check + complexity scoring | During development, before commits |
-| `nexus run` | Full 5-stage pipeline | Periodic health audits |
-| `nexus upgrade` | Add governance capabilities | When you need more features |
-| `nexus validate` | Session integrity check | Before important commits |
+| `shiten init` | Initialize governance in a project | First time setup |
+| `shiten status` | Health check + complexity scoring | During development, before commits |
+| `shiten run` | Full 5-stage pipeline | Periodic health audits |
+| `shiten upgrade` | Add governance capabilities | When you need more features |
+| `shiten validate` | Session integrity check | Before important commits |
 
 ### Analysis Commands
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `nexus detect` | Pattern detection from history | Find recurring errors |
-| `nexus audit` | Self-evaluation of governance | Find dead rules, hotspots |
-| `nexus evolve` | Adaptive recommendations | Get next-step suggestions |
-| `nexus assess` | Re-evaluate maturity profile | After major changes |
-| `nexus doctor` | System diagnostics | When something feels off |
+| `shiten detect` | Pattern detection from history | Find recurring errors |
+| `shiten audit` | Self-evaluation of governance | Find dead rules, hotspots |
+| `shiten evolve` | Adaptive recommendations | Get next-step suggestions |
+| `shiten assess` | Re-evaluate maturity profile | After major changes |
+| `shiten doctor` | System diagnostics | When something feels off |
 
 ### Governance Commands
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `nexus plan` | Generate execution plans | Create step-by-step plans |
-| `nexus goal` | Set and track goals | Define project objectives |
-| `nexus decide` | Decision tracking | Record and manage decisions |
-| `nexus policy` | Manage governance policies | Configure rules and policies |
-| `nexus act` | Execute agent actions | Run agent-driven tasks |
+| `shiten plan` | Generate execution plans | Create step-by-step plans |
+| `shiten goal` | Set and track goals | Define project objectives |
+| `shiten decide` | Decision tracking | Record and manage decisions |
+| `shiten policy` | Manage governance policies | Configure rules and policies |
+| `shiten act` | Execute agent actions | Run agent-driven tasks |
 
 ### Context Commands
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `nexus context` | Full project context for AI agents | Load context for AI sessions |
-| `nexus briefing` | Pre-session briefing | Context loading before sessions |
-| `nexus digest` | Generate digest summaries | Quick status overviews |
-| `nexus feedback` | Submit session feedback | Record session outcomes |
-| `nexus history` | View engineering state history | Review past snapshots |
+| `shiten context` | Full project context for AI agents | Load context for AI sessions |
+| `shiten briefing` | Pre-session briefing | Context loading before sessions |
+| `shiten digest` | Generate digest summaries | Quick status overviews |
+| `shiten feedback` | Submit session feedback | Record session outcomes |
+| `shiten history` | View engineering state history | Review past snapshots |
 
 ### Utility Commands
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `nexus sync` | Sync governance from external source | Multi-project setups |
-| `nexus clean` | Clean cache and temp files | Housekeeping |
-| `nexus report` | Generate reports | Sharing status with stakeholders |
-| `nexus bench` | Run benchmarks | Performance testing |
-| `nexus console` | Interactive console | Real-time governance monitoring |
-| `nexus dashboard` | Open governance dashboard | Visual project overview |
-| `nexus profile` | View maturity profile | Detailed maturity analysis |
-| `nexus reminders` | Track pending tasks and follow-ups | Never forget action items |
-| `nexus mcp` | MCP server for AI integration | Connect AI agents |
-| `nexus update` | Update Nexus system | Keep governance current |
-| `nexus shell-init` | Shell integration setup | Configure shell completions |
-| `nexus docs-audit` | Audit documentation sync | Validate docs match code |
+| `shiten sync` | Sync governance from external source | Multi-project setups |
+| `shiten clean` | Clean cache and temp files | Housekeeping |
+| `shiten report` | Generate reports | Sharing status with stakeholders |
+| `shiten bench` | Run benchmarks | Performance testing |
+| `shiten console` | Interactive console | Real-time governance monitoring |
+| `shiten dashboard` | Open governance dashboard | Visual project overview |
+| `shiten profile` | View maturity profile | Detailed maturity analysis |
+| `shiten reminders` | Track pending tasks and follow-ups | Never forget action items |
+| `shiten mcp` | MCP server for AI integration | Connect AI agents |
+| `shiten update` | Update Shiten system | Keep governance current |
+| `shiten shell-init` | Shell integration setup | Configure shell completions |
+| `shiten docs-audit` | Audit documentation sync | Validate docs match code |
 
 ---
 
 ## Who Is This For
 
-| Team size | Profile | What Nexus solves |
+| Team size | Profile | What Shiten solves |
 |-----------|---------|-------------------|
 | **Solo** | Developer working alone who loses context between sessions | Preserves state so you resume without re-reading everything |
 | **2-5 people** | Small team where knowledge lives in one person's head | Makes tacit knowledge explicit and verifiable |
@@ -150,13 +150,13 @@ That's it. Your project now has governed context for you and your AI agents.
 
 ---
 
-## Token Economy — How Nexus Saves You Money
+## Token Economy — How Shiten Saves You Money
 
 > **Note:** The numbers below are projected estimates based on typical session patterns, not measured benchmarks. Actual savings depend on project size, session complexity, and cache hit rates.
 
-Without Nexus, every AI session starts from zero context — the agent must read multiple files to understand the project. Nexus compresses all of that into a cached briefing.
+Without Shiten, every AI session starts from zero context — the agent must read multiple files to understand the project. Shiten compresses all of that into a cached briefing.
 
-| Scenario | Without Nexus | With Nexus | Savings |
+| Scenario | Without Shiten | With Shiten | Savings |
 |----------|---------------|------------|---------|
 | Average session (feature) | ~15-25k tokens | ~2-5k tokens | **60-80%** |
 | Cache hit (stable project) | ~15-25k tokens | ~0-1k tokens | **95-100%** |
@@ -168,8 +168,8 @@ Without Nexus, every AI session starts from zero context — the agent must read
 ## Architecture
 
 ```
-nexus-cli/
-├── bin/nexus.ts              # CLI entry point (Commander.js)
+shitenno-cli/
+├── bin/shiten.ts              # CLI entry point (Commander.js)
 ├── src/
 │   ├── analyser.ts           # Project analysis & stack detection
 │   ├── scorer.ts             # Complexity scoring engine
@@ -214,7 +214,7 @@ nexus-cli/
 │   ├── templates/            # Scaffolding templates
 │   └── __tests__/            # 111 test files
 ├── docs/                     # Documentation
-└── nexus-system/             # Governance data (per-project)
+└── shitenno-go/             # Governance data (per-project)
 ```
 
 ### Key Statistics
@@ -229,7 +229,7 @@ nexus-cli/
 
 ### How It Works
 
-Nexus operates on three layers:
+Shiten operates on three layers:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -251,7 +251,7 @@ Nexus operates on three layers:
 
 ## Security
 
-Nexus implements multiple security measures:
+Shiten implements multiple security measures:
 
 | Measure | Description |
 |---------|-------------|
@@ -261,7 +261,7 @@ Nexus implements multiple security measures:
 | **Prototype pollution guard** | Access to `__proto__`, `constructor` blocked |
 | **Plugin validation** | Hooks and names validated before registration |
 | **Atomic cache writes** | Temp file + rename prevents corruption |
-| **Cache permissions** | `.nexus-cache.json` created with `chmod 0o600` |
+| **Cache permissions** | `.shiten-cache.json` created with `chmod 0o600` |
 | **Supply chain security** | Pinned action SHAs in CI/CD workflows |
 
 ---
@@ -281,9 +281,9 @@ Nexus implements multiple security measures:
 }
 ```
 
-### `nexus-system/` (Project Directory)
+### `shitenno-go/` (Project Directory)
 
-Created automatically during `nexus init`. Contains:
+Created automatically during `shiten init`. Contains:
 - `engineering-state.json` — Canonical project state
 - `maturity-profile.json` — Maturity assessment
 - `governance/` — Rules, policies, workflows

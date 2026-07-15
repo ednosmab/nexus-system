@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "./constants.js";
-import { getEventBus, type NexusEventType } from "./event-bus.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
+import { getEventBus, type ShitenEventType } from "./event-bus.js";
 import { validateCompletionGate } from "./task-completion.js";
 import { transitionBacklogStatus, type BacklogStatus } from "./backlog-transitions.js";
 import { updateCurrentTask, updateSession } from "./context-buffer-writer.js";
@@ -9,7 +9,7 @@ import { logger } from "./logger.js";
 
 export interface TaskPipelineConfig {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
 }
 
 export interface TaskPipelineEvent {
@@ -29,7 +29,7 @@ export function initializeTaskPipeline(config: TaskPipelineConfig): () => void {
 
     const result = validateCompletionGate({
       projectRoot: config.projectRoot,
-      nexusDir: config.nexusDir,
+      shitenDir: config.shitenDir,
       taskId,
       affectedFiles,
     });
@@ -55,24 +55,24 @@ export function initializeTaskPipeline(config: TaskPipelineConfig): () => void {
     logger.info("task-pipeline", `Processing task.completed for: ${taskId}`);
 
     // 1. Update context_buffer.yaml
-    updateCurrentTask(config.nexusDir, {
+    updateCurrentTask(config.shitenDir, {
       id: taskId,
       description: "Task completed via pipeline",
       status: "completed",
       started_at: "unknown",
       completed_at: new Date().toISOString(),
     });
-    updateSession(config.nexusDir, { status: "completed" });
+    updateSession(config.shitenDir, { status: "completed" });
 
     // 2. Update backlog status to concluído
-    updateBacklogStatus(config.nexusDir, taskId);
+    updateBacklogStatus(config.shitenDir, taskId);
 
     // 3. Log event
     logger.info("task-pipeline", `Task ${taskId} pipeline complete`);
   };
 
-  const unsub1 = bus.subscribe("validation.completed" as NexusEventType, onValidationComplete);
-  const unsub2 = bus.subscribe("task.completed" as NexusEventType, onTaskCompleted);
+  const unsub1 = bus.subscribe("validation.completed" as ShitenEventType, onValidationComplete);
+  const unsub2 = bus.subscribe("task.completed" as ShitenEventType, onTaskCompleted);
 
   return () => {
     unsub1();
@@ -80,10 +80,10 @@ export function initializeTaskPipeline(config: TaskPipelineConfig): () => void {
   };
 }
 
-function updateBacklogStatus(nexusDir: string, taskId: string): void {
+function updateBacklogStatus(shitenDir: string, taskId: string): void {
   const backlogPaths = [
-    join(nexusDir, "docs", "BACKLOG.md"),
-    join(nexusDir, "..", NEXUS_DIR_NAME, "docs", "BACKLOG.md"),
+    join(shitenDir, "docs", "BACKLOG.md"),
+    join(shitenDir, "..", SHITEN_DIR_NAME, "docs", "BACKLOG.md"),
   ];
 
   for (const path of backlogPaths) {

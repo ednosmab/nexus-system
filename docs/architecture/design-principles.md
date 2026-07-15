@@ -1,12 +1,12 @@
 # 03 — DESIGN PRINCIPLES
 
-> These principles are immutable. They govern every decision in the Nexus System.
+> These principles are immutable. They govern every decision in the Shitenno-go.
 
 ## 1. SÓ PROPÕE, nunca aplica
 
-Nexus proposes. Humans decide.
+Shiten proposes. Humans decide.
 
-Every recommendation, every rule, every suggestion is advisory. Nexus never auto-applies changes to production code, governance rules, or project structure without explicit human approval.
+Every recommendation, every rule, every suggestion is advisory. Shiten never auto-applies changes to production code, governance rules, or project structure without explicit human approval.
 
 **Why:** Engineering judgment is irreplaceable. Automation amplifies good decisions; it cannot replace them.
 
@@ -16,7 +16,7 @@ Every recommendation, every rule, every suggestion is advisory. Nexus never auto
 
 Install what you need, not what a label dictates.
 
-Nexus does not force projects into L1/L2/L3 boxes. Instead, it detects which capabilities are relevant and recommends installation based on maturity dimensions.
+Shiten does not force projects into L1/L2/L3 boxes. Instead, it detects which capabilities are relevant and recommends installation based on maturity dimensions.
 
 **Why:** A project can be architecturally mature but governance-poor. Levels force false uniformity.
 
@@ -26,7 +26,7 @@ Nexus does not force projects into L1/L2/L3 boxes. Instead, it detects which cap
 
 Knowledge is permanent. State is current. Memory is temporary.
 
-Every piece of information in Nexus belongs to exactly one tier:
+Every piece of information in Shiten belongs to exactly one tier:
 
 | Tier | Lifetime | Examples |
 |------|----------|----------|
@@ -42,7 +42,7 @@ Every piece of information in Nexus belongs to exactly one tier:
 
 Every artifact is a node. Every relation is an edge. The graph is the system.
 
-Nexus models knowledge as a directed graph. Artifacts (ADRs, skills, contracts, workflows, scripts) are connected through explicit relations (generates, uses, executes, depends_on, supersedes).
+Shiten models knowledge as a directed graph. Artifacts (ADRs, skills, contracts, workflows, scripts) are connected through explicit relations (generates, uses, executes, depends_on, supersedes).
 
 **Why:** Isolated knowledge decays. Connected knowledge compounds.
 
@@ -62,7 +62,7 @@ Every recommendation must be backed by evidence. Complexity is scored from metri
 
 The system adapts to the team, not the other way around.
 
-Nexus adjusts its behavior based on team maturity. A junior team gets different recommendations than a senior team. A monorepo gets different analysis than a single package.
+Shiten adjusts its behavior based on team maturity. A junior team gets different recommendations than a senior team. A monorepo gets different analysis than a single package.
 
 **Why:** One-size-fits-all governance fails. Adaptation sustains.
 
@@ -72,7 +72,7 @@ Nexus adjusts its behavior based on team maturity. A junior team gets different 
 
 Small, connected modules. Not one big thing.
 
-Each Nexus module has a single responsibility. Modules communicate through well-defined interfaces, not shared state.
+Each Shiten module has a single responsibility. Modules communicate through well-defined interfaces, not shared state.
 
 **Why:** Modularity enables independent evolution, testing, and replacement.
 
@@ -92,7 +92,7 @@ Rules are defined as data (JSON), not code. Capabilities are defined as mappings
 
 Start simple. Add complexity only when needed.
 
-Nexus begins with minimal configuration. As the team matures, more capabilities become relevant. The context hierarchy (P0-P4) loads only what's needed.
+Shiten begins with minimal configuration. As the team matures, more capabilities become relevant. The context hierarchy (P0-P4) loads only what's needed.
 
 **Why:** Premature complexity kills adoption. Progressive disclosure sustains it.
 
@@ -102,8 +102,8 @@ Nexus begins with minimal configuration. As the team matures, more capabilities 
 
 The system that governs should govern itself.
 
-Nexus applies its own principles to its own development. It tracks its own knowledge debt, detects its own patterns, and recommends its own evolution.
+Shiten applies its own principles to its own development. It tracks its own knowledge debt, detects its own patterns, and recommends its own evolution.
 
 **Why:** Credibility requires consistency. A governance tool that doesn't govern itself is hypocritical.
 
-**Implementation:** `knowledge-debt.ts` detects gaps in Nexus's own docs. `auto-evolution.ts` recommends improvements to the system itself.
+**Implementation:** `knowledge-debt.ts` detects gaps in Shiten's own docs. `auto-evolution.ts` recommends improvements to the system itself.

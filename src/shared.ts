@@ -11,14 +11,14 @@ import { existsSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import chalk from "chalk";
 import { outputJson } from "./formatting.js";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 import { output, outputBlank } from "./output.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface ProjectContext {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
   isInitialized: boolean;
   hasMaturityProfile: boolean;
 }
@@ -28,18 +28,18 @@ export interface ProjectContext {
 /** Resolve project context from CLI options. Replaces duplicated init guards. */
 export function resolveProjectContext(options: { dir?: string }): ProjectContext {
   const projectRoot = options.dir || process.cwd();
-  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
+  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
 
-  const isInitialized = existsSync(nexusDir);
+  const isInitialized = existsSync(shitenDir);
 
-  const hasMaturityProfile = existsSync(join(nexusDir, "maturity-profile.json"));
+  const hasMaturityProfile = existsSync(join(shitenDir, "maturity-profile.json"));
 
-  return { projectRoot, nexusDir, isInitialized, hasMaturityProfile };
+  return { projectRoot, shitenDir, isInitialized, hasMaturityProfile };
 }
 
 // ── Lifecycle Gate ─────────────────────────────────────────────────────────
 
-import { detectLifecycleState, canRunCommand, type NexusLifecycleState } from "./nexus-state-machine.js";
+import { detectLifecycleState, canRunCommand, type ShitenLifecycleState } from "./shiten-state-machine.js";
 import { COMMAND_GATES } from "./constants.js";
 
 /**
@@ -49,10 +49,10 @@ import { COMMAND_GATES } from "./constants.js";
 export function checkLifecycleGate(
   command: string,
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   isJson: boolean
 ): boolean {
-  const state = detectLifecycleState(projectRoot, nexusDir);
+  const state = detectLifecycleState(projectRoot, shitenDir);
 
   if (!canRunCommand(command, state)) {
     if (isJson) {
@@ -73,19 +73,19 @@ export function checkLifecycleGate(
   return true;
 }
 
-function getRequiredState(command: string): NexusLifecycleState {
-  return (COMMAND_GATES[command] || "discovered") as NexusLifecycleState;
+function getRequiredState(command: string): ShitenLifecycleState {
+  return (COMMAND_GATES[command] || "discovered") as ShitenLifecycleState;
 }
 
 // ── Report Writer ────────────────────────────────────────────────────────────
 
-/** Write a report to nexus-system/reports/. Returns filename or null. */
+/** Write a report to shitenno-go/reports/. Returns filename or null. */
 export function writeReport(
-  nexusDir: string,
+  shitenDir: string,
   prefix: string,
   report: Record<string, unknown>
 ): string | null {
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().split("T")[0];
@@ -116,22 +116,22 @@ export function guardNotInitialized(
 
   if (!ctx.isInitialized) {
     if (isJson) {
-      outputJson({ error: "not_initialized", message: "Run 'nexus init' to initialize governance." });
+      outputJson({ error: "not_initialized", message: "Run 'shiten init' to initialize governance." });
     } else {
-      output(chalk.yellow("  ⚠ This project is not initialized with nexus."));
-      output(chalk.gray("  Run 'nexus init' to initialize governance."));
+      output(chalk.yellow("  ⚠ This project is not initialized with shiten."));
+      output(chalk.gray("  Run 'shiten init' to initialize governance."));
       outputBlank();
     }
     return null;
   }
 
-  // Validate nexusDir exists
-  if (!existsSync(ctx.nexusDir)) {
+  // Validate shitenDir exists
+  if (!existsSync(ctx.shitenDir)) {
     if (isJson) {
-      outputJson({ error: "nexus_dir_missing", message: "nexus-system/ directory not found. Run 'nexus init' to recreate." });
+      outputJson({ error: "shiten_dir_missing", message: "shitenno-go/ directory not found. Run 'shiten init' to recreate." });
     } else {
-      output(chalk.yellow("  ⚠ nexus-system/ directory not found."));
-      output(chalk.gray("  Run 'nexus init' to recreate it."));
+      output(chalk.yellow("  ⚠ shitenno-go/ directory not found."));
+      output(chalk.gray("  Run 'shiten init' to recreate it."));
       outputBlank();
     }
     return null;
@@ -145,7 +145,7 @@ export function guardNotInitialized(
 /** Wrap cache read/write pattern. Returns data and whether cache was hit. */
 export async function withCache<T>(
   projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   key: string,
   compute: () => T | Promise<T>,
   options?: { force?: boolean }
@@ -154,16 +154,16 @@ export async function withCache<T>(
   const { getCached, setCache, computeKeyChecksums } = await import("./cache.js");
 
   if (!options?.force) {
-    const cached = getCached(projectRoot, nexusDir, key as "complexity" | "patterns" | "health",
-      () => computeKeyChecksums(projectRoot, nexusDir));
+    const cached = getCached(projectRoot, shitenDir, key as "complexity" | "patterns" | "health",
+      () => computeKeyChecksums(projectRoot, shitenDir));
     if (cached) {
       return { data: cached as T, cacheHit: true };
     }
   }
 
   const data = await compute();
-  setCache(projectRoot, nexusDir, key as "complexity" | "patterns" | "health",
-    data as Record<string, unknown>, computeKeyChecksums(projectRoot, nexusDir));
+  setCache(projectRoot, shitenDir, key as "complexity" | "patterns" | "health",
+    data as Record<string, unknown>, computeKeyChecksums(projectRoot, shitenDir));
   return { data, cacheHit: false };
 }
 

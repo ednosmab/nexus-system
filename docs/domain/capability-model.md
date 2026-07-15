@@ -12,7 +12,7 @@ When a team installs a capability, it is accepting governance for a new dimensio
 
 ## The 9 Capabilities
 
-Nexus functionality is organized into 9 modular capabilities:
+Shiten functionality is organized into 9 modular capabilities:
 
 | Capability | Dimensions Impacted | Dependencies | Always Installed |
 |------------|-------------------|--------------|-----------------|

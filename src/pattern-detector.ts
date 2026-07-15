@@ -36,8 +36,8 @@ interface HistoryEntry {
   areas: string[];
 }
 
-function readHistoryEntries(nexusDir: string): HistoryEntry[] {
-  const historyDir = join(nexusDir, "docs", "history");
+function readHistoryEntries(shitenDir: string): HistoryEntry[] {
+  const historyDir = join(shitenDir, "docs", "history");
   if (!existsSync(historyDir)) return [];
 
   const files = readdirSync(historyDir).filter(
@@ -84,8 +84,8 @@ interface ReportSummary {
   }>;
 }
 
-function readRecentReports(nexusDir: string): ReportSummary[] {
-  const reportsDir = join(nexusDir, "reports");
+function readRecentReports(shitenDir: string): ReportSummary[] {
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return [];
 
   const files = readdirSync(reportsDir)
@@ -251,18 +251,18 @@ function proposeRules(patterns: DetectedPattern[]): CandidateRule[] {
  * SÓ PROPÕE — nunca aplica regras.
  *
  * @param projectRoot - Raiz do projecto
- * @param nexusDir - Caminho para nexus-system/
+ * @param shitenDir - Caminho para shitenno-go/
  * @returns Relatório de detecção com padrões e regras candidatas
  */
 export function detectPatterns(
   _projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): PatternDetectionReport {
   // 1. Read history entries
-  const historyEntries = readHistoryEntries(nexusDir);
+  const historyEntries = readHistoryEntries(shitenDir);
 
   // 2. Read recent reports
-  const reports = readRecentReports(nexusDir);
+  const reports = readRecentReports(shitenDir);
 
   // 3. Detect patterns
   const patterns: DetectedPattern[] = [
@@ -319,10 +319,10 @@ function generateSummary(
  * Grava o relatório de detecção de padrões em reports/.
  */
 export function writePatternReport(
-  nexusDir: string,
+  shitenDir: string,
   report: PatternDetectionReport
 ): string | null {
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

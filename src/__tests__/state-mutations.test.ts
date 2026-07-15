@@ -71,7 +71,7 @@ describe("engineering-state-mutations", () => {
   describe("proposeStateMutation", () => {
     it("applies valid mutation", () => {
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState(),
         description: "Test mutation",
       };
@@ -88,7 +88,7 @@ describe("engineering-state-mutations", () => {
     it("rejects mutation without new state", () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: undefined as unknown as EngineeringState,
         description: "Invalid mutation",
       };
@@ -104,7 +104,7 @@ describe("engineering-state-mutations", () => {
     it("rejects mutation with invalid health score", () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState({
           healthScores: { overall: 150, knowledgeDebt: 90, knowledgeGraph: 70 },
         }),
@@ -122,7 +122,7 @@ describe("engineering-state-mutations", () => {
     it("rejects mutation with invalid entropy score", () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState({
           entropy: { score: -10, orphanedAssets: 0, staleAssets: 0, missingDependencies: 0 },
         }),
@@ -139,7 +139,7 @@ describe("engineering-state-mutations", () => {
 
     it("logs mutation", () => {
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState(),
         description: "Logged mutation",
       };
@@ -165,7 +165,7 @@ describe("engineering-state-mutations", () => {
       });
 
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState(),
         description: "Event mutation",
       };
@@ -181,7 +181,7 @@ describe("engineering-state-mutations", () => {
   describe("clearMutationLog", () => {
     it("clears the mutation log", () => {
       const mutation: StateMutation = {
-        nexusDir: tmpDir,
+        shitenDir: tmpDir,
         newState: createMockState(),
         description: "To be cleared",
       };

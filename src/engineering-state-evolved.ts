@@ -46,7 +46,7 @@ export interface StateEvent {
   previousState?: unknown;
   /** New state. */
   newState: unknown;
-  /** Source of the change (e.g., "nexus audit", "nexus upgrade"). */
+  /** Source of the change (e.g., "shiten audit", "shiten upgrade"). */
   source: string;
   /** ISO timestamp. */
   timestamp: string;
@@ -179,8 +179,8 @@ export class EventSourcedState {
   private events: BoundedQueue<StateEvent> = new BoundedQueue<StateEvent>(MAX_STATE_EVENTS);
   private eventsDir: string;
 
-  constructor(nexusDir: string) {
-    this.eventsDir = join(nexusDir, "governance", "state-events");
+  constructor(shitenDir: string) {
+    this.eventsDir = join(shitenDir, "governance", "state-events");
     if (!existsSync(this.eventsDir)) {
       mkdirSync(this.eventsDir, { recursive: true });
     }

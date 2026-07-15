@@ -15,7 +15,7 @@ import {
   type StateDelta,
 } from "../engineering-state-evolved.js";
 import type { EngineeringState, EngineeringAsset, AssetType } from "../engineering-state.js";
-import type { NexusLifecycleState } from "../nexus-state-machine.js";
+import type { ShitenLifecycleState } from "../shiten-state-machine.js";
 import { resetEventBus } from "../event-bus.js";
 
 // ── CapabilityLifecycleTracker Tests ───────────────────────────────────────
@@ -33,7 +33,7 @@ describe("CapabilityLifecycleTracker", () => {
   });
 
   it("transitions between valid states", () => {
-    const result = tracker.transition("quality", "installed", "nexus upgrade");
+    const result = tracker.transition("quality", "installed", "shiten upgrade");
     expect(result).toBeDefined();
     expect(result?.previous).toBe("detected");
     expect(result?.current).toBe("installed");
@@ -41,9 +41,9 @@ describe("CapabilityLifecycleTracker", () => {
   });
 
   it("records transition history", () => {
-    tracker.transition("quality", "installed", "nexus upgrade");
-    tracker.transition("quality", "configured", "nexus configure");
-    tracker.transition("quality", "validated", "nexus validate");
+    tracker.transition("quality", "installed", "shiten upgrade");
+    tracker.transition("quality", "configured", "shiten configure");
+    tracker.transition("quality", "validated", "shiten validate");
 
     const history = tracker.getHistory("quality");
     expect(history).toHaveLength(3);
@@ -53,7 +53,7 @@ describe("CapabilityLifecycleTracker", () => {
   });
 
   it("returns undefined for same-state transition", () => {
-    const result = tracker.transition("quality", "detected", "nexus audit");
+    const result = tracker.transition("quality", "detected", "shiten audit");
     expect(result).toBeUndefined();
   });
 
@@ -100,7 +100,7 @@ describe("EventSourcedState", () => {
   let state: EventSourcedState;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-state-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shiten-state-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     state = new EventSourcedState(tmpDir);
   });
@@ -115,7 +115,7 @@ describe("EventSourcedState", () => {
       entityPath: "capability/quality",
       previousState: "detected",
       newState: "installed",
-      source: "nexus upgrade",
+      source: "shiten upgrade",
     });
 
     expect(event.id).toMatch(/^EVT-[A-Z0-9]+$/);
@@ -203,7 +203,7 @@ describe("IncrementalConsolidator", () => {
 
   const makeState = (assets: EngineeringAsset[] = [], health = 75): EngineeringState => ({
     consolidatedAt: new Date().toISOString(),
-    lifecycle: "governed" as NexusLifecycleState,
+    lifecycle: "governed" as ShitenLifecycleState,
     project: {
       name: "test", root: "/tmp", stack: [], hasGit: true,
       hasCI: false, hasTests: true, hasTypeScript: true,

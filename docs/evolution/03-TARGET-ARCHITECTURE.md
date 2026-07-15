@@ -1,7 +1,7 @@
 # Target Architecture
 
 ## Objetivo
-Transformar o Nexus em um núcleo de engenharia independente de interfaces.
+Transformar o Shiten em um núcleo de engenharia independente de interfaces.
 
 ## Camadas
 - Adapters (CLI, API, MCP, VSCode)

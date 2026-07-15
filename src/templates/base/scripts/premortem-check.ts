@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = resolve(__dirname, '..', '..');
-const ADR_DIR = resolve(ROOT, 'nexus-system', 'docs', 'adrs');
+const ADR_DIR = resolve(ROOT, 'shitenno-go', 'docs', 'adrs');
 
 let exitCode = 0;
 
@@ -30,14 +30,14 @@ warn('BREAKAGE', 'Consulte o WORKFLOW.md para o tipo de operação e use git dif
 
 // ── 2. Related ADR? ───────────────────────────────────────────────────────
 if (existsSync(ADR_DIR)) {
-  pass('ADR_CHECK', 'Diretório nexus-system/docs/adrs/ existe — consulte manualmente para decisões relacionadas');
+  pass('ADR_CHECK', 'Diretório shitenno-go/docs/adrs/ existe — consulte manualmente para decisões relacionadas');
 } else {
-  fail('ADR_CHECK', 'Diretório nexus-system/docs/adrs/ não encontrado');
+  fail('ADR_CHECK', 'Diretório shitenno-go/docs/adrs/ não encontrado');
 }
 
 // ── 3. Insufficient context? ──────────────────────────────────────────────
 warn('CONTEXT', 'Verifique se o plano cobre todos os cenários e se há ambiguidades');
-warn('CONTEXT', 'Consulte context_buffer.yaml e o plano activo em nexus-system/governance/plans/');
+warn('CONTEXT', 'Consulte context_buffer.yaml e o plano activo em shitenno-go/governance/plans/');
 
 // ── 4. Regression risk? ───────────────────────────────────────────────────
 warn('REGRESSION', 'Identifique testes existentes que podem falhar');

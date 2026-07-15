@@ -4,12 +4,12 @@ Comandos para visualizar relatórios, dashboards e resumos.
 
 ---
 
-## `nexus console`
+## `shiten console`
 
 Console de economia de tokens com métricas de sessão.
 
 ```bash
-nexus console [options]
+shiten console [options]
 ```
 
 ### Opções
@@ -21,18 +21,18 @@ nexus console [options]
 ### Exemplos
 
 ```bash
-nexus console              # Console completo
-nexus console --days 30    # Últimos 30 dias
+shiten console              # Console completo
+shiten console --days 30    # Últimos 30 dias
 ```
 
 ---
 
-## `nexus report`
+## `shiten report`
 
 Gere um relatório de desempenho para o usuário.
 
 ```bash
-nexus report [options]
+shiten report [options]
 ```
 
 ### Opções
@@ -44,18 +44,18 @@ nexus report [options]
 ### Exemplos
 
 ```bash
-nexus report               # Relatório completo
-nexus report --json        # Saída JSON
+shiten report               # Relatório completo
+shiten report --json        # Saída JSON
 ```
 
 ---
 
-## `nexus digest`
+## `shiten digest`
 
 Resumo diário da saúde do projeto e mudanças recentes.
 
 ```bash
-nexus digest [options]
+shiten digest [options]
 ```
 
 ### Opções
@@ -67,18 +67,18 @@ nexus digest [options]
 ### Exemplos
 
 ```bash
-nexus digest               # Digest de hoje
-nexus digest --json        # Saída JSON
+shiten digest               # Digest de hoje
+shiten digest --json        # Saída JSON
 ```
 
 ---
 
-## `nexus bench`
+## `shiten bench`
 
 Execute benchmarks de performance do sistema.
 
 ```bash
-nexus bench [options]
+shiten bench [options]
 ```
 
 ### Opções
@@ -90,6 +90,6 @@ nexus bench [options]
 ### Exemplos
 
 ```bash
-nexus bench                # Benchmark completo
-nexus bench --json         # Saída JSON
+shiten bench                # Benchmark completo
+shiten bench --json         # Saída JSON
 ```

@@ -7,7 +7,7 @@ import { TaintAnalyzer } from "../audit/taint/index.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-taint-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-taint-"));
 });
 
 afterEach(() => {

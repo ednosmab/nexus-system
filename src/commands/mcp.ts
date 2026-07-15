@@ -1,13 +1,13 @@
 /**
  * mcp.ts — MCP Server CLI Command
  *
- * The `nexus mcp` command. Starts an MCP server over stdio
+ * The `shiten mcp` command. Starts an MCP server over stdio
  * for AI agents to consume project context.
  *
  * Usage:
- *   nexus mcp                    # Start MCP server
- *   nexus mcp install            # Install MCP Filesystem server globally
- *   nexus mcp install --check    # Check installation status
+ *   shiten mcp                    # Start MCP server
+ *   shiten mcp install            # Install MCP Filesystem server globally
+ *   shiten mcp install --check    # Check installation status
  */
 
 import { Command } from "commander";
@@ -18,7 +18,7 @@ import { installMcpServer, updateOpenCodeJsonTimeout } from "../mcp-install.js";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { consolidateEngineeringState } from "../engineering-state.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputError } from "../output.js";
 
 export function mcpCommand(): Command {
@@ -29,14 +29,14 @@ export function mcpCommand(): Command {
     .option("-d, --dir <path>", "Project root directory")
     .action(async (options: Record<string, unknown>) => {
       const projectRoot = (options.dir as string) ?? process.cwd();
-      const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
+      const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
 
       try {
-        consolidateEngineeringState(projectRoot, nexusDir);
+        consolidateEngineeringState(projectRoot, shitenDir);
       } catch {
         outputError(
           chalk.red(
-            `  Error: Nexus not initialized in ${projectRoot}. Run 'nexus init' first.`
+            `  Error: Shiten not initialized in ${projectRoot}. Run 'shiten init' first.`
           )
         );
         process.exitCode = 1;
@@ -44,7 +44,7 @@ export function mcpCommand(): Command {
       }
 
       outputError(
-        chalk.gray("  nexus-mcp: Starting MCP server over stdio...")
+        chalk.gray("  shiten-mcp: Starting MCP server over stdio...")
       );
       outputError(
         chalk.gray(
@@ -54,7 +54,7 @@ export function mcpCommand(): Command {
       outputBlank();
 
       try {
-        await startMcpServer(projectRoot, nexusDir);
+        await startMcpServer(projectRoot, shitenDir);
       } catch (error) {
         outputError(
           chalk.red(
@@ -82,7 +82,7 @@ export function mcpCommand(): Command {
           chalk.bold.cyan("  ╔════════════════════════════════════════════╗")
         );
         output(
-          chalk.bold.cyan("  ║  nexus mcp install — MCP Filesystem Server ║")
+          chalk.bold.cyan("  ║  shiten mcp install — MCP Filesystem Server ║")
         );
         output(
           chalk.bold.cyan("  ╚════════════════════════════════════════════╝")
@@ -117,7 +117,7 @@ export function mcpCommand(): Command {
           }
           if (result.upgrade) {
             output(
-              chalk.yellow("    ⚠ New version available. Run 'nexus mcp install --upgrade'")
+              chalk.yellow("    ⚠ New version available. Run 'shiten mcp install --upgrade'")
             );
           }
           if (result.latestVersionCheckFailed) {
@@ -133,7 +133,7 @@ export function mcpCommand(): Command {
             output(chalk.gray(`    ${result.error}`));
           }
           output(
-            chalk.gray("    Run 'nexus mcp install' to install it.")
+            chalk.gray("    Run 'shiten mcp install' to install it.")
           );
         }
         outputBlank();

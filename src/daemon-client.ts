@@ -1,8 +1,8 @@
 /**
  * daemon-client.ts — Daemon Lifecycle Client
  *
- * Provides functions to start, stop, ping, and query the Nexus daemon.
- * Respects NEXUS_NO_DAEMON and CI environment variables.
+ * Provides functions to start, stop, ping, and query the Shiten daemon.
+ * Respects SHITEN_NO_DAEMON and CI environment variables.
  *
  * PRINCIPLE: The daemon is opt-in. The CLI always works without it.
  */
@@ -31,34 +31,34 @@ const DAEMON_SCRIPT = join(__dirname, "..", "src", "daemon.js");
 
 /**
  * Returns true if the daemon should be bypassed.
- * Conditions: NEXUS_NO_DAEMON=1, CI=true, or running as a child process.
+ * Conditions: SHITEN_NO_DAEMON=1, CI=true, or running as a child process.
  */
 export function shouldSkipDaemon(): boolean {
   return (
-    process.env["NEXUS_NO_DAEMON"] === "1" ||
+    process.env["SHITEN_NO_DAEMON"] === "1" ||
     process.env["CI"] === "true" ||
-    process.env["NEXUS_CHILD"] === "1"
+    process.env["SHITEN_CHILD"] === "1"
   );
 }
 
 // ── PID / Socket Paths ───────────────────────────────────────────────────────
 
-export function getPidPath(nexusDir: string): string {
-  return join(nexusDir, "daemon", "daemon.pid");
+export function getPidPath(shitenDir: string): string {
+  return join(shitenDir, "daemon", "daemon.pid");
 }
 
-export function getSocketPath(nexusDir: string): string {
-  return join(nexusDir, "daemon", "daemon.sock");
+export function getSocketPath(shitenDir: string): string {
+  return join(shitenDir, "daemon", "daemon.sock");
 }
 
-export function getApprovedPath(nexusDir: string): string {
-  return join(nexusDir, "daemon", "daemon.approved");
+export function getApprovedPath(shitenDir: string): string {
+  return join(shitenDir, "daemon", "daemon.approved");
 }
 
 // ── Running Check ─────────────────────────────────────────────────────────────
 
-export function getDaemonPid(nexusDir: string): string | null {
-  const pidPath = getPidPath(nexusDir);
+export function getDaemonPid(shitenDir: string): string | null {
+  const pidPath = getPidPath(shitenDir);
   if (!existsSync(pidPath)) return null;
   try {
     return readFileSync(pidPath, "utf-8").trim();
@@ -67,15 +67,15 @@ export function getDaemonPid(nexusDir: string): string | null {
   }
 }
 
-export function isDaemonApproved(nexusDir: string): boolean {
-  return existsSync(getApprovedPath(nexusDir));
+export function isDaemonApproved(shitenDir: string): boolean {
+  return existsSync(getApprovedPath(shitenDir));
 }
 
 /**
  * Returns true if a daemon process with a valid PID is running.
  */
-export function isDaemonRunning(nexusDir: string): boolean {
-  const pidPath = getPidPath(nexusDir);
+export function isDaemonRunning(shitenDir: string): boolean {
+  const pidPath = getPidPath(shitenDir);
   if (!existsSync(pidPath)) return false;
 
   try {
@@ -98,14 +98,14 @@ export function isDaemonRunning(nexusDir: string): boolean {
  * Waits up to SOCKET_WAIT_MS for the socket to become available.
  * Rejects if the daemon script does not exist or socket never appears.
  */
-export async function startDaemon(nexusDir: string): Promise<void> {
+export async function startDaemon(shitenDir: string): Promise<void> {
   if (!existsSync(DAEMON_SCRIPT)) {
     throw new Error(
       `Daemon script not found: ${DAEMON_SCRIPT}. Run 'pnpm build' first.`
     );
   }
 
-  const daemonDir = join(nexusDir, "daemon");
+  const daemonDir = join(shitenDir, "daemon");
   if (!existsSync(daemonDir)) {
     mkdirSync(daemonDir, { recursive: true });
   }
@@ -113,20 +113,20 @@ export async function startDaemon(nexusDir: string): Promise<void> {
   const logPath = join(daemonDir, "daemon.log");
 
   // Spawn detached — process group leader, stdio to log file
-  const child = spawn(process.execPath, [DAEMON_SCRIPT, nexusDir], {
+  const child = spawn(process.execPath, [DAEMON_SCRIPT, shitenDir], {
     detached: true,
     stdio: ["ignore", "ignore", "ignore"],
     env: {
       ...process.env,
-      NEXUS_DAEMON_LOG: logPath,
-      NEXUS_CHILD: "1",
+      SHITEN_DAEMON_LOG: logPath,
+      SHITEN_CHILD: "1",
     },
   });
 
   child.unref(); // Allow parent CLI to exit immediately
 
   // Wait for socket to appear (daemon writes it on ready)
-  const socketPath = getSocketPath(nexusDir);
+  const socketPath = getSocketPath(shitenDir);
   const deadline = Date.now() + SOCKET_WAIT_MS;
 
   while (Date.now() < deadline) {
@@ -145,8 +145,8 @@ export async function startDaemon(nexusDir: string): Promise<void> {
 /**
  * Stop the daemon by sending SIGTERM to the recorded PID.
  */
-export function stopDaemon(nexusDir: string): boolean {
-  const pidPath = getPidPath(nexusDir);
+export function stopDaemon(shitenDir: string): boolean {
+  const pidPath = getPidPath(shitenDir);
   if (!existsSync(pidPath)) return false;
 
   try {
@@ -167,9 +167,9 @@ export function stopDaemon(nexusDir: string): boolean {
  * Send a ping to the daemon via its IPC socket.
  * Returns true if the daemon responds with a pong.
  */
-export function pingDaemon(nexusDir: string): Promise<boolean> {
+export function pingDaemon(shitenDir: string): Promise<boolean> {
   return new Promise((resolve) => {
-    const socketPath = getSocketPath(nexusDir);
+    const socketPath = getSocketPath(shitenDir);
     if (!existsSync(socketPath)) {
       resolve(false);
       return;

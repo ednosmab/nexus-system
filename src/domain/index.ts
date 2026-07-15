@@ -8,7 +8,7 @@
 export type {
   AssetType,
   EngineeringAsset,
-  NexusLifecycleState,
+  ShitenLifecycleState,
   StateTransition,
   MaturityDimensions,
   Capability,

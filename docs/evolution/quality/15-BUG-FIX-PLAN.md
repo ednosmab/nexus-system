@@ -100,7 +100,7 @@ Plano
 Adicionar:
 
 ```bash
-nexus init --answers-file config.yaml
+shiten init --answers-file config.yaml
 ```
 
 Objetivo

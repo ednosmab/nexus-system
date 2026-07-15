@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, each Nexus command runs independently. `nexus status` scores and writes a report. `nexus detect` reads reports and detects patterns. `nexus audit` reads rules and checks health. But there's no orchestration — each command is a standalone tool.
+Today, each Shiten command runs independently. `shiten status` scores and writes a report. `shiten detect` reads reports and detects patterns. `shiten audit` reads rules and checks health. But there's no orchestration — each command is a standalone tool.
 
 The pipeline engine chains these stages into a single, coherent analysis.
 
@@ -32,7 +32,7 @@ Each stage reads from and writes to a shared context:
 ```typescript
 interface PipelineContext {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
   
   // Stage outputs
   analysis?: ProjectAnalysis;
@@ -81,7 +81,7 @@ const scoreStage: PipelineStage = {
   description: "Calculate complexity score",
   execute: async (ctx) => {
     if (!ctx.analysis) throw new Error("Analysis required");
-    ctx.complexityReport = await calculateComplexityScore(ctx.projectRoot, ctx.nexusDir);
+    ctx.complexityReport = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir);
     return ctx;
   },
 };
@@ -94,7 +94,7 @@ const detectStage: PipelineStage = {
   name: "detect",
   description: "Detect patterns from history",
   execute: async (ctx) => {
-    ctx.patternReport = await detectPatterns(ctx.nexusDir);
+    ctx.patternReport = await detectPatterns(ctx.shitenDir);
     return ctx;
   },
 };
@@ -107,7 +107,7 @@ const auditStage: PipelineStage = {
   name: "audit",
   description: "Audit governance health",
   execute: async (ctx) => {
-    ctx.healthReport = await auditHealth(ctx.nexusDir);
+    ctx.healthReport = await auditHealth(ctx.shitenDir);
     return ctx;
   },
 };
@@ -169,7 +169,7 @@ const pipeline = new Pipeline()
 
 const result = await pipeline.execute({
   projectRoot: "/path/to/project",
-  nexusDir: "/path/to/project/nexus-system",
+  shitenDir: "/path/to/project/shitenno-go",
   errors: [],
   startedAt: new Date().toISOString(),
 });

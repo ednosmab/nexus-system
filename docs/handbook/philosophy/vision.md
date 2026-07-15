@@ -1,10 +1,10 @@
 # Vision
 
-> Where the Nexus System is going.
+> Where the Shitenno-go is going.
 
 ## The Direction
 
-Nexus evolves toward a future where engineering governance is continuous, adaptive, and self-aware. This vision is not a roadmap. It is a direction. The specific implementations will change. The direction will not.
+Shiten evolves toward a future where engineering governance is continuous, adaptive, and self-aware. This vision is not a roadmap. It is a direction. The specific implementations will change. The direction will not.
 
 ---
 
@@ -12,7 +12,7 @@ Nexus evolves toward a future where engineering governance is continuous, adapti
 
 A command-line system that analyzes projects, scores complexity, detects patterns, and recommends actions.
 
-In this phase, Nexus is a tool that humans invoke. It reads project data, computes insights, and presents recommendations. The human decides what to do with them.
+In this phase, Shiten is a tool that humans invoke. It reads project data, computes insights, and presents recommendations. The human decides what to do with them.
 
 This phase establishes the foundation: the scoring engine, the pattern detector, the health auditor, the capability model, the recommendation engine. These are the building blocks.
 
@@ -22,7 +22,7 @@ This phase establishes the foundation: the scoring engine, the pattern detector,
 
 An event-driven system where modules communicate, feedback loops exist, and the system learns from acceptance or rejection of recommendations.
 
-In this phase, Nexus becomes more than a tool. It becomes a system that observes continuously, learns from human decisions, and adapts its recommendations based on what worked and what did not.
+In this phase, Shiten becomes more than a tool. It becomes a system that observes continuously, learns from human decisions, and adapts its recommendations based on what worked and what did not.
 
 The CLI becomes an interface to a deeper engine. The engine observes, recommends, learns, and evolves. The human remains in control. But the system becomes more intelligent with every interaction.
 
@@ -32,7 +32,7 @@ The CLI becomes an interface to a deeper engine. The engine observes, recommends
 
 A system that governs itself. That detects its own knowledge gaps. That recommends its own evolution. That adapts its behavior based on team maturity without human intervention.
 
-In this phase, Nexus achieves self-governance. It applies its own principles to its own development. It tracks its own knowledge debt, detects its own patterns, and recommends its own improvements.
+In this phase, Shiten achieves self-governance. It applies its own principles to its own development. It tracks its own knowledge debt, detects its own patterns, and recommends its own improvements.
 
 This is not autonomy for its own sake. It is autonomy in service of the team. The system removes the overhead of governance so that humans can focus on what humans do best: making decisions, building understanding, creating value.
 
@@ -50,7 +50,7 @@ The team chooses how deeply to engage with each phase. A team that uses only the
 
 ## The End State
 
-When Nexus is complete, any team — regardless of size, maturity, or domain — will be able to:
+When Shiten is complete, any team — regardless of size, maturity, or domain — will be able to:
 
 1. Understand their engineering state in real-time
 2. Govern their knowledge without bureaucratic overhead
@@ -62,6 +62,6 @@ This is not a destination. It is a practice. The end state is not a version numb
 
 ---
 
-*This vision is permanent. It guides every decision in the Nexus System. It cannot be changed without changing the purpose of the project.*
+*This vision is permanent. It guides every decision in the Shitenno-go. It cannot be changed without changing the purpose of the project.*
 
 *Last updated: 2026-06-28*

@@ -34,7 +34,7 @@ Seven dimensions, each scored 0-100:
 
 **Overall Score:** Weighted average of all dimensions.
 
-Each dimension is computed independently. Teams can be strong in some dimensions and weak in others. Nexus recommends capabilities to strengthen weak dimensions.
+Each dimension is computed independently. Teams can be strong in some dimensions and weak in others. Shiten recommends capabilities to strengthen weak dimensions.
 
 ---
 

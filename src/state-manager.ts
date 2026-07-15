@@ -102,7 +102,7 @@ export interface SessionMemory {
 }
 
 /** Estado consolidado. */
-export interface NexusState {
+export interface ShitenState {
   /** Conhecimento permanente. */
   knowledge: KnowledgeState;
   /** Estado do projecto. */
@@ -116,7 +116,7 @@ export interface NexusState {
 // ── Knowledge Reader ────────────────────────────────────────────────────────
 
 /** Lê estado de conhecimento do projecto. */
-export function readKnowledgeState(nexusDir: string): KnowledgeState {
+export function readKnowledgeState(shitenDir: string): KnowledgeState {
   const state: KnowledgeState = {
     adrs: [],
     skills: [],
@@ -127,7 +127,7 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   };
 
   // ADRs
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
   if (existsSync(adrDir)) {
     const files = readdirSync(adrDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("ADR-TEMPLATE")
@@ -146,7 +146,7 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   }
 
   // Skills
-  const skillsDir = join(nexusDir, "docs", "skills");
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (existsSync(skillsDir)) {
     const files = readdirSync(skillsDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -159,7 +159,7 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   }
 
   // Contracts
-  const contractsDir = join(nexusDir, "governance", "agents");
+  const contractsDir = join(shitenDir, "governance", "agents");
   if (existsSync(contractsDir)) {
     const files = readdirSync(contractsDir).filter(
       (f) => f.endsWith(".yaml") || f.endsWith(".yml")
@@ -178,7 +178,7 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   }
 
   // Governance docs — criticality depends on installed capabilities
-  const maturityPathForDocs = join(nexusDir, "maturity-profile.json");
+  const maturityPathForDocs = join(shitenDir, "maturity-profile.json");
   let capsForDocs: string[] = [];
   if (existsSync(maturityPathForDocs)) {
     try {
@@ -188,13 +188,13 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   }
   const expectedDocs = buildExpectedDocs(capsForDocs);
   for (const doc of expectedDocs) {
-    if (existsSync(join(nexusDir, doc.path))) {
+    if (existsSync(join(shitenDir, doc.path))) {
       state.governanceDocs.push(doc);
     }
   }
 
   // Scripts
-  const scriptsDir = join(nexusDir, "scripts");
+  const scriptsDir = join(shitenDir, "scripts");
   if (existsSync(scriptsDir)) {
     const files = readdirSync(scriptsDir).filter(
       (f) => f.endsWith(".ts") || f.endsWith(".js")
@@ -209,7 +209,7 @@ export function readKnowledgeState(nexusDir: string): KnowledgeState {
   }
 
   // Runbooks
-  const runbooksDir = join(nexusDir, "docs", "runbooks");
+  const runbooksDir = join(shitenDir, "docs", "runbooks");
   if (existsSync(runbooksDir)) {
     const files = readdirSync(runbooksDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -243,7 +243,7 @@ function buildExpectedDocs(installedCapabilities: string[]) {
 /** Lê estado do projecto. */
 export function readProjectState(
   projectRoot: string,
-  nexusDir: string
+  shitenDir: string
 ): ProjectState {
   const state: ProjectState = {
     maturity: null,
@@ -264,7 +264,7 @@ export function readProjectState(
   };
 
   // Maturity profile
-  const maturityPath = join(nexusDir, "maturity-profile.json");
+  const maturityPath = join(shitenDir, "maturity-profile.json");
   if (existsSync(maturityPath)) {
     try {
       const content = JSON.parse(readFileSync(maturityPath, "utf-8"));
@@ -281,7 +281,7 @@ export function readProjectState(
   }
 
   // Knowledge debt
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (existsSync(reportsDir)) {
     const debtFiles = readdirSync(reportsDir)
       .filter((f) => f.startsWith("knowledge-debt-") && f.endsWith(".json"))
@@ -327,7 +327,7 @@ export function readProjectState(
 // ── Session Memory Reader ───────────────────────────────────────────────────
 
 /** Lê memória da sessão do context buffer. */
-export function readSessionMemory(nexusDir: string): SessionMemory {
+export function readSessionMemory(shitenDir: string): SessionMemory {
   const memory: SessionMemory = {
     sessionId: null,
     branch: null,
@@ -340,7 +340,7 @@ export function readSessionMemory(nexusDir: string): SessionMemory {
     documentsLoaded: [],
   };
 
-  const bufferPath = join(nexusDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return memory;
 
   try {
@@ -401,12 +401,12 @@ export function readSessionMemory(nexusDir: string): SessionMemory {
  */
 export function consolidateState(
   projectRoot: string,
-  nexusDir: string
-): NexusState {
+  shitenDir: string
+): ShitenState {
   return {
-    knowledge: readKnowledgeState(nexusDir),
-    project: readProjectState(projectRoot, nexusDir),
-    memory: readSessionMemory(nexusDir),
+    knowledge: readKnowledgeState(shitenDir),
+    project: readProjectState(projectRoot, shitenDir),
+    memory: readSessionMemory(shitenDir),
     consolidatedAt: new Date().toISOString(),
   };
 }
@@ -414,9 +414,9 @@ export function consolidateState(
 // ── Report ──────────────────────────────────────────────────────────────────
 
 /** Gera relatório textual do estado consolidado. */
-export function stateToText(state: NexusState): string {
+export function stateToText(state: ShitenState): string {
   const lines: string[] = [];
-  lines.push("# Nexus State Report");
+  lines.push("# Shiten State Report");
   lines.push(`Consolidated at: ${state.consolidatedAt}`);
   lines.push("");
 

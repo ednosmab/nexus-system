@@ -119,7 +119,7 @@ PASSO 4: CONSOLIDACAO E PURGA
 
 **Trigger:** Apos execucao completa do plano + validacao (build/test/lint OK) + confirmacao do utilizador.
 
-**Comando:** `nexus plan md lifecycle`
+**Comando:** `shiten plan md lifecycle`
 
 **Opcoes:**
 - `--auto` — Auto-archiva sem prompts (CI/CD)
@@ -306,4 +306,4 @@ model_assignments: {}
 - `docs/DESDO.md` — Diretrizes de engenharia (P0)
 - `governance/SYSTEM_MAP.md` — Mapa centralizado
 - `governance/context/context_buffer.yaml` — Estado activo (RAM)
-- `docs/Nexus-System_GUIDE.md` — Guia completo do sistema
+- `docs/Shitenno-go_GUIDE.md` — Guia completo do sistema

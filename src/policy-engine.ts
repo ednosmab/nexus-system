@@ -214,8 +214,8 @@ export interface PolicyRepository {
 export class FilePolicyRepository implements PolicyRepository {
   private dir: string;
 
-  constructor(nexusDir: string) {
-    this.dir = join(nexusDir, "governance", "policies");
+  constructor(shitenDir: string) {
+    this.dir = join(shitenDir, "governance", "policies");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }

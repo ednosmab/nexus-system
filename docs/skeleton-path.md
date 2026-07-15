@@ -1,6 +1,6 @@
 # Documentation Structure
 
-> Current directory layout of the Nexus System documentation.
+> Current directory layout of the Shitenno-go documentation.
 
 ```
 docs/

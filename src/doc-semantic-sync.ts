@@ -44,7 +44,7 @@ function formatReminder(result: DriftResult): string {
 
 export interface SemanticSyncOptions {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
   docsDir?: string;
   minConfidence?: number;
 }
@@ -62,7 +62,7 @@ export interface SemanticSyncResult {
  * are skipped by addReminder().
  */
 export function runSemanticDocSync(options: SemanticSyncOptions): SemanticSyncResult {
-  const { projectRoot, nexusDir, docsDir = join(projectRoot, "docs"), minConfidence = 0.8 } = options;
+  const { projectRoot, shitenDir, docsDir = join(projectRoot, "docs"), minConfidence = 0.8 } = options;
 
   const facts = scanCodebase(projectRoot);
   const docs = loadDocsForDrift(docsDir);
@@ -72,7 +72,7 @@ export function runSemanticDocSync(options: SemanticSyncOptions): SemanticSyncRe
   let skipped = 0;
 
   for (const result of driftResults) {
-    const outcome = addReminder(nexusDir, {
+    const outcome = addReminder(shitenDir, {
       message: formatReminder(result),
       priority: severityToPriority(result.confidence),
       category: "docs" as ReminderCategory,

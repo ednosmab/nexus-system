@@ -12,7 +12,7 @@ import { createInterface } from "node:readline";
 import { join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 import {
   MarkdownPlanEngine,
   type MarkdownPlan,
@@ -45,8 +45,8 @@ export interface LifecycleResult {
 
 // ── Detect Active Plans ────────────────────────────────────────────────────
 
-export function detectActivePlans(nexusDir: string): MarkdownPlan[] {
-  const engine = new MarkdownPlanEngine(nexusDir);
+export function detectActivePlans(shitenDir: string): MarkdownPlan[] {
+  const engine = new MarkdownPlanEngine(shitenDir);
   return engine.list().filter((p) => p.status !== "done");
 }
 
@@ -128,13 +128,13 @@ function checkLint(projectRoot: string): CompletionCheck {
 
 // ── Archive / Remove Plan ──────────────────────────────────────────────────
 
-export function archivePlan(nexusDir: string, planId: string): void {
-  const engine = new MarkdownPlanEngine(nexusDir);
+export function archivePlan(shitenDir: string, planId: string): void {
+  const engine = new MarkdownPlanEngine(shitenDir);
   engine.updateStatus(planId, "done");
 }
 
-export function removePlan(nexusDir: string, planId: string): void {
-  const engine = new MarkdownPlanEngine(nexusDir);
+export function removePlan(shitenDir: string, planId: string): void {
+  const engine = new MarkdownPlanEngine(shitenDir);
   engine.updateStatus(planId, "done");
 }
 
@@ -184,7 +184,7 @@ export async function runLifecycleReview(
   projectRoot: string,
   options: { auto?: boolean; dry?: boolean } = {}
 ): Promise<LifecycleResult> {
-  const nexusDir = join(projectRoot, NEXUS_DIR_NAME);
+  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
   const result: LifecycleResult = { active: 0, archived: 0, removed: 0, skipped: 0 };
 
   outputBlank();
@@ -192,7 +192,7 @@ export async function runLifecycleReview(
   outputBlank();
 
   // 1. Run inference
-  const inferenceEngine = new InferenceEngine(nexusDir);
+  const inferenceEngine = new InferenceEngine(shitenDir);
   const summary = inferenceEngine.generateSummary();
 
   if (summary.totalPlans === 0) {
@@ -213,7 +213,7 @@ export async function runLifecycleReview(
 
   // 3. For each plan, validate and prompt
   for (const inf of summary.plans) {
-    const plan = detectActivePlans(nexusDir).find((p) => p.id === inf.id);
+    const plan = detectActivePlans(shitenDir).find((p) => p.id === inf.id);
     if (!plan) continue;
 
     // Technical validation
@@ -240,7 +240,7 @@ export async function runLifecycleReview(
           continue;
         }
         try {
-          archivePlan(nexusDir, inf.id);
+          archivePlan(shitenDir, inf.id);
           output(chalk.green(`  ✓ Plan ${action}d: ${inf.id} → done/`));
           outputBlank();
           if (action === "archive") result.archived++;
@@ -270,7 +270,7 @@ export async function runLifecycleReview(
           break;
         }
         try {
-          archivePlan(nexusDir, inf.id);
+          archivePlan(shitenDir, inf.id);
           output(chalk.green(`  ✓ Plan archived: ${inf.id} → done/`));
           result.archived++;
         } catch (error) {
@@ -285,7 +285,7 @@ export async function runLifecycleReview(
           break;
         }
         try {
-          removePlan(nexusDir, inf.id);
+          removePlan(shitenDir, inf.id);
           output(chalk.green(`  ✓ Plan removed: ${inf.id} → done/`));
           result.removed++;
         } catch (error) {
@@ -324,12 +324,12 @@ export async function runLifecycleReview(
 /**
  * Lightweight check: scan all active plans and archive any with Status: Done.
  * No user interaction, no validation — just file move + event publish.
- * Used by: nexus detect --auto (post-commit hook).
+ * Used by: shiten detect --auto (post-commit hook).
  *
  * This function is idempotent: plans already in done/ are skipped.
  */
-export function checkAndArchiveDonePlans(nexusDir: string): { checked: number; archived: number; archivedIds: string[] } {
-  const engine = new MarkdownPlanEngine(nexusDir);
+export function checkAndArchiveDonePlans(shitenDir: string): { checked: number; archived: number; archivedIds: string[] } {
+  const engine = new MarkdownPlanEngine(shitenDir);
   const archivedIds: string[] = [];
   let checked = 0;
   let archived = 0;

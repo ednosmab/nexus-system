@@ -139,9 +139,9 @@ export class ScriptExecutor implements ActionExecutor {
 
   constructor(allowedScripts: Record<string, string> = {}) {
     this.allowedScripts = {
-      "nexus audit": "nexus audit",
-      "nexus status": "nexus status",
-      "nexus assess": "nexus assess",
+      "shiten audit": "shiten audit",
+      "shiten status": "shiten status",
+      "shiten assess": "shiten assess",
       ...allowedScripts,
     };
   }
@@ -185,8 +185,8 @@ export interface ExecutionRepository {
 export class FileExecutionRepository implements ExecutionRepository {
   private dir: string;
 
-  constructor(nexusDir: string) {
-    this.dir = join(nexusDir, "governance", "executions");
+  constructor(shitenDir: string) {
+    this.dir = join(shitenDir, "governance", "executions");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }

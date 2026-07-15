@@ -104,7 +104,7 @@ export function GoalsTab({ data, scrollOffset = 0, expandedItem, onExpandItem }:
     return (
       <SectionBox title="Goals">
         <Text dimColor>No goals defined yet.</Text>
-        <Text dimColor>Use "nexus goal add" to create one.</Text>
+        <Text dimColor>Use "shiten goal add" to create one.</Text>
       </SectionBox>
     );
   }

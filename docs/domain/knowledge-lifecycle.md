@@ -98,7 +98,7 @@ An automation makes knowledge self-executing. It removes the need for human memo
 
 **What:** "This is a command."
 **Formality:** One-click execution, documented, versioned.
-**Example:** `nexus validate` that checks session integrity including test status.
+**Example:** `shiten validate` that checks session integrity including test status.
 
 A command is the highest level of formalization. It makes knowledge accessible with a single action.
 

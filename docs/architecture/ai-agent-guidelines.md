@@ -1,10 +1,10 @@
 # 26 — AI AGENT GUIDELINES
 
-> Rules for AI agents that collaborate with the Nexus project.
+> Rules for AI agents that collaborate with the Shiten project.
 
 ## Reading Order
 
-When working on Nexus, read documents in this order:
+When working on Shiten, read documents in this order:
 
 ### For any task:
 1. `03-DESIGN-PRINCIPLES.md` — The 10 immutable principles
@@ -29,9 +29,9 @@ When working on Nexus, read documents in this order:
 
 ## The SÓ PROPÕE Principle
 
-**The most important rule:** Nexus proposes. Humans decide.
+**The most important rule:** Shiten proposes. Humans decide.
 
-When writing code for Nexus:
+When writing code for Shiten:
 - Generate recommendations, never auto-apply
 - Produce candidate rules, never auto-register
 - Suggest optimizations, never auto-modify

@@ -16,14 +16,14 @@ describe("initializeEngineeringState", () => {
   });
 
   it("returns an unsubscribe function", () => {
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
     expect(typeof unsubscribe).toBe("function");
     unsubscribe();
   });
 
   it("subscribes to maturity.changed event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("maturity.changed")).toBeGreaterThanOrEqual(1);
 
@@ -32,7 +32,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to debt.detected event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("debt.detected")).toBeGreaterThanOrEqual(1);
 
@@ -41,7 +41,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to knowledge.analyzed event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("knowledge.analyzed")).toBeGreaterThanOrEqual(1);
 
@@ -50,7 +50,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to lifecycle.state_changed event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("lifecycle.state_changed")).toBeGreaterThanOrEqual(1);
 
@@ -59,7 +59,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to asset.created event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("asset.created")).toBeGreaterThanOrEqual(1);
 
@@ -68,7 +68,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to asset.updated event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("asset.updated")).toBeGreaterThanOrEqual(1);
 
@@ -77,7 +77,7 @@ describe("initializeEngineeringState", () => {
 
   it("subscribes to asset.archived event", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     expect(bus.listenerCount("asset.archived")).toBeGreaterThanOrEqual(1);
 
@@ -86,7 +86,7 @@ describe("initializeEngineeringState", () => {
 
   it("unsubscribe removes all subscriptions", () => {
     const bus = getEventBus();
-    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/nexus-system");
+    const unsubscribe = initializeEngineeringState("/tmp/project", "/tmp/project/shitenno-go");
 
     const beforeMaturity = bus.listenerCount("maturity.changed");
     const beforeDebt = bus.listenerCount("debt.detected");

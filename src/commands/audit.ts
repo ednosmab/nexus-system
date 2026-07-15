@@ -143,7 +143,7 @@ function identifyQuickWins(issues: Array<{ type: string; severity: number; descr
 }
 
 export const auditCommand = new Command("audit")
-  .description("Audit Nexus System health (Phase 3)")
+  .description("Audit Shitenno-go health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("-l, --level <level>", "Audit level: quick, standard, code-review, enterprise (default: standard)", "standard")
   .option("--no-cache", "Skip cache and recalculate")
@@ -155,7 +155,7 @@ export const auditCommand = new Command("audit")
     if (!isJson) {
       const levelLabel = options.level === "enterprise" ? "enterprise" : options.level === "code-review" ? "code-review" : options.level === "quick" ? "quick" : "standard";
       outputBlank();
-      banner("nexus audit", "Health Audit");
+      banner("shiten audit", "Health Audit");
       output(chalk.gray(`    Level: ${levelLabel}`));
       outputBlank();
     }
@@ -163,7 +163,7 @@ export const auditCommand = new Command("audit")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("audit", ctx.projectRoot, ctx.nexusDir, isJson)) return;
+    if (!checkLifecycleGate("audit", ctx.projectRoot, ctx.shitenDir, isJson)) return;
 
     const spinner = isJson ? null : ora("Auditing governance health...").start();
 
@@ -172,31 +172,31 @@ export const auditCommand = new Command("audit")
       const level = ["quick", "standard", "code-review", "enterprise"].includes(options.level) ? options.level : "standard";
 
       // Load growth profile (needed for both JSON and human output)
-      const growthProfile = loadGrowthProfile(ctx.nexusDir);
+      const growthProfile = loadGrowthProfile(ctx.shitenDir);
 
       // Check cache first (skip cache for code-review and enterprise to get fresh results)
       let report: HealthAuditReport;
       let cacheHit = false;
       if (options.cache !== false && level !== "code-review" && level !== "enterprise") {
-        const cached = getCached<HealthAuditReport>(ctx.projectRoot, ctx.nexusDir, "health",
-          () => computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+        const cached = getCached<HealthAuditReport>(ctx.projectRoot, ctx.shitenDir, "health",
+          () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
         if (cached) {
           report = cached;
           cacheHit = true;
         } else {
-          report = auditHealth(ctx.projectRoot, ctx.nexusDir, level);
-          setCache(ctx.projectRoot, ctx.nexusDir, "health", report,
-            computeKeyChecksums(ctx.projectRoot, ctx.nexusDir));
+          report = auditHealth(ctx.projectRoot, ctx.shitenDir, level);
+          setCache(ctx.projectRoot, ctx.shitenDir, "health", report,
+            computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
         }
       } else {
-        report = auditHealth(ctx.projectRoot, ctx.nexusDir, level);
+        report = auditHealth(ctx.projectRoot, ctx.shitenDir, level);
       }
 
       // Write report (always, even with 0 issues)
-      const reportFile = writeHealthReport(ctx.nexusDir, report);
+      const reportFile = writeHealthReport(ctx.shitenDir, report);
 
       // Knowledge graph analysis
-      const artifacts = discoverArtifacts(ctx.nexusDir);
+      const artifacts = discoverArtifacts(ctx.shitenDir);
       const relations = discoverRelations(artifacts);
       const graphAnalysis = analyzeGraph(artifacts, relations);
 
@@ -488,14 +488,14 @@ export const auditCommand = new Command("audit")
       }
 
       if (reportFile) {
-        output(chalk.gray(`  📄 Report saved: nexus-system/reports/${reportFile}`));
+        output(chalk.gray(`  📄 Report saved: shitenno-go/reports/${reportFile}`));
         outputBlank();
       }
 
       // Generate and display dynamic rules
       try {
         const { generateDynamicRules } = await import("../dynamic-rules.js");
-        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.nexusDir);
+        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.shitenDir);
 
         if (dynamicRules.length > 0 && !isJson) {
           output(chalk.bold("  🚨 Dynamic Rules (from History):"));
@@ -546,16 +546,16 @@ export const auditCommand = new Command("audit")
             title: `${graphAnalysis.orphanArtifacts.length} artifacts orfaos no knowledge graph`,
             severity: "Alto",
             priority: "P1",
-            source: "nexus audit",
+            source: "shiten audit",
             date: today,
-            modules: ["nexus-system/"],
+            modules: ["shitenno-go/"],
             description: `${graphAnalysis.orphanArtifacts.length} artifacts no knowledge graph sem relacoes conectando-os.`,
             correction: "Adicionar relacoes entre artifacts orfaos e existentes.",
           });
         }
 
         if (backlogItems.length > 0) {
-          const backlogPath = join(ctx.nexusDir, "docs", "BACKLOG.md");
+          const backlogPath = join(ctx.shitenDir, "docs", "BACKLOG.md");
           const result = appendBacklogSection(backlogPath, backlogItems, today);
 
           if (!isJson) {
@@ -575,7 +575,7 @@ export const auditCommand = new Command("audit")
         if (plugin.hooks?.["custom-check"]) {
           return await plugin.hooks["custom-check"]({
             projectRoot: ctx.projectRoot,
-            nexusDir: ctx.nexusDir,
+            shitenDir: ctx.shitenDir,
             healthReport: report,
           });
         }

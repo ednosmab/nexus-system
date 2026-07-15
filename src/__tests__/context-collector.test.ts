@@ -47,7 +47,7 @@ const mockDeps: ContextDeps = {
     rootDir: "/project",
     hasGit: true,
     hasPackageJson: true,
-    hasNexus: false,
+    hasShiten: false,
     stack: ["typescript"],
     packageManager: "npm",
     monorepo: false,
@@ -102,7 +102,7 @@ const mockDeps: ContextDeps = {
 describe("context-collector", () => {
   describe("collectContext", () => {
     it("returns a complete ContextSnapshot", () => {
-      const snapshot = collectContext("/project", "/project/nexus-system", mockDeps);
+      const snapshot = collectContext("/project", "/project/shitenno-go", mockDeps);
 
       expect(snapshot).toBeDefined();
       expect(snapshot.collectedAt).toBeDefined();
@@ -115,7 +115,7 @@ describe("context-collector", () => {
     });
 
     it("generates input hash for cache invalidation", () => {
-      const snapshot = collectContext("/project", "/project/nexus-system", mockDeps);
+      const snapshot = collectContext("/project", "/project/shitenno-go", mockDeps);
 
       expect(snapshot.inputHash).toMatch(/^[a-f0-9]{16}$/);
     });
@@ -127,7 +127,7 @@ describe("context-collector", () => {
         saveFingerprint: () => { fingerprintSaved = true; },
       };
 
-      collectContext("/project", "/project/nexus-system", depsWithTracking);
+      collectContext("/project", "/project/shitenno-go", depsWithTracking);
       expect(fingerprintSaved).toBe(true);
     });
 
@@ -158,7 +158,7 @@ describe("context-collector", () => {
         },
       };
 
-      const snapshot = collectContext("/project", "/project/nexus-system", depsWithExisting);
+      const snapshot = collectContext("/project", "/project/shitenno-go", depsWithExisting);
       expect(snapshot.fingerprint.hash).toBe("existing123");
       expect(fingerprintGenerated).toBe(false);
     });

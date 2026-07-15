@@ -14,7 +14,7 @@ describe("loadTrace", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `nexus-trace-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shiten-trace-${Date.now()}`);
     mkdirSync(join(tmpDir, "telemetry"), { recursive: true });
   });
 

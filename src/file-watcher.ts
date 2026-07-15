@@ -1,7 +1,7 @@
 /**
  * file-watcher.ts — Governance Artifact Watcher
  *
- * Watches nexus-system/ for file changes and triggers automatic
+ * Watches shitenno-go/ for file changes and triggers automatic
  * context regeneration, knowledge graph rebuild, and briefing cache
  * invalidation.
  *
@@ -25,7 +25,7 @@ import { isSyncWriteInProgress } from "./sync-write-guard.js";
 export interface WatcherOptions {
   /** Debounce interval in ms (default: 500) */
   debounceMs?: number;
-  /** Additional paths to watch beyond nexus-system/ */
+  /** Additional paths to watch beyond shitenno-go/ */
   extraPaths?: string[];
   /** Enable doc sync on significant changes (default: true) */
   enableDocSync?: boolean;
@@ -35,8 +35,8 @@ export interface WatcherOptions {
 
 type ArtifactType = "adr" | "skill" | "workflow" | "rule" | "config" | "doc" | "unknown";
 
-function detectArtifactType(filePath: string, nexusDir: string): ArtifactType {
-  const relative = filePath.slice(nexusDir.length + 1);
+function detectArtifactType(filePath: string, shitenDir: string): ArtifactType {
+  const relative = filePath.slice(shitenDir.length + 1);
 
   if (relative.startsWith("docs/adrs/")) return "adr";
   if (relative.startsWith("docs/skills/")) return "skill";
@@ -58,7 +58,7 @@ const changeHistory = new ChangeHistoryTracker();
  * Returns a stop function to close the watcher.
  */
 export function startWatching(
-  nexusDir: string,
+  shitenDir: string,
   options: WatcherOptions = {}
 ): () => void {
   const { debounceMs = 500, enableDocSync = true } = options;
@@ -70,8 +70,8 @@ export function startWatching(
   // Watch specific subdirectories (chokidar v5 is slow scanning entire tree)
   // NOTE: reports/ excluded — generated output (doc-sync reports) should not trigger re-sync loops
   const watchPaths = [
-    join(nexusDir, "governance"),
-    join(nexusDir, "docs"),
+    join(shitenDir, "governance"),
+    join(shitenDir, "docs"),
     ...(options.extraPaths || []),
   ];
 
@@ -105,7 +105,7 @@ export function startWatching(
       filePath,
       setTimeout(() => {
         pendingEvents.delete(filePath);
-        handleFileChange(filePath, nexusDir, bus, enableDocSync);
+        handleFileChange(filePath, shitenDir, bus, enableDocSync);
       }, debounceMs)
     );
   });
@@ -114,7 +114,7 @@ export function startWatching(
     // Skip files without governance-relevant extensions
     if (!/\.(md|yaml|json|ts)$/.test(filePath)) return;
 
-    const artifactType = detectArtifactType(filePath, nexusDir);
+    const artifactType = detectArtifactType(filePath, shitenDir);
 
     if (artifactType === "adr") {
       bus.publish("adr.created", {
@@ -132,7 +132,7 @@ export function startWatching(
     }
 
     // Detect new plan files in governance/plans/
-    const relativePath = filePath.replace(nexusDir, "").replace(/^\//, "");
+    const relativePath = filePath.replace(shitenDir, "").replace(/^\//, "");
     const plansDir = join("governance", "plans");
     if (
       relativePath.startsWith(plansDir) &&
@@ -186,11 +186,11 @@ export function startWatching(
  */
 function handleFileChange(
   filePath: string,
-  nexusDir: string,
+  shitenDir: string,
   bus: ReturnType<typeof getEventBus>,
   enableDocSync: boolean
 ): void {
-  const artifactType = detectArtifactType(filePath, nexusDir);
+  const artifactType = detectArtifactType(filePath, shitenDir);
 
   // Record change for frequency tracking
   const frequency = changeHistory.recordChange(filePath);
@@ -208,7 +208,7 @@ function handleFileChange(
   // Calculate significance
   const significance: SignificanceResult = calculateSignificance(
     filePath,
-    nexusDir,
+    shitenDir,
     oldContent,
     newContent,
     frequency
@@ -255,7 +255,7 @@ function handleFileChange(
 
   // Doc sync trigger based on significance
   if (enableDocSync && significance.shouldSync) {
-    const relativePath = filePath.slice(nexusDir.length + 1);
+    const relativePath = filePath.slice(shitenDir.length + 1);
 
     if (significance.level === "high") {
       logger.info(
@@ -278,7 +278,7 @@ function handleFileChange(
   // Guard: if this change was caused by our own sync write, don't re-trigger
   if (isSyncWriteInProgress()) return;
 
-  const relativePath = filePath.slice(nexusDir.length + 1);
+  const relativePath = filePath.slice(shitenDir.length + 1);
   if (relativePath.startsWith("governance/plans/") && relativePath.endsWith(".md")) {
     const fileName = basename(filePath);
     if (fileName !== "TEMPLATE.md" && fileName !== "README.md" &&
@@ -312,7 +312,7 @@ function handleFileChange(
         const backlogStatus = statusMatch?.[1]?.trim().toLowerCase() ?? "planeado";
 
         syncBacklogToPlan(
-          nexusDir,
+          shitenDir,
           planId,
           backlogStatus
         );

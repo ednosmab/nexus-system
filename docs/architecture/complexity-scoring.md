@@ -4,7 +4,7 @@
 
 ## The Scoring Model
 
-Nexus computes complexity from two categories of metrics:
+Shiten computes complexity from two categories of metrics:
 
 ### Static Metrics (project structure)
 
@@ -82,7 +82,7 @@ The scoring engine is optimized for large projects:
 
 ## Report Output
 
-Reports are written to `nexus-system/reports/` as JSON:
+Reports are written to `shitenno-go/reports/` as JSON:
 
 ```json
 {

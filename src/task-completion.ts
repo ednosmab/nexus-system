@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 
 export interface CompletionGate {
   name: string;
@@ -17,7 +17,7 @@ export interface CompletionResult {
 
 export interface CompletionGateOptions {
   projectRoot: string;
-  nexusDir: string;
+  shitenDir: string;
   affectedFiles?: string[];
   taskId: string;
   /** Optional exec function override (for testing) */
@@ -32,9 +32,9 @@ export function validateCompletionGate(
 
   gates.push(checkTestPass(options.projectRoot, execFn));
   gates.push(checkLintPass(options.projectRoot, execFn));
-  gates.push(checkDocumentationUpdated(options.projectRoot, options.nexusDir, execFn, options.affectedFiles));
-  gates.push(checkBacklogUpdated(options.nexusDir, options.taskId));
-  gates.push(checkPlanStatus(options.nexusDir, options.taskId));
+  gates.push(checkDocumentationUpdated(options.projectRoot, options.shitenDir, execFn, options.affectedFiles));
+  gates.push(checkBacklogUpdated(options.shitenDir, options.taskId));
+  gates.push(checkPlanStatus(options.shitenDir, options.taskId));
 
   const allPassed = gates.every((g) => g.passed);
 
@@ -73,7 +73,7 @@ function checkLintPass(projectRoot: string, execFn: typeof execSync): Completion
 
 function checkDocumentationUpdated(
   projectRoot: string,
-  _nexusDir: string,
+  _shitenDir: string,
   execFn: typeof execSync,
   affectedFiles?: string[]
 ): CompletionGate {
@@ -145,10 +145,10 @@ function checkDocumentationUpdated(
   }
 }
 
-function checkBacklogUpdated(nexusDir: string, taskId: string): CompletionGate {
+function checkBacklogUpdated(shitenDir: string, taskId: string): CompletionGate {
   const backlogPaths = [
-    join(nexusDir, "docs", "BACKLOG.md"),
-    join(nexusDir, "..", NEXUS_DIR_NAME, "docs", "BACKLOG.md"),
+    join(shitenDir, "docs", "BACKLOG.md"),
+    join(shitenDir, "..", SHITEN_DIR_NAME, "docs", "BACKLOG.md"),
   ];
 
   for (const path of backlogPaths) {
@@ -181,8 +181,8 @@ function checkBacklogUpdated(nexusDir: string, taskId: string): CompletionGate {
   };
 }
 
-function checkPlanStatus(nexusDir: string, taskId: string): CompletionGate {
-  const plansDir = join(nexusDir, "governance", "plans");
+function checkPlanStatus(shitenDir: string, taskId: string): CompletionGate {
+  const plansDir = join(shitenDir, "governance", "plans");
   if (!existsSync(plansDir)) {
     return {
       name: "plan_status",
@@ -234,7 +234,7 @@ function checkPlanStatus(nexusDir: string, taskId: string): CompletionGate {
     return {
       name: "plan_status",
       passed: false,
-      message: `Plan ${matchingPlan} status is "${statusValue.trim()}" — run "nexus plan md done ${matchingPlan.replace(".md", "")}" to archive`,
+      message: `Plan ${matchingPlan} status is "${statusValue.trim()}" — run "shiten plan md done ${matchingPlan.replace(".md", "")}" to archive`,
     };
   } catch {
     return {

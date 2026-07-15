@@ -4,17 +4,17 @@ import { promisify } from "node:util";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem, type ScaffoldResult } from "../scaffolder.js";
+import { scaffoldShitennoGo, type ScaffoldResult } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
 
 const execAsync = promisify(exec);
 
 // Path to the built CLI
-const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/nexus.js");
+const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/shiten.js");
 
 // Helper to run CLI command
-async function runNexus(
+async function runShiten(
   args: string,
   cwd?: string
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
@@ -22,7 +22,7 @@ async function runNexus(
     const result = await execAsync(`node ${CLI_PATH} ${args}`, {
       cwd: cwd || process.cwd(),
       timeout: 60000,
-      env: { ...process.env, NEXUS_CHILD: "1" },
+      env: { ...process.env, SHITEN_CHILD: "1", SHITEN_QUIET: "1" },
     });
     return { stdout: result.stdout, stderr: result.stderr, exitCode: 0 };
   } catch (error: any) {
@@ -34,12 +34,12 @@ async function runNexus(
   }
 }
 
-// Helper to create a scaffolded nexus project
+// Helper to create a scaffolded shiten project
 function scaffoldTestProject(
   name: string,
   level: "junior" | "pleno" | "senior" = "junior"
 ): { dir: string; result: ScaffoldResult } {
-  const dir = join(tmpdir(), `nexus-e2e-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `shiten-e2e-${name}-${Date.now()}`);
   mkdirSync(dir, { recursive: true });
 
   // Create a basic package.json with "type": "module" for ESM plugin loading
@@ -66,9 +66,9 @@ function scaffoldTestProject(
   );
 
   const maturityByLevel: Record<string, object> = {
-    junior: { usedNexusBefore: false, isFirstProject: false, projectAge: "new", teamSize: "solo", hasDedicatedTeam: false, hasArchitectureDocs: false, hasADRs: false, hasTechnicalReviews: false, hasCICD: false, hasAutomatedTests: false, hasValidationPipeline: false, intendsToUseAI: false, aiWillImplement: false, requiresHumanReview: false, hasDefinedPatterns: false, hasReviewProcess: false, hasDecisionControl: false },
-    pleno: { usedNexusBefore: false, isFirstProject: false, projectAge: "established", teamSize: "small", hasDedicatedTeam: false, hasArchitectureDocs: false, hasADRs: false, hasTechnicalReviews: false, hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: false, intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true, hasDefinedPatterns: false, hasReviewProcess: false, hasDecisionControl: false },
-    senior: { usedNexusBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium", hasDedicatedTeam: true, hasArchitectureDocs: true, hasADRs: true, hasTechnicalReviews: true, hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: true, intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true, hasDefinedPatterns: true, hasReviewProcess: true, hasDecisionControl: true },
+    junior: { usedShitenBefore: false, isFirstProject: false, projectAge: "new", teamSize: "solo", hasDedicatedTeam: false, hasArchitectureDocs: false, hasADRs: false, hasTechnicalReviews: false, hasCICD: false, hasAutomatedTests: false, hasValidationPipeline: false, intendsToUseAI: false, aiWillImplement: false, requiresHumanReview: false, hasDefinedPatterns: false, hasReviewProcess: false, hasDecisionControl: false },
+    pleno: { usedShitenBefore: false, isFirstProject: false, projectAge: "established", teamSize: "small", hasDedicatedTeam: false, hasArchitectureDocs: false, hasADRs: false, hasTechnicalReviews: false, hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: false, intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true, hasDefinedPatterns: false, hasReviewProcess: false, hasDecisionControl: false },
+    senior: { usedShitenBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium", hasDedicatedTeam: true, hasArchitectureDocs: true, hasADRs: true, hasTechnicalReviews: true, hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: true, intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true, hasDefinedPatterns: true, hasReviewProcess: true, hasDecisionControl: true },
   };
 
   const capsByLevel: Record<string, Capability[]> = {
@@ -86,10 +86,10 @@ function scaffoldTestProject(
     maturity: maturityByLevel[level] as UserAnswers["maturity"],
   };
 
-  const result = scaffoldNexusSystem(dir, answers, capsByLevel[level]!);
+  const result = scaffoldShitennoGo(dir, answers, capsByLevel[level]!);
 
   // Create maturity-profile.json so lifecycle state reaches "assessed"
-  const maturityPath = join(dir, "nexus-system", "maturity-profile.json");
+  const maturityPath = join(dir, "shitenno-go", "maturity-profile.json");
   const dimScores = level === "senior" ? 85 : level === "pleno" ? 55 : 25;
   writeFileSync(
     maturityPath,
@@ -118,12 +118,12 @@ describe("CLI Integration Tests", () => {
   // ──────────────────────────────────────────────
   // --help and --version
   // ──────────────────────────────────────────────
-  describe("nexus --help", () => {
+  describe("shiten --help", () => {
     it("should show all registered commands", async () => {
-      const { stdout, exitCode } = await runNexus("--help");
+      const { stdout, exitCode } = await runShiten("--help");
 
       expect(exitCode).toBe(0);
-      expect(stdout).toContain("nexus");
+      expect(stdout).toContain("shiten");
       expect(stdout).toContain("init");
       expect(stdout).toContain("status");
       expect(stdout).toContain("detect");
@@ -134,7 +134,7 @@ describe("CLI Integration Tests", () => {
     });
 
     it("should show version", async () => {
-      const { stdout, exitCode } = await runNexus("--version");
+      const { stdout, exitCode } = await runShiten("--version");
 
       expect(exitCode).toBe(0);
       expect(stdout).toMatch(/\d+\.\d+\.\d+/);
@@ -142,9 +142,9 @@ describe("CLI Integration Tests", () => {
   });
 
   // ──────────────────────────────────────────────
-  // nexus init — edge cases (not interactive)
+  // shiten init — edge cases (not interactive)
   // ──────────────────────────────────────────────
-  describe("nexus init", () => {
+  describe("shiten init", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -153,31 +153,31 @@ describe("CLI Integration Tests", () => {
     });
 
     it("should detect existing initialization", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-init-already-${Date.now()}`);
+      const dir = join(tmpdir(), `shiten-e2e-init-already-${Date.now()}`);
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      mkdirSync(join(dir, "nexus-system"), { recursive: true });
+      mkdirSync(join(dir, "shitenno-go"), { recursive: true });
 
-      const { stdout } = await runNexus("init", dir);
+      const { stdout } = await runShiten("init", dir);
       expect(stdout).toContain("already initialized");
     });
 
-    it("should warn when running inside nexus-cli", async () => {
-      const { stdout } = await runNexus("init --dir /tmp/nexus-cli-testdir");
-      expect(stdout).toMatch(/nexus-system should be created|already initialized|Governance Setup/);
+    it("should warn when running inside shitenno-cli", async () => {
+      const { stdout } = await runShiten("init --dir /tmp/shitenno-cli-testdir");
+      expect(stdout).toMatch(/shitenno-go should be created|already initialized|Governance Setup/);
     });
 
-    it("should warn with --dir containing nexus-cli", async () => {
-      const { stdout } = await runNexus("init --dir /home/runner/work/nexus-cli/myproject");
-      expect(stdout).toContain("nexus-system should be created");
+    it("should warn with --dir containing shitenno-cli", async () => {
+      const { stdout } = await runShiten("init --dir /home/runner/work/shitenno-cli/myproject");
+      expect(stdout).toContain("shitenno-go should be created");
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus status
+  // shiten status
   // ──────────────────────────────────────────────
-  describe("nexus status", () => {
+  describe("shiten status", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -185,21 +185,21 @@ describe("CLI Integration Tests", () => {
       dirs.length = 0;
     });
 
-    it("should show 'not initialized' for non-nexus directory", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-status-empty-${Date.now()}`);
+    it("should show 'not initialized' for non-shiten directory", async () => {
+      const dir = join(tmpdir(), `shiten-e2e-status-empty-${Date.now()}`);
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      const { stdout } = await runNexus("status", dir);
+      const { stdout } = await runShiten("status", dir);
       expect(stdout).toContain("not initialized");
     });
 
-    it("should treat nexus-system/ alone as initialized", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-status-partial-${Date.now()}`);
-      mkdirSync(join(dir, "nexus-system"), { recursive: true });
+    it("should treat shitenno-go/ alone as initialized", async () => {
+      const dir = join(tmpdir(), `shiten-e2e-status-partial-${Date.now()}`);
+      mkdirSync(join(dir, "shitenno-go"), { recursive: true });
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("status", dir);
+      const { stdout, exitCode } = await runShiten("status", dir);
       expect(exitCode).toBe(0);
       expect(stdout).not.toContain("not initialized");
     });
@@ -208,7 +208,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("status-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("status", dir);
+      const { stdout, exitCode } = await runShiten("status", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Health Check");
       expect(stdout).toContain("Project root");
@@ -220,7 +220,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("status-complexity", "senior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("status", dir);
+      const { stdout } = await runShiten("status", dir);
       expect(stdout).toContain("Score Breakdown");
       expect(stdout).toContain("Total score");
     });
@@ -229,15 +229,15 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("status-report", "senior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("status", dir);
+      const { stdout } = await runShiten("status", dir);
       expect(stdout).toContain("Report saved");
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus detect
+  // shiten detect
   // ──────────────────────────────────────────────
-  describe("nexus detect", () => {
+  describe("shiten detect", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -245,12 +245,12 @@ describe("CLI Integration Tests", () => {
       dirs.length = 0;
     });
 
-    it("should show 'not initialized' for non-nexus directory", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-detect-empty-${Date.now()}`);
+    it("should show 'not initialized' for non-shiten directory", async () => {
+      const dir = join(tmpdir(), `shiten-e2e-detect-empty-${Date.now()}`);
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      const { stdout } = await runNexus("detect", dir);
+      const { stdout } = await runShiten("detect", dir);
       expect(stdout).toContain("not initialized");
     });
 
@@ -258,7 +258,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("detect-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("detect", dir);
+      const { stdout, exitCode } = await runShiten("detect", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Pattern Detection");
       expect(stdout).toContain("Detection Results");
@@ -270,7 +270,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("detect-fresh", "junior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("detect", dir);
+      const { stdout } = await runShiten("detect", dir);
       expect(stdout).toContain("No significant patterns detected");
     });
 
@@ -278,15 +278,15 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("detect-report", "junior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("detect", dir);
+      const { stdout } = await runShiten("detect", dir);
       expect(stdout).toMatch(/Report saved|No significant patterns detected/);
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus audit
+  // shiten audit
   // ──────────────────────────────────────────────
-  describe("nexus audit", () => {
+  describe("shiten audit", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -294,12 +294,12 @@ describe("CLI Integration Tests", () => {
       dirs.length = 0;
     });
 
-    it("should show 'not initialized' for non-nexus directory", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-audit-empty-${Date.now()}`);
+    it("should show 'not initialized' for non-shiten directory", async () => {
+      const dir = join(tmpdir(), `shiten-e2e-audit-empty-${Date.now()}`);
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      const { stdout } = await runNexus("audit", dir);
+      const { stdout } = await runShiten("audit", dir);
       expect(stdout).toContain("not initialized");
     });
 
@@ -307,7 +307,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("audit-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("audit", dir);
+      const { stdout, exitCode } = await runShiten("audit", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Health Audit");
       expect(stdout).toContain("Health Audit Results");
@@ -318,7 +318,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("audit-score", "junior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("audit", dir);
+      const { stdout } = await runShiten("audit", dir);
       expect(stdout).toMatch(/\d+\/100/);
     });
 
@@ -326,7 +326,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("audit-counts", "pleno");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("audit", dir);
+      const { stdout } = await runShiten("audit", dir);
       expect(stdout).toContain("Rules:");
       expect(stdout).toContain("History entries:");
       expect(stdout).toContain("Issues found:");
@@ -336,15 +336,15 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("audit-report", "senior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("audit", dir);
+      const { stdout } = await runShiten("audit", dir);
       expect(stdout).toMatch(/Report saved/);
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus upgrade
+  // shiten upgrade
   // ──────────────────────────────────────────────
-  describe("nexus upgrade", () => {
+  describe("shiten upgrade", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -356,7 +356,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("upgrade-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("upgrade --list", dir);
+      const { stdout, exitCode } = await runShiten("upgrade --list", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Capabilities Status");
     });
@@ -365,7 +365,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("upgrade-level", "junior");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("upgrade --list", dir);
+      const { stdout } = await runShiten("upgrade --list", dir);
       expect(stdout).toContain("Core");
       expect(stdout).toContain("Knowledge");
     });
@@ -374,15 +374,15 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("upgrade-pleno", "pleno");
       dirs.push(dir);
 
-      const { stdout } = await runNexus("upgrade --list", dir);
+      const { stdout } = await runShiten("upgrade --list", dir);
       expect(stdout).toContain("Governance");
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus validate
+  // shiten validate
   // ──────────────────────────────────────────────
-  describe("nexus validate", () => {
+  describe("shiten validate", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -394,16 +394,16 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("validate-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("validate", dir);
+      const { stdout, exitCode } = await runShiten("validate", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Validation");
     });
   });
 
   // ──────────────────────────────────────────────
-  // nexus run
+  // shiten run
   // ──────────────────────────────────────────────
-  describe("nexus run", () => {
+  describe("shiten run", () => {
     const dirs: string[] = [];
 
     afterEach(() => {
@@ -415,7 +415,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("run-junior", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("run", dir);
+      const { stdout, exitCode } = await runShiten("run", dir);
       expect(exitCode).toBe(0);
       expect(stdout).toContain("Full Analysis");
       expect(stdout).toContain("Pipeline Results");
@@ -429,7 +429,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("run-json", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("run --json", dir);
+      const { stdout, exitCode } = await runShiten("run --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("projectRoot");
@@ -456,7 +456,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("json-status", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("status --json", dir);
+      const { stdout, exitCode } = await runShiten("status --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("projectRoot");
@@ -467,11 +467,11 @@ describe("CLI Integration Tests", () => {
     });
 
     it("should output valid JSON on status --json when not initialized", async () => {
-      const dir = join(tmpdir(), `nexus-e2e-json-status-empty-${Date.now()}`);
+      const dir = join(tmpdir(), `shiten-e2e-json-status-empty-${Date.now()}`);
       mkdirSync(dir, { recursive: true });
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("status --json", dir);
+      const { stdout, exitCode } = await runShiten("status --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("error");
@@ -482,7 +482,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("json-detect", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("detect --json", dir);
+      const { stdout, exitCode } = await runShiten("detect --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("projectRoot");
@@ -495,7 +495,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("json-audit", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("audit --json", dir);
+      const { stdout, exitCode } = await runShiten("audit --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("projectRoot");
@@ -509,7 +509,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("json-validate", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("validate --json", dir);
+      const { stdout, exitCode } = await runShiten("validate --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("results");
@@ -525,13 +525,13 @@ describe("CLI Integration Tests", () => {
   // ──────────────────────────────────────────────
   describe("Error handling", () => {
     it("should handle invalid command gracefully", async () => {
-      const { stdout, stderr, exitCode } = await runNexus("invalid-command");
+      const { stdout, stderr, exitCode } = await runShiten("invalid-command");
       expect(exitCode).not.toBe(0);
       expect(stdout + stderr).toMatch(/unknown command|error/i);
     });
 
     it("should handle missing directory gracefully", async () => {
-      const { stdout } = await runNexus("status -d /nonexistent/path-12345");
+      const { stdout } = await runShiten("status -d /nonexistent/path-12345");
       expect(stdout).toMatch(/not found|not initialized|Warning|opencode.json not found/);
     });
   });
@@ -551,7 +551,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("event-status", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("status --json", dir);
+      const { stdout, exitCode } = await runShiten("status --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("projectRoot");
@@ -561,7 +561,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("event-detect", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("detect --json", dir);
+      const { stdout, exitCode } = await runShiten("detect --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("patterns");
@@ -571,7 +571,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("event-audit", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("audit --json", dir);
+      const { stdout, exitCode } = await runShiten("audit --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("healthScore");
@@ -593,7 +593,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("pipeline-5stage", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("run --json", dir);
+      const { stdout, exitCode } = await runShiten("run --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json.stages).toHaveLength(5);
@@ -606,7 +606,7 @@ describe("CLI Integration Tests", () => {
       const { dir } = scaffoldTestProject("pipeline-evolve", "junior");
       dirs.push(dir);
 
-      const { stdout, exitCode } = await runNexus("run --json", dir);
+      const { stdout, exitCode } = await runShiten("run --json", dir);
       expect(exitCode).toBe(0);
       const json = JSON.parse(stdout);
       expect(json).toHaveProperty("evolution");
@@ -640,7 +640,7 @@ describe("CLI Integration Tests", () => {
           database: "PostgreSQL",
           styling: "Tailwind CSS",
           maturity: {
-            usedNexusBefore: false,
+            usedShitenBefore: false,
             isFirstProject: false,
             projectAge: "new",
             teamSize: "solo",
@@ -661,7 +661,7 @@ describe("CLI Integration Tests", () => {
         })
       );
 
-      const { stdout, exitCode } = await runNexus(
+      const { stdout, exitCode } = await runShiten(
         `assess --dir "${dir}" --answers-file "${personaPath}"`,
         dir
       );
@@ -675,7 +675,7 @@ describe("CLI Integration Tests", () => {
 
       // Run assess without --answers-file in a non-interactive context
       // The CLI should detect non-TTY and fail fast
-      const { stdout, exitCode } = await runNexus(
+      const { stdout, exitCode } = await runShiten(
         `assess --dir "${dir}"`,
         dir
       );

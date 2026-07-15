@@ -212,7 +212,7 @@ export function updateOpenCodeJsonTimeout(
   if (!existsSync(opencodePath)) {
     return {
       changed: false,
-      error: "opencode.json not found. Run 'nexus init' first.",
+      error: "opencode.json not found. Run 'shiten init' first.",
     };
   }
 
@@ -227,7 +227,7 @@ export function updateOpenCodeJsonTimeout(
         changed: false,
         error:
           "MCP local-filesystem not found in opencode.json. " +
-          "Add it manually or use this project with Nexus.",
+          "Add it manually or use this project with Shiten.",
       };
     }
 

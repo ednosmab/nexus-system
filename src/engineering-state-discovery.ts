@@ -3,12 +3,12 @@ import { join } from "node:path";
 import { logger } from "./logger.js";
 import type { EngineeringAsset } from "./domain/entities/engineering-state.js";
 
-export function discoverAssets(nexusDir: string): EngineeringAsset[] {
+export function discoverAssets(shitenDir: string): EngineeringAsset[] {
   const assets: EngineeringAsset[] = [];
   const now = new Date().toISOString();
 
   // ADRs
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
   if (existsSync(adrDir)) {
     const files = readdirSync(adrDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("ADR-TEMPLATE")
@@ -34,7 +34,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Skills
-  const skillsDir = join(nexusDir, "docs", "skills");
+  const skillsDir = join(shitenDir, "docs", "skills");
   if (existsSync(skillsDir)) {
     const files = readdirSync(skillsDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -55,7 +55,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Contracts (AI agent contracts)
-  const contractsDir = join(nexusDir, "governance", "agents");
+  const contractsDir = join(shitenDir, "governance", "agents");
   if (existsSync(contractsDir)) {
     const files = readdirSync(contractsDir).filter(
       (f) => f.endsWith(".yaml") || f.endsWith(".yml")
@@ -78,7 +78,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Policies (from rules directory)
-  const rulesDir = join(nexusDir, "governance", "rules");
+  const rulesDir = join(shitenDir, "governance", "rules");
   if (existsSync(rulesDir)) {
     const files = readdirSync(rulesDir).filter(
       (f) => f.endsWith(".json") && !f.startsWith("_")
@@ -106,7 +106,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Workflows
-  const workflowPath = join(nexusDir, "governance", "WORKFLOW.md");
+  const workflowPath = join(shitenDir, "governance", "WORKFLOW.md");
   if (existsSync(workflowPath)) {
     assets.push({
       id: "workflow-main",
@@ -124,7 +124,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Runbooks
-  const runbooksDir = join(nexusDir, "docs", "runbooks");
+  const runbooksDir = join(shitenDir, "docs", "runbooks");
   if (existsSync(runbooksDir)) {
     const files = readdirSync(runbooksDir).filter((f) => f.endsWith(".md"));
     for (const file of files) {
@@ -145,7 +145,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Plans (markdown execution plans)
-  const plansDir = join(nexusDir, "governance", "plans");
+  const plansDir = join(shitenDir, "governance", "plans");
   if (existsSync(plansDir)) {
     const files = readdirSync(plansDir).filter(
       (f) => f.endsWith(".md") && !f.startsWith("TEMPLATE")
@@ -168,7 +168,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Scripts
-  const scriptsDir = join(nexusDir, "scripts");
+  const scriptsDir = join(shitenDir, "scripts");
   if (existsSync(scriptsDir)) {
     const files = readdirSync(scriptsDir).filter(
       (f) => f.endsWith(".ts") || f.endsWith(".js")
@@ -191,7 +191,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Governance docs
-  const docsDir = join(nexusDir, "docs");
+  const docsDir = join(shitenDir, "docs");
   if (existsSync(docsDir)) {
     const governanceDocNames = [
       "AGENTS.md", "FORBIDDEN_OPERATIONS.md", "DESDO.md",
@@ -219,7 +219,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Templates
-  const templatesDir = join(nexusDir, "templates");
+  const templatesDir = join(shitenDir, "templates");
   if (existsSync(templatesDir)) {
     const files = readdirSync(templatesDir).filter(
       (f) => f.endsWith(".md") || f.endsWith(".yaml") || f.endsWith(".yml")
@@ -242,7 +242,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Reports
-  const reportsDir = join(nexusDir, "reports");
+  const reportsDir = join(shitenDir, "reports");
   if (existsSync(reportsDir)) {
     const files = readdirSync(reportsDir).filter((f) => f.endsWith(".json"));
     for (const file of files) {
@@ -263,7 +263,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Context (session state)
-  const contextBuffer = join(nexusDir, "governance", "context", "context_buffer.yaml");
+  const contextBuffer = join(shitenDir, "governance", "context", "context_buffer.yaml");
   if (existsSync(contextBuffer)) {
     assets.push({
       id: "context-session",
@@ -281,7 +281,7 @@ export function discoverAssets(nexusDir: string): EngineeringAsset[] {
   }
 
   // Prompts
-  const cognitionDir = join(nexusDir, "cognition", "prompts");
+  const cognitionDir = join(shitenDir, "cognition", "prompts");
   if (existsSync(cognitionDir)) {
     const subDirs = readdirSync(cognitionDir, { withFileTypes: true }).filter((d) => d.isDirectory());
     for (const subDir of subDirs) {

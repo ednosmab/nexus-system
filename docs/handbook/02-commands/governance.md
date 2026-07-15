@@ -4,21 +4,21 @@ Comandos para gerenciar metas, decisões e políticas.
 
 ---
 
-## `nexus goal`
+## `shiten goal`
 
 Gerencie metas de governança.
 
 ```bash
-nexus goal <subcommand> [options]
+shiten goal <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus goal create` | Criar nova meta |
-| `nexus goal list` | Listar todas as metas |
-| `nexus goal show <id>` | Mostrar detalhes da meta |
+| `shiten goal create` | Criar nova meta |
+| `shiten goal list` | Listar todas as metas |
+| `shiten goal show <id>` | Mostrar detalhes da meta |
 
 ### Opções
 
@@ -30,19 +30,19 @@ nexus goal <subcommand> [options]
 ### Exemplos
 
 ```bash
-nexus goal create --title 'Improve tests' --priority high
-nexus goal list            # Listar metas
-nexus goal show goal-001   # Detalhes da meta
+shiten goal create --title 'Improve tests' --priority high
+shiten goal list            # Listar metas
+shiten goal show goal-001   # Detalhes da meta
 ```
 
 ---
 
-## `nexus decide`
+## `shiten decide`
 
 Avalie ações propostas usando avaliadores especializados.
 
 ```bash
-nexus decide <action> [options]
+shiten decide <action> [options]
 ```
 
 ### Opções
@@ -54,9 +54,9 @@ nexus decide <action> [options]
 ### Exemplos
 
 ```bash
-nexus decide "upgrade auth to OAuth2"
-nexus decide "add rate limiting" --category security
-nexus decide list          # Listar todas as decisões
+shiten decide "upgrade auth to OAuth2"
+shiten decide "add rate limiting" --category security
+shiten decide list          # Listar todas as decisões
 ```
 
 ### Dicas
@@ -65,24 +65,24 @@ nexus decide list          # Listar todas as decisões
 
 ---
 
-## `nexus policy`
+## `shiten policy`
 
 Gerencie e avalie políticas de governança declarativas.
 
 ```bash
-nexus policy <subcommand> [options]
+shiten policy <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `nexus policy list` | Listar todas as políticas |
-| `nexus policy evaluate` | Avaliar estado atual contra políticas |
+| `shiten policy list` | Listar todas as políticas |
+| `shiten policy evaluate` | Avaliar estado atual contra políticas |
 
 ### Exemplos
 
 ```bash
-nexus policy list          # Listar políticas
-nexus policy evaluate      # Avaliar políticas
+shiten policy list          # Listar políticas
+shiten policy evaluate      # Avaliar políticas
 ```

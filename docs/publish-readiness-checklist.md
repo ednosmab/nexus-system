@@ -12,10 +12,10 @@
 - [ ] **`package.json` → `"private": false`** — só aplicar quando decidir publicar
 - [ ] **`"files"` no `package.json`** lista só o necessário:
   - `dist/` (output do build)
-  - `bin/nexus.ts` → apontar para `dist/nexus.js` (usuário final não tem `tsx`)
-  - NÃO incluir: `plans/`, `nexus-system/` de teste, `src/`, `docs/` internos
-- [ ] **`"bin"` aponta para `dist/nexus.js`** já buildado
-- [ ] **`"main"` e `"exports"` apontam para `dist/nexus.js`**
+  - `bin/shiten.ts` → apontar para `dist/shiten.js` (usuário final não tem `tsx`)
+  - NÃO incluir: `plans/`, `shitenno-go/` de teste, `src/`, `docs/` internos
+- [ ] **`"bin"` aponta para `dist/shiten.js`** já buildado
+- [ ] **`"main"` e `"exports"` apontam para `dist/shiten.js`**
 
 ## Validação antes do primeiro publish
 
@@ -23,16 +23,16 @@
 - [ ] `npm pack --dry-run` mostra um tarball limpo:
   - Sem arquivos de desenvolvimento/teste
   - Sem `plans/`, `src/`, `docs/` internos
-  - Com `dist/templates/` (necessário para `nexus init`)
-- [ ] `node dist/nexus.js --help` funciona (sem `tsx`)
-- [ ] `node dist/nexus.js --version` mostra a versão correcta
-- [ ] `npx nexus-system --help` funciona (teste de instalação global)
+  - Com `dist/templates/` (necessário para `shiten init`)
+- [ ] `node dist/shiten.js --help` funciona (sem `tsx`)
+- [ ] `node dist/shiten.js --version` mostra a versão correcta
+- [ ] `npx shitenno-go --help` funciona (teste de instalação global)
 
 ## Pós-publish
 
-- [ ] Verificar em `npmjs.com/package/nexus-system`
-- [ ] Testar `npm install -g nexus-system` numa máquina limpa
-- [ ] Testar `nexus init` numa pasta limpa
+- [ ] Verificar em `npmjs.com/package/shitenno-go`
+- [ ] Testar `npm install -g shitenno-go` numa máquina limpa
+- [ ] Testar `shiten init` numa pasta limpa
 - [ ] Verificar que `dist/templates/` está incluído no tarball
 - [ ] Actualizar README.md com instruções de instalação
 

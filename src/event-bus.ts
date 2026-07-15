@@ -1,7 +1,7 @@
 /**
  * event-bus.ts — Pub/Sub System for Module Communication
  *
- * Enables decoupled communication between Nexus modules.
+ * Enables decoupled communication between Shiten modules.
  * Modules publish events; other modules subscribe and react.
  * Optional persistence to disk for performance reporting.
  *
@@ -16,7 +16,7 @@ import { DeadLetterQueue, createVersionedEvent } from "./advanced-infrastructure
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type NexusEventType =
+export type ShitenEventType =
   | "session.start"
   | "session.end"
   | "analysis.complete"
@@ -67,7 +67,7 @@ export type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;
 
 /** Envelope wrapping a typed payload with metadata. */
 export interface EventEnvelope<T = unknown> {
-  type: NexusEventType;
+  type: ShitenEventType;
   payload: T;
   timestamp: string;
   traceId: TraceId;
@@ -79,34 +79,34 @@ export interface EventBus {
    * Publish an event. Payload accepts any shape for backward compatibility.
    * New code should use createEventPayload() from event-payloads.ts for type safety.
    */
-  publish<T extends NexusEventType>(
+  publish<T extends ShitenEventType>(
     eventType: T,
     payload: Record<string, unknown>,
     options?: { correlationId?: CorrelationId; traceId?: TraceId }
   ): void;
   /** Subscribe to an event. Handler receives the raw payload. */
   subscribe(
-    eventType: NexusEventType,
+    eventType: ShitenEventType,
     handler: EventHandler<Record<string, unknown>>
   ): () => void;
-  subscribeOnce(eventType: NexusEventType, handler: EventHandler<Record<string, unknown>>): () => void;
-  removeAllListeners(eventType?: NexusEventType): void;
-  listenerCount(eventType: NexusEventType): number;
+  subscribeOnce(eventType: ShitenEventType, handler: EventHandler<Record<string, unknown>>): () => void;
+  removeAllListeners(eventType?: ShitenEventType): void;
+  listenerCount(eventType: ShitenEventType): number;
   getHistory(): EventEnvelope[];
-  enablePersistence(nexusDir: string): void;
-  enableDeadLetterQueue(nexusDir: string): void;
+  enablePersistence(shitenDir: string): void;
+  enableDeadLetterQueue(shitenDir: string): void;
 }
 
 // ── Implementation ───────────────────────────────────────────────────────────
 
-class NexusEventBus implements EventBus {
+class ShitenEventBus implements EventBus {
   private listeners = new Map<string, Set<EventHandler>>();
   private eventHistory: EventEnvelope[] = [];
   private static readonly MAX_HISTORY = 1000;
   private persistenceDir: string | null = null;
   private deadLetterQueue: DeadLetterQueue | null = null;
 
-  publish<T extends NexusEventType>(
+  publish<T extends ShitenEventType>(
     eventType: T,
     payload: Record<string, unknown>,
     options?: { correlationId?: CorrelationId; traceId?: TraceId }
@@ -121,8 +121,8 @@ class NexusEventBus implements EventBus {
 
     this.eventHistory.push(envelope);
 
-    if (this.eventHistory.length > NexusEventBus.MAX_HISTORY) {
-      this.eventHistory = this.eventHistory.slice(-NexusEventBus.MAX_HISTORY);
+    if (this.eventHistory.length > ShitenEventBus.MAX_HISTORY) {
+      this.eventHistory = this.eventHistory.slice(-ShitenEventBus.MAX_HISTORY);
     }
 
     // Persist to disk if enabled
@@ -158,16 +158,16 @@ class NexusEventBus implements EventBus {
   }
 
   /** Enable persistence to disk. Events are written to JSONL files by date. */
-  enablePersistence(nexusDir: string): void {
-    const telemetryDir = join(nexusDir, "telemetry");
+  enablePersistence(shitenDir: string): void {
+    const telemetryDir = join(shitenDir, "telemetry");
     if (!existsSync(telemetryDir)) {
       mkdirSync(telemetryDir, { recursive: true });
     }
     this.persistenceDir = telemetryDir;
   }
 
-  enableDeadLetterQueue(nexusDir: string): void {
-    this.deadLetterQueue = new DeadLetterQueue(nexusDir);
+  enableDeadLetterQueue(shitenDir: string): void {
+    this.deadLetterQueue = new DeadLetterQueue(shitenDir);
   }
 
   private persistEvent(entry: EventEnvelope): void {
@@ -182,7 +182,7 @@ class NexusEventBus implements EventBus {
   }
 
   subscribe(
-    eventType: NexusEventType,
+    eventType: ShitenEventType,
     handler: EventHandler<Record<string, unknown>>
   ): () => void {
     if (!this.listeners.has(eventType)) {
@@ -196,7 +196,7 @@ class NexusEventBus implements EventBus {
     };
   }
 
-  subscribeOnce<T>(eventType: NexusEventType, handler: EventHandler<T>): () => void {
+  subscribeOnce<T>(eventType: ShitenEventType, handler: EventHandler<T>): () => void {
     const wrapper = ((payload: T) => {
       this.unsubscribe(eventType, wrapper);
       handler(payload);
@@ -205,7 +205,7 @@ class NexusEventBus implements EventBus {
     return this.subscribe(eventType, wrapper);
   }
 
-  removeAllListeners(eventType?: NexusEventType): void {
+  removeAllListeners(eventType?: ShitenEventType): void {
     if (eventType) {
       this.listeners.delete(eventType);
     } else {
@@ -213,7 +213,7 @@ class NexusEventBus implements EventBus {
     }
   }
 
-  listenerCount(eventType: NexusEventType): number {
+  listenerCount(eventType: ShitenEventType): number {
     return this.listeners.get(eventType)?.size ?? 0;
   }
 
@@ -221,7 +221,7 @@ class NexusEventBus implements EventBus {
     return [...this.eventHistory];
   }
 
-  private unsubscribe(eventType: NexusEventType, handler: EventHandler): void {
+  private unsubscribe(eventType: ShitenEventType, handler: EventHandler): void {
     this.listeners.get(eventType)?.delete(handler);
   }
 }
@@ -233,7 +233,7 @@ let globalBus: EventBus | null = null;
 /** Get the global event bus instance. */
 export function getEventBus(): EventBus {
   if (!globalBus) {
-    globalBus = new NexusEventBus();
+    globalBus = new ShitenEventBus();
   }
   return globalBus;
 }
@@ -244,16 +244,16 @@ export function resetEventBus(): void {
 }
 
 /** Enable event persistence to disk for performance reporting. */
-export function enableEventPersistence(nexusDir: string): void {
-  getEventBus().enablePersistence(nexusDir);
+export function enableEventPersistence(shitenDir: string): void {
+  getEventBus().enablePersistence(shitenDir);
 }
 
 /** Read persisted events from a specific date. */
 export function readPersistedEvents(
-  nexusDir: string,
+  shitenDir: string,
   date: string
 ): EventEnvelope[] {
-  const telemetryDir = join(nexusDir, "telemetry");
+  const telemetryDir = join(shitenDir, "telemetry");
   const filePath = join(telemetryDir, `events-${date}.jsonl`);
 
   if (!existsSync(filePath)) return [];

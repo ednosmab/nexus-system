@@ -3,10 +3,10 @@ import { join } from "node:path";
 import { logger } from "../logger.js";
 import type { KnowledgeGap } from "./types.js";
 
-export function detectMissingAdrs(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingAdrs(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const adrDir = join(nexusDir, "docs", "adrs");
-  const historyDir = join(nexusDir, "docs", "history");
+  const adrDir = join(shitenDir, "docs", "adrs");
+  const historyDir = join(shitenDir, "docs", "history");
 
   if (!existsSync(historyDir)) return gaps;
 
@@ -37,10 +37,10 @@ export function detectMissingAdrs(nexusDir: string, now: string): KnowledgeGap[]
   return gaps;
 }
 
-export function detectMissingRunbooks(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingRunbooks(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const runbooksDir = join(nexusDir, "docs", "runbooks");
-  const historyDir = join(nexusDir, "docs", "history");
+  const runbooksDir = join(shitenDir, "docs", "runbooks");
+  const historyDir = join(shitenDir, "docs", "history");
 
   if (!existsSync(historyDir)) return gaps;
 
@@ -87,10 +87,10 @@ export function detectMissingRunbooks(nexusDir: string, now: string): KnowledgeG
   return gaps;
 }
 
-export function detectMissingSkills(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingSkills(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const skillsDir = join(nexusDir, "docs", "skills");
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const skillsDir = join(shitenDir, "docs", "skills");
+  const adrDir = join(shitenDir, "docs", "adrs");
 
   const skillCount = existsSync(skillsDir)
     ? readdirSync(skillsDir).filter((f) => f.endsWith(".md")).length
@@ -119,7 +119,7 @@ export function detectMissingSkills(nexusDir: string, now: string): KnowledgeGap
   return gaps;
 }
 
-export function detectMissingDocs(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingDocs(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
   const expectedDocs = [
     { path: "docs/CONCEPTUAL_MODEL.md", critical: true },
@@ -129,13 +129,13 @@ export function detectMissingDocs(nexusDir: string, now: string): KnowledgeGap[]
   ];
 
   for (const doc of expectedDocs) {
-    if (!existsSync(join(nexusDir, doc.path))) {
+    if (!existsSync(join(shitenDir, doc.path))) {
       gaps.push({
         id: `DEBT-DOC-${doc.path.replace(/[^a-zA-Z]/g, "").slice(0, 6).toUpperCase()}`,
         type: "docs_missing",
         severity: doc.critical ? "high" : "low",
         description: `Expected document "${doc.path}" not found`,
-        location: `nexus-system/${doc.path}`,
+        location: `shitenno-go/${doc.path}`,
         expectedArtifact: doc.path,
         recommendation: `Create "${doc.path}" — ${doc.critical ? "critical" : "recommended"}`,
         detectedAt: now,
@@ -147,9 +147,9 @@ export function detectMissingDocs(nexusDir: string, now: string): KnowledgeGap[]
   return gaps;
 }
 
-export function detectMissingAutomation(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingAutomation(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const scriptsDir = join(nexusDir, "scripts");
+  const scriptsDir = join(shitenDir, "scripts");
 
   const scriptCount = existsSync(scriptsDir)
     ? readdirSync(scriptsDir).filter(
@@ -163,7 +163,7 @@ export function detectMissingAutomation(nexusDir: string, now: string): Knowledg
       type: "automation_missing",
       severity: "low",
       description: `Only ${scriptCount} automation script(s) — many processes may still be manual`,
-      location: "nexus-system/scripts/",
+      location: "shitenno-go/scripts/",
       expectedArtifact: "Scripts for common operations",
       recommendation: "Identify repetitive processes and create automation scripts",
       detectedAt: now,
@@ -174,10 +174,10 @@ export function detectMissingAutomation(nexusDir: string, now: string): Knowledg
   return gaps;
 }
 
-export function detectMissingContracts(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingContracts(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const agentsDir = join(nexusDir, "governance", "agents");
-  const configPath = join(nexusDir, "..", "opencode.json");
+  const agentsDir = join(shitenDir, "governance", "agents");
+  const configPath = join(shitenDir, "..", "opencode.json");
 
   if (!existsSync(configPath)) return gaps;
 
@@ -197,7 +197,7 @@ export function detectMissingContracts(nexusDir: string, now: string): Knowledge
         type: "contract_missing",
         severity: "medium",
         description: `${agentCount} agent(s) configured but no contracts — agent behavior undefined`,
-        location: "nexus-system/governance/agents/",
+        location: "shitenno-go/governance/agents/",
         expectedArtifact: "AI contract for each agent role",
         recommendation: "Create AI contracts defining responsibilities and constraints for each agent",
         detectedAt: now,
@@ -211,9 +211,9 @@ export function detectMissingContracts(nexusDir: string, now: string): Knowledge
   return gaps;
 }
 
-export function detectMissingWorkflows(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectMissingWorkflows(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const workflowPath = join(nexusDir, "governance", "WORKFLOW.md");
+  const workflowPath = join(shitenDir, "governance", "WORKFLOW.md");
 
   if (!existsSync(workflowPath)) {
     gaps.push({
@@ -221,7 +221,7 @@ export function detectMissingWorkflows(nexusDir: string, now: string): Knowledge
       type: "workflow_missing",
       severity: "high",
       description: "No WORKFLOW.md found — session flow undefined",
-      location: "nexus-system/governance/WORKFLOW.md",
+      location: "shitenno-go/governance/WORKFLOW.md",
       expectedArtifact: "WORKFLOW.md defining session flow",
       recommendation: "Create WORKFLOW.md defining standard session procedures",
       detectedAt: now,
@@ -232,9 +232,9 @@ export function detectMissingWorkflows(nexusDir: string, now: string): Knowledge
   return gaps;
 }
 
-export function detectStaleAdrs(nexusDir: string, now: string): KnowledgeGap[] {
+export function detectStaleAdrs(shitenDir: string, now: string): KnowledgeGap[] {
   const gaps: KnowledgeGap[] = [];
-  const adrDir = join(nexusDir, "docs", "adrs");
+  const adrDir = join(shitenDir, "docs", "adrs");
 
   if (!existsSync(adrDir)) return gaps;
 

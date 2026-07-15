@@ -7,7 +7,7 @@
 
 // ── Asset Types ─────────────────────────────────────────────────────────────
 
-/** Engineering Asset types — the fundamental units Nexus organizes. */
+/** Engineering Asset types — the fundamental units Shiten organizes. */
 export type AssetType =
   | "adr"
   | "skill"
@@ -47,7 +47,7 @@ export interface EngineeringAsset {
 
 // ── Lifecycle State ─────────────────────────────────────────────────────────
 
-export type NexusLifecycleState =
+export type ShitenLifecycleState =
   | "uninitialized"
   | "discovered"
   | "assessed"
@@ -55,8 +55,8 @@ export type NexusLifecycleState =
   | "evolved";
 
 export interface StateTransition {
-  from: NexusLifecycleState;
-  to: NexusLifecycleState;
+  from: ShitenLifecycleState;
+  to: ShitenLifecycleState;
   trigger: string;
   timestamp: string;
 }
@@ -74,7 +74,7 @@ export interface MaturityDimensions {
   observability: number;
 }
 
-/** Capacidades que o Nexus pode instalar. */
+/** Capacidades que o Shiten pode instalar. */
 export type Capability =
   | "core"
   | "knowledge"
@@ -198,7 +198,7 @@ export interface DynamicRule {
 
 export interface EngineeringState {
   consolidatedAt: string;
-  lifecycle: NexusLifecycleState;
+  lifecycle: ShitenLifecycleState;
   project: {
     name: string;
     root: string;

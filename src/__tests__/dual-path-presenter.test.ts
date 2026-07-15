@@ -11,11 +11,11 @@ import { loadGrowthProfile, } from "../growth-profile.js";
 import type { EvolutionRecommendation } from "../auto-evolution.js";
 
 let tempDir: string;
-let nexusDir: string;
+let shitenDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-presenter-"));
-  nexusDir = join(tempDir, "nexus-system");
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-presenter-"));
+  shitenDir = join(tempDir, "shitenno-go");
 });
 
 afterEach(() => {
@@ -30,7 +30,7 @@ describe("Dual Path Presenter", () => {
     title: "Install Governance",
     description: "Add governance capability",
     expectedImpact: "Adds governance",
-    action: "Run 'nexus upgrade --capability governance'",
+    action: "Run 'shiten upgrade --capability governance'",
     affectedArtifacts: [],
     dependencies: [],
     confidence: 0.8,
@@ -45,7 +45,7 @@ describe("Dual Path Presenter", () => {
     title: "Master: Install Governance",
     description: "Instead of just installing, extract patterns",
     expectedImpact: "Adds governance + expands thinking",
-    action: "Run 'nexus upgrade --capability governance' after reflecting",
+    action: "Run 'shiten upgrade --capability governance' after reflecting",
     affectedArtifacts: [],
     dependencies: [],
     confidence: 0.7,
@@ -58,7 +58,7 @@ describe("Dual Path Presenter", () => {
 
   describe("formatDualPath", () => {
     it("returns formatted string with both paths", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatDualPath(mockComfortable, mockChallenging, profile);
 
       expect(formatted).toContain("PATH A: COMFORTABLE");
@@ -68,7 +68,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes paradigm shift when available", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatDualPath(mockComfortable, mockChallenging, profile);
 
       expect(formatted).toContain("Paradigm Shift");
@@ -76,7 +76,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes knowledge gap when available", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatDualPath(mockComfortable, mockChallenging, profile);
 
       expect(formatted).toContain("Knowledge Gap");
@@ -84,7 +84,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes growth progress", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatDualPath(mockComfortable, mockChallenging, profile);
 
       expect(formatted).toContain("Growth Progress");
@@ -95,7 +95,7 @@ describe("Dual Path Presenter", () => {
 
   describe("formatDualPathJson", () => {
     it("returns JSON-serializable object", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json).toBeDefined();
@@ -106,7 +106,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes comfortable path details", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.comfortable.id).toBe("EVO-001");
@@ -115,7 +115,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes challenging path details", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.challenging.id).toBe("CHL-001");
@@ -124,21 +124,21 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes paradigm shift when available", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.challenging.paradigmShift).toBe("Move from reactive to proactive");
     });
 
     it("includes knowledge gap when available", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.challenging.knowledgeGap).toBe("Requires governance patterns");
     });
 
     it("includes growth profile data", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.growthProfile.growthCapacity).toBe(0.3);
@@ -147,7 +147,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("calculates challenging ratio correctly", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const json = formatDualPathJson(mockComfortable, mockChallenging, profile);
 
       expect(json.progress.totalChoices).toBe(0);
@@ -157,7 +157,7 @@ describe("Dual Path Presenter", () => {
 
   describe("formatGrowthProgress", () => {
     it("returns formatted progress string", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatGrowthProgress(profile);
 
       expect(formatted).toContain("Growth Progress");
@@ -166,7 +166,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes pattern description", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       const formatted = formatGrowthProgress(profile);
 
       expect(formatted).toContain("Pattern");
@@ -174,7 +174,7 @@ describe("Dual Path Presenter", () => {
     });
 
     it("includes choice statistics when history exists", () => {
-      const profile = loadGrowthProfile(nexusDir);
+      const profile = loadGrowthProfile(shitenDir);
       profile.pathHistory = [
         {
           id: "test-1",

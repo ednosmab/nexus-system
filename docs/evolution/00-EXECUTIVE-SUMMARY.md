@@ -1,10 +1,10 @@
 # Executive Summary
 
-> High-level priorities for the Nexus System evolution.
+> High-level priorities for the Shitenno-go evolution.
 
 ## Strategic Vision
 
-Transform Nexus from a CLI tool into a knowledge-driven engineering governance platform.
+Transform Shiten from a CLI tool into a knowledge-driven engineering governance platform.
 
 ## Current Priorities
 

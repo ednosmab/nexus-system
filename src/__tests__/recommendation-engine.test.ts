@@ -10,19 +10,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 
-const TEST_DIR = join(tmpdir(), "nexus-rec-engine-test");
-const NEXUS_DIR = join(TEST_DIR, "nexus");
+const TEST_DIR = join(tmpdir(), "shiten-rec-engine-test");
+const SHITEN_DIR = join(TEST_DIR, "shiten");
 
 beforeAll(() => {
-  mkdirSync(join(NEXUS_DIR, "governance", "rules"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "context"), { recursive: true });
-  mkdirSync(join(NEXUS_DIR, "governance", "backlog"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "rules"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "context"), { recursive: true });
+  mkdirSync(join(SHITEN_DIR, "governance", "backlog"), { recursive: true });
   writeFileSync(
-    join(NEXUS_DIR, "governance", "context", "context_buffer.yaml"),
+    join(SHITEN_DIR, "governance", "context", "context_buffer.yaml"),
     "reminders:\n  - test\n",
   );
   writeFileSync(
-    join(NEXUS_DIR, "governance", "context", "quick_board.md"),
+    join(SHITEN_DIR, "governance", "context", "quick_board.md"),
     "# Quick Board\n## Proximo\n- item\n",
   );
 });
@@ -76,7 +76,7 @@ function makeCapResult(overrides: Partial<CapabilityEngineResult> = {}): Capabil
 
 describe("runRecommendationEngine", () => {
   it("returns a RecommendationEngineResult", () => {
-    const result = runRecommendationEngine(makeState(), makeCapResult(), NEXUS_DIR);
+    const result = runRecommendationEngine(makeState(), makeCapResult(), SHITEN_DIR);
     expect(result).toBeDefined();
     expect(Array.isArray(result.recommendations)).toBe(true);
     expect(typeof result.generatedAt).toBe("string");
@@ -85,7 +85,7 @@ describe("runRecommendationEngine", () => {
   });
 
   it("recommendations have required fields", () => {
-    const result = runRecommendationEngine(makeState(), makeCapResult(), NEXUS_DIR);
+    const result = runRecommendationEngine(makeState(), makeCapResult(), SHITEN_DIR);
     for (const rec of result.recommendations) {
       expect(typeof rec.id).toBe("string");
       expect(typeof rec.title).toBe("string");
@@ -97,7 +97,7 @@ describe("runRecommendationEngine", () => {
   });
 
   it("bySource and byPriority are populated", () => {
-    const result = runRecommendationEngine(makeState(), makeCapResult(), NEXUS_DIR);
+    const result = runRecommendationEngine(makeState(), makeCapResult(), SHITEN_DIR);
     expect(result.bySource).toBeDefined();
     expect(result.byPriority).toBeDefined();
   });
@@ -119,8 +119,8 @@ describe("saveRecommendationResult / loadRecommendationResult", () => {
           title: "Test Recommendation",
           description: "Do something",
           expectedImpact: "Improved governance",
-          action: "Run nexus assess",
-          command: "nexus assess",
+          action: "Run shiten assess",
+          command: "shiten assess",
           affectedArtifacts: [],
           dependencies: [],
           confidence: 0.9,
@@ -128,12 +128,12 @@ describe("saveRecommendationResult / loadRecommendationResult", () => {
           generatedAt: new Date().toISOString(),
         },
       ],
-      topNextSteps: ["Run nexus assess"],
+      topNextSteps: ["Run shiten assess"],
       engineeringCapacityScore: 80,
       summary: "test",
     };
     const text = recommendationEngineToText(result);
     expect(text).toContain("Test Recommendation");
-    expect(text).toContain("Run nexus assess");
+    expect(text).toContain("Run shiten assess");
   });
 });

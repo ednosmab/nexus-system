@@ -4,12 +4,12 @@ Comandos de sistema e utilitários.
 
 ---
 
-## `nexus validate`
+## `shiten validate`
 
 Valide a configuração e integridade do projeto.
 
 ```bash
-nexus validate [options]
+shiten validate [options]
 ```
 
 ### Opções
@@ -21,18 +21,18 @@ nexus validate [options]
 ### Exemplos
 
 ```bash
-nexus validate             # Validação completa
-nexus validate --json      # Saída JSON
+shiten validate             # Validação completa
+shiten validate --json      # Saída JSON
 ```
 
 ---
 
-## `nexus shell-init`
+## `shiten shell-init`
 
-Inicialize o shell para integração com o Nexus.
+Inicialize o shell para integração com o Shiten.
 
 ```bash
-nexus shell-init [options]
+shiten shell-init [options]
 ```
 
 ### Opções
@@ -44,18 +44,18 @@ nexus shell-init [options]
 ### Exemplos
 
 ```bash
-nexus shell-init           # Detectar shell automaticamente
-nexus shell-init --shell zsh
+shiten shell-init           # Detectar shell automaticamente
+shiten shell-init --shell zsh
 ```
 
 ---
 
-## `nexus handbook`
+## `shiten handbook`
 
 Acesse o handbook do projeto no terminal.
 
 ```bash
-nexus handbook [options]
+shiten handbook [options]
 ```
 
 ### Opções
@@ -71,23 +71,23 @@ nexus handbook [options]
 ### Exemplos
 
 ```bash
-nexus handbook              # TUI interativo
-nexus handbook --level 1    # Apenas fundamentos
-nexus handbook --level 2    # Apenas comandos
-nexus handbook --level 3    # Apenas arquitetura
-nexus handbook --list       # Listar tópicos
-nexus handbook --print      # Imprimir no terminal
-nexus handbook --fill       # Preencher dados semânticos
+shiten handbook              # TUI interativo
+shiten handbook --level 1    # Apenas fundamentos
+shiten handbook --level 2    # Apenas comandos
+shiten handbook --level 3    # Apenas arquitetura
+shiten handbook --list       # Listar tópicos
+shiten handbook --print      # Imprimir no terminal
+shiten handbook --fill       # Preencher dados semânticos
 ```
 
 ---
 
-## `nexus hooks`
+## `shiten hooks`
 
-Instalar ou remover git hooks do Nexus.
+Instalar ou remover git hooks do Shiten.
 
 ```bash
-nexus hooks [--uninstall] [--dir <path>]
+shiten hooks [--uninstall] [--dir <path>]
 ```
 
 ### Opções
@@ -99,18 +99,18 @@ nexus hooks [--uninstall] [--dir <path>]
 ### Exemplos
 
 ```bash
-nexus hooks              # Instalar hooks
-nexus hooks --uninstall  # Remover hooks
+shiten hooks              # Instalar hooks
+shiten hooks --uninstall  # Remover hooks
 ```
 
 ---
 
-## `nexus daemon`
+## `shiten daemon`
 
 Gerir o daemon de automação em background.
 
 ```bash
-nexus daemon <start|stop|status|restart>
+shiten daemon <start|stop|status|restart>
 ```
 
 ### Subcomandos
@@ -132,20 +132,20 @@ nexus daemon <start|stop|status|restart>
 ### Exemplos
 
 ```bash
-nexus daemon start       # Iniciar daemon
-nexus daemon stop        # Parar daemon
-nexus daemon status      # Ver estado
-nexus daemon restart     # Reiniciar
+shiten daemon start       # Iniciar daemon
+shiten daemon stop        # Parar daemon
+shiten daemon status      # Ver estado
+shiten daemon restart     # Reiniciar
 ```
 
 ---
 
-## `nexus watch`
+## `shiten watch`
 
 Log de eventos em tempo real para monitorização de governança.
 
 ```bash
-nexus watch [--events <types>] [--dir <path>]
+shiten watch [--events <types>] [--dir <path>]
 ```
 
 ### Opções
@@ -157,18 +157,18 @@ nexus watch [--events <types>] [--dir <path>]
 ### Exemplos
 
 ```bash
-nexus watch                              # Todos os eventos
-nexus watch --events plan.*,daemon.*     # Filtrar eventos
+shiten watch                              # Todos os eventos
+shiten watch --events plan.*,daemon.*     # Filtrar eventos
 ```
 
 ---
 
-## `nexus events`
+## `shiten events`
 
 Mostrar trace de execução do motor de regras.
 
 ```bash
-nexus events [--last <n>] [--trigger <type>] [--json]
+shiten events [--last <n>] [--trigger <type>] [--json]
 ```
 
 ### Opções
@@ -182,19 +182,19 @@ nexus events [--last <n>] [--trigger <type>] [--json]
 ### Exemplos
 
 ```bash
-nexus events                    # Últimos 20 eventos
-nexus events --last 50          # Últimos 50
-nexus events --trigger session  # Filtrar por session
+shiten events                    # Últimos 20 eventos
+shiten events --last 50          # Últimos 50
+shiten events --trigger session  # Filtrar por session
 ```
 
 ---
 
-## `nexus context`
+## `shiten context`
 
 Contexto completo do projecto para agentes AI.
 
 ```bash
-nexus context [--json] [--for-agent <name>]
+shiten context [--json] [--for-agent <name>]
 ```
 
 ### Opções
@@ -207,18 +207,18 @@ nexus context [--json] [--for-agent <name>]
 ### Exemplos
 
 ```bash
-nexus context                    # Contexto completo
-nexus context --for-agent plan   # Contexto para agente plan
+shiten context                    # Contexto completo
+shiten context --for-agent plan   # Contexto para agente plan
 ```
 
 ---
 
-## `nexus history`
+## `shiten history`
 
 Ver histórico de estado de engenharia com diffs opcionais.
 
 ```bash
-nexus history [--from <date>] [--to <date>] [--diff] [--json]
+shiten history [--from <date>] [--to <date>] [--diff] [--json]
 ```
 
 ### Opções
@@ -233,19 +233,19 @@ nexus history [--from <date>] [--to <date>] [--diff] [--json]
 ### Exemplos
 
 ```bash
-nexus history                    # Listar snapshots
-nexus history --diff             # Com diffs
-nexus history --from 2026-07-01  # A partir de data
+shiten history                    # Listar snapshots
+shiten history --diff             # Com diffs
+shiten history --from 2026-07-01  # A partir de data
 ```
 
 ---
 
-## `nexus reminders`
+## `shiten reminders`
 
 Gerir lembretes de sessão com prioridade e categoria.
 
 ```bash
-nexus reminders [add|rm|clear] [options]
+shiten reminders [add|rm|clear] [options]
 ```
 
 ### Subcomandos
@@ -269,20 +269,20 @@ nexus reminders [add|rm|clear] [options]
 ### Exemplos
 
 ```bash
-nexus reminders add "Rodar audit" --priority high
-nexus reminders add "Fix auth bug" --category bug
-nexus reminders rm 1
-nexus reminders clear
+shiten reminders add "Rodar audit" --priority high
+shiten reminders add "Fix auth bug" --category bug
+shiten reminders rm 1
+shiten reminders clear
 ```
 
 ---
 
-## `nexus update`
+## `shiten update`
 
 Detectar mudanças em templates e aplicar actualizações.
 
 ```bash
-nexus update [--apply] [--dir <path>] [--json]
+shiten update [--apply] [--dir <path>] [--json]
 ```
 
 ### Opções
@@ -295,18 +295,18 @@ nexus update [--apply] [--dir <path>] [--json]
 ### Exemplos
 
 ```bash
-nexus update            # Ver mudanças pendentes
-nexus update --apply    # Aplicar actualizações
+shiten update            # Ver mudanças pendentes
+shiten update --apply    # Aplicar actualizações
 ```
 
 ---
 
-## `nexus docs-audit`
+## `shiten docs-audit`
 
 Auditar ciclo de vida da documentação e propor organização.
 
 ```bash
-nexus docs-audit [--apply] [--dir <path>] [--json]
+shiten docs-audit [--apply] [--dir <path>] [--json]
 ```
 
 ### Opções
@@ -319,6 +319,6 @@ nexus docs-audit [--apply] [--dir <path>] [--json]
 ### Exemplos
 
 ```bash
-nexus docs-audit            # Dry-run: ver movimentações
-nexus docs-audit --apply    # Aplicar movimentações
+shiten docs-audit            # Dry-run: ver movimentações
+shiten docs-audit --apply    # Aplicar movimentações
 ```

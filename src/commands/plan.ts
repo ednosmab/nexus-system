@@ -1,17 +1,17 @@
 /**
  * plan.ts — Plan Engine CLI Command
  *
- * The `nexus plan` command. Manage coordinated action sequences.
+ * The `shiten plan` command. Manage coordinated action sequences.
  *
  * Usage:
- *   nexus plan create "Deploy changes" --step "Run audit" --step-type log_event --step-param event=audit
- *   nexus plan execute PLAN-abc123
- *   nexus plan rollback PLAN-abc123
- *   nexus plan cancel PLAN-abc123
- *   nexus plan list
- *   nexus plan show PLAN-abc123
- *   nexus plan stats
- *   nexus plan delete PLAN-abc123
+ *   shiten plan create "Deploy changes" --step "Run audit" --step-type log_event --step-param event=audit
+ *   shiten plan execute PLAN-abc123
+ *   shiten plan rollback PLAN-abc123
+ *   shiten plan cancel PLAN-abc123
+ *   shiten plan list
+ *   shiten plan show PLAN-abc123
+ *   shiten plan stats
+ *   shiten plan delete PLAN-abc123
  */
 
 import { Command } from "commander";
@@ -19,7 +19,7 @@ import chalk from "chalk";
 import { join } from "node:path";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { guardNotInitialized } from "../shared.js";
-import { NEXUS_DIR_NAME } from "../constants.js";
+import { SHITEN_DIR_NAME } from "../constants.js";
 import {
   PlanEngine,
   FilePlanRepository,
@@ -35,9 +35,9 @@ import { output, outputBlank } from "../output.js";
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): PlanEngine {
-  const nexusDir = join(dir, NEXUS_DIR_NAME);
-  const actionEngine = new ActionEngine(new FileExecutionRepository(nexusDir));
-  return new PlanEngine(new FilePlanRepository(nexusDir), actionEngine);
+  const shitenDir = join(dir, SHITEN_DIR_NAME);
+  const actionEngine = new ActionEngine(new FileExecutionRepository(shitenDir));
+  return new PlanEngine(new FilePlanRepository(shitenDir), actionEngine);
 }
 
 const STATUS_COLORS: Record<PlanStatus, (s: string) => string> = {
@@ -76,18 +76,18 @@ export interface PrepareResult {
  */
 export async function runPrepare(
   _projectRoot: string,
-  nexusDir: string,
+  shitenDir: string,
   planId: string
 ): Promise<PrepareResult[]> {
   const results: PrepareResult[] = [];
-  const engine = new MarkdownPlanEngine(nexusDir);
+  const engine = new MarkdownPlanEngine(shitenDir);
   const plan = engine.getById(planId);
 
   if (!plan) {
     return [{ step: "prepare", status: "error", detail: `Plan not found: ${planId}` }];
   }
 
-  // Step 1: Format header to nexus standard
+  // Step 1: Format header to shiten standard
   try {
     let content = readFileSync(plan.filePath, "utf-8");
     let updated = false;
@@ -124,7 +124,7 @@ export async function runPrepare(
 
     if (updated) {
       writeFileSync(plan.filePath, content, "utf-8");
-      results.push({ step: "format_header", status: "done", detail: "Header formatted to nexus standard" });
+      results.push({ step: "format_header", status: "done", detail: "Header formatted to shiten standard" });
     } else {
       results.push({ step: "format_header", status: "skip", detail: "Header already conformant" });
     }
@@ -160,7 +160,7 @@ export async function runPrepare(
           const { execSync } = await import("node:child_process");
           const errorMsg = validation.errors.map((e) => e.message).join("; ");
           execSync(
-            `notify-send "Nexus Plan" "Formato inválido: ${errorMsg}" --urgency=normal`,
+            `notify-send "Shiten Plan" "Formato inválido: ${errorMsg}" --urgency=normal`,
             { stdio: "pipe", timeout: 2000 }
           );
         } catch {
@@ -227,7 +227,7 @@ export async function runPrepare(
 
   // Step 3: Sync to BACKLOG.md
   try {
-    const backlogPath = join(nexusDir, "docs", "BACKLOG.md");
+    const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
     if (existsSync(backlogPath)) {
       let backlog = readFileSync(backlogPath, "utf-8");
       const planIdUpper = `BACKLOG-${planId.toUpperCase().replace(/-/g, "_")}`;
@@ -305,7 +305,7 @@ export async function runPrepare(
             `| **Prioridade** | P1 |`,
             `| **Owner** | executor |`,
             `| **Data** | ${new Date().toISOString().slice(0, 10)} |`,
-            `| **Fonte** | nexus plan md prepare |`,
+            `| **Fonte** | shiten plan md prepare |`,
             `| **Modulos** | governance/plans/ |`,
             `| **Descricao** | ${plan.title} |`,
             `| **Correcao** | Verificar checklist no plano \`governance/plans/${planId}.md\` |`,
@@ -359,7 +359,7 @@ export async function runPrepare(
   // Step 4: Send desktop notification
   try {
     const { execSync } = await import("node:child_process");
-    execSync(`notify-send "Nexus Plan" "Plan prepared: ${plan.title}" --urgency=normal`, {
+    execSync(`notify-send "Shiten Plan" "Plan prepared: ${plan.title}" --urgency=normal`, {
       stdio: "pipe",
       timeout: 2000,
     });
@@ -685,7 +685,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
       let plans = engine.list();
 
       if (opts.done) {
@@ -725,7 +725,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
       const plan = engine.getById(id);
 
       if (!plan) {
@@ -775,7 +775,7 @@ export function planCommand(): Command {
         return;
       }
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
       try {
         const updated = engine.updateStatus(id, status as MarkdownPlanStatus);
 
@@ -807,7 +807,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
       try {
         const updated = engine.updateStatus(id, "done");
 
@@ -841,7 +841,7 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, NEXUS_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
       const plan = engine.create({
         title,
         description: opts.description as string,
@@ -871,8 +871,8 @@ export function planCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const nexusDir = join(ctx.projectRoot, NEXUS_DIR_NAME);
-      const engine = new MarkdownPlanEngine(nexusDir);
+      const shitenDir = join(ctx.projectRoot, SHITEN_DIR_NAME);
+      const engine = new MarkdownPlanEngine(shitenDir);
       const plan = engine.getById(id);
 
       if (!plan) {
@@ -886,14 +886,14 @@ export function planCommand(): Command {
 
       if (!isJson) {
         outputBlank();
-        banner("nexus plan prepare", "Plan Preparation");
+        banner("shiten plan prepare", "Plan Preparation");
         outputBlank();
         output(chalk.gray(`  Plan: ${plan.title}`));
         output(chalk.gray(`  Path: ${plan.relativePath}`));
         outputBlank();
       }
 
-      const results = await runPrepare(ctx.projectRoot, nexusDir, id);
+      const results = await runPrepare(ctx.projectRoot, shitenDir, id);
 
       if (isJson) {
         outputJson({ planId: id, title: plan.title, results });

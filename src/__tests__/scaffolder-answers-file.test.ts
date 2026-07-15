@@ -2,13 +2,13 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldNexusSystem } from "../scaffolder.js";
+import { scaffoldShitennoGo } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-answers-test-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-answers-test-"));
 });
 
 afterEach(() => {
@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 const DEFAULT_MATURITY = {
-  usedNexusBefore: false,
+  usedShitenBefore: false,
   isFirstProject: false,
   projectAge: "new" as const,
   teamSize: "solo" as const,
@@ -47,20 +47,20 @@ function makeAnswers(overrides: Partial<UserAnswers> = {}): UserAnswers {
   };
 }
 
-describe("scaffoldNexusSystem with answers file (Bug 5 regression)", () => {
+describe("scaffoldShitennoGo with answers file (Bug 5 regression)", () => {
   it("does not throw when all required fields are provided", () => {
     const answers = makeAnswers();
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when stack is a non-empty array", () => {
     const answers = makeAnswers({ stack: ["typescript"] });
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when stack is an empty array", () => {
     const answers = makeAnswers({ stack: [] });
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when optional fields are missing", () => {
@@ -72,16 +72,16 @@ describe("scaffoldNexusSystem with answers file (Bug 5 regression)", () => {
       styling: "tailwind",
       maturity: DEFAULT_MATURITY,
     };
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when database is empty string", () => {
     const answers = makeAnswers({ database: "" });
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when styling is empty string", () => {
     const answers = makeAnswers({ styling: "" });
-    expect(() => scaffoldNexusSystem(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
   });
 });

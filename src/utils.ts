@@ -7,7 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { logger } from "./logger.js";
-import { NEXUS_DIR_NAME } from "./constants.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 
 /** Extensões de ficheiros de código fonte. */
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
@@ -74,12 +74,12 @@ export function countSourceFilesInDir(dir: string): number {
  * Cache de conteúdo de ficheiros para evitar leitura repetida.
  * Usado pelo scorer para keyword search em múltiplas áreas sobrepostas.
  */
-/** Detecta a raiz do projecto nexus procurando por opencode.json ou nexus-system/. */
-export function detectNexusProject(startDir: string): { root: string; nexusDir: string } | null {
+/** Detecta a raiz do projecto shiten procurando por opencode.json ou shitenno-go/. */
+export function detectShitenProject(startDir: string): { root: string; shitenDir: string } | null {
   let current = startDir;
   while (true) {
-    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, NEXUS_DIR_NAME))) {
-      return { root: current, nexusDir: join(current, NEXUS_DIR_NAME) };
+    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, SHITEN_DIR_NAME))) {
+      return { root: current, shitenDir: join(current, SHITEN_DIR_NAME) };
     }
     const parent = dirname(current);
     if (parent === current) return null;

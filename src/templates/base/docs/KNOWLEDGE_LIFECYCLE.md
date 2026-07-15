@@ -2,7 +2,7 @@
 
 > **Versão:** 1.0
 > **Data:** YYYY-MM-DD
-> **Autoridade:** Nexus System
+> **Autoridade:** Shitenno-go
 > **Propósito:** Formalizar como o conhecimento nasce, amadurece e passa a fazer parte do sistema
 
 ---
@@ -171,16 +171,16 @@ A automação é exposta como comando de CLI acessível.
 | Propriedade | Descrição |
 |---|---|
 | **Origem** | Automação embutida no CLI |
-| **Forma** | Comando `nexus <subcomando>` |
+| **Forma** | Comando `shiten <subcomando>` |
 | **Critério de avanço** | Comando documentado e testado |
 
 **Comandos disponíveis:**
-- `nexus init` — Instalação por capacidades
-- `nexus status` — Estado do projecto
-- `nexus validate` — Validação de integridade
-- `nexus sync` — Sincronização de templates
-- `nexus upgrade` — Actualização de capacidades
-- `nexus assess` — Avaliação de maturidade (Phase 2)
+- `shiten init` — Instalação por capacidades
+- `shiten status` — Estado do projecto
+- `shiten validate` — Validação de integridade
+- `shiten sync` — Sincronização de templates
+- `shiten upgrade` — Actualização de capacidades
+- `shiten assess` — Avaliação de maturidade (Phase 2)
 
 ---
 
@@ -196,7 +196,7 @@ A automação é exposta como comando de CLI acessível.
 | Skill | 🟠 Maduro | `skills/*.md` | Peer review |
 | Contrato | 🔴 Estável | `agents/*.yaml` | Tech Lead |
 | Automação | 🔴 Estável | Script / Pipeline | Imutável |
-| CLI | 🔴 Estável | `nexus <cmd>` | Imutável |
+| CLI | 🔴 Estável | `shiten <cmd>` | Imutável |
 
 ---
 

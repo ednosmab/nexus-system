@@ -1,6 +1,6 @@
 # Conceitos
 
-> Entenda os conceitos fundamentais do Nexus.
+> Entenda os conceitos fundamentais do Shiten.
 
 ---
 
@@ -38,7 +38,7 @@ O **Overall** é a média ponderada de todas as dimensões.
 
 ## Capabilities
 
-**Capabilities** são módulos funcionais que o Nexus instala progressivamente:
+**Capabilities** são módulos funcionais que o Shiten instala progressivamente:
 
 | Capability | O que inclui | Quando instala |
 |---|---|---|
@@ -55,8 +55,8 @@ O **Overall** é a média ponderada de todas as dimensões.
 Cada capability depende do **core**. Instale mais capabilities com:
 
 ```bash
-nexus upgrade --capability architecture
-nexus upgrade --accept-recommended  # Instala todas as recomendadas
+shiten upgrade --capability architecture
+shiten upgrade --accept-recommended  # Instala todas as recomendadas
 ```
 
 ---
@@ -140,7 +140,7 @@ O **Context Pipeline** é o ciclo de vida do contexto de IA:
 - **Documentado mas desconectado** — Existe, mas ninguém sabe onde procurar
 - **Desatualizado** — Documento que não reflete o estado atual
 
-O Nexus mede Knowledge Debt via:
+O Shiten mede Knowledge Debt via:
 
 - **healthScores.knowledgeDebt** — Score de 0-100 (100 = sem dívida)
 - **entropy.orphanedAssets** — Ativos órfãos (sem referência)
@@ -149,16 +149,16 @@ O Nexus mede Knowledge Debt via:
 Reduza Knowledge Debt:
 
 ```bash
-nexus audit              # Identifica problemas
-nexus doctor             # Sugere melhorias
-nexus docs-audit --apply # Organiza documentação
+shiten audit              # Identifica problemas
+shiten doctor             # Sugere melhorias
+shiten docs-audit --apply # Organiza documentação
 ```
 
 ---
 
 ## Event System
 
-O **Sistema de Eventos** é o coração reativo do Nexus:
+O **Sistema de Eventos** é o coração reativo do Shiten:
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -190,7 +190,7 @@ Evento: plan.created
 
 ## Lifecycle States
 
-O Nexus rastreia o estado de vida do projeto:
+O Shiten rastreia o estado de vida do projeto:
 
 ```
 uninitialized → discovered → assessed → governed → evolved
@@ -198,7 +198,7 @@ uninitialized → discovered → assessed → governed → evolved
 
 | Estado | Significado |
 |---|---|
-| `uninitialized` | Nexus não inicializado |
+| `uninitialized` | Shiten não inicializado |
 | `discovered` | Projeto analisado, estrutura criada |
 | `assessed` | Maturidade avaliada |
 | `governed` | Governança ativa (regras, workflows) |

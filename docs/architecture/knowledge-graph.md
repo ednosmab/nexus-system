@@ -4,7 +4,7 @@
 
 ## The Graph Model
 
-Nexus models knowledge as a directed graph. Artifacts are nodes. Relations are edges.
+Shiten models knowledge as a directed graph. Artifacts are nodes. Relations are edges.
 
 ## Artifact Types (14)
 
@@ -79,7 +79,7 @@ interface Relation {
 Artifacts are auto-discovered by scanning the filesystem:
 
 ```typescript
-function discoverArtifacts(nexusDir: string): Artifact[] {
+function discoverArtifacts(shitenDir: string): Artifact[] {
   const artifacts: Artifact[] = [];
   
   // Scan ADRs

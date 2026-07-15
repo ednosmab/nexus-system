@@ -204,8 +204,8 @@ function generateRecommendation(
 export class InferenceEngine {
   private engine: MarkdownPlanEngine;
 
-  constructor(nexusDir: string) {
-    this.engine = new MarkdownPlanEngine(nexusDir);
+  constructor(shitenDir: string) {
+    this.engine = new MarkdownPlanEngine(shitenDir);
   }
 
   /**

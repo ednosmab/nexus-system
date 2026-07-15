@@ -37,7 +37,7 @@ import type { PerformanceMetric } from "../feedback-loops.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "nexus-commands-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shiten-commands-"));
 });
 
 afterEach(() => {
@@ -99,40 +99,40 @@ function makeState(overrides: Partial<EngineeringState> = {}): EngineeringState 
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("sync.ts — getFilesToSync", () => {
-  it("returns empty array when nexus dir has no files", () => {
+  it("returns empty array when shiten dir has no files", () => {
     const result = getFilesToSync(tempDir, tempDir);
     expect(result).toEqual([]);
   });
 
   it("returns core files that exist", () => {
-    const nexusDir = join(tempDir, "nexus-system");
-    mkdirSync(join(nexusDir, "docs"), { recursive: true });
-    writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "# Agents");
-    writeFileSync(join(nexusDir, "opencode.json"), "{}");
+    const shitenDir = join(tempDir, "shitenno-go");
+    mkdirSync(join(shitenDir, "docs"), { recursive: true });
+    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "# Agents");
+    writeFileSync(join(shitenDir, "opencode.json"), "{}");
 
-    const result = getFilesToSync(nexusDir, tempDir);
+    const result = getFilesToSync(shitenDir, tempDir);
     expect(result).toContain("docs/AGENTS.md");
     expect(result).toContain("opencode.json");
   });
 
   it("returns skill files", () => {
-    const nexusDir = join(tempDir, "nexus-system");
-    mkdirSync(join(nexusDir, "docs", "skills"), { recursive: true });
-    writeFileSync(join(nexusDir, "docs", "skills", "tdd.md"), "# TDD");
-    writeFileSync(join(nexusDir, "docs", "skills", "solid.md"), "# SOLID");
+    const shitenDir = join(tempDir, "shitenno-go");
+    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
+    writeFileSync(join(shitenDir, "docs", "skills", "tdd.md"), "# TDD");
+    writeFileSync(join(shitenDir, "docs", "skills", "solid.md"), "# SOLID");
 
-    const result = getFilesToSync(nexusDir, tempDir);
+    const result = getFilesToSync(shitenDir, tempDir);
     expect(result).toContain("docs/skills/tdd.md");
     expect(result).toContain("docs/skills/solid.md");
   });
 
   it("filters out non-md files in skills", () => {
-    const nexusDir = join(tempDir, "nexus-system");
-    mkdirSync(join(nexusDir, "docs", "skills"), { recursive: true });
-    writeFileSync(join(nexusDir, "docs", "skills", "tdd.md"), "# TDD");
-    writeFileSync(join(nexusDir, "docs", "skills", "notes.txt"), "notes");
+    const shitenDir = join(tempDir, "shitenno-go");
+    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
+    writeFileSync(join(shitenDir, "docs", "skills", "tdd.md"), "# TDD");
+    writeFileSync(join(shitenDir, "docs", "skills", "notes.txt"), "notes");
 
-    const result = getFilesToSync(nexusDir, tempDir);
+    const result = getFilesToSync(shitenDir, tempDir);
     expect(result).toContain("docs/skills/tdd.md");
     expect(result).not.toContain("docs/skills/notes.txt");
   });
@@ -158,48 +158,48 @@ describe("sync.ts — shouldPreserveCustomizations", () => {
 
 describe("sync.ts — mergeJsonFiles", () => {
   it("merges two valid JSON files", () => {
-    const nexus = JSON.stringify({ agent: { planner: { model: "new-model" } } });
+    const shiten = JSON.stringify({ agent: { planner: { model: "new-model" } } });
     const target = JSON.stringify({ agent: { planner: { model: "old-model", permission: "read" } } });
 
-    const result = mergeJsonFiles(nexus, target);
+    const result = mergeJsonFiles(shiten, target);
     const parsed = JSON.parse(result);
     expect(parsed.agent.planner.model).toBe("old-model");
     expect(parsed.agent.planner.permission).toBe("read");
   });
 
   it("preserves target MCP config", () => {
-    const nexus = JSON.stringify({ agent: {} });
+    const shiten = JSON.stringify({ agent: {} });
     const target = JSON.stringify({ mcp: { servers: ["postgres"] } });
 
-    const result = mergeJsonFiles(nexus, target);
+    const result = mergeJsonFiles(shiten, target);
     const parsed = JSON.parse(result);
     expect(parsed.mcp).toEqual({ servers: ["postgres"] });
   });
 
-  it("returns nexus content on parse error", () => {
-    const nexus = "not json";
+  it("returns shiten content on parse error", () => {
+    const shiten = "not json";
     const target = "also not json";
-    const result = mergeJsonFiles(nexus, target);
-    expect(result).toBe(nexus);
+    const result = mergeJsonFiles(shiten, target);
+    expect(result).toBe(shiten);
   });
 });
 
 describe("sync.ts — mergeMarkdownFiles", () => {
   it("preserves custom sections from target", () => {
-    const nexus = "## Standard Section\nNexus content";
+    const shiten = "## Standard Section\nShiten content";
     const target = "## Standard Section\nTarget content\n## My Custom Section\nCustom content";
 
-    const result = mergeMarkdownFiles(nexus, target);
+    const result = mergeMarkdownFiles(shiten, target);
     expect(result).toContain("My Custom Section");
     expect(result).toContain("Custom content");
   });
 
-  it("uses nexus content for standard sections with placeholders", () => {
-    const nexus = "## Standard Section\nNexus version";
+  it("uses shiten content for standard sections with placeholders", () => {
+    const shiten = "## Standard Section\nShiten version";
     const target = "## Standard Section\n[PERSONALIZAR: stuff]";
 
-    const result = mergeMarkdownFiles(nexus, target);
-    expect(result).toContain("Nexus version");
+    const result = mergeMarkdownFiles(shiten, target);
+    expect(result).toContain("Shiten version");
   });
 });
 
@@ -229,16 +229,16 @@ describe("sync.ts — extractSections", () => {
 
 describe("sync.ts — mergeWithCustomizations", () => {
   it("merges JSON files via mergeJsonFiles", () => {
-    const nexusDir = join(tempDir, "nexus");
+    const shitenDir = join(tempDir, "shiten");
     const targetDir = join(tempDir, "target");
-    mkdirSync(nexusDir, { recursive: true });
+    mkdirSync(shitenDir, { recursive: true });
     mkdirSync(targetDir, { recursive: true });
 
-    writeFileSync(join(nexusDir, "opencode.json"), '{"agent":{}}');
+    writeFileSync(join(shitenDir, "opencode.json"), '{"agent":{}}');
     writeFileSync(join(targetDir, "opencode.json"), '{"mcp":{}}');
 
     const result = mergeWithCustomizations(
-      join(nexusDir, "opencode.json"),
+      join(shitenDir, "opencode.json"),
       join(targetDir, "opencode.json")
     );
     const parsed = JSON.parse(result);
@@ -246,36 +246,36 @@ describe("sync.ts — mergeWithCustomizations", () => {
   });
 
   it("merges markdown files via mergeMarkdownFiles", () => {
-    const nexusDir = join(tempDir, "nexus");
+    const shitenDir = join(tempDir, "shiten");
     const targetDir = join(tempDir, "target");
-    mkdirSync(join(nexusDir, "docs"), { recursive: true });
+    mkdirSync(join(shitenDir, "docs"), { recursive: true });
     mkdirSync(join(targetDir, "docs"), { recursive: true });
 
-    writeFileSync(join(nexusDir, "docs", "AGENTS.md"), "## Standard\nNexus");
+    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "## Standard\nShiten");
     writeFileSync(join(targetDir, "docs", "AGENTS.md"), "## Standard\nTarget\n## Custom\nMy stuff");
 
     const result = mergeWithCustomizations(
-      join(nexusDir, "docs", "AGENTS.md"),
+      join(shitenDir, "docs", "AGENTS.md"),
       join(targetDir, "docs", "AGENTS.md")
     );
     expect(result).toContain("Custom");
     expect(result).toContain("My stuff");
   });
 
-  it("returns nexus content for non-json non-md files", () => {
-    const nexusDir = join(tempDir, "nexus");
+  it("returns shiten content for non-json non-md files", () => {
+    const shitenDir = join(tempDir, "shiten");
     const targetDir = join(tempDir, "target");
-    mkdirSync(join(nexusDir, "scripts"), { recursive: true });
+    mkdirSync(join(shitenDir, "scripts"), { recursive: true });
     mkdirSync(join(targetDir, "scripts"), { recursive: true });
 
-    writeFileSync(join(nexusDir, "scripts", "test.ts"), "nexus code");
+    writeFileSync(join(shitenDir, "scripts", "test.ts"), "shiten code");
     writeFileSync(join(targetDir, "scripts", "test.ts"), "target code");
 
     const result = mergeWithCustomizations(
-      join(nexusDir, "scripts", "test.ts"),
+      join(shitenDir, "scripts", "test.ts"),
       join(targetDir, "scripts", "test.ts")
     );
-    expect(result).toBe("nexus code");
+    expect(result).toBe("shiten code");
   });
 });
 
@@ -433,15 +433,15 @@ describe("doctor.ts — analyzeTeaching", () => {
 
 describe("doctor.ts — runDoctorAnalysis", () => {
   it("returns a valid DoctorReport", () => {
-    const nexusDir = join(tempDir, "nexus-system");
-    mkdirSync(nexusDir, { recursive: true });
-    mkdirSync(join(nexusDir, "governance", "context"), { recursive: true });
+    const shitenDir = join(tempDir, "shitenno-go");
+    mkdirSync(shitenDir, { recursive: true });
+    mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
     writeFileSync(
-      join(nexusDir, "governance", "context", "context_buffer.yaml"),
+      join(shitenDir, "governance", "context", "context_buffer.yaml"),
       'status: "closed"'
     );
 
-    const report = runDoctorAnalysis(tempDir, nexusDir);
+    const report = runDoctorAnalysis(tempDir, shitenDir);
     expect(report).toHaveProperty("findings");
     expect(report).toHaveProperty("overallHealth");
     expect(report).toHaveProperty("healthScore");
@@ -574,7 +574,7 @@ describe("report.ts — formatReport", () => {
         { type: "strength", dimension: "decision_making" as PerformanceMetric, text: "Good coverage", evidence: "95%" },
         { type: "improvement", dimension: "prompt_quality" as PerformanceMetric, text: "Add tests" },
       ],
-      nextSteps: ["Run nexus upgrade", "Add more tests"],
+      nextSteps: ["Run shiten upgrade", "Add more tests"],
       summary: "Project is in good shape.",
     };
 

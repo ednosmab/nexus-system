@@ -89,16 +89,16 @@ Without feedback, agents can't learn from mistakes.
 
 ## Measuring AI Readiness
 
-Nexus detects AI readiness by checking filesystem presence:
+Shiten detects AI readiness by checking filesystem presence:
 
 ```typescript
-function assessAIReadiness(nexusDir: string): AIReadinessReport {
+function assessAIReadiness(shitenDir: string): AIReadinessReport {
   return {
-    governanceRules: checkGovernanceRules(nexusDir),
-    agentContracts: checkAgentContracts(nexusDir),
-    contextHierarchy: checkContextHierarchy(nexusDir),
-    workflowDefinition: checkWorkflowDefinition(nexusDir),
-    feedbackMechanism: checkFeedbackMechanism(nexusDir),
+    governanceRules: checkGovernanceRules(shitenDir),
+    agentContracts: checkAgentContracts(shitenDir),
+    contextHierarchy: checkContextHierarchy(shitenDir),
+    workflowDefinition: checkWorkflowDefinition(shitenDir),
+    feedbackMechanism: checkFeedbackMechanism(shitenDir),
     overallScore: calculateScore(...),
   };
 }

@@ -1,6 +1,6 @@
 # Events Reference
 
-> Complete catalog of all events in the Nexus System.
+> Complete catalog of all events in the Shitenno-go.
 
 ## Event Categories
 
@@ -41,7 +41,7 @@ Emitted when a session ends.
 Emitted when the lifecycle state changes.
 
 - **Payload:** `{ previous: LifecycleState, current: LifecycleState, trigger: string }`
-- **Published by:** nexus-state-machine
+- **Published by:** shiten-state-machine
 - **Subscribed by:** event-bus, pipeline
 
 ---

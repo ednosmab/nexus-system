@@ -76,7 +76,7 @@ beforeEach(() => {
 
 describe("detectActivePlans", () => {
   it("returns plans that are not done", () => {
-    const plans = detectActivePlans("/nexus");
+    const plans = detectActivePlans("/shiten");
     expect(plans).toHaveLength(2);
     expect(plans.map((p) => p.id)).toContain("plan-1");
     expect(plans.map((p) => p.id)).toContain("plan-3");
@@ -89,7 +89,7 @@ describe("detectActivePlans", () => {
 describe("archivePlan", () => {
   it("calls updateStatus with done", async () => {
     const mod = await import("../markdown-plan-engine.js") as any;
-    archivePlan("/nexus", "plan-1");
+    archivePlan("/shiten", "plan-1");
     expect(mod.__mockUpdate).toHaveBeenCalledWith("plan-1", "done");
   });
 });
@@ -99,7 +99,7 @@ describe("archivePlan", () => {
 describe("removePlan", () => {
   it("calls updateStatus with done", async () => {
     const mod = await import("../markdown-plan-engine.js") as any;
-    removePlan("/nexus", "plan-1");
+    removePlan("/shiten", "plan-1");
     expect(mod.__mockUpdate).toHaveBeenCalledWith("plan-1", "done");
   });
 });
@@ -127,28 +127,28 @@ describe("type exports", () => {
 
 describe("checkAndArchiveDonePlans", () => {
   it("returns zero archived when no plans have Status: Done", () => {
-    const result = checkAndArchiveDonePlans("/nexus");
+    const result = checkAndArchiveDonePlans("/shiten");
     expect(result.checked).toBeGreaterThanOrEqual(0);
     expect(result.archived).toBe(0);
     expect(result.archivedIds).toHaveLength(0);
   });
 
   it("is idempotent: running twice does not duplicate work", () => {
-    const result1 = checkAndArchiveDonePlans("/nexus");
-    const result2 = checkAndArchiveDonePlans("/nexus");
+    const result1 = checkAndArchiveDonePlans("/shiten");
+    const result2 = checkAndArchiveDonePlans("/shiten");
     expect(result1.checked).toBe(result2.checked);
     expect(result1.archived).toBe(result2.archived);
   });
 
   it("calls archiveIfDone for each active plan", async () => {
-    checkAndArchiveDonePlans("/nexus");
+    checkAndArchiveDonePlans("/shiten");
     const mod = await import("../markdown-plan-engine.js") as any;
     expect(mod.__mockArchiveIfDone).toHaveBeenCalledWith("plan-1");
     expect(mod.__mockArchiveIfDone).toHaveBeenCalledWith("plan-3");
   });
 
   it("skips inactive plans (already in done/)", async () => {
-    checkAndArchiveDonePlans("/nexus");
+    checkAndArchiveDonePlans("/shiten");
     const mod = await import("../markdown-plan-engine.js") as any;
     // plan-2 has isActive: false — should NOT be called
     expect(mod.__mockArchiveIfDone).not.toHaveBeenCalledWith("plan-2");
@@ -159,13 +159,13 @@ describe("checkAndArchiveDonePlans", () => {
     // Make mockArchiveIfDone return true for plan-3
     mod.__mockArchiveIfDone.mockImplementation((id: string) => id === "plan-3");
 
-    const result = checkAndArchiveDonePlans("/nexus");
+    const result = checkAndArchiveDonePlans("/shiten");
     expect(result.archived).toBe(1);
     expect(result.archivedIds).toContain("plan-3");
   });
 });
 
-// ── Step 2.9: nexus detect --auto doesn't error on unknown option ──────────
+// ── Step 2.9: shiten detect --auto doesn't error on unknown option ──────────
 
 describe("Step 2.9: detect --auto option", () => {
   it("detectCommand accepts --auto option without Commander error", () => {

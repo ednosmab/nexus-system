@@ -22,26 +22,26 @@ It does NOT cover:
 
 The new README should be a single-page overview that answers:
 
-1. **What is Nexus?** — One paragraph
+1. **What is Shiten?** — One paragraph
 2. **Why does it exist?** — Problem statement
 3. **How does it work?** — Mental model diagram
 4. **Quick start** — 5-minute guide
 5. **Architecture overview** — Link to docs/architecture/
 6. **Commands reference** — Table of all commands
-7. **For AI agents** — How to use Nexus as context
+7. **For AI agents** — How to use Shiten as context
 8. **Contributing** — Link to CONTRIBUTING.md
 
 ## Structure
 
 ```markdown
-# Nexus System
+# Shitenno-go
 
 > AI governance framework that grows with your project
 
-## What is Nexus
+## What is Shiten
 [One paragraph]
 
-## Why Nexus
+## Why Shiten
 [Problem + solution]
 
 ## Quick Start
