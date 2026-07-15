@@ -1,5 +1,5 @@
 /**
- * Governance module — Public barrel
+ * Governance module - Public barrel
  */
 
 export {

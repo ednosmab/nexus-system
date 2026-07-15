@@ -99,6 +99,11 @@ import {
 } from "../audit/governance-enforcement-detectors.js";
 
 import {
+  detectMisclassifiedTier,
+  detectTierMismatches,
+} from "../audit/context-tier-detectors.js";
+
+import {
   detectJSDocCoverage,
   detectUnsafeTypeAssertions,
   detectUnreachableCode,
@@ -335,6 +340,8 @@ export function buildDetectorMap(
     detectPolicyStructure: () => detectPolicyStructure(shitenDir),
     detectMissingPremortem: () => detectMissingPremortem(shitenDir),
     detectMissingAdrForChanges: () => detectMissingAdrForChanges(shitenDir),
+    detectMisclassifiedTier: () => detectMisclassifiedTier(shitenDir),
+    detectTierMismatches: () => detectTierMismatches(shitenDir),
     detectJSDocCoverage: () => detectJSDocCoverage(projectRoot, sourceFiles),
     detectUnsafeTypeAssertions: () => detectUnsafeTypeAssertions(projectRoot, sourceFiles),
     detectUnreachableCode: () => detectUnreachableCode(projectRoot, sourceFiles),

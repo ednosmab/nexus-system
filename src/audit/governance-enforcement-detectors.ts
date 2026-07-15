@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "../logger.js";
+import { checkpointBuffer } from "../governance/buffer-checkpoint.js";
 import type { HealthIssue } from "./types.js";
 
 // ── 2.1 Incomplete Session Close ────────────────────────────────────────────
@@ -23,6 +24,14 @@ export function detectIncompleteSessionClose(shitenDir: string): HealthIssue[] {
 
     const hasInProgress = content.includes("status: in_progress") || content.includes("status: active");
     const hasStaleBuffer = activeLines > 50;
+
+    // Create checkpoint before reporting any issues
+    if (hasInProgress || hasStaleBuffer) {
+      const checkpointResult = checkpointBuffer(shitenDir);
+      if (checkpointResult.success) {
+        logger.debug("governance-enforcement", `Checkpoint created before buffer report: ${checkpointResult.checkpointPath}`);
+      }
+    }
 
     if (hasInProgress) {
       issues.push({

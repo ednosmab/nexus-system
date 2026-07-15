@@ -61,3 +61,10 @@ export {
   detectUnsafeDeserialization,
   detectDependencyConfusion,
 } from "./engineering-detectors.js";
+
+// ── Context tier detectors ───────────────────────────────────────────────────
+
+export {
+  detectMisclassifiedTier,
+  detectTierMismatches,
+} from "./context-tier-detectors.js";
