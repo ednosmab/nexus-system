@@ -1,8 +1,10 @@
 {
-  "hash": "7c7491acd1ea",
-  "detectedAt": "2026-07-07T15:25:56.835Z",
+  "hash": "bbf3d6af7223",
+  "detectedAt": "2026-07-15T06:27:40.042Z",
   "domain": "monorepo",
   "stack": [
+    "typescript",
+    "node",
     "react"
   ],
   "scale": "medium",

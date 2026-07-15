@@ -1258,3 +1258,58 @@
 | Address critical knowledge debt (3+ gaps detected) | 🟡 Médio | Backlog | 2026-07-15 | unassigned |
 | Address critical knowledge debt (3+ gaps detected) | 🟡 Médio | Backlog | 2026-07-15 | unassigned |
 | Address critical knowledge debt (3+ gaps detected) | 🟡 Médio | Backlog | 2026-07-15 | unassigned |
+
+### BACKLOG-2026_07_15_MONOLITH_REFACTOR_PREVENTION — Plano: Monolith Refactor + Architectural Prevention
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-15 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano: Monolith Refactor + Architectural Prevention |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-15-monolith-refactor-prevention.md` |
+
+#### Passos do Plano
+- [ ] ADR-007 criado e aceite
+- [ ] ESLint config actualizado (5 regras novas)
+- [ ] pre-commit hook actualizado (file size gate)
+- [ ] validate:architecture criado e registado em package.json
+- [ ] FORBIDDEN_OPERATIONS.md actualizado (F-06)
+- [ ] DESDO.md actualizado (limites de tamanho)
+- [ ] clean_code_standards.md actualizado (limites de tamanho)
+- [ ] sync-docs.ts refactored (655 → ~50 linhas)
+- [ ] 10 validators criados em validators/
+- [ ] plan.ts refactored (945 → ~80 linhas)
+- [ ] 15 sub-comandos criados em plan/
+- [ ] optimization-proposer.ts refactored (630 → decomposta)
+- [ ] upgrade.ts refactored (501 → ~80 linhas)
+- [ ] 3 módulos criados em upgrade/
+- [ ] CI workflow actualizado (architecture validation step)
+- [ ] pnpm run lint — 0 erros
+- [ ] pnpm run typecheck — 0 erros
+- [ ] pnpm run test — todos passam
+- [ ] pnpm run validate:architecture — 0 violações
+- [ ] pnpm run sync:docs — warnings apenas
+- [ ] pnpm run validate:session — passa
+- [ ] Nenhum ficheiro em src/ >300 linhas (excluindo __tests__, templates)
+- [ ] Commit feito com mensagem correcta
+- [ ] Push para feat/monolith-refactor
+
+
+### BACKLOG-PLANO_MELHORIA_MECANISMO_CONTEXTO — Plano: Melhorar o Mecanismo de Medição de Contexto (P0-P4)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-15 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano: Melhorar o Mecanismo de Medição de Contexto (P0-P4) |
+| **Correcao** | Verificar checklist no plano `governance/plans/plano-melhoria-mecanismo-contexto.md` |
