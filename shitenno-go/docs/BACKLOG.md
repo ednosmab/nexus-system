@@ -1147,8 +1147,6 @@
 | **Correcao** | Verificar checklist no plano `governance/plans/2026-07-12-migrar-console-log-para-logger.md` |
 
 #### Passos do Plano
-- [x] Criar `src/output.ts` com helpers (output, outputLine, outputSection, outputTable, etc.)
-- [x] Criar plano (este ficheiro)
 - [ ] Migrar comandos (ordenados por complexidade crescente)
 - [ ] Run lint + tests
 - [ ] Atualizar BACKLOG.md (3.1 → Done)
@@ -1304,7 +1302,7 @@
 
 | Campo | Valor |
 |---|---|
-| **Status** | em implementação |
+| **Status** | Done |
 | **Severidade** | Medio |
 | **Prioridade** | P1 |
 | **Owner** | executor |
