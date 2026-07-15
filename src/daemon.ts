@@ -30,6 +30,7 @@ import {
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { getEventBus } from "./event-bus.js";
 import { startWatching } from "./infrastructure/persistence/file-watcher.js";
 import { checkAndArchiveDonePlans } from "./plan-lifecycle.js";
@@ -318,7 +319,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
 
   // ── Event Subscriptions ─────────────────────────────────────────────────────
 
-  // TIER 1: plan.file_changed — archive done plans (existing, enhanced)
+  // TIER 1: plan.file_changed — archive done plans + trigger standard audit
   bus.subscribe("plan.file_changed", () => {
     recordEvent(state, "plan.file_changed");
     try {
@@ -329,6 +330,8 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     } catch (err) {
       daemonLog(logPath, "ERROR", `checkAndArchiveDonePlans failed: ${err}`);
     }
+    // Trigger standard audit on plan changes (critical governance file)
+    runPeriodicAudit();
   });
 
   // TIER 1: workdir.large_uncommitted_drift — log drift (passive)
@@ -343,7 +346,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     daemonLog(logPath, "WARN", `Drift detected: ${state.drift.filesChanged} files, ${state.drift.minutesSinceLastCommit} min`);
   });
 
-  // TIER 1: task.completed — archive + buffer update (proactive)
+  // TIER 1: task.completed — archive + buffer update + trigger quick audit
   bus.subscribe("task.completed", () => {
     recordEvent(state, "task.completed");
     try {
@@ -354,6 +357,8 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     } catch (err) {
       daemonLog(logPath, "ERROR", `task.completed handler failed: ${err}`);
     }
+    // Trigger quick audit on task completion
+    runPeriodicAudit();
   });
 
   // TIER 1: session.start — track session (passive)
@@ -415,7 +420,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     };
   });
 
-  // TIER 2: backlog.updated — move completed items to done/
+  // TIER 2: backlog.updated — move completed items + trigger quick audit
   bus.subscribe("backlog.updated", () => {
     recordEvent(state, "backlog.updated");
     try {
@@ -426,6 +431,8 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     } catch (err) {
       daemonLog(logPath, "ERROR", `backlog.updated handler failed: ${err}`);
     }
+    // Trigger quick audit on backlog changes
+    runPeriodicAudit();
   });
 
   // TIER 2: plan.inconsistency_detected — log inconsistency (passive)
@@ -450,6 +457,20 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     });
   }
 
+  // ── Large Commit Detection — periodic check every 5 minutes ──────────────
+
+  const LARGE_COMMIT_THRESHOLD = 50;
+  const largeCommitTimer = setInterval(() => {
+    try {
+      if (isLargeCommit(shitenDir, LARGE_COMMIT_THRESHOLD)) {
+        daemonLog(logPath, "WARN", `Large commit detected (${LARGE_COMMIT_THRESHOLD}+ staged files) — triggering standard audit`);
+        runPeriodicAudit();
+      }
+    } catch (err) {
+      daemonLog(logPath, "ERROR", `Large commit check failed: ${err}`);
+    }
+  }, 5 * 60 * 1000);
+
   // ── State persistence timer ────────────────────────────────────────────────
 
   const persistTimer = setInterval(() => {
@@ -464,9 +485,8 @@ export async function runDaemon(shitenDir: string): Promise<void> {
 
   function getAuditIntervalMs(): number {
     const score = state.health?.score ?? 50;
-    if (score > 70) return 2 * 60 * 60 * 1000;   // 2 hours
-    if (score >= 40) return 30 * 60 * 1000;        // 30 minutes
-    return 10 * 60 * 1000;                          // 10 minutes
+    if (score > 70) return 6 * 60 * 60 * 1000;   // 6 hours (healthy)
+    return 4 * 60 * 60 * 1000;                     // 4 hours (unhealthy)
   }
 
   function getAuditLevel(): "quick" | "standard" | "code-review" {
@@ -519,6 +539,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     clearTimeout(stableTimer);
     clearInterval(persistTimer);
     clearInterval(auditTimer);
+    clearInterval(largeCommitTimer);
     persistState(state, statePath);
     stopWatcher();
     server.close(() => {
@@ -698,6 +719,24 @@ function checkInconsistencies(shitenDir: string): { checked: number; inconsisten
     inconsistencies: inconsistent.length,
     planIds,
   };
+}
+
+/**
+ * Check if there are very large staged changes (potential large commit).
+ * Returns true if staged files exceed threshold.
+ */
+function isLargeCommit(projectRoot: string, threshold: number = 50): boolean {
+  try {
+    const output = execSync("git diff --cached --name-only | wc -l", {
+      cwd: projectRoot,
+      encoding: "utf-8",
+      timeout: 5000,
+    });
+    const count = parseInt(output.trim(), 10);
+    return count > threshold;
+  } catch {
+    return false;
+  }
 }
 
 function parseReminderEntries(
