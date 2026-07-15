@@ -33,8 +33,12 @@ import { readFileSync } from "node:fs";
 import { getEventBus } from "./event-bus.js";
 import { startWatching } from "./infrastructure/persistence/file-watcher.js";
 import { checkAndArchiveDonePlans } from "./plan-lifecycle.js";
+import { InferenceEngine } from "./inference-engine.js";
+import { auditHealth } from "./health-auditor.js";
 import { DaemonCircuitBreaker } from "./daemon-circuit-breaker.js";
 import { outputError } from "./output.js";
+import { logger } from "./logger.js";
+import { SHITEN_DIR_NAME } from "./constants.js";
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 
@@ -259,6 +263,59 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   const bus = getEventBus();
   const stopWatcher = startWatching(shitenDir);
 
+  // ── Initial Startup Scan ───────────────────────────────────────────────────
+  // Execute proactive functions once on daemon startup (ignoreInitial workaround)
+
+  daemonLog(logPath, "INFO", "Running initial startup scan...");
+  const scanStartTime = Date.now();
+
+  // 1. Archive done plans
+  try {
+    const archiveResult = checkAndArchiveDonePlans(shitenDir);
+    if (archiveResult.archived > 0) {
+      daemonLog(logPath, "INFO", `Startup scan: archived ${archiveResult.archived} plan(s): ${archiveResult.archivedIds.join(", ")}`);
+    }
+    recordEvent(state, "startup_scan.archive_plans");
+  } catch (err) {
+    daemonLog(logPath, "ERROR", `Startup scan: checkAndArchiveDonePlans failed: ${err}`);
+  }
+
+  // 2. Check plan inconsistencies
+  try {
+    const inconsistencies = checkInconsistencies(shitenDir);
+    if (inconsistencies.inconsistencies > 0) {
+      daemonLog(logPath, "WARN", `Startup scan: found ${inconsistencies.inconsistencies} inconsistent plan(s)`);
+    }
+    recordEvent(state, "startup_scan.check_inconsistencies");
+  } catch (err) {
+    daemonLog(logPath, "ERROR", `Startup scan: checkInconsistencies failed: ${err}`);
+  }
+
+  // 3. Validate reminders
+  try {
+    const reminders = validateReminders(shitenDir);
+    if (reminders.removed > 0) {
+      daemonLog(logPath, "INFO", `Startup scan: removed ${reminders.removed} stale reminder(s)`);
+    }
+    recordEvent(state, "startup_scan.validate_reminders");
+  } catch (err) {
+    daemonLog(logPath, "ERROR", `Startup scan: validateReminders failed: ${err}`);
+  }
+
+  // 4. Move completed backlog items
+  try {
+    const backlog = moveCompletedBacklogToDone(shitenDir, shitenDir);
+    if (backlog.moved > 0) {
+      daemonLog(logPath, "INFO", `Startup scan: moved ${backlog.moved} completed backlog item(s)`);
+    }
+    recordEvent(state, "startup_scan.move_backlog");
+  } catch (err) {
+    daemonLog(logPath, "ERROR", `Startup scan: moveCompletedBacklogToDone failed: ${err}`);
+  }
+
+  const scanDuration = Date.now() - scanStartTime;
+  daemonLog(logPath, "INFO", `Initial startup scan completed in ${scanDuration}ms`);
+
   // ── Event Subscriptions ─────────────────────────────────────────────────────
 
   // TIER 1: plan.file_changed — archive done plans (existing, enhanced)
@@ -358,6 +415,26 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     };
   });
 
+  // TIER 2: backlog.updated — move completed items to done/
+  bus.subscribe("backlog.updated", () => {
+    recordEvent(state, "backlog.updated");
+    try {
+      const backlog = moveCompletedBacklogToDone(shitenDir, shitenDir);
+      if (backlog.moved > 0) {
+        daemonLog(logPath, "INFO", `backlog.updated: moved ${backlog.moved} completed item(s)`);
+      }
+    } catch (err) {
+      daemonLog(logPath, "ERROR", `backlog.updated handler failed: ${err}`);
+    }
+  });
+
+  // TIER 2: plan.inconsistency_detected — log inconsistency (passive)
+  bus.subscribe("plan.inconsistency_detected", (payload) => {
+    recordEvent(state, "plan.inconsistency_detected");
+    const p = payload as { planId?: string; message?: string } | undefined;
+    daemonLog(logPath, "WARN", `Plan inconsistency detected: ${p?.planId ?? "unknown"} — ${p?.message ?? ""}`);
+  });
+
   // ── Generic event logger — record all event types passing through ─────────
 
   const logEvents = [
@@ -379,6 +456,54 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     persistState(state, statePath);
   }, 30_000);
 
+  // ── Adaptive Periodic Audit ────────────────────────────────────────────────
+  // Calculates audit interval based on health score:
+  //   > 70 → quick audit every 2 hours
+  //   40-70 → standard audit every 30 minutes
+  //   < 40 → code-review audit every 10 minutes
+
+  function getAuditIntervalMs(): number {
+    const score = state.health?.score ?? 50;
+    if (score > 70) return 2 * 60 * 60 * 1000;   // 2 hours
+    if (score >= 40) return 30 * 60 * 1000;        // 30 minutes
+    return 10 * 60 * 1000;                          // 10 minutes
+  }
+
+  function getAuditLevel(): "quick" | "standard" | "code-review" {
+    const score = state.health?.score ?? 50;
+    if (score > 70) return "quick";
+    if (score >= 40) return "standard";
+    return "code-review";
+  }
+
+  function runPeriodicAudit(): void {
+    try {
+      const level = getAuditLevel();
+      const report = auditHealth(shitenDir, shitenDir, level);
+
+      // Update state with new health score
+      state.health = {
+        score: report.healthScore,
+        checkedAt: report.auditedAt,
+      };
+
+      recordEvent(state, "health.checked");
+      daemonLog(logPath, "INFO", `Periodic audit (${level}): score=${report.healthScore}/100, ${report.issues.length} issue(s)`);
+    } catch (err) {
+      daemonLog(logPath, "ERROR", `Periodic audit failed: ${err}`);
+    }
+  }
+
+  let auditTimer = setInterval(runPeriodicAudit, getAuditIntervalMs());
+
+  // Recalculate interval when health score changes
+  bus.subscribe("health.checked", () => {
+    const newInterval = getAuditIntervalMs();
+    clearInterval(auditTimer);
+    auditTimer = setInterval(runPeriodicAudit, newInterval);
+    daemonLog(logPath, "DEBUG", `Audit interval recalculated: ${newInterval / 1000}s (score=${state.health?.score ?? "unknown"})`);
+  });
+
   // ── Circuit Breaker: Reset after stable uptime ─────────────────────────────
 
   const breaker = new DaemonCircuitBreaker(shitenDir);
@@ -393,6 +518,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
     daemonLog(logPath, "INFO", `Received ${signal} — shutting down`);
     clearTimeout(stableTimer);
     clearInterval(persistTimer);
+    clearInterval(auditTimer);
     persistState(state, statePath);
     stopWatcher();
     server.close(() => {
@@ -549,6 +675,195 @@ function cleanup(pidPath: string, sockPath: string): void {
   for (const p of [pidPath, sockPath]) {
     try { if (existsSync(p)) unlinkSync(p); } catch { /* ignore */ }
   }
+}
+
+// ── Proactive Startup Functions ──────────────────────────────────────────────
+
+/**
+ * Detect plans with inconsistent status (e.g. status="done" but checkboxes still open).
+ * Uses InferenceEngine to analyse all plans.
+ */
+function checkInconsistencies(shitenDir: string): { checked: number; inconsistencies: number; planIds: string[] } {
+  const inferenceEngine = new InferenceEngine(shitenDir);
+  const allInferences = inferenceEngine.inferAllPlans();
+  const inconsistent = allInferences.filter((inf) => inf.inferredStatus === "inconsistent");
+  const planIds = inconsistent.map((inf) => inf.id);
+
+  if (inconsistent.length > 0) {
+    logger.warn("daemon", `Found ${inconsistent.length} inconsistent plan(s): ${planIds.join(", ")}`);
+  }
+
+  return {
+    checked: allInferences.length,
+    inconsistencies: inconsistent.length,
+    planIds,
+  };
+}
+
+function parseReminderEntries(
+  lines: string[],
+  remindersStart: number,
+  remindersEnd: number
+): string[][] {
+  const entries: string[][] = [];
+  let currentEntry: string[] | null = null;
+  for (let i = remindersStart + 1; i < remindersEnd; i++) {
+    const line = lines[i]!;
+    if (/^\s+- /.test(line)) {
+      if (currentEntry) entries.push(currentEntry);
+      currentEntry = [line];
+    } else if (currentEntry) {
+      currentEntry.push(line);
+    }
+  }
+  if (currentEntry) entries.push(currentEntry);
+  return entries;
+}
+
+function isReminderStale(entry: string[], now: number, maxAgeMs: number): boolean {
+  const createdAtLine = entry.find((l) => l.includes("createdAt:"));
+  if (!createdAtLine) return false;
+  const match = createdAtLine.match(/createdAt:\s*"(.+?)"/);
+  if (!match?.[1]) return false;
+  const createdAt = new Date(match[1]).getTime();
+  return now - createdAt > maxAgeMs;
+}
+
+/**
+ * Validate reminders in context_buffer.yaml.
+ * Removes stale reminders (> 7 days) and invalid ones.
+ */
+function validateReminders(
+  shitenDir: string
+): { validated: number; removed: number; kept: number } {
+  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  if (!existsSync(bufferPath)) {
+    return { validated: 0, removed: 0, kept: 0 };
+  }
+
+  const content = readFileSync(bufferPath, "utf-8");
+  const lines = content.split("\n");
+
+  const remindersStart = lines.findIndex((l) => /^reminders:\s*$/.test(l));
+  if (remindersStart === -1) {
+    return { validated: 0, removed: 0, kept: 0 };
+  }
+
+  // Find reminders section end
+  let remindersEnd = lines.length;
+  for (let i = remindersStart + 1; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (line.length > 0 && !line.startsWith(" ") && !line.startsWith("\t")) {
+      remindersEnd = i;
+      break;
+    }
+  }
+
+  const entries = parseReminderEntries(lines, remindersStart, remindersEnd);
+  const now = Date.now();
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+  const keptEntries = entries.filter((entry) => !isReminderStale(entry, now, SEVEN_DAYS_MS));
+  const removed = entries.length - keptEntries.length;
+
+  if (removed === 0) {
+    return { validated: entries.length, removed: 0, kept: entries.length };
+  }
+
+  // Rebuild the file with kept entries
+  const keptBlock = keptEntries.length > 0
+    ? keptEntries.map((e) => e.join("\n")).join("\n") + "\n"
+    : "[]\n";
+
+  const before = lines.slice(0, remindersStart + 1).join("\n");
+  const after = lines.slice(remindersEnd).join("\n");
+  const updated = before + "\n" + keptBlock + (after.startsWith("\n") ? after.slice(1) : after);
+
+  try {
+    writeFileSync(bufferPath, updated, "utf-8");
+    logger.info("daemon", `Validated ${entries.length} reminders: removed ${removed}, kept ${keptEntries.length}`);
+  } catch (err) {
+    logger.error("daemon", `Failed to update reminders: ${err}`);
+  }
+
+  return { validated: entries.length, removed, kept: keptEntries.length };
+}
+
+/**
+ * Move completed backlog items (checkboxes [x]) from BACKLOG.md to done/ directory.
+ */
+function moveCompletedBacklogToDone(
+  shitenDir: string,
+  projectRoot: string
+): { checked: number; moved: number; archivedPath: string | null } {
+  const backlogPath = join(projectRoot, SHITEN_DIR_NAME, "docs", "BACKLOG.md");
+  if (!existsSync(backlogPath)) {
+    // Try alternative paths
+    const altPath = join(projectRoot, "docs", "BACKLOG.md");
+    if (!existsSync(altPath)) {
+      return { checked: 0, moved: 0, archivedPath: null };
+    }
+    return moveFromBacklog(altPath, shitenDir);
+  }
+  return moveFromBacklog(backlogPath, shitenDir);
+}
+
+function moveFromBacklog(
+  backlogPath: string,
+  shitenDir: string
+): { checked: number; moved: number; archivedPath: string | null } {
+  const content = readFileSync(backlogPath, "utf-8");
+  const lines = content.split("\n");
+
+  // Find completed items (lines with [x])
+  const completedLines: string[] = [];
+  const remainingLines: string[] = [];
+
+  for (const line of lines) {
+    if (/^- \[x\]/.test(line)) {
+      completedLines.push(line);
+    } else {
+      remainingLines.push(line);
+    }
+  }
+
+  if (completedLines.length === 0) {
+    return { checked: lines.length, moved: 0, archivedPath: null };
+  }
+
+  // Create done directory if it doesn't exist
+  const doneDir = join(shitenDir, "governance", "plans", "done");
+  if (!existsSync(doneDir)) {
+    mkdirSync(doneDir, { recursive: true });
+  }
+
+  // Archive completed items to a dated file
+  const date = new Date().toISOString().slice(0, 10);
+  const archivePath = join(doneDir, `${date}-completed-backlog.md`);
+  const archiveContent = `# Completed Backlog Items\n\nArchived: ${new Date().toISOString()}\n\n${completedLines.join("\n")}\n`;
+
+  try {
+    writeFileSync(archivePath, archiveContent, "utf-8");
+    logger.info("daemon", `Archived ${completedLines.length} completed backlog items to ${archivePath}`);
+  } catch (err) {
+    logger.error("daemon", `Failed to archive backlog items: ${err}`);
+    return { checked: lines.length, moved: 0, archivedPath: null };
+  }
+
+  // Rewrite BACKLOG.md without completed items
+  try {
+    writeFileSync(backlogPath, remainingLines.join("\n"), "utf-8");
+    logger.info("daemon", `Removed ${completedLines.length} completed items from BACKLOG.md`);
+  } catch (err) {
+    logger.error("daemon", `Failed to update BACKLOG.md: ${err}`);
+    return { checked: lines.length, moved: 0, archivedPath: null };
+  }
+
+  return {
+    checked: lines.length,
+    moved: completedLines.length,
+    archivedPath: archivePath,
+  };
 }
 
 // ── Entry Point ───────────────────────────────────────────────────────────────

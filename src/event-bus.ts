@@ -57,11 +57,14 @@ export type ShitenEventType =
   | "plan.file_changed"
   | "plan.status_changed"
   | "plan.format_warning"
+  | "plan.inconsistency_detected"
   | "backlog.updated"
   | "system.updated"
   | "challenge.generated"
   | "state.mutated"
-  | "workdir.large_uncommitted_drift";
+  | "workdir.large_uncommitted_drift"
+  | "context.p4_loaded"
+  | "context.tier_mismatch";
 
 export type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;
 

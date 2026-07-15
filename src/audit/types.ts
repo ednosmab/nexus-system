@@ -221,7 +221,9 @@ export type HealthIssueType =
   | "unused_dependencies"
   | "missing_lock"
   | "duplicate_dependencies"
-  | "unaudited_dependencies";
+  | "unaudited_dependencies"
+  // Context Tier Promotion
+  | "tier_promotion_candidate";
 
 /** Problema de saúde detectado no sistema. */
 export interface HealthIssue {

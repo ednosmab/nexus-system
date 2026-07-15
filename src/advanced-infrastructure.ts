@@ -100,6 +100,7 @@ const EVENT_VERSIONS: Record<ShitenEventType, EventVersion> = {
   "plan.file_changed": 1,
   "plan.status_changed": 1,
   "plan.format_warning": 1,
+  "plan.inconsistency_detected": 1,
   "backlog.updated": 1,
   "lifecycle.state_changed": 1,
   "knowledge.analyzed": 1,
@@ -119,6 +120,8 @@ const EVENT_VERSIONS: Record<ShitenEventType, EventVersion> = {
   "challenge.generated": 1,
   "state.mutated": 1,
   "workdir.large_uncommitted_drift": 1,
+  "context.p4_loaded": 1,
+  "context.tier_mismatch": 1,
 };
 
 /** Migrate a payload from one version to another. */
