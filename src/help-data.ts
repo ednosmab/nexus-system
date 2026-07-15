@@ -374,6 +374,22 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
           "Nível 3: Para architects (arquitetura interna)",
         ],
       },
+      {
+        name: "daemon",
+        description: "Manage the Shiten background daemon (start/stop/status)",
+        usage: "shiten daemon [options] [command]",
+        examples: [
+          "shiten daemon start          # Start the daemon in the background",
+          "shiten daemon stop           # Stop the daemon gracefully",
+          "shiten daemon status         # Show daemon status and uptime",
+          "shiten daemon restart        # Restart the daemon",
+        ],
+        tips: [
+          "O daemon é opcional — todos os comandos funcionam sem ele",
+          "Use 'shiten daemon status' para verificar se está a correr",
+          "Monitoriza ficheiros, sessões, saúde e desafios em tempo real",
+        ],
+      },
     ],
   },
   {

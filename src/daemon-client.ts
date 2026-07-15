@@ -203,6 +203,64 @@ export function pingDaemon(shitenDir: string): Promise<boolean> {
   });
 }
 
+// ── Query: Status ────────────────────────────────────────────────────────────
+
+export interface DaemonStatusResponse {
+  type: string;
+  pid: number;
+  version: string;
+  shitenDir: string;
+  socketPath: string;
+  uptimeSeconds: number;
+  eventsRecorded: number;
+  activeSessions: number;
+  lastSession: { id: string; startedAt: string; duration?: number } | null;
+  drift: { filesChanged: number; minutesSinceLastCommit: number; detectedAt: string } | null;
+  health: { score: number; checkedAt: string } | null;
+  challengesQueued: number;
+  debt: { gapCount: number; healthScore: number; detectedAt: string } | null;
+}
+
+/**
+ * Query the daemon for its full status via IPC.
+ * Returns the expanded status response or null on failure.
+ */
+export function queryDaemonStatus(shitenDir: string): Promise<DaemonStatusResponse | null> {
+  return new Promise((resolve) => {
+    const socketPath = getSocketPath(shitenDir);
+    if (!existsSync(socketPath)) {
+      resolve(null);
+      return;
+    }
+
+    const client = createConnection(socketPath);
+    const timer = setTimeout(() => {
+      client.destroy();
+      resolve(null);
+    }, 2_000);
+
+    client.once("connect", () => {
+      client.write(JSON.stringify({ type: "status" }) + "\n");
+    });
+
+    client.once("data", (data) => {
+      clearTimeout(timer);
+      try {
+        const msg = JSON.parse(data.toString().trim()) as DaemonStatusResponse;
+        resolve(msg.type === "status" ? msg : null);
+      } catch {
+        resolve(null);
+      }
+      client.destroy();
+    });
+
+    client.once("error", () => {
+      clearTimeout(timer);
+      resolve(null);
+    });
+  });
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function sleep(ms: number): Promise<void> {

@@ -9,19 +9,34 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import { guardNotInitialized } from "../shared.js";
-import { isDaemonRunning, startDaemon, stopDaemon, pingDaemon, shouldSkipDaemon, getSocketPath, getDaemonPid, isDaemonApproved } from "../daemon-client.js";
+import { isDaemonRunning, startDaemon, stopDaemon, shouldSkipDaemon, getSocketPath, isDaemonApproved, queryDaemonStatus } from "../daemon-client.js";
 import { DaemonCircuitBreaker } from "../daemon-circuit-breaker.js";
 import { output, outputBlank } from "../output.js";
+
+function formatUptime(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return `${h}h ${m}m`;
+}
 
 export function daemonCommand(): Command {
   const cmd = new Command("daemon")
     .description("Manage the Shiten background daemon")
     .addHelpText("after", `
-Examples:
-  shiten daemon start     Start the daemon in the background
-  shiten daemon stop      Stop the daemon gracefully
-  shiten daemon status    Show daemon status and uptime
-  shiten daemon restart   Restart the daemon
+Exemplos:
+  shiten daemon start     Iniciar o daemon em segundo plano
+  shiten daemon stop      Parar o daemon graciosamente
+  shiten daemon status    Mostrar estado e uptime do daemon
+  shiten daemon restart   Reiniciar o daemon
+
+O daemon é um hub de eventos que monitoriza:
+  - Arquivo automático de planos concluídos
+  - Alertas de drift no working directory
+  - Sessões activas e histórico
+  - Saúde do projecto e desafios de melhoria
+  - Dívida de conhecimento
 `);
 
   // ── start ──────────────────────────────────────────────────────────────────
@@ -107,14 +122,59 @@ Examples:
       output(`  Running:    ${running ? chalk.green("yes") : chalk.red("no")}`);
 
       if (running) {
-        // Try to get detailed info via ping
-        const alive = await pingDaemon(ctx.shitenDir);
-        output(`  Responsive: ${alive ? chalk.green("yes") : chalk.yellow("no (socket not responding)")}`);
+        const status = await queryDaemonStatus(ctx.shitenDir);
 
-        // Show PID
-        const pid = getDaemonPid(ctx.shitenDir);
-        if (pid) {
-          output(`  PID:        ${chalk.bold(pid)}`);
+        if (status) {
+          output(`  PID:        ${chalk.bold(status.pid)}`);
+          output(`  Version:    ${status.version}`);
+          output(`  Uptime:     ${formatUptime(status.uptimeSeconds)}`);
+          output(`  Events:     ${status.eventsRecorded} recorded`);
+
+          outputBlank();
+          output(chalk.bold("  Sessions:"));
+          output(`    Active:   ${status.activeSessions}`);
+          if (status.lastSession) {
+            const dur = status.lastSession.duration
+              ? `${status.lastSession.duration}min`
+              : "em curso";
+            output(`    Latest:   ${chalk.gray(`${status.lastSession.id} (${dur})`)}`);
+          }
+
+          if (status.drift) {
+            outputBlank();
+            output(chalk.bold("  Drift:"));
+            output(`    Files:    ${chalk.yellow(String(status.drift.filesChanged))} changed`);
+            output(`    Time:     ${chalk.yellow(String(status.drift.minutesSinceLastCommit))} min since last commit`);
+            output(`    Detected: ${chalk.gray(status.drift.detectedAt)}`);
+          }
+
+          if (status.health) {
+            outputBlank();
+            output(chalk.bold("  Health:"));
+            const scoreColor = status.health.score >= 70 ? chalk.green
+              : status.health.score >= 40 ? chalk.yellow
+              : chalk.red;
+            output(`    Score:    ${scoreColor(String(status.health.score))}/100`);
+            output(`    Checked:  ${chalk.gray(status.health.checkedAt)}`);
+          }
+
+          if (status.challengesQueued > 0) {
+            outputBlank();
+            output(chalk.bold("  Challenges:"));
+            output(`    Queued:   ${chalk.yellow(String(status.challengesQueued))}`);
+          }
+
+          if (status.debt) {
+            outputBlank();
+            output(chalk.bold("  Knowledge Debt:"));
+            output(`    Gaps:     ${chalk.yellow(String(status.debt.gapCount))}`);
+            const debtColor = status.debt.healthScore >= 70 ? chalk.green
+              : status.debt.healthScore >= 40 ? chalk.yellow
+              : chalk.red;
+            output(`    Health:   ${debtColor(String(status.debt.healthScore))}/100`);
+          }
+        } else {
+          output(chalk.yellow("  ℹ  Daemon is running but did not respond to status query"));
         }
       }
 
