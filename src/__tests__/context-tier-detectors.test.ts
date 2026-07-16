@@ -1,9 +1,17 @@
 /**
  * Tests for context-tier-detectors.ts
  *
- * Note: getRecentEvents calls readPersistedEvents 7 times (once per day).
- * The mock returns the same events for all 7 calls, so each event appears 7 times.
- * Threshold is 3 loads, so even 1 event * 7 days = 7 > 3.
+ * getRecentEvents calls readPersistedEvents 7 times (once per day).
+ * The mock returns events only for the first call (today) and empty for
+ * the remaining 6 days. This matches real-world behavior where events
+ * are only found on the date they were persisted.
+ *
+ * For detectMisclassifiedTier: events are grouped by document and counted,
+ * so even 1 event today = 1 load, which is below the threshold of 3.
+ * We add enough events to exceed the threshold.
+ *
+ * For detectTierMismatches: each event produces one issue, so the count
+ * matches the number of events pushed (not multiplied by days).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -39,7 +47,18 @@ const makeEvent = (type: string, payload: Record<string, unknown>): MockEvent =>
 beforeEach(() => {
   tempDir = mkdtempSync(join(tmpdir(), "tier-detector-test-"));
   mockEvents.length = 0;
-  readPersistedEventsMock.mockImplementation((): MockEvent[] => [...mockEvents]);
+  // Return events only for the first call (today), empty for the other 6 days.
+  // This matches real-world behavior: readPersistedEvents(dir, dateStr)
+  // only returns events from that specific date.
+  // Uses mockImplementationOnce so it captures mockEvents at call time, not setup time.
+  readPersistedEventsMock
+    .mockImplementationOnce((): MockEvent[] => [...mockEvents])
+    .mockReturnValueOnce([])
+    .mockReturnValueOnce([])
+    .mockReturnValueOnce([])
+    .mockReturnValueOnce([])
+    .mockReturnValueOnce([])
+    .mockReturnValueOnce([]);
 });
 
 afterEach(() => {
@@ -57,8 +76,10 @@ describe("detectMisclassifiedTier", () => {
   });
 
   it("flags document loaded >= threshold", () => {
-    // 1 event * 7 days = 7 loads > threshold of 3
-    mockEvents.push(makeEvent("context.p4_loaded", { docPath: "ADR-001.md", tierDeclared: "P4" }));
+    // 4 events for the same doc → 4 loads > threshold of 3
+    for (let i = 0; i < 4; i++) {
+      mockEvents.push(makeEvent("context.p4_loaded", { docPath: "ADR-001.md", tierDeclared: "P4" }));
+    }
     const issues = detectMisclassifiedTier(tempDir);
     expect(issues.length).toBe(1);
     expect(issues[0]!.type).toBe("tier_promotion_candidate");
@@ -66,9 +87,11 @@ describe("detectMisclassifiedTier", () => {
   });
 
   it("flags multiple documents above threshold", () => {
-    // Both docs appear 7 times (1 event * 7 days), both > threshold of 3
-    mockEvents.push(makeEvent("context.p4_loaded", { docPath: "doc-a.md" }));
-    mockEvents.push(makeEvent("context.p4_loaded", { docPath: "doc-b.md" }));
+    // Both docs have 4 events each → 4 loads > threshold of 3
+    for (let i = 0; i < 4; i++) {
+      mockEvents.push(makeEvent("context.p4_loaded", { docPath: "doc-a.md" }));
+      mockEvents.push(makeEvent("context.p4_loaded", { docPath: "doc-b.md" }));
+    }
     const issues = detectMisclassifiedTier(tempDir);
     expect(issues.length).toBe(2);
   });
@@ -90,7 +113,7 @@ describe("detectTierMismatches", () => {
   });
 
   it("flags documents with tier mismatches", () => {
-    // 1 event * 7 days = 7 mismatches
+    // 1 event → 1 issue (no day multiplication since mock returns events only for today)
     mockEvents.push(makeEvent("context.tier_mismatch", {
       docPath: "WORKFLOW.md",
       declaredTier: "P4",
@@ -108,7 +131,7 @@ describe("detectTierMismatches", () => {
   });
 
   it("detects multiple mismatches", () => {
-    // 2 different docs, each appears 7 times
+    // 2 events → 2 issues (no day multiplication since mock returns events only for today)
     mockEvents.push(makeEvent("context.tier_mismatch", { docPath: "doc-a.md", declaredTier: "P4", actualTier: "P2" }));
     mockEvents.push(makeEvent("context.tier_mismatch", { docPath: "doc-b.md", declaredTier: "P3", actualTier: "P1" }));
     const issues = detectTierMismatches(tempDir);

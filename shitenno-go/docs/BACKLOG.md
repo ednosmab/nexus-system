@@ -1338,3 +1338,51 @@
 - [ ] Testar: reminders stale são removidos
 - [ ] Testar: backlog items concluídos são movidos
 - [ ] Testar: auditoria periódica adjusta intervalo
+
+
+### BACKLOG-HANDOFF_AGENTE — Handoff para o agente — shitenno-go
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Handoff para o agente — shitenno-go |
+| **Correcao** | Verificar checklist no plano `governance/plans/handoff-agente.md` |
+
+
+### BACKLOG-PLANO_DAEMON_KERNEL — Plano: transformar o daemon no kernel do shitenno-go
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano: transformar o daemon no kernel do shitenno-go |
+| **Correcao** | Verificar checklist no plano `governance/plans/plano-daemon-kernel.md` |
+
+
+### BACKLOG-MIGRACAO_YAML_FRONTMATTER — Plano: migrar o formato de status dos planos para frontmatter YAML
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano: migrar o formato de status dos planos para frontmatter YAML |
+| **Correcao** | Verificar checklist no plano `governance/plans/migracao-yaml-frontmatter.md` |
+
+#### Passos do Plano
+- [ ] Passo 1 — TBD
