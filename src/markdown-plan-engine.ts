@@ -14,6 +14,8 @@ import { existsSync, readFileSync, writeFileSync, readdirSync, renameSync, mkdir
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { getEventBus } from "./event-bus.js";
+import { sanitizePlanId } from "./path-safety.js";
+import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -294,22 +296,24 @@ export class MarkdownPlanEngine {
    * Searches in active, done, and reference directories.
    */
   getById(id: string): MarkdownPlan | null {
+    const safeId = sanitizePlanId(id);
+
     // Search in active plans
-    const activePath = join(this.plansDir, `${id}.md`);
+    const activePath = join(this.plansDir, `${safeId}.md`);
     if (existsSync(activePath)) {
-      return this.parsePlan(id, activePath, `shitenno-go/governance/plans/${id}.md`);
+      return this.parsePlan(safeId, activePath, `shitenno-go/governance/plans/${safeId}.md`);
     }
 
     // Search in done plans
-    const donePath = join(this.doneDir, `${id}.md`);
+    const donePath = join(this.doneDir, `${safeId}.md`);
     if (existsSync(donePath)) {
-      return this.parsePlan(id, donePath, `shitenno-go/governance/plans/done/${id}.md`);
+      return this.parsePlan(safeId, donePath, `shitenno-go/governance/plans/done/${safeId}.md`);
     }
 
     // Search in reference plans
-    const refPath = join(this.referenceDir, `${id}.md`);
+    const refPath = join(this.referenceDir, `${safeId}.md`);
     if (existsSync(refPath)) {
-      return this.parsePlan(id, refPath, `shitenno-go/governance/plans/reference/${id}.md`);
+      return this.parsePlan(safeId, refPath, `shitenno-go/governance/plans/reference/${safeId}.md`);
     }
 
     return null;
@@ -340,8 +344,7 @@ export class MarkdownPlanEngine {
         content = content.slice(0, yamlMatch.index) + newBlock + content.slice((yamlMatch.index ?? 0) + yamlMatch[0].length);
         wroteYaml = true;
       } catch {
-        // Malformed existing YAML block — fall through to the legacy
-        // text-field path below instead of corrupting the file further.
+        logger.debug("markdown-plan-engine", "Malformed YAML block — falling through to legacy path");
       }
     }
 

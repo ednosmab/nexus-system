@@ -48,16 +48,16 @@ Documents in this layer define the mental model of Shiten. They describe concept
 
 | Document | Purpose |
 |----------|---------|
-| [Meta Model](./domain/meta-model.md) | The conceptual flow: Reality → Observation → Knowledge → Assets → Capabilities → State → Decisions → Actions → Evolution |
-| [Ubiquitous Language](./domain/ubiquitous-language.md) | Official domain specification — 15 concepts with definitions, responsibilities, relationships |
-| [Three-Tier State](./domain/three-tier-state.md) | Knowledge (permanent), State (current), Memory (temporary) |
-| [Knowledge Lifecycle](./domain/knowledge-lifecycle.md) | 9 stages: Observation → Hypothesis → Experiment → Decision → ADR → Skill → Contract → Automation → Command |
-| [Capability Model](./domain/capability-model.md) | 9 capabilities, dependencies, maturity dimensions |
-| [Engineering State](./domain/engineering-state.md) | Measurable condition of engineering practices |
-| [Problem Statement](./domain/problem-statement.md) | The problem Shiten exists to solve |
-| [Knowledge](./domain/knowledge.md) | What knowledge means in the Shiten context |
-| [Engineering Assets](./domain/engineering-assets.md) | What characterizes an engineering asset |
-| [Decisions](./domain/decisions.md) | How decisions are modeled |
+| [Meta Model](../../docs/domain/meta-model.md) | The conceptual flow: Reality → Observation → Knowledge → Assets → Capabilities → State → Decisions → Actions → Evolution |
+| [Ubiquitous Language](../../docs/domain/ubiquitous-language.md) | Official domain specification — 15 concepts with definitions, responsibilities, relationships |
+| [Three-Tier State](../../docs/domain/three-tier-state.md) | Knowledge (permanent), State (current), Memory (temporary) |
+| [Knowledge Lifecycle](../../docs/domain/knowledge-lifecycle.md) | 9 stages: Observation → Hypothesis → Experiment → Decision → ADR → Skill → Contract → Automation → Command |
+| [Capability Model](../../docs/domain/capability-model.md) | 9 capabilities, dependencies, maturity dimensions |
+| [Engineering State](../../docs/domain/engineering-state.md) | Measurable condition of engineering practices |
+| [Problem Statement](../../docs/domain/problem-statement.md) | The problem Shiten exists to solve |
+| [Knowledge](../../docs/domain/knowledge.md) | What knowledge means in the Shiten context |
+| [Engineering Assets](../../docs/domain/engineering-assets.md) | What characterizes an engineering asset |
+| [Decisions](../../docs/domain/decisions.md) | How decisions are modeled |
 
 **Read this** if you want to understand how Shiten thinks.
 
@@ -71,29 +71,29 @@ Documents in this layer describe how domain concepts are implemented in software
 
 | Document | Purpose |
 |----------|---------|
-| [Design Principles](./architecture/design-principles.md) | Immutable principles for implementation |
-| [Capability Engine](./architecture/capability-engine.md) | Implementation of the Capability Model |
-| [Engineering State Architecture](./architecture/engineering-state-architecture.md) | Implementation of the Engineering State |
-| [Domain Model Mapping](./architecture/domain-model-mapping.md) | Module-to-Meta-Model alignment |
-| [Validation Matrix](./architecture/validation-matrix.md) | Complete module alignment validation |
-| [Future Engines](./architecture/future-engines.md) | 5 future engines specification |
-| [Complexity Scoring](./architecture/complexity-scoring.md) | Scoring engine implementation |
-| [AI Readiness](./architecture/ai-readiness.md) | AI readiness criteria |
-| [Knowledge Debt](./architecture/knowledge-debt.md) | Debt detection implementation |
-| [Context Management](./architecture/context-management.md) | P0-P4 hierarchy |
-| [Adaptive Governance](./architecture/adaptive-governance.md) | Rule engine specification |
-| [Knowledge Graph](./architecture/knowledge-graph.md) | Artifact graph implementation |
-| [Event Bus](./architecture/event-bus.md) | Pub/sub architecture |
-| [Pipeline Engine](./architecture/pipeline-engine.md) | Command orchestration |
-| [Feedback Loops](./architecture/feedback-loops.md) | Learning from acceptance/rejection |
-| [State Machine](./architecture/state-machine.md) | Lifecycle gates |
-| [Plugin System](./architecture/plugin-system.md) | Hooks and extensibility |
-| [Recommendation Engine](./architecture/recommendation-engine.md) | Auto-evolution specification |
-| [Command Architecture](./architecture/command-architecture.md) | Command patterns |
-| [Quality Attributes](./architecture/quality-attributes.md) | Performance, security, usability |
-| [AI Agent Guidelines](./architecture/ai-agent-guidelines.md) | Rules for AI agents |
-| [Anti-Patterns](./architecture/anti-patterns.md) | What NOT to do |
-| [Ubiquitous Language (Quick)](./architecture/ubiquitous-language-quick.md) | Quick reference for daily development |
+| [Design Principles](../../docs/architecture/design-principles.md) | Immutable principles for implementation |
+| [Capability Engine](../../docs/architecture/capability-engine.md) | Implementation of the Capability Model |
+| [Engineering State Architecture](../../docs/architecture/engineering-state-architecture.md) | Implementation of the Engineering State |
+| [Domain Model Mapping](../../docs/architecture/domain-model-mapping.md) | Module-to-Meta-Model alignment |
+| [Validation Matrix](../../docs/architecture/validation-matrix.md) | Complete module alignment validation |
+| [Future Engines](../../docs/architecture/future-engines.md) | 5 future engines specification |
+| [Complexity Scoring](../../docs/architecture/complexity-scoring.md) | Scoring engine implementation |
+| [AI Readiness](../../docs/architecture/ai-readiness.md) | AI readiness criteria |
+| [Knowledge Debt](../../docs/architecture/knowledge-debt.md) | Debt detection implementation |
+| [Context Management](../../docs/architecture/context-management.md) | P0-P4 hierarchy |
+| [Adaptive Governance](../../docs/architecture/adaptive-governance.md) | Rule engine specification |
+| [Knowledge Graph](../../docs/architecture/knowledge-graph.md) | Artifact graph implementation |
+| [Event Bus](../../docs/architecture/event-bus.md) | Pub/sub architecture |
+| [Pipeline Engine](../../docs/architecture/pipeline-engine.md) | Command orchestration |
+| [Feedback Loops](../../docs/architecture/feedback-loops.md) | Learning from acceptance/rejection |
+| [State Machine](../../docs/architecture/state-machine.md) | Lifecycle gates |
+| [Plugin System](../../docs/architecture/plugin-system.md) | Hooks and extensibility |
+| [Recommendation Engine](../../docs/architecture/recommendation-engine.md) | Auto-evolution specification |
+| [Command Architecture](../../docs/architecture/command-architecture.md) | Command patterns |
+| [Quality Attributes](../../docs/architecture/quality-attributes.md) | Performance, security, usability |
+| [AI Agent Guidelines](../../docs/architecture/ai-agent-guidelines.md) | Rules for AI agents |
+| [Anti-Patterns](../../docs/architecture/anti-patterns.md) | What NOT to do |
+| [Ubiquitous Language (Quick)](../../docs/architecture/ubiquitous-language-quick.md) | Quick reference for daily development |
 
 **Read this** if you want to understand how Shiten is built.
 
@@ -107,11 +107,11 @@ Documents in this layer describe the implementation history, refactoring plans, 
 
 | Document | Purpose |
 |----------|---------|
-| [README Refactor](./implementation/readme-refactor.md) | Plan to rewrite the README |
-| [CLI Refactor](./implementation/cli-refactor.md) | Plan to refactor CLI commands |
-| [Core Evolution](./implementation/core-evolution.md) | Core evolution roadmap |
-| [Validation Checklist](./implementation/validation-checklist.md) | Validation checklist per capability |
-| [Roadmap](./implementation/roadmap.md) | Visual roadmap with phases and milestones |
+| [README Refactor](../../docs/implementation/readme-refactor.md) | Plan to rewrite the README |
+| [CLI Refactor](../../docs/implementation/cli-refactor.md) | Plan to refactor CLI commands |
+| [Core Evolution](../../docs/implementation/core-evolution.md) | Core evolution roadmap |
+| [Validation Checklist](../../docs/implementation/validation-checklist.md) | Validation checklist per capability |
+| [Roadmap](../../docs/implementation/roadmap.md) | Visual roadmap with phases and milestones |
 
 ---
 
@@ -123,12 +123,12 @@ Documents in this layer describe the target architecture, migration strategy, an
 
 | Document | Purpose |
 |----------|---------|
-| [Evolution README](./evolution/README.md) | Navigation hub for all evolution documents |
-| [Executive Summary](./evolution/00-EXECUTIVE-SUMMARY.md) | High-level priorities |
-| [Current State Assessment](./evolution/01-CURRENT-STATE-ASSESSMENT.md) | Strengths and risks |
-| [Target Architecture](./evolution/03-TARGET-ARCHITECTURE.md) | Target architecture direction |
-| [Master Evolution Plan](./evolution/ai/MASTER_EVOLUTION_PLAN.md) | Strategic objectives and roadmap |
-| [Migration Waves](./evolution/roadmap/) | Wave 1-4 migration plans |
+| [Evolution README](../../docs/evolution/README.md) | Navigation hub for all evolution documents |
+| [Executive Summary](../../docs/evolution/00-EXECUTIVE-SUMMARY.md) | High-level priorities |
+| [Current State Assessment](../../docs/evolution/01-CURRENT-STATE-ASSESSMENT.md) | Strengths and risks |
+| [Target Architecture](../../docs/evolution/03-TARGET-ARCHITECTURE.md) | Target architecture direction |
+| [Master Evolution Plan](../../docs/evolution/ai/MASTER_EVOLUTION_PLAN.md) | Strategic objectives and roadmap |
+| [Migration Waves](../../docs/evolution/roadmap/) | Wave 1-4 migration plans |
 
 **Read this** if you want to understand where Shiten is heading.
 

@@ -15,7 +15,7 @@ export async function fetchYaml<T>(path: string): Promise<T | null> {
     const res = await fetch(path)
     if (!res.ok) return null
     const text = await res.text()
-    return jsYaml.load(text) as T
+    return jsYaml.load(text, { schema: jsYaml.FAILSAFE_SCHEMA }) as T
   } catch {
     return null
   }

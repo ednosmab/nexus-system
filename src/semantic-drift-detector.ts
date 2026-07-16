@@ -71,7 +71,7 @@ function scanImports(srcDir: string): string[] {
         const pkg = match[1]?.split("/").slice(0, 2).join("/");
         if (pkg && !pkg.startsWith(".")) imports.push(pkg);
       }
-    } catch { /* skip */ }
+    } catch { /* skip unreadable source files */ }
   }
   return [...new Set(imports)];
 }

@@ -380,7 +380,7 @@ function loadQuickBoard(shitenDir: string): {
         tierDeclared: "P4",
       });
     } catch {
-      // Best-effort event publishing
+      logger.debug("context-collector", "Failed to publish quick-board event — best-effort");
     }
 
     // Extract current task
@@ -440,7 +440,7 @@ function loadQuickBoard(shitenDir: string): {
           }
         }
       } catch {
-        // Ignore read errors — use context_buffer values
+        logger.debug("context-collector", "Failed to read supplemental context — using buffer values");
       }
     }
 

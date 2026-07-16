@@ -155,7 +155,7 @@ export function startWatching(
       try {
         fileContent = readFileSync(filePath, "utf-8");
       } catch {
-        // File might have been deleted between add and read
+        logger.debug("file-watcher", `File may have been deleted between add and read: ${relativePath}`);
       }
       bus.publish("plan.file_changed", {
         planId,

@@ -11,7 +11,7 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { logger } from "./logger.js";
 import { validateCompletionGate, type CompletionResult } from "./task-completion.js";
 import { completeTask } from "./backlog-state-machine.js";
@@ -85,11 +85,12 @@ function findActivePlanForTask(shitenDir: string, taskId: string): string | null
  */
 function archivePlan(projectRoot: string, planId: string): boolean {
   try {
-    execSync(`SHITEN_CHILD=1 node dist/shiten.js plan md done ${planId}`, {
+    execFileSync("node", ["dist/shiten.js", "plan", "md", "done", planId], {
       cwd: projectRoot,
       timeout: 30000,
       encoding: "utf-8",
       stdio: "pipe",
+      env: { ...process.env, SHITEN_CHILD: "1" },
     });
     logger.info("task-completion-pipeline", `Plan archived: ${planId}`);
     return true;

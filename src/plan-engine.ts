@@ -11,6 +11,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { ActionEngine, type ActionRequest } from "./action-engine.js";
+import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -113,7 +114,7 @@ export class FilePlanRepository implements PlanRepository {
           plans.push(plan);
         }
       } catch {
-        // Skip corrupt files
+        logger.debug("plan-engine", `Skipping corrupt plan file: ${file}`);
       }
     }
 
@@ -289,7 +290,7 @@ export class PlanEngine {
         await this.actionEngine.rollback(step.executionId!);
         step.status = "rolled_back";
       } catch {
-        // Continue rollback even if one step fails
+        logger.debug("plan-engine", `Failed to rollback step ${step.executionId}`);
       }
     }
 

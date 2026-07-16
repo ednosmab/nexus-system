@@ -102,7 +102,7 @@ export function buildP4Index(shitenDir: string): P4IndexResult {
             summary,
           });
         } catch {
-          // Skip invalid JSON
+          logger.debug("context-index-builder", "Skipping invalid feedback JSON record");
         }
       }
     } catch (err) {
@@ -118,7 +118,7 @@ export function buildP4Index(shitenDir: string): P4IndexResult {
     try {
       mkdirSync(indexDir, { recursive: true });
     } catch {
-      // Directory creation is best-effort
+      logger.debug("context-index-builder", "Failed to create index directory — best-effort");
     }
   }
 

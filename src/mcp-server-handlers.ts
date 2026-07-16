@@ -14,19 +14,29 @@ import { readCache } from "./briefing-cache.js";
 import { recordOutcome, createFileStorage } from "./session-feedback.js";
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { queryDaemon, isDaemonRunning } from "./daemon-client.js";
+import { sanitizePlanName } from "./path-safety.js";
 
 type ToolResponse = { content: Array<{ type: string; text: string }> };
 
-export function handleGetBriefing(
+export async function handleGetBriefing(
   projectRoot: string,
   shitenDir: string,
   args: Record<string, unknown>
-): ToolResponse {
+): Promise<ToolResponse> {
   const format = (args.format as string) ?? "json";
   const depth = (args.depth as string) ?? "standard";
 
-  const snapshot = collectContext(projectRoot, shitenDir);
-  const briefing: Briefing = snapshot.briefing;
+  let briefing: Briefing;
+
+  if (isDaemonRunning(shitenDir)) {
+    const result = await queryDaemon<{ type: string; data: Briefing }>(shitenDir, {
+      type: "query_briefing",
+    });
+    briefing = result?.data ?? collectContext(projectRoot, shitenDir).briefing;
+  } else {
+    briefing = collectContext(projectRoot, shitenDir).briefing;
+  }
 
   if (format === "markdown") {
     return { content: [{ type: "text", text: briefingToMarkdown(briefing) }] };
@@ -67,13 +77,22 @@ export function handleGetBriefing(
   return { content: [{ type: "text", text: JSON.stringify(json, null, 2) }] };
 }
 
-export function handleGetRiskMap(
+export async function handleGetRiskMap(
   projectRoot: string,
   shitenDir: string,
   args: Record<string, unknown>
-): ToolResponse {
+): Promise<ToolResponse> {
   const format = (args.format as string) ?? "json";
-  const riskMap: RiskMap = generateRiskMap(projectRoot, shitenDir);
+
+  let riskMap: RiskMap;
+  if (isDaemonRunning(shitenDir)) {
+    const result = await queryDaemon<{ type: string; data: RiskMap }>(shitenDir, {
+      type: "query_riskmap",
+    });
+    riskMap = result?.data ?? generateRiskMap(projectRoot, shitenDir);
+  } else {
+    riskMap = generateRiskMap(projectRoot, shitenDir);
+  }
 
   if (format === "summary") {
     const lines: string[] = [
@@ -103,11 +122,11 @@ export function handleGetRiskMap(
   return { content: [{ type: "text", text: JSON.stringify(riskMap, null, 2) }] };
 }
 
-export function handleGetRules(
+export async function handleGetRules(
   projectRoot: string,
   shitenDir: string,
   args: Record<string, unknown>
-): ToolResponse {
+): Promise<ToolResponse> {
   const type = (args.type as string) ?? "all";
   const format = (args.format as string) ?? "json";
 
@@ -118,7 +137,19 @@ export function handleGetRules(
   } = { contextRules: [], dynamicRules: [], engineRules: [] };
 
   if (type === "all" || type === "context") {
-    const snapshot = collectContext(projectRoot, shitenDir);
+    let snapshot;
+    if (isDaemonRunning(shitenDir)) {
+      const briefingResult = await queryDaemon<{ type: string; data: Briefing }>(shitenDir, {
+        type: "query_briefing",
+      });
+      if (briefingResult?.data) {
+        snapshot = { contextRules: collectContext(projectRoot, shitenDir).contextRules };
+      } else {
+        snapshot = collectContext(projectRoot, shitenDir);
+      }
+    } else {
+      snapshot = collectContext(projectRoot, shitenDir);
+    }
     result.contextRules = snapshot.contextRules.map((r) => ({
       id: r.id, rule: r.rule, rationale: r.rationale, priority: r.priority, area: r.area, basedOn: r.basedOn,
     }));
@@ -170,11 +201,11 @@ export function handleGetRules(
   return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
 }
 
-export function handleGetEngineeringState(
+export async function handleGetEngineeringState(
   projectRoot: string,
   shitenDir: string,
   _args: Record<string, unknown>
-): ToolResponse {
+): Promise<ToolResponse> {
   try {
     const state = getEngineeringState(projectRoot, shitenDir);
     return { content: [{ type: "text", text: JSON.stringify(state, null, 2) }] };
@@ -210,9 +241,10 @@ export function handleGetPlans(
   }
 
   if (args.planName && typeof args.planName === "string") {
-    const planPath = join(plansDir, args.planName);
+    const safeName = sanitizePlanName(args.planName);
+    const planPath = join(plansDir, safeName);
     if (!existsSync(planPath)) {
-      throw new Error(`Plan not found: ${args.planName}`);
+      throw new Error(`Plan not found: ${safeName}`);
     }
     const content = readFileSync(planPath, "utf-8");
     return { content: [{ type: "text", text: content }] };

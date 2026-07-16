@@ -9,6 +9,7 @@
 
 import { basename } from "node:path";
 import { parse as parseYaml } from "yaml";
+import { logger } from "./logger.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ export function validatePlanFormat(
       const parsed = parseYaml(yamlBlockMatch[1]);
       if (parsed && typeof parsed === "object") yamlFields = parsed as Record<string, unknown>;
     } catch {
-      // Malformed YAML block — treat as absent, fall through to bold-field rules
+      logger.debug("plan-format-validator", "Malformed YAML block — treating as absent");
     }
   }
 

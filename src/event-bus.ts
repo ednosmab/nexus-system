@@ -181,7 +181,7 @@ class ShitenEventBus implements EventBus {
       const filePath = join(this.persistenceDir, `events-${date}.jsonl`);
       appendFileSync(filePath, JSON.stringify(entry) + "\n", "utf-8");
     } catch {
-      // Persistence is best-effort — never block event delivery
+      logger.debug("event-bus", "Failed to persist event — best-effort");
     }
   }
 

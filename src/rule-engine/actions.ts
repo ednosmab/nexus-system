@@ -220,11 +220,13 @@ export async function executeAction(
       }
 
       try {
-        execSync(`SHITEN_CHILD=1 node dist/shiten.js plan md done ${planId}`, {
+        const { execFileSync } = await import("node:child_process");
+        execFileSync("node", ["dist/shiten.js", "plan", "md", "done", planId], {
           cwd: context.projectRoot,
           timeout: 30000,
           encoding: "utf-8",
           stdio: "pipe",
+          env: { ...process.env, SHITEN_CHILD: "1" },
         });
         return { success: true, message: `Plan archived: ${planId}` };
       } catch (error) {

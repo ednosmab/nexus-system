@@ -107,7 +107,7 @@ describe("ai-interface", () => {
   });
 
   describe("context command", () => {
-    it("generates context from engineering state", () => {
+    it("generates context from engineering state", async () => {
       const projectDir = join(tmpDir, "test-project");
       const shitenDir = join(projectDir, "shitenno-go");
       mkdirSync(shitenDir, { recursive: true });
@@ -123,7 +123,7 @@ describe("ai-interface", () => {
       process.cwd = () => projectDir;
 
       try {
-        executeContextCommand({ json: false });
+        await executeContextCommand({ json: false });
 
         expect(capturedOutput.output).toContain("Project Context");
         expect(capturedOutput.output).toContain("test-project");
@@ -134,7 +134,7 @@ describe("ai-interface", () => {
       }
     });
 
-    it("outputs JSON when requested", () => {
+    it("outputs JSON when requested", async () => {
       const projectDir = join(tmpDir, "test-project");
       const shitenDir = join(projectDir, "shitenno-go");
       mkdirSync(shitenDir, { recursive: true });
@@ -150,7 +150,7 @@ describe("ai-interface", () => {
       process.cwd = () => projectDir;
 
       try {
-        executeContextCommand({ json: true });
+        await executeContextCommand({ json: true });
 
         const parsed = JSON.parse(capturedOutput.output);
         expect(parsed.version).toBe("1.0.0");

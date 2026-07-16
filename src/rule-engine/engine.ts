@@ -182,7 +182,7 @@ export async function executeRules(
     };
     appendFileSync(join(telemetryDir, "rule-trace.jsonl"), JSON.stringify(traceEntry) + "\n", "utf-8");
   } catch {
-    // Audit trail is best-effort — never block rule execution
+    logger.debug("rule-engine", "Failed to write audit trail — best-effort");
   }
 
   return {

@@ -13,6 +13,7 @@ import { join } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import { SHITEN_DIR_NAME } from "./constants.js";
+import { logger } from "./logger.js";
 import {
   MarkdownPlanEngine,
   type MarkdownPlan,
@@ -343,7 +344,7 @@ export function checkAndArchiveDonePlans(shitenDir: string): { checked: number; 
         archivedIds.push(plan.id);
       }
     } catch {
-      // Skip plans that fail (don't crash the hook)
+      logger.debug("plan-lifecycle", `Skipping plan ${plan.id} that failed archival check`);
     }
   }
 

@@ -80,7 +80,7 @@ function daemonLog(logPath: string, level: string, msg: string): void {
   try {
     appendFileSync(logPath, line, "utf-8");
   } catch {
-    // If we can't log, we can't log — don't crash
+    logger.debug("daemon", `Failed to write log: ${msg}`);
   }
 }
 
@@ -130,6 +130,8 @@ interface DaemonState {
   debt: DebtInfo | null;
   events: EventEntry[];
   startedAt: string;
+  briefingCache: { computedAt: string; data: unknown } | null;
+  riskMapCache: { computedAt: string; data: unknown } | null;
 }
 
 const MAX_EVENTS = 100;
@@ -145,6 +147,8 @@ function createDaemonState(): DaemonState {
     debt: null,
     events: [],
     startedAt: new Date().toISOString(),
+    briefingCache: null,
+    riskMapCache: null,
   };
 }
 
@@ -159,7 +163,7 @@ function persistState(state: DaemonState, statePath: string): void {
   try {
     writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
   } catch {
-    // State persistence is best-effort
+    logger.debug("daemon", "Failed to persist daemon state");
   }
 }
 
@@ -185,15 +189,16 @@ function sendJson(socket: Socket, obj: object): void {
   try {
     socket.write(JSON.stringify(obj) + "\n");
   } catch {
-    // Socket might have closed
+    logger.debug("daemon", "Failed to write to socket — may have closed");
   }
 }
 
 // ── Daemon ────────────────────────────────────────────────────────────────────
 
-export async function runDaemon(shitenDir: string): Promise<void> {
+export async function runDaemon(shitenDir: string, projectRoot?: string): Promise<void> {
   const paths = getPaths(shitenDir);
   const { daemonDir, pidPath, sockPath, logPath, approvedPath, statePath } = paths;
+  const resolvedProjectRoot = projectRoot ?? join(shitenDir, "..");
 
   if (!existsSync(daemonDir)) {
     mkdirSync(daemonDir, { recursive: true });
@@ -216,7 +221,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   // ── Cleanup stale socket ───────────────────────────────────────────────────
 
   if (existsSync(sockPath)) {
-    try { unlinkSync(sockPath); } catch { /* ignore */ }
+    try { unlinkSync(sockPath); } catch { logger.debug("daemon", "Failed to remove stale socket"); }
   }
 
   // ── Daemon State ──────────────────────────────────────────────────────────
@@ -232,7 +237,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   const server: Server = createServer((socket: Socket) => {
     let buffer = "";
 
-    socket.on("data", (chunk: Buffer) => {
+    socket.on("data", async (chunk: Buffer) => {
       buffer += chunk.toString();
       const lines = buffer.split("\n");
       buffer = lines.pop() ?? "";
@@ -241,7 +246,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
         if (!line.trim()) continue;
         try {
           const msg = JSON.parse(line) as IpcMessage;
-          handleMessage(msg, socket, shitenDir, sockPath, startedAt, logPath, state);
+          await handleMessage(msg, socket, shitenDir, sockPath, startedAt, logPath, state, resolvedProjectRoot);
         } catch {
           sendJson(socket, { type: "error", message: "Invalid JSON" });
         }
@@ -267,12 +272,11 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   const stopWatcher = startWatching(shitenDir);
 
   // ── Rule Engine: subscribe to event bus events ──────────────────────────────
-  const projectRoot = join(shitenDir, "..");
-  initializeRuleEngine(projectRoot, shitenDir);
+  initializeRuleEngine(resolvedProjectRoot, shitenDir);
   daemonLog(logPath, "INFO", "Rule engine initialized — subscribed to event bus");
 
   // ── Proactive Engine: subscribe to engineering state events ─────────────────
-  const stopProactive = initializeProactiveEngine(projectRoot, shitenDir);
+  const stopProactive = initializeProactiveEngine(resolvedProjectRoot, shitenDir);
   daemonLog(logPath, "INFO", "Proactive engine initialized — subscribed to event bus");
 
   // ── Initial Startup Scan ───────────────────────────────────────────────────
@@ -330,9 +334,11 @@ export async function runDaemon(shitenDir: string): Promise<void> {
 
   // ── Event Subscriptions ─────────────────────────────────────────────────────
 
-  // TIER 1: plan.file_changed — archive done plans + trigger standard audit
+  // TIER 1: plan.file_changed — archive done plans + trigger standard audit + invalidate caches
   bus.subscribe("plan.file_changed", () => {
     recordEvent(state, "plan.file_changed");
+    state.briefingCache = null;
+    state.riskMapCache = null;
     try {
       const result = checkAndArchiveDonePlans(shitenDir);
       if (result.archived > 0) {
@@ -434,6 +440,8 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   // TIER 2: backlog.updated — move completed items + trigger quick audit
   bus.subscribe("backlog.updated", () => {
     recordEvent(state, "backlog.updated");
+    state.briefingCache = null;
+    state.riskMapCache = null;
     try {
       const backlog = moveCompletedBacklogToDone(shitenDir, shitenDir);
       if (backlog.moved > 0) {
@@ -465,6 +473,10 @@ export async function runDaemon(shitenDir: string): Promise<void> {
   for (const evt of logEvents) {
     bus.subscribe(evt, () => {
       recordEvent(state, evt);
+      if (evt === "asset.updated" || evt === "engineering_state.updated" || evt === "docs.sync.triggered") {
+        state.briefingCache = null;
+        state.riskMapCache = null;
+      }
     });
   }
 
@@ -576,7 +588,7 @@ export async function runDaemon(shitenDir: string): Promise<void> {
 
 // ── Message Handler ───────────────────────────────────────────────────────────
 
-function handleMessage(
+async function handleMessage(
   msg: IpcMessage,
   socket: Socket,
   shitenDir: string,
@@ -584,7 +596,8 @@ function handleMessage(
   startedAt: number,
   logPath: string,
   state: DaemonState,
-): void {
+  projectRoot: string,
+): Promise<void> {
   switch (msg.type) {
     case "ping":
       sendJson(socket, { type: "pong", version: DAEMON_VERSION });
@@ -697,6 +710,48 @@ function handleMessage(
       break;
     }
 
+    // ── Cached Briefing & Risk Map (Phase 1) ───────────────────────────────
+
+    case "query_briefing": {
+      if (!state.briefingCache) {
+        try {
+          const { collectContext } = await import("./context-collector.js");
+          const snapshot = collectContext(projectRoot, shitenDir);
+          state.briefingCache = {
+            computedAt: new Date().toISOString(),
+            data: snapshot.briefing,
+          };
+          daemonLog(logPath, "INFO", "Briefing cache warmed via IPC query");
+        } catch (err) {
+          daemonLog(logPath, "ERROR", `Failed to compute briefing: ${err}`);
+          sendJson(socket, { type: "error", message: "Failed to compute briefing" });
+          return;
+        }
+      }
+      sendJson(socket, { type: "briefing", ...state.briefingCache });
+      break;
+    }
+
+    case "query_riskmap": {
+      if (!state.riskMapCache) {
+        try {
+          const { generateRiskMap } = await import("./risk-map.js");
+          const riskMap = generateRiskMap(projectRoot, shitenDir);
+          state.riskMapCache = {
+            computedAt: new Date().toISOString(),
+            data: riskMap,
+          };
+          daemonLog(logPath, "INFO", "Risk map cache warmed via IPC query");
+        } catch (err) {
+          daemonLog(logPath, "ERROR", `Failed to compute risk map: ${err}`);
+          sendJson(socket, { type: "error", message: "Failed to compute risk map" });
+          return;
+        }
+      }
+      sendJson(socket, { type: "riskmap", ...state.riskMapCache });
+      break;
+    }
+
     default:
       sendJson(socket, { type: "error", message: `Unknown message type: ${msg.type}` });
   }
@@ -706,7 +761,7 @@ function handleMessage(
 
 function cleanup(pidPath: string, sockPath: string): void {
   for (const p of [pidPath, sockPath]) {
-    try { if (existsSync(p)) unlinkSync(p); } catch { /* ignore */ }
+    try { if (existsSync(p)) unlinkSync(p); } catch { logger.debug("daemon", `Failed to clean up ${p}`); }
   }
 }
 
@@ -921,8 +976,9 @@ function moveFromBacklog(
 
 // When run directly as a script (shiten.ts spawns this via startDaemon)
 const shitenDirArg = process.argv[2];
+const projectRootArg = process.argv[3];
 if (shitenDirArg) {
-  runDaemon(shitenDirArg).catch((err) => {
+  runDaemon(shitenDirArg, projectRootArg).catch((err) => {
     outputError(`[daemon] Fatal error: ${err}`);
     process.exit(1);
   });

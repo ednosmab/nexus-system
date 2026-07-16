@@ -128,7 +128,7 @@ export class DaemonCircuitBreaker {
         trippedAt: parsed.trippedAt ?? null,
       };
     } catch {
-      // Corrupt state file — start fresh
+      logger.debug("daemon-circuit-breaker", "Corrupt state file — starting fresh");
     }
   }
 

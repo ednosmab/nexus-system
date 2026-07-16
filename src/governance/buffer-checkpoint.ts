@@ -93,12 +93,12 @@ export function checkpointBuffer(shitenDir: string): CheckpointResult {
           unlinkSync(join(checkpointDir, file));
           removedCount++;
         } catch {
-          // Best-effort cleanup
+          logger.debug("buffer-checkpoint", "Failed to remove old checkpoint");
         }
       }
     }
   } catch {
-    // Cleanup is best-effort
+    logger.debug("buffer-checkpoint", "Checkpoint cleanup failed — best-effort");
   }
 
   return {

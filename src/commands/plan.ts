@@ -94,7 +94,7 @@ export async function runPrepare(
       const bus = getEventBus();
       bus.publish("plan.format_warning", { planId, path: plan.filePath, errors: validation.errors, warnings: validation.warnings });
       if (validation.errors.length > 0) {
-        try { const { execSync } = await import("node:child_process"); execSync(`notify-send "Shiten Plan" "Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}" --urgency=normal`, { stdio: "pipe", timeout: 2000 }); } catch { /* notify-send not available */ }
+        try { const { execFileSync } = await import("node:child_process"); execFileSync("notify-send", ["Shiten Plan", `Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 }); } catch { /* notify-send not available */ }
       }
     }
   } catch (error) { results.push({ step: "format_validation", status: "error", detail: String(error) }); }
@@ -192,8 +192,8 @@ export async function runPrepare(
 
   // Step 4: Send desktop notification
   try {
-    const { execSync } = await import("node:child_process");
-    execSync(`notify-send "Shiten Plan" "Plan prepared: ${plan.title}" --urgency=normal`, { stdio: "pipe", timeout: 2000 });
+    const { execFileSync } = await import("node:child_process");
+    execFileSync("notify-send", ["Shiten Plan", `Plan prepared: ${plan.title}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 });
     results.push({ step: "notify", status: "done", detail: "Desktop notification sent" });
   } catch { results.push({ step: "notify", status: "skip", detail: "notify-send not available or failed" }); }
 

@@ -11,7 +11,7 @@
 
 | Plano | Data | Estado | Descrição |
 |---|---|---|---|
-| [gap-analysis-coverage-plan](2026-07-09-gap-analysis-coverage-plan.md) | 2026-07-09 | **Done** | Gap analysis + coverage improvement (Fases 0-6) |
+| [gap-analysis-coverage-plan](done/2026-07-09-gap-analysis-coverage-plan.md) | 2026-07-09 | **Done** | Gap analysis + coverage improvement (Fases 0-6) |
 
 ---
 
@@ -65,7 +65,7 @@ Planos concluídos, organizados por data:
 | Plano | Resumo |
 |---|---|
 | [init-audit-dashboard](done/2026-07-02-init-audit-dashboard.md) | Init, audit e dashboard iniciais |
-| [shitenno-dashboard-restructure](2026-07-02-shitenno-dashboard-restructure.md) | Reestruturar dashboard em 6 camadas |
+| [shitenno-dashboard-restructure](done/2026-07-02-shitenno-dashboard-restructure.md) | Reestruturar dashboard em 6 camadas |
 
 ### Planos sem data (faseamento inicial)
 | Plano | Resumo |
@@ -104,7 +104,7 @@ Itens planeados mas ainda não iniciados, extraídos do BACKLOG:
 
 ### P3 — Baixa prioridade (sem SLA)
 - Shell completion, i18n, structured logging, metrics export, etc.
-- Ver [BACKLOG.md](../../../../docs/BACKLOG.md) para lista completa.
+- Ver [BACKLOG.md](../../../docs/BACKLOG.md) para lista completa.
 
 ---
 
