@@ -9,7 +9,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 export type { AuditLevel, HealthIssue, GovernanceOptimization, HealthAuditReport, SourceFileInfo } from "./audit/types.js";
-export { collectSourceFiles } from "./audit/shared.js";
+export { collectSourceFiles, issueFingerprint } from "./audit/shared.js";
 
 export {
   detectHardcodedSecrets,
@@ -28,39 +28,53 @@ export {
 } from "./audit/engineering-detectors.js";
 
 import type { AuditLevel, HealthIssue, HealthAuditReport } from "./audit/types.js";
-import { DETECTORS_BY_LEVEL } from "./audit/constants.js";
+import { DETECTORS_BY_LEVEL, CROSS_FILE_ONLY_DETECTORS } from "./audit/constants.js";
 import { collectSourceFiles, readHistory, readRules, deduplicateIssues } from "./audit/shared.js";
-import { calculateHealthScore } from "./audit/health-score.js";
+import { calculateHealthScore, calculateDimensionScores } from "./audit/health-score.js";
 import { proposeOptimizations } from "./audit/optimization-proposer.js";
 import { buildDetectorMap } from "./audit/detector-map.js";
+import { loadSuppressions, applySuppressions } from "./audit/suppression.js";
 
 export function auditHealth(
   projectRoot: string,
   shitenDir: string,
-  level: AuditLevel = "standard"
+  level: AuditLevel = "standard",
+  changedFiles?: string[]
 ): HealthAuditReport {
   const startTime = Date.now();
   const history = readHistory(shitenDir);
   const rules = readRules(shitenDir);
   const activeDetectors = new Set(DETECTORS_BY_LEVEL[level]);
-  const sourceFiles = collectSourceFiles(projectRoot);
+  const allSourceFiles = collectSourceFiles(projectRoot);
+
+  // Filter source files if changedFiles is provided (--changed mode)
+  const sourceFiles = changedFiles && changedFiles.length > 0
+    ? allSourceFiles.filter((f) => changedFiles.includes(f.relPath))
+    : allSourceFiles;
 
   const detectorMap = buildDetectorMap(projectRoot, shitenDir, sourceFiles, rules, history);
 
   const issues: HealthIssue[] = [];
   for (const [name, fn] of Object.entries(detectorMap)) {
     if (activeDetectors.has(name)) {
+      // Skip cross-file detectors in --changed mode (they need full project)
+      if (changedFiles && changedFiles.length > 0 && CROSS_FILE_ONLY_DETECTORS.has(name)) {
+        continue;
+      }
       issues.push(...fn());
     }
   }
 
   const deduped = deduplicateIssues(issues);
-  const healthScore = calculateHealthScore(deduped, sourceFiles.length);
-  const optimizations = proposeOptimizations(deduped);
+  const suppressions = loadSuppressions(shitenDir);
+  const { visible, suppressed } = applySuppressions(deduped, suppressions);
+  const healthScore = calculateHealthScore(visible, sourceFiles.length);
+  const dimensionScores = calculateDimensionScores(visible, sourceFiles.length);
+  const optimizations = proposeOptimizations(visible);
 
-  const critical = deduped.filter((i) => i.severity === 3).length;
-  const warnings = deduped.filter((i) => i.severity === 2).length;
-  const info = deduped.filter((i) => i.severity === 1).length;
+  const critical = visible.filter((i) => i.severity === 3).length;
+  const warnings = visible.filter((i) => i.severity === 2).length;
+  const info = visible.filter((i) => i.severity === 1).length;
 
   const parts: string[] = [];
   parts.push(`Score de saúde: ${healthScore}/100`);
@@ -69,6 +83,7 @@ export function auditHealth(
   if (critical > 0) parts.push(`${critical} crítico(s).`);
   if (warnings > 0) parts.push(`${warnings} aviso(s).`);
   if (info > 0) parts.push(`${info} info.`);
+  if (suppressed.length > 0) parts.push(`${suppressed.length} suprimido(s).`);
   if (optimizations.length > 0) parts.push(`${optimizations.length} optimização(ões) proposta(s).`);
 
   const durationMs = Date.now() - startTime;
@@ -78,14 +93,17 @@ export function auditHealth(
     totalRules: rules.length,
     historyEntries: history.length,
     sessionsAnalyzed: history.length,
-    issues: deduped,
+    issues: visible,
+    suppressedIssues: suppressed,
     optimizations,
     healthScore,
+    dimensionScores,
     summary: parts.join(" "),
     level,
     durationMs,
     filesScanned: sourceFiles.length,
     detectorsRun: Array.from(activeDetectors),
+    ...(changedFiles && changedFiles.length > 0 ? { changedFilesOnly: true, totalFiles: allSourceFiles.length } : {}),
   };
 }
 

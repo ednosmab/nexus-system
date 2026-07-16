@@ -47,6 +47,19 @@ shitenno-go/reports/
 shitenno-go/feedback/summary.json
 shitenno-go/feedback/records/
 
+# Shitenno-go — daemon runtime state (process-specific, never version)
+shitenno-go/daemon/
+
+# Shitenno-go — derived/computable state (rebuilt from code, not human-editable)
+shitenno-go/engineering-state.json
+shitenno-go/fingerprint.json
+shitenno-go/capability-engine.json
+shitenno-go/maturity-profile.json
+shitenno-go/answers.json
+
+# Shitenno-go — cache
+shitenno-go/.cache/
+
 # Images
 logo.png
 image*.png

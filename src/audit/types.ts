@@ -232,6 +232,8 @@ export interface HealthIssue {
   description: string;
   location: string;
   recommendation: string;
+  /** 0–1. Confiança do detector no achado. Ausente = tratar como 1.0 (detectors legados). */
+  confidence?: number;
 }
 
 /** Sugestão de optimização de governança. */
@@ -297,8 +299,11 @@ export interface HealthAuditReport {
   historyEntries: number;
   sessionsAnalyzed: number;
   issues: HealthIssue[];
+  suppressedIssues: Array<HealthIssue & { suppressionReason: string }>;
   optimizations: GovernanceOptimization[];
   healthScore: number;
+  /** Health score per dimension (security, reliability, complexity, hygiene, coverage, governance). */
+  dimensionScores: Record<string, number>;
   summary: string;
   level: AuditLevel;
   /** How long the audit took in milliseconds. */
@@ -307,4 +312,8 @@ export interface HealthAuditReport {
   filesScanned: number;
   /** List of detectors that were executed. */
   detectorsRun: string[];
+  /** Whether only changed files were scanned (--changed mode). */
+  changedFilesOnly?: boolean;
+  /** Total files in project (when changedFilesOnly is true). */
+  totalFiles?: number;
 }

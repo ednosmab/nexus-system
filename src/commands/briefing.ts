@@ -31,6 +31,7 @@ import { outputJson, banner } from "../formatting.js";
 import { getEventBus } from "../event-bus.js";
 import { output, outputBlank, outputSection } from "../output.js";
 import { logger } from "../logger.js";
+import { queryDaemon, isDaemonRunning } from "../daemon-client.js";
 
 // ── Output Helpers ─────────────────────────────────────────────────────────
 
@@ -209,8 +210,25 @@ async function runBriefing(
   const spinner = ora({ spinner: "dots" }).start(isJson ? "Generating" : "Collecting context...");
 
   try {
-    // ── Stage 1: Collect ──────────────────────────────────────────
-    const snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+    // ── Stage 1: Collect (daemon-first, disk-fallback) ──────────────
+    let briefing: Briefing;
+    let snapshot;
+
+    if (isDaemonRunning(ctx.shitenDir)) {
+      const daemonResult = await queryDaemon<{ type: string; data: Briefing }>(ctx.shitenDir, {
+        type: "query_briefing",
+      });
+      if (daemonResult?.data) {
+        briefing = daemonResult.data;
+        snapshot = { briefing, contextRules: [], dynamicRules: [], fingerprint: { hash: "" }, riskMap: { generatedAt: "" } };
+      } else {
+        snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+        briefing = snapshot.briefing;
+      }
+    } else {
+      snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+      briefing = snapshot.briefing;
+    }
 
     // ── Stage 2: Cache ───────────────────────────────────────────
     const newInputHash = computeInputHash({
@@ -229,7 +247,6 @@ async function runBriefing(
       spinner.text = "Cache invalidated, using fresh briefing...";
     }
 
-    let briefing = snapshot.briefing;
     let cacheHit = false;
 
     if (!options.invalidate && oldCache?.entry && oldCache.entry.inputHash === newInputHash) {

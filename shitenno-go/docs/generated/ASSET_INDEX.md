@@ -1,7 +1,7 @@
 # Asset Index
 
-> Generated: 2026-07-16T03:50:48.563Z
-> Total Assets: 94
+> Generated: 2026-07-16T05:15:12.437Z
+> Total Assets: 97
 
 | Type | Name | Path | Status |
 |------|------|------|--------|
@@ -23,6 +23,7 @@
 | skill | optimistic ui | docs/skills/optimistic_ui.md | active |
 | skill | pnpm management | docs/skills/pnpm_management.md | active |
 | skill | quick-board-enforcement | docs/skills/quick-board-enforcement.md | active |
+| skill | security xss prevention | docs/skills/security_xss_prevention.md | active |
 | skill | senior-engineer | docs/skills/senior-engineer.md | active |
 | skill | solid principles | docs/skills/solid_principles.md | active |
 | skill | system-first | docs/skills/system-first.md | active |
@@ -47,10 +48,10 @@
 | policy | Session Hygiene — validate session close checklist | governance/rules/RULE-TEMPLATE.json | active |
 | workflow | Main Workflow | governance/WORKFLOW.md | active |
 | runbook | merge | docs/runbooks/merge.md | active |
+| plan | 2026 07 16 audit confidence suppression1 | governance/plans/2026-07-16-audit-confidence-suppression1.md | active |
+| plan | 2026 07 16 audit market edge2 | governance/plans/2026-07-16-audit-market-edge2.md | active |
 | plan | PLAN monettization implementation | governance/plans/PLAN-monettization-implementation.md | active |
 | plan | README | governance/plans/README.md | active |
-| plan | handoff agente | governance/plans/handoff-agente.md | active |
-| plan | plano daemon kernel | governance/plans/plano-daemon-kernel.md | active |
 | script | backlog | scripts/backlog.ts | active |
 | script | close session | scripts/close-session.ts | active |
 | script | generate changelog | scripts/generate-changelog.ts | active |
@@ -68,6 +69,7 @@
 | doc | KNOWLEDGE LIFECYCLE | docs/KNOWLEDGE_LIFECYCLE.md | active |
 | doc | REGISTRY | docs/REGISTRY.md | active |
 | doc | REPORT-honest-project-assessment | docs/REPORT-honest-project-assessment.md | active |
+| doc | REVIEW-shiten-audit | docs/REVIEW-shiten-audit.md | active |
 | doc | Shitenno-go GUIDE | docs/Shitenno-go_GUIDE.md | active |
 | doc | capabilities | docs/capabilities.md | active |
 | doc | opencode-context | docs/opencode-context.md | active |
@@ -82,6 +84,7 @@
 | report | complexity shitenno cli 2026 07 15 session1 | reports/complexity-shitenno-cli-2026-07-15-session1.json | active |
 | report | complexity shitenno cli 2026 07 15 session2 | reports/complexity-shitenno-cli-2026-07-15-session2.json | active |
 | report | complexity shitenno cli 2026 07 16 session1 | reports/complexity-shitenno-cli-2026-07-16-session1.json | active |
+| report | complexity shitenno cli 2026 07 16 session2 | reports/complexity-shitenno-cli-2026-07-16-session2.json | active |
 | report | doc lifecycle 2026 07 12 | reports/doc-lifecycle-2026-07-12.json | active |
 | report | doc lifecycle 2026 07 13 | reports/doc-lifecycle-2026-07-13.json | active |
 | report | doc sync 2026 07 12 | reports/doc-sync-2026-07-12.json | active |

@@ -2,9 +2,14 @@
  * context-command.test.ts — Tests for context command (shiten context --for-agent)
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { generateContext, type ContextOutput } from "../commands/context.js";
 import { clearEngineeringStateCache } from "../engineering-state-access.js";
+
+vi.mock("../daemon-client.js", () => ({
+  isDaemonRunning: vi.fn(() => false),
+  queryDaemon: vi.fn(() => Promise.resolve(null)),
+}));
 
 describe("context command", () => {
   beforeEach(() => {
@@ -15,13 +20,13 @@ describe("context command", () => {
     clearEngineeringStateCache();
   });
 
-  it("returns null when no engineering state exists", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("returns null when no engineering state exists", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     expect(result).toBeNull();
   });
 
-  it("returns a valid ContextOutput structure when state exists", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("returns a valid ContextOutput structure when state exists", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(result).toHaveProperty("version");
@@ -34,8 +39,8 @@ describe("context command", () => {
     expect(typeof result.timestamp).toBe("string");
   });
 
-  it("has deterministic project fields", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("has deterministic project fields", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(result.project).toHaveProperty("name");
@@ -44,8 +49,8 @@ describe("context command", () => {
     expect(Array.isArray(result.project.stack)).toBe(true);
   });
 
-  it("has engineeringState with required fields", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("has engineeringState with required fields", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     const es = result.engineeringState;
@@ -68,8 +73,8 @@ describe("context command", () => {
     expect(typeof es.policies).toBe("number");
   });
 
-  it("output is JSON-serializable", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("output is JSON-serializable", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     const serialized = JSON.stringify(result);
@@ -78,8 +83,8 @@ describe("context command", () => {
     expect(parsed.timestamp).toBe(result.timestamp);
   });
 
-  it("challenges is always an array", () => {
-    const result = generateContext("/tmp/nonexistent-shiten-dir");
+  it("challenges is always an array", async () => {
+    const result = await generateContext("/tmp/nonexistent-shiten-dir");
     if (result === null) return;
 
     expect(Array.isArray(result.challenges)).toBe(true);

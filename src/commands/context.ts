@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { SHITEN_DIR_NAME } from "../constants.js";
 import { output, outputBlank } from "../output.js";
 import { Command } from "commander";
+import { queryDaemon, isDaemonRunning } from "../daemon-client.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -65,8 +66,20 @@ export interface ContextOutput {
 /**
  * Generate context output for AI agents.
  */
-export function generateContext(shitenDir: string): ContextOutput | null {
+export async function generateContext(shitenDir: string): Promise<ContextOutput | null> {
   const projectRoot = process.cwd();
+
+  // Daemon-first: try to get engineering state from daemon cache
+  if (isDaemonRunning(shitenDir)) {
+    const result = await queryDaemon<{ type: string; data: ContextOutput }>(shitenDir, {
+      type: "query_briefing",
+    });
+    if (result?.data) {
+      return result.data as ContextOutput;
+    }
+  }
+
+  // Fallback: compute from disk
   let state;
   try {
     state = getEngineeringState(projectRoot, shitenDir);
@@ -168,7 +181,7 @@ function loadChallenges(state: ReturnType<typeof getEngineeringState>): ContextO
 export async function executeContextCommand(options: { json?: boolean; forAgent?: string }): Promise<void> {
   const projectRoot = process.cwd();
   const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
-  let context = generateContext(shitenDir);
+  let context = await generateContext(shitenDir);
 
   if (!context) {
     output("No engineering state found. Run 'shiten init' first.");

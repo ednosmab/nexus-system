@@ -273,6 +273,7 @@ export function detectMagicNumbers(_projectRoot: string, files: SourceFileInfo[]
       description: `${magicCount} número(s) mágico(s) detectado(s) em ${magicFiles.join(", ")}`,
       location: magicFiles.join(", "),
       recommendation: "Extrair números para constantes nomeadas para melhorar legibilidade e manutenibilidade.",
+      confidence: 0.6,
     });
   }
 
@@ -346,6 +347,7 @@ export function detectDeepNesting(_projectRoot: string, files: SourceFileInfo[])
         description: `Aninhamento profundo em "${file.relPath}" — profundidade máxima ${maxDepth} (linha ${deepLine})`,
         location: `${file.relPath}:${deepLine}`,
         recommendation: "Extrair lógica aninhada para funções auxiliares. Usar early return para reduzir aninhamento.",
+        confidence: 0.85,
       });
     }
   }

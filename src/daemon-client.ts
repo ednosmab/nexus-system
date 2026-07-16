@@ -98,7 +98,7 @@ export function isDaemonRunning(shitenDir: string): boolean {
  * Waits up to SOCKET_WAIT_MS for the socket to become available.
  * Rejects if the daemon script does not exist or socket never appears.
  */
-export async function startDaemon(shitenDir: string): Promise<void> {
+export async function startDaemon(shitenDir: string, projectRoot?: string): Promise<void> {
   if (!existsSync(DAEMON_SCRIPT)) {
     throw new Error(
       `Daemon script not found: ${DAEMON_SCRIPT}. Run 'pnpm build' first.`
@@ -111,9 +111,10 @@ export async function startDaemon(shitenDir: string): Promise<void> {
   }
 
   const logPath = join(daemonDir, "daemon.log");
+  const resolvedProjectRoot = projectRoot ?? join(shitenDir, "..");
 
   // Spawn detached — process group leader, stdio to log file
-  const child = spawn(process.execPath, [DAEMON_SCRIPT, shitenDir], {
+  const child = spawn(process.execPath, [DAEMON_SCRIPT, shitenDir, resolvedProjectRoot], {
     detached: true,
     stdio: ["ignore", "ignore", "ignore"],
     env: {

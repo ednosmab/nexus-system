@@ -2,7 +2,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import { join } from "node:path";
-import { auditHealth, writeHealthReport, type HealthAuditReport } from "../health-auditor.js";
+import { auditHealth, writeHealthReport, type HealthAuditReport, issueFingerprint } from "../health-auditor.js";
 import { getCached, setCache, computeKeyChecksums } from "../cache.js";
 import { healthBar, outputJson, banner } from "../formatting.js";
 import { output, outputBlank } from "../output.js";
@@ -15,6 +15,10 @@ import { loadGrowthProfile } from "../growth-profile.js";
 import { formatGrowthProgress } from "../dual-path-presenter.js";
 import { generateFixSuggestions, prioritizeSuggestions } from "../audit/suggestion-engine.js";
 import { muteLogs } from "../logger.js";
+import { loadSuppressions, addSuppression } from "../audit/suppression.js";
+import { applyAllFixes, type AutofixReport } from "../audit/autofix-engine.js";
+import { getChangedFiles } from "../audit/changed-files.js";
+import { dimensionIcon, dimensionLabel, type AuditDimension } from "../audit/dimensions.js";
 
 // ── Helper Functions for Issue Categorization ──────────────────────────────
 
@@ -143,6 +147,79 @@ function identifyQuickWins(issues: Array<{ type: string; severity: number; descr
   return quickWins;
 }
 
+// ── Subcommand: audit suppress ───────────────────────────────────────────────
+
+export const auditSuppressCommand = new Command("suppress")
+  .description("Suppress a specific audit issue by fingerprint")
+  .argument("<fingerprint>", "Issue fingerprint (10-char hex from audit output)")
+  .requiredOption("--reason <text>", "Reason for suppression (required)")
+  .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
+  .action(async (fingerprint: string, options) => {
+    const ctx = guardNotInitialized(options, false);
+    if (!ctx) return;
+
+    const suppressions = loadSuppressions(ctx.shitenDir);
+    const existing = suppressions.find((s) => s.fingerprint === fingerprint);
+    if (existing) {
+      output(chalk.yellow(`  ⚠ Issue ${fingerprint} is already suppressed.`));
+      output(chalk.gray(`    Reason: ${existing.reason}`));
+      output(chalk.gray(`    Suppressed at: ${existing.suppressedAt}`));
+      return;
+    }
+
+    const reportsDir = join(ctx.shitenDir, "reports");
+    let foundIssue: { type: string; location: string; description: string } | null = null;
+    try {
+      const { readdirSync, readFileSync: fsReadFileSync } = await import("node:fs");
+      const files = readdirSync(reportsDir)
+        .filter((f: string) => f.startsWith("health-") && f.endsWith(".json"))
+        .sort()
+        .reverse();
+      for (const f of files) {
+        const reportPath = join(reportsDir, f);
+        const reportData: HealthAuditReport = JSON.parse(
+          fsReadFileSync(reportPath, "utf-8")
+        );
+        const match = reportData.issues.find(
+          (i) => issueFingerprint(i) === fingerprint
+        );
+        if (match) {
+          foundIssue = match;
+          break;
+        }
+        const suppressedMatch = reportData.suppressedIssues?.find(
+          (i) => issueFingerprint(i) === fingerprint
+        );
+        if (suppressedMatch) {
+          foundIssue = suppressedMatch;
+          break;
+        }
+      }
+    } catch { /* reports dir may not exist */ }
+
+    if (!foundIssue) {
+      output(chalk.red(`  ✘ Issue ${fingerprint} not found in any recent report.`));
+      output(chalk.gray("    Run 'shiten audit --json' first to see available fingerprints."));
+      return;
+    }
+
+    addSuppression(
+      ctx.shitenDir,
+      foundIssue as import("../audit/types.js").HealthIssue,
+      options.reason,
+      "user"
+    );
+
+    output(chalk.green(`  ✔ Issue ${fingerprint} suppressed successfully.`));
+    output(chalk.gray(`    Type: ${foundIssue.type}`));
+    output(chalk.gray(`    Location: ${foundIssue.location}`));
+    output(chalk.gray(`    Reason: ${options.reason}`));
+    output(chalk.gray("    The issue will not appear in future audits."));
+    output(chalk.gray("    Use 'shiten audit --show-suppressed' to review suppressed issues."));
+  });
+
+// ── Main audit command ───────────────────────────────────────────────────────
+
 export const auditCommand = new Command("audit")
   .description("Audit Shitenno-go health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
@@ -150,6 +227,12 @@ export const auditCommand = new Command("audit")
   .option("--no-cache", "Skip cache and recalculate")
   .option("--json", "Output results as JSON")
   .option("--auto-backlog", "Auto-detect gaps and add to BACKLOG.md")
+  .option("--min-confidence <0..1>", "Filter issues below this confidence threshold", parseFloat)
+  .option("--show-suppressed", "Show suppressed issues with reasons")
+  .option("--apply", "Apply high-confidence fixes automatically (with verification and rollback)")
+  .option("--dry-run", "Simulate --apply without writing changes (use with --apply)")
+  .option("--changed [base]", "Audit only files changed since base branch (default: main)")
+  .addCommand(auditSuppressCommand)
   .action(async (options) => {
     const isJson = options.json === true;
     if (isJson) muteLogs();
@@ -170,13 +253,41 @@ export const auditCommand = new Command("audit")
     const spinner = isJson ? null : ora("Auditing governance health...").start();
 
     try {
-      // Validate level
       const level = ["quick", "standard", "code-review", "enterprise"].includes(options.level) ? options.level : "standard";
 
-      // Load growth profile (needed for both JSON and human output)
+      // Handle --changed flag for incremental scanning
+      let changedFiles: string[] | undefined;
+      if (options.changed) {
+        const baseBranch = typeof options.changed === "string" ? options.changed : "main";
+        const changedResult = getChangedFiles(ctx.projectRoot, baseBranch);
+        
+        if (!changedResult.isGitRepo) {
+          if (!isJson) {
+            output(chalk.yellow("  ⚠ Not a git repository — falling back to full scan."));
+            outputBlank();
+          }
+        } else if (changedResult.fallbackToFull) {
+          if (!isJson) {
+            output(chalk.yellow(`  ⚠ Base branch '${baseBranch}' not found — falling back to full scan.`));
+            outputBlank();
+          }
+        } else if (changedResult.files.length === 0) {
+          if (!isJson) {
+            output(chalk.green("  ✔ No changed files detected since " + baseBranch + ". Nothing to audit."));
+            outputBlank();
+          }
+          return;
+        } else {
+          changedFiles = changedResult.files;
+          if (!isJson) {
+            output(chalk.gray(`  📁 Scanning ${changedFiles.length} changed file(s) since ${baseBranch}...`));
+            outputBlank();
+          }
+        }
+      }
+
       const growthProfile = loadGrowthProfile(ctx.shitenDir);
 
-      // Check cache first (skip cache for code-review and enterprise to get fresh results)
       let report: HealthAuditReport;
       let cacheHit = false;
       if (options.cache !== false && level !== "code-review" && level !== "enterprise") {
@@ -186,23 +297,24 @@ export const auditCommand = new Command("audit")
           report = cached;
           cacheHit = true;
         } else {
-          report = auditHealth(ctx.projectRoot, ctx.shitenDir, level);
+          report = auditHealth(ctx.projectRoot, ctx.shitenDir, level, changedFiles);
           setCache(ctx.projectRoot, ctx.shitenDir, "health", report,
             computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
         }
       } else {
-        report = auditHealth(ctx.projectRoot, ctx.shitenDir, level);
+        report = auditHealth(ctx.projectRoot, ctx.shitenDir, level, changedFiles);
       }
 
-      // Write report (always, even with 0 issues)
+      if (options.minConfidence !== undefined && options.minConfidence >= 0 && options.minConfidence <= 1) {
+        report = { ...report, issues: report.issues.filter((i) => (i.confidence ?? 1.0) >= options.minConfidence) };
+      }
+
       const reportFile = writeHealthReport(ctx.shitenDir, report);
 
-      // Knowledge graph analysis
       const artifacts = discoverArtifacts(ctx.shitenDir);
       const relations = discoverRelations(artifacts);
       const graphAnalysis = analyzeGraph(artifacts, relations);
 
-      // Publish knowledge graph event
       getEventBus().publish("knowledge.analyzed", {
         totalArtifacts: graphAnalysis.totalArtifacts,
         totalRelations: graphAnalysis.totalRelations,
@@ -213,7 +325,6 @@ export const auditCommand = new Command("audit")
         spinner.succeed(`Audit complete — code health: ${report.healthScore}/100`);
       }
 
-      // What was measured section
       if (!isJson) {
         outputBlank();
         output(chalk.bold("  📏 What Was Measured:"));
@@ -224,18 +335,42 @@ export const auditCommand = new Command("audit")
         output(chalk.gray(`    Rules evaluated:  ${report.totalRules}`));
         output(chalk.gray(`    History sessions: ${report.historyEntries}`));
         outputBlank();
+        output(chalk.bold("  📊 Health Card:"));
+        outputBlank();
+        const dimensions: AuditDimension[] = ["security", "reliability", "complexity", "hygiene", "coverage", "governance"];
+        for (const dim of dimensions) {
+          const score = report.dimensionScores[dim] ?? 100;
+          const icon = dimensionIcon(dim);
+          const label = dimensionLabel(dim);
+          const color = score >= 80 ? chalk.green : score >= 60 ? chalk.yellow : chalk.red;
+          output(`    ${icon} ${label.padEnd(15)} ${color(`${score}/100`)}`);
+        }
+        outputBlank();
+        outputBlank();
       }
 
-      // JSON output
       if (isJson) {
+        let autofixReportJson: AutofixReport | undefined;
+        if (options.apply && report.issues.length > 0) {
+          const suggestions = generateFixSuggestions(report.issues as Parameters<typeof generateFixSuggestions>[0], []);
+          const prioritized = prioritizeSuggestions(suggestions);
+          if (prioritized.length > 0) {
+            autofixReportJson = applyAllFixes(prioritized, ctx.projectRoot, {
+              dryRun: options.dryRun === true,
+            });
+          }
+        }
         outputJson({
           projectRoot: ctx.projectRoot,
           level: report.level,
           healthScore: report.healthScore,
+          dimensionScores: report.dimensionScores,
           totalRules: report.totalRules,
           historyEntries: report.historyEntries,
           sessionsAnalyzed: report.sessionsAnalyzed,
           issues: report.issues,
+          suppressedIssues: report.suppressedIssues,
+          autofixReport: autofixReportJson ?? null,
           issueCounts: {
             total: report.issues.length,
             critical: report.issues.filter((i) => i.severity === 3).length,
@@ -247,7 +382,6 @@ export const auditCommand = new Command("audit")
             missingGitignore: report.issues.filter((i) => i.type === "missing_gitignore").length,
             maturityInconsistency: report.issues.filter((i) => i.type === "maturity_inconsistency").length,
             adrCoverageGap: report.issues.filter((i) => i.type === "adr_coverage_gap").length,
-            // Engineering audit dimensions
             testFailures: report.issues.filter((i) => i.type === "test_failure").length,
             orphanModules: report.issues.filter((i) => i.type === "orphan_module").length,
             oversizedFiles: report.issues.filter((i) => i.type === "oversized_file").length,
@@ -261,7 +395,6 @@ export const auditCommand = new Command("audit")
             highComplexity: report.issues.filter((i) => i.type === "high_complexity").length,
             unusedExports: report.issues.filter((i) => i.type === "unused_export").length,
             deadCode: report.issues.filter((i) => i.type === "dead_code").length,
-            // Supply chain
             unpinnedVersions: report.issues.filter((i) => i.type === "unpinned_version").length,
             missingLockFile: report.issues.filter((i) => i.type === "missing_lock_file").length,
             lockFileDrift: report.issues.filter((i) => i.type === "lock_file_drift").length,
@@ -291,7 +424,6 @@ export const auditCommand = new Command("audit")
         return;
       }
 
-      // Human-readable output
       if (cacheHit) {
         output(chalk.gray("  📦 Used cached results"));
       }
@@ -302,7 +434,6 @@ export const auditCommand = new Command("audit")
       output(chalk.gray(`    History entries:  ${report.historyEntries}`));
       output(chalk.gray(`    Issues found:    ${report.issues.length}`));
       output(chalk.gray(`    Optimizations:   ${report.optimizations.length}`));
-      // New issue type counts
       const datePlaceholders = report.issues.filter((i) => i.type === "date_placeholder").length;
       const emptyDirs = report.issues.filter((i) => i.type === "empty_dir").length;
       const brokenRefs = report.issues.filter((i) => i.type === "broken_ref").length;
@@ -315,7 +446,6 @@ export const auditCommand = new Command("audit")
       if (missingGitignore > 0) output(chalk.gray(`    Missing .gitignore: ${missingGitignore}`));
       if (maturityIssues > 0) output(chalk.gray(`    Maturity issues:   ${maturityIssues}`));
       if (adrGaps > 0) output(chalk.gray(`    ADR coverage gaps: ${adrGaps}`));
-      // Engineering audit dimensions
       const testFailures = report.issues.filter((i) => i.type === "test_failure").length;
       const orphanModules = report.issues.filter((i) => i.type === "orphan_module").length;
       const oversizedFiles = report.issues.filter((i) => i.type === "oversized_file").length;
@@ -332,7 +462,6 @@ export const auditCommand = new Command("audit")
       if (anyTypeUsage > 0) output(chalk.gray(`    Any type usage:     ${anyTypeUsage}`));
       if (typeErrors > 0) output(chalk.yellow(`    Type errors:        ${typeErrors}`));
       if (consoleLogs > 0) output(chalk.gray(`    Console.log:        ${consoleLogs}`));
-      // Code quality issues
       const emptyCatchBlocks = report.issues.filter((i) => i.type === "empty_catch").length;
       const circularDeps = report.issues.filter((i) => i.type === "circular_dep").length;
       const highComplexity = report.issues.filter((i) => i.type === "high_complexity").length;
@@ -343,7 +472,6 @@ export const auditCommand = new Command("audit")
       if (highComplexity > 0) output(chalk.yellow(`    High complexity:    ${highComplexity}`));
       if (unusedExports > 0) output(chalk.gray(`    Unused exports:     ${unusedExports}`));
       if (deadCode > 0) output(chalk.gray(`    Dead code:          ${deadCode}`));
-      // Supply chain issues
       const unpinnedVersions = report.issues.filter((i) => i.type === "unpinned_version").length;
       const missingLockFile = report.issues.filter((i) => i.type === "missing_lock_file").length;
       const lockFileDrift = report.issues.filter((i) => i.type === "lock_file_drift").length;
@@ -356,12 +484,10 @@ export const auditCommand = new Command("audit")
       if (deprecatedPackages > 0) output(chalk.yellow(`    Deprecated pkgs:    ${deprecatedPackages}`));
       outputBlank();
 
-      // Health score with bar
       output(chalk.bold("    Code Health:"));
       output(`      ${report.healthScore}/100  ${healthBar(report.healthScore, 100)}`);
       outputBlank();
 
-      // Knowledge Graph section
       output(chalk.bold("  📊 Knowledge Graph:"));
       outputBlank();
       const graphColor = graphAnalysis.healthScore >= 70 ? chalk.green
@@ -398,10 +524,8 @@ export const auditCommand = new Command("audit")
         output(chalk.green("  ✔ No issues found. Governance is healthy!"));
         outputBlank();
       } else {
-        // Group issues by category and severity
         const categorized = categorizeIssues(report.issues);
 
-        // Display critical issues first (top 5)
         if (categorized.critical.length > 0) {
           output(chalk.bold("  🚨 Critical Issues (require immediate attention):"));
           outputBlank();
@@ -417,7 +541,6 @@ export const auditCommand = new Command("audit")
           }
         }
 
-        // Display warnings (top 5)
         if (categorized.warnings.length > 0) {
           output(chalk.bold("  ⚠️  Warnings (should be addressed):"));
           outputBlank();
@@ -433,7 +556,6 @@ export const auditCommand = new Command("audit")
           }
         }
 
-        // Display info issues grouped by type (condensed)
         if (categorized.info.length > 0) {
           output(chalk.bold("  ℹ️  Info (informational, low priority):"));
           outputBlank();
@@ -449,7 +571,6 @@ export const auditCommand = new Command("audit")
           outputBlank();
         }
 
-        // Quick Wins section
         const quickWins = identifyQuickWins(report.issues);
         if (quickWins.length > 0) {
           output(chalk.bold("  ⚡ Quick Wins (low effort, high impact):"));
@@ -461,7 +582,6 @@ export const auditCommand = new Command("audit")
           outputBlank();
         }
 
-        // Fix Suggestions from Suggestion Engine
         if (report.issues.length > 0) {
           const suggestions = generateFixSuggestions(report.issues as Parameters<typeof generateFixSuggestions>[0], []);
           const prioritized = prioritizeSuggestions(suggestions);
@@ -474,9 +594,32 @@ export const auditCommand = new Command("audit")
             }
             outputBlank();
           }
+
+          if (options.apply && prioritized.length > 0) {
+            output(chalk.bold("  🔧 Applying high-confidence fixes..."));
+            outputBlank();
+            const autofixReport: AutofixReport = applyAllFixes(prioritized, ctx.projectRoot, {
+              dryRun: options.dryRun === true,
+            });
+            output(chalk.gray(`    Total: ${autofixReport.total} | Applied: ${autofixReport.applied} | Reverted: ${autofixReport.reverted} | Skipped: ${autofixReport.skipped}`));
+            outputBlank();
+            for (const result of autofixReport.results) {
+              const icon = result.status === "applied" ? "✔" : result.status === "reverted" ? "✘" : "⊘";
+              const color = result.status === "applied" ? chalk.green : result.status === "reverted" ? chalk.red : chalk.gray;
+              output(color(`    ${icon} ${result.suggestion.description} (${result.status})`));
+              if (result.reason) {
+                output(chalk.gray(`       Reason: ${result.reason}`));
+              }
+            }
+            outputBlank();
+            if (autofixReport.reverted > 0) {
+              output(chalk.yellow("  ⚠ Some fixes were reverted due to verification failure."));
+              output(chalk.gray("    Files were restored to their original state."));
+              outputBlank();
+            }
+          }
         }
 
-        // Display optimizations (condensed)
         if (report.optimizations.length > 0) {
           output(chalk.bold("  🔧 Proposed Optimizations:"));
           outputBlank();
@@ -494,7 +637,6 @@ export const auditCommand = new Command("audit")
         outputBlank();
       }
 
-      // Generate and display dynamic rules
       try {
         const { generateDynamicRules } = await import("../dynamic-rules.js");
         const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.shitenDir);
@@ -513,35 +655,41 @@ export const auditCommand = new Command("audit")
         // Skip dynamic rules on error
       }
 
-      // Summary
       output(chalk.bold("  📝 Summary:"));
       output(chalk.gray(`    ${report.summary}`));
       outputBlank();
 
-      // Growth profile
+      if (options.showSuppressed && report.suppressedIssues.length > 0) {
+        output(chalk.bold("  🚫 Suppressed Issues:"));
+        outputBlank();
+        for (const issue of report.suppressedIssues) {
+          const fp = issueFingerprint(issue);
+          output(chalk.gray(`    [${fp}] ${issue.description}`));
+          output(chalk.gray(`      Reason: ${issue.suppressionReason}`));
+        }
+        outputBlank();
+      }
+
       output(formatGrowthProgress(growthProfile));
       outputBlank();
 
-      // Publish event
       const auditStatus = report.healthScore >= 70 ? "healthy" : report.healthScore >= 40 ? "degraded" : "critical";
       getEventBus().publish("health.checked", {
         status: auditStatus,
         healthScore: report.healthScore,
+          dimensionScores: report.dimensionScores,
         issues: report.issues.map((i) => i.description),
         checksRun: report.totalRules,
       });
 
-      // Auto-backlog: convert audit issues to backlog items
       if (options.autoBacklog) {
         const today = new Date().toISOString().slice(0, 10);
         const backlogItems: BacklogItem[] = [];
 
-        // Convert audit issues to backlog items
         report.issues.forEach((issue, idx) => {
           backlogItems.push(issueToBacklogItem(issue, today, "SA", idx + 1));
         });
 
-        // Convert knowledge graph suggestions
         if (graphAnalysis.orphanArtifacts.length > 0) {
           backlogItems.push({
             id: `SA${backlogItems.length + 1}`,
@@ -571,7 +719,6 @@ export const auditCommand = new Command("audit")
         }
       }
 
-      // Execute custom check hooks from plugins
       const hookBus = getHookBus();
       const customResults = await hookBus.collectHook("custom-check", async (plugin) => {
         if (plugin.hooks?.["custom-check"]) {

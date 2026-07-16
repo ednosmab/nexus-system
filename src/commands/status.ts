@@ -13,6 +13,7 @@ import { loadGrowthProfile } from "../growth-profile.js";
 import { formatGrowthProgress } from "../dual-path-presenter.js";
 import { logger, muteLogs } from "../logger.js";
 import { output, outputBlank } from "../output.js";
+import { queryDaemon, isDaemonRunning } from "../daemon-client.js";
 
 interface StatusCheck {
   name: string;
@@ -166,27 +167,36 @@ export const statusCommand = new Command("status")
       outputBlank();
     }
 
-    // Display context pipeline summary via collectContext()
+    // Display context pipeline summary — daemon-first, disk-fallback
     try {
       const { collectContext } = await import("../context-collector.js");
       const { computeInputHash, getCachedBriefing } = await import("../briefing-cache.js");
 
-      const snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
-      const inputHash = computeInputHash({
-        fingerprintHash: snapshot.fingerprint.hash,
-        riskMapHash: snapshot.riskMap.generatedAt,
-        contextRuleCount: snapshot.contextRules.length,
-        dynamicRuleCount: snapshot.dynamicRules.length,
-        maturityScore: snapshot.maturityProfile?.overallScore ?? null,
-      });
-      const cached = getCachedBriefing(ctx.shitenDir, inputHash);
-      const briefing = cached?.briefing ?? snapshot.briefing;
+      let briefing;
+      if (isDaemonRunning(ctx.shitenDir)) {
+        const result = await queryDaemon<{ type: string; data: typeof briefing }>(ctx.shitenDir, {
+          type: "query_briefing",
+        });
+        if (result?.data) {
+          briefing = result.data;
+        }
+      }
+
+      if (!briefing) {
+        const snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+        const inputHash = computeInputHash({
+          fingerprintHash: snapshot.fingerprint.hash,
+          riskMapHash: snapshot.riskMap.generatedAt,
+          contextRuleCount: snapshot.contextRules.length,
+          dynamicRuleCount: snapshot.dynamicRules.length,
+          maturityScore: snapshot.maturityProfile?.overallScore ?? null,
+        });
+        const cached = getCachedBriefing(ctx.shitenDir, inputHash);
+        briefing = cached?.briefing ?? snapshot.briefing;
+      }
 
       output(chalk.bold("  📋 Pre-Session Briefing:"));
       output(chalk.gray(`    Domain: ${briefing.project.domain} | Scale: ${briefing.project.scale} | Risk: ${briefing.risks.overall}`));
-      if (cached?.cacheHit) {
-        output(chalk.gray("    Cache: hit"));
-      }
       if (briefing.risks.criticalAreas.length > 0) {
         output(chalk.red(`    ⚠ Critical areas: ${briefing.risks.criticalAreas.join(", ")}`));
       }

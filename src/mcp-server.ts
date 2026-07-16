@@ -131,13 +131,13 @@ export function createMcpServer(projectRoot: string, shitenDir?: string): Server
     try {
       switch (name) {
         case "getBriefing":
-          return handleGetBriefing(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetBriefing(projectRoot, resolvedShitenDir, toolArgs);
         case "getRiskMap":
-          return handleGetRiskMap(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetRiskMap(projectRoot, resolvedShitenDir, toolArgs);
         case "getRules":
-          return handleGetRules(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetRules(projectRoot, resolvedShitenDir, toolArgs);
         case "getEngineeringState":
-          return handleGetEngineeringState(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetEngineeringState(projectRoot, resolvedShitenDir, toolArgs);
         case "getBacklog":
           return handleGetBacklog(projectRoot, resolvedShitenDir, toolArgs);
         case "getPlans":

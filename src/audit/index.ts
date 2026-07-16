@@ -17,7 +17,7 @@ export type {
 
 // ── Shared utilities ─────────────────────────────────────────────────────────
 
-export { collectSourceFiles } from "./shared.js";
+export { collectSourceFiles, issueFingerprint } from "./shared.js";
 
 // ── Health score ─────────────────────────────────────────────────────────────
 

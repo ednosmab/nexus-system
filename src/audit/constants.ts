@@ -388,3 +388,46 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectDepAuditStatus",
   ],
 };
+
+// ── Cross-File Detectors (require full project scan) ────────────────────────
+
+/**
+ * Detectors that require analysis of the entire project graph.
+ * These must ALWAYS run on the full project, even in --changed mode.
+ * Running them on a subset of files would produce false negatives.
+ */
+export const CROSS_FILE_ONLY_DETECTORS = new Set([
+  "detectCircularDeps",
+  "detectOrphanModules",
+  "detectSystemMapMismatch",
+  "detectModuleCoupling",
+  "detectBarrelFileCycles",
+  "detectDeadRules",
+  "detectCrossDocP0Contradiction",
+  "detectDocCountMismatch",
+  "detectNumberingGap",
+  "detectPhantomRuleRefs",
+  "detectAgentContractRefs",
+  // Enterprise cross-file detectors
+  "detectSchemaConsistency",
+  "detectDataOwnership",
+  "detectPipelineGaps",
+  "detectOWASPTop10",
+  "detectCWEMapping",
+  "detectSOC2Controls",
+  "detectNISTAlignment",
+  "detectLGPDCompliance",
+  "detectSBOMCoverage",
+  "detectLicenseConflicts",
+  "detectTransitiveVulns",
+  "detectMalwarePatterns",
+  "detectTechDebtCost",
+  "detectTDR",
+  "detectDebtTrend",
+  "detectDebtByDomain",
+  "detectDebtAccumulationRate",
+  "detectSBOMExists",
+  "detectSBOMCompleteness",
+  "detectDuplicateDeps",
+  "detectDepAuditStatus",
+]);

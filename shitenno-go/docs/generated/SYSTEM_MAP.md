@@ -1,6 +1,6 @@
 # System Map
 
-> Generated: 2026-07-16T03:50:48.563Z
+> Generated: 2026-07-16T05:15:12.436Z
 > Session Score: 99/100
 
 ## Overview
@@ -21,7 +21,7 @@
 - ADR-006: Restrict Filesystem Access in CLI Commands — docs/adrs/ADR-006-filesystem-access-restriction.md
 - ADR-007: File Size and Complexity Limits — docs/adrs/ADR-007-file-size-limits.md
 
-### Skills (17)
+### Skills (18)
 
 - architectural integrity — docs/skills/architectural_integrity.md
 - ci cd pipeline — docs/skills/ci_cd_pipeline.md
@@ -33,7 +33,7 @@
 - handbook-fill — docs/skills/handbook-fill.md
 - operacao no shiten — docs/skills/operacao_no_shiten.md
 - optimistic ui — docs/skills/optimistic_ui.md
-- ... and 7 more
+- ... and 8 more
 
 ### Contracts (4)
 
@@ -66,10 +66,10 @@
 
 ### Plans (4)
 
+- 2026 07 16 audit confidence suppression1 — governance/plans/2026-07-16-audit-confidence-suppression1.md
+- 2026 07 16 audit market edge2 — governance/plans/2026-07-16-audit-market-edge2.md
 - PLAN monettization implementation — governance/plans/PLAN-monettization-implementation.md
 - README — governance/plans/README.md
-- handoff agente — governance/plans/handoff-agente.md
-- plano daemon kernel — governance/plans/plano-daemon-kernel.md
 
 ### Scripts (6)
 
@@ -80,7 +80,7 @@
 - sync docs — scripts/sync-docs.ts
 - validate session — scripts/validate-session.ts
 
-### Docs (15)
+### Docs (16)
 
 - AGENTS — docs/AGENTS.md
 - BACKLOG — docs/BACKLOG.md
@@ -92,9 +92,9 @@
 - INDEX — docs/INDEX.md
 - KNOWLEDGE LIFECYCLE — docs/KNOWLEDGE_LIFECYCLE.md
 - REGISTRY — docs/REGISTRY.md
-- ... and 5 more
+- ... and 6 more
 
-### Reports (23)
+### Reports (24)
 
 - complexity nexus cli 2026 07 15 session1 — reports/complexity-nexus-cli-2026-07-15-session1.json
 - complexity nexus cli 2026 07 15 session2 — reports/complexity-nexus-cli-2026-07-15-session2.json
@@ -106,7 +106,7 @@
 - complexity shitenno cli 2026 07 15 session1 — reports/complexity-shitenno-cli-2026-07-15-session1.json
 - complexity shitenno cli 2026 07 15 session2 — reports/complexity-shitenno-cli-2026-07-15-session2.json
 - complexity shitenno cli 2026 07 16 session1 — reports/complexity-shitenno-cli-2026-07-16-session1.json
-- ... and 13 more
+- ... and 14 more
 
 ### Contexts (1)
 

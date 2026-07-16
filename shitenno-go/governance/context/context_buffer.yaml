@@ -1,4 +1,8 @@
 reminders:
+  - message: "Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas."
+    priority: "medium"
+    category: "docs"
+    createdAt: "2026-07-16T04:58:10.072Z"
   - message: "Health status is CRITICAL — immediate action required"
     priority: "medium"
     category: "feature"
@@ -44,3 +48,4 @@ completed_tasks:
   - PLANO-ARQUITECTURA-COMPLETO (15 fases)
   - HANDBOOK-LEVEL-2-3
   - AUDIT-IMPROVEMENT-PLAN (Phases 1-4: security, empty_catch, broken_refs, context_buffer)
+  - PLAN-AUDIT-EDGE (Sub-planos A, B, C completados: autofix, incremental scan, health card)

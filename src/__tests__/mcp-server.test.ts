@@ -25,6 +25,11 @@ vi.mock("../dynamic-rules.js", () => ({
   generateDynamicRules: vi.fn(() => []),
 }));
 
+vi.mock("../daemon-client.js", () => ({
+  isDaemonRunning: vi.fn(() => false),
+  queryDaemon: vi.fn(() => Promise.resolve(null)),
+}));
+
 import { collectContext } from "../context-collector.js";
 import { generateRiskMap } from "../risk-map.js";
 import { loadRules } from "../rule-engine.js";
@@ -147,8 +152,8 @@ beforeEach(() => {
 // ── getBriefing ─────────────────────────────────────────────────────────────
 
 describe("handleGetBriefing", () => {
-  it("returns valid JSON structure with all required fields", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {});
+  it("returns valid JSON structure with all required fields", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {});
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0]!.type).toBe("text");
@@ -161,8 +166,8 @@ describe("handleGetBriefing", () => {
     expect(json).toHaveProperty("recommendations");
   });
 
-  it("returns minimal depth with project, risks, and 1 recommendation", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {
+  it("returns minimal depth with project, risks, and 1 recommendation", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
       depth: "minimal",
     });
 
@@ -176,8 +181,8 @@ describe("handleGetBriefing", () => {
     expect(json.tokenEconomy).toBeUndefined();
   });
 
-  it("returns full depth with quickBoard and tokenEconomy", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {
+  it("returns full depth with quickBoard and tokenEconomy", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
       depth: "full",
     });
 
@@ -187,8 +192,8 @@ describe("handleGetBriefing", () => {
     // tokenEconomy is only included in full depth via briefingToJson
   });
 
-  it("returns standard depth by default", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {});
+  it("returns standard depth by default", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     // Standard includes all main sections but not extended fields
@@ -196,8 +201,8 @@ describe("handleGetBriefing", () => {
     expect(json.risks).toBeDefined();
   });
 
-  it("returns markdown format", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {
+  it("returns markdown format", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
       format: "markdown",
     });
 
@@ -206,8 +211,8 @@ describe("handleGetBriefing", () => {
     expect(result.content[0]!.text).toContain("Pre-Session Briefing");
   });
 
-  it("returns summary format", () => {
-    const result = handleGetBriefing("/project", "/project/shitenno-go", {
+  it("returns summary format", async () => {
+    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -216,8 +221,8 @@ describe("handleGetBriefing", () => {
     expect(result.content[0]!.text.length).toBeGreaterThan(0);
   });
 
-  it("calls collectContext with correct arguments", () => {
-    handleGetBriefing("/my/project", "/my/project/shitenno-go", {});
+  it("calls collectContext with correct arguments", async () => {
+    await handleGetBriefing("/my/project", "/my/project/shitenno-go", {});
 
     expect(mockCollectContext).toHaveBeenCalledWith(
       "/my/project",
@@ -229,8 +234,8 @@ describe("handleGetBriefing", () => {
 // ── getRiskMap ──────────────────────────────────────────────────────────────
 
 describe("handleGetRiskMap", () => {
-  it("returns valid JSON structure with overallRisk and areas", () => {
-    const result = handleGetRiskMap("/project", "/project/shitenno-go", {});
+  it("returns valid JSON structure with overallRisk and areas", async () => {
+    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("overallRisk");
@@ -239,8 +244,8 @@ describe("handleGetRiskMap", () => {
     expect(json.areas).toBeInstanceOf(Array);
   });
 
-  it("each area has required fields", () => {
-    const result = handleGetRiskMap("/project", "/project/shitenno-go", {});
+  it("each area has required fields", async () => {
+    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     for (const area of json.areas) {
@@ -252,8 +257,8 @@ describe("handleGetRiskMap", () => {
     }
   });
 
-  it("returns summary format with human-readable output", () => {
-    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
+  it("returns summary format with human-readable output", async () => {
+    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -261,8 +266,8 @@ describe("handleGetRiskMap", () => {
     expect(result.content[0]!.text).toContain("Areas analysed:");
   });
 
-  it("summary includes high/critical areas", () => {
-    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
+  it("summary includes high/critical areas", async () => {
+    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -270,7 +275,7 @@ describe("handleGetRiskMap", () => {
     expect(result.content[0]!.text).toContain("src/auth");
   });
 
-  it("summary shows acceptable risk when no critical areas", () => {
+  it("summary shows acceptable risk when no critical areas", async () => {
     mockGenerateRiskMap.mockReturnValue({
       ...MOCK_RISK_MAP,
       areas: [
@@ -279,7 +284,7 @@ describe("handleGetRiskMap", () => {
       ],
     } as any);
 
-    const result = handleGetRiskMap("/project", "/project/shitenno-go", {
+    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
       format: "summary",
     });
 
@@ -288,8 +293,8 @@ describe("handleGetRiskMap", () => {
     );
   });
 
-  it("calls generateRiskMap with correct arguments", () => {
-    handleGetRiskMap("/my/project", "/my/project/shitenno-go", {});
+  it("calls generateRiskMap with correct arguments", async () => {
+    await handleGetRiskMap("/my/project", "/my/project/shitenno-go", {});
 
     expect(mockGenerateRiskMap).toHaveBeenCalledWith(
       "/my/project",
@@ -301,8 +306,8 @@ describe("handleGetRiskMap", () => {
 // ── getRules ────────────────────────────────────────────────────────────────
 
 describe("handleGetRules", () => {
-  it("returns all rule types by default", () => {
-    const result = handleGetRules("/project", "/project/shitenno-go", {});
+  it("returns all rule types by default", async () => {
+    const result = await handleGetRules("/project", "/project/shitenno-go", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("contextRules");
@@ -310,8 +315,8 @@ describe("handleGetRules", () => {
     expect(json).toHaveProperty("engineRules");
   });
 
-  it("contextRules have required fields", () => {
-    const result = handleGetRules("/project", "/project/shitenno-go", {
+  it("contextRules have required fields", async () => {
+    const result = await handleGetRules("/project", "/project/shitenno-go", {
       type: "context",
     });
 
@@ -327,7 +332,7 @@ describe("handleGetRules", () => {
     }
   });
 
-  it("dynamicRules have required fields", () => {
+  it("dynamicRules have required fields", async () => {
     mockGenerateDynamicRules.mockReturnValue([
       {
         id: "DYN-001",
@@ -340,7 +345,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno-go", {
       type: "dynamic",
     });
 
@@ -350,7 +355,7 @@ describe("handleGetRules", () => {
     expect(json.dynamicRules[0].severity).toBe("high");
   });
 
-  it("engineRules have required fields", () => {
+  it("engineRules have required fields", async () => {
     mockLoadRules.mockReturnValue([
       {
         id: "RULE-001",
@@ -365,7 +370,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno-go", {
       type: "engine",
     });
 
@@ -375,22 +380,22 @@ describe("handleGetRules", () => {
     expect(json.engineRules[0].enabled).toBe(true);
   });
 
-  it("returns markdown format with headers", () => {
-    const result = handleGetRules("/project", "/project/shitenno-go", {
+  it("returns markdown format with headers", async () => {
+    const result = await handleGetRules("/project", "/project/shitenno-go", {
       format: "markdown",
     });
 
     expect(result.content[0]!.text).toContain("# Governance Rules");
   });
 
-  it("calls loadRules for engine rules", () => {
-    handleGetRules("/project", "/project/shitenno-go", { type: "engine" });
+  it("calls loadRules for engine rules", async () => {
+    await handleGetRules("/project", "/project/shitenno-go", { type: "engine" });
 
     expect(mockLoadRules).toHaveBeenCalledWith("/project/shitenno-go");
   });
 
-  it("calls generateDynamicRules for dynamic rules", () => {
-    handleGetRules("/project", "/project/shitenno-go", { type: "dynamic" });
+  it("calls generateDynamicRules for dynamic rules", async () => {
+    await handleGetRules("/project", "/project/shitenno-go", { type: "dynamic" });
 
     expect(mockGenerateDynamicRules).toHaveBeenCalledWith(
       "/project",
@@ -402,31 +407,31 @@ describe("handleGetRules", () => {
 // ── Error Handling ──────────────────────────────────────────────────────────
 
 describe("Error Handling", () => {
-  it("getBriefing handles collectContext throwing an error", () => {
+  it("getBriefing handles collectContext throwing an error", async () => {
     mockCollectContext.mockImplementation(() => {
       throw new Error("ENOENT: no such file or directory");
     });
 
     // The handler itself will throw, which is caught by the MCP server's try/catch
-    expect(() =>
+    await expect(
       handleGetBriefing("/nonexistent", "/nonexistent/shitenno-go", {})
-    ).toThrow("ENOENT");
+    ).rejects.toThrow("ENOENT");
   });
 
-  it("getRiskMap handles generateRiskMap throwing an error", () => {
+  it("getRiskMap handles generateRiskMap throwing an error", async () => {
     mockGenerateRiskMap.mockImplementation(() => {
       throw new Error("Cannot read property of undefined");
     });
 
-    expect(() =>
+    await expect(
       handleGetRiskMap("/nonexistent", "/nonexistent/shitenno-go", {})
-    ).toThrow("Cannot read property of undefined");
+    ).rejects.toThrow("Cannot read property of undefined");
   });
 
-  it("getRules handles loadRules returning empty for missing shiten dir", () => {
+  it("getRules handles loadRules returning empty for missing shiten dir", async () => {
     mockLoadRules.mockReturnValue([]);
 
-    const result = handleGetRules(
+    const result = await handleGetRules(
       "/nonexistent",
       "/nonexistent/shitenno-go",
       { type: "engine" }
@@ -436,10 +441,10 @@ describe("Error Handling", () => {
     expect(json.engineRules).toEqual([]);
   });
 
-  it("getRules handles generateDynamicRules returning empty for fresh project", () => {
+  it("getRules handles generateDynamicRules returning empty for fresh project", async () => {
     mockGenerateDynamicRules.mockReturnValue([]);
 
-    const result = handleGetRules(
+    const result = await handleGetRules(
       "/fresh-project",
       "/fresh-project/shitenno-go",
       { type: "dynamic" }

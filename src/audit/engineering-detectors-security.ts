@@ -11,9 +11,26 @@ import { SECURITY_DETECTOR_SELF_PATHS } from "./constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── Security Pattern Detectors (SEC-*) ────────────────────────────────────────
+// Calibration guide:
+//   1.0–0.9: structural/data-flow analysis or deterministic match
+//   0.75–0.89: specific regex with low overlap with legitimate code
+//   0.5–0.74: generic regex or textual heuristic
+//   < 0.5: do not emit issue
 
 function isDetectorDefinitionFile(relPath: string): boolean {
   return SECURITY_DETECTOR_SELF_PATHS.some((p) => relPath.startsWith(p));
+}
+
+function shannonEntropy(str: string): number {
+  const freq = new Map<string, number>();
+  for (const ch of str) freq.set(ch, (freq.get(ch) ?? 0) + 1);
+  const len = str.length;
+  let h = 0;
+  for (const count of freq.values()) {
+    const p = count / len;
+    h -= p * Math.log2(p);
+  }
+  return h;
 }
 
 /**
@@ -43,13 +60,15 @@ export function detectHardcodedSecrets(_projectRoot: string, files: SourceFileIn
       const line = lines[i]!;
       if (line.trim().startsWith("//") || line.trim().startsWith("*")) continue;
       for (const { regex, name } of secretPatterns) {
-        if (regex.test(line)) {
+        const m = line.match(regex);
+        if (m) {
           issues.push({
             type: "hardcoded_secret",
             severity: 3,
             description: `Possível ${name} hardcoded em "${file.relPath}:${i + 1}"`,
             location: `${file.relPath}:${i + 1}`,
             recommendation: `Mover ${name} para variável de ambiente ou ficheiro de configuração seguro`,
+            confidence: shannonEntropy(m[0] ?? "") > 4.0 ? 0.9 : 0.55,
           });
           break;
         }
@@ -173,6 +192,7 @@ export function detectConsoleSecrets(_projectRoot: string, files: SourceFileInfo
           description: `Dados sensíveis em console em "${file.relPath}:${i + 1}" — pode expor credenciais em logs`,
           location: `${file.relPath}:${i + 1}`,
           recommendation: "Remover console.log com dados sensíveis ou mascarar valores antes de logar",
+          confidence: 0.7,
         });
       }
     }
@@ -327,6 +347,7 @@ export function detectRegexDos(_projectRoot: string, files: SourceFileInfo[]): H
           description: `Regex potencialmente vulnerable a ReDoS em "${file.relPath}:${i + 1}"`,
           location: `${file.relPath}:${i + 1}`,
           recommendation: "Simplificar regex ou usar libraries como re2 — evitar backtracking complexo",
+          confidence: 0.75,
         });
       } else if (nestedQuantifierPattern.test(line)) {
         issues.push({
@@ -335,6 +356,7 @@ export function detectRegexDos(_projectRoot: string, files: SourceFileInfo[]): H
           description: `Regex literal com quantificadores aninhados em "${file.relPath}:${i + 1}" — pode ter backtracking exponencial`,
           location: `${file.relPath}:${i + 1}`,
           recommendation: "Rever manualmente — pode causar catastrophic backtracking; considerar usar re2",
+          confidence: 0.6,
         });
       }
     }
@@ -531,6 +553,7 @@ export function detectWeakRandomness(_projectRoot: string, files: SourceFileInfo
           description: `Math.random() usado para geração de segredo em "${file.relPath}:${i + 1}" — entropia insuficiente`,
           location: `${file.relPath}:${i + 1}`,
           recommendation: "Usar crypto.randomBytes() ou crypto.randomUUID() para tokens/senhas",
+          confidence: 0.65,
         });
       }
     }

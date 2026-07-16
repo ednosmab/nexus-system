@@ -1409,3 +1409,80 @@
 - [ ] Fase 5: Adicionar schema validation para JSON.parse (67)
 - [ ] Fase 6: Adicionar testes para 147 módulos sem cobertura
 - [ ] Score enterprise >80/100
+
+
+### BACKLOG-2026_07_16_AUDIT_IMPROVEMENT_PLAN — Plano de Melhorias — Auditoria Enterprise (2026-07-16)
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Melhorias — Auditoria Enterprise (2026-07-16) |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-16-audit-improvement-plan.md` |
+
+#### Passos do Plano
+- [ ] `shiten audit --level enterprise` → score >80
+- [ ] 0 critical issues
+- [ ] <30 warnings
+- [ ] `pnpm run lint` → 0 erros
+- [ ] `pnpm run typecheck` → 0 erros
+- [ ] `pnpm test` → todos passam
+
+
+### BACKLOG-2026_07_16_AUDIT_CONFIDENCE_SUPPRESSION1 — PLAN-AUDIT-CONF — Confidence Score + Suppression Baseline no `shiten audit`
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-AUDIT-CONF — Confidence Score + Suppression Baseline no `shiten audit` |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-16-audit-confidence-suppression1.md` |
+
+#### Passos do Plano
+- [ ] Passo 1 — Estender o tipo `HealthIssue`
+- [ ] Passo 2 — Anotar confiança nos detectors de maior risco de falso positivo
+- [ ] Passo 3 — Correlação entre detectors aumenta confiança
+- [ ] Passo 4 — `healthScore` pondera por confiança
+- [ ] Passo 5 — Suppression baseline
+- [ ] Passo 6 — Comando `shiten audit suppress` e flags de CLI
+- [ ] `npm run typecheck` sem erros após a mudança.
+- [ ] `health-auditor.test.ts` e `suggestion-engine` tests continuam passando (rodar com fixtures antigas para garantir que `confidence` default não quebra contrato existente).
+- [ ] Rodar `shiten audit --level enterprise` num repo real e comparar `healthScore` antes/depois — divergência deve ser explicável (não aleatória).
+- [ ] Suprimir um issue via `shiten audit suppress <hash>` e confirmar que ele some do próximo `shiten audit` mas aparece em `shiten audit --show-suppressed`.
+- [ ] `npm run typecheck` sem erros após a mudança.
+- [ ] `health-auditor.test.ts` e `suggestion-engine` tests continuam passando (rodar com fixtures antigas para garantir que `confidence` default não quebra contrato existente).
+- [ ] Rodar `shiten audit --level enterprise` num repo real e comparar `healthScore` antes/depois — divergência deve ser explicável (não aleatória).
+- [ ] Suprimir um issue via `shiten audit suppress <hash>` e confirmar que ele some do próximo `shiten audit` mas aparece em `shiten audit --show-suppressed`.
+
+
+### BACKLOG-2026_07_16_AUDIT_MARKET_EDGE2 — PLAN-AUDIT-EDGE — Fechar gaps de mercado sem perder o diferencial de Governance Intelligence
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-16 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-AUDIT-EDGE — Fechar gaps de mercado sem perder o diferencial de Governance Intelligence |
+| **Correcao** | Verificar checklist no plano `governance/plans/2026-07-16-audit-market-edge2.md` |
+
+#### Passos do Plano
+- [ ] `shiten audit --apply` num repo de teste com um `unused_import` conhecido: import é removido, `npm run typecheck` roda automaticamente, e se passar o fix fica; se um fix quebrar o build, o arquivo volta ao estado original e o issue é reportado como "fix tentado e revertido".
+- [ ] `shiten audit --changed` num branch com 2 arquivos alterados de um projeto com 200 arquivos: tempo de execução cai proporcionalmente (medir com `durationMs` já existente no `HealthAuditReport`).
+- [ ] Output humano do `shiten audit` mostra um card por dimensão com nota/score antes da lista de issues.
+- [ ] `shiten audit --apply` num repo de teste com um `unused_import` conhecido: import é removido, `npm run typecheck` roda automaticamente, e se passar o fix fica; se um fix quebrar o build, o arquivo volta ao estado original e o issue é reportado como "fix tentado e revertido".
+- [ ] `shiten audit --changed` num branch com 2 arquivos alterados de um projeto com 200 arquivos: tempo de execução cai proporcionalmente (medir com `durationMs` já existente no `HealthAuditReport`).
+- [ ] Output humano do `shiten audit` mostra um card por dimensão com nota/score antes da lista de issues.

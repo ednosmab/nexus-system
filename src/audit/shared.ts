@@ -6,6 +6,7 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { SOURCE_SKIP_PATTERNS } from "./constants.js";
 import type { SourceFileInfo, HistoryEntry, HealthIssue } from "./types.js";
 
@@ -82,11 +83,31 @@ export function readRules(shitenDir: string): string[] {
  */
 export function deduplicateIssues(issues: HealthIssue[]): HealthIssue[] {
   const seen = new Map<string, HealthIssue>();
+  const locationHits = new Map<string, number>();
+
   for (const issue of issues) {
     const key = `${issue.type}|${issue.description}|${issue.location}`;
     if (!seen.has(key)) {
       seen.set(key, issue);
     }
+    locationHits.set(issue.location, (locationHits.get(issue.location) ?? 0) + 1);
   }
-  return Array.from(seen.values());
+
+  return Array.from(seen.values()).map((issue) => {
+    const hits = locationHits.get(issue.location) ?? 1;
+    if (hits > 1 && issue.confidence !== undefined) {
+      return { ...issue, confidence: Math.min(1, issue.confidence + 0.1 * (hits - 1)) };
+    }
+    return issue;
+  });
+}
+
+/**
+ * Hash estável do issue, usado para supressão e tracking histórico.
+ */
+export function issueFingerprint(issue: HealthIssue): string {
+  return createHash("sha1")
+    .update(`${issue.type}|${issue.location}|${issue.description}`)
+    .digest("hex")
+    .slice(0, 10);
 }

@@ -313,6 +313,7 @@ export function buildDetectorMap(
           description: ti.description,
           location: ti.location,
           recommendation: ti.recommendation,
+          confidence: 0.95,
         }));
       } catch (err) {
         return [{

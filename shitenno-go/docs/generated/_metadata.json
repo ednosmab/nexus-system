@@ -1,42 +1,42 @@
 [
   {
-    "id": "DOC-A9E1841B",
+    "id": "DOC-994C19AF",
     "type": "system-map",
     "path": "docs/generated/SYSTEM_MAP.md",
-    "generatedAt": "2026-07-16T03:50:48.563Z",
-    "stateHash": "d37000810f7e",
+    "generatedAt": "2026-07-16T05:15:12.437Z",
+    "stateHash": "32e47c572dba",
     "stale": false
   },
   {
-    "id": "DOC-668EC2C9",
+    "id": "DOC-50331449",
     "type": "asset-index",
     "path": "docs/generated/ASSET_INDEX.md",
-    "generatedAt": "2026-07-16T03:50:48.563Z",
-    "stateHash": "d37000810f7e",
+    "generatedAt": "2026-07-16T05:15:12.437Z",
+    "stateHash": "32e47c572dba",
     "stale": false
   },
   {
-    "id": "DOC-7655BC11",
+    "id": "DOC-065ADBFA",
     "type": "capability-report",
     "path": "docs/generated/CAPABILITY_REPORT.md",
-    "generatedAt": "2026-07-16T03:50:48.564Z",
-    "stateHash": "d37000810f7e",
+    "generatedAt": "2026-07-16T05:15:12.437Z",
+    "stateHash": "32e47c572dba",
     "stale": false
   },
   {
-    "id": "DOC-F85109DD",
+    "id": "DOC-E6873354",
     "type": "health-report",
     "path": "docs/generated/HEALTH_REPORT.md",
-    "generatedAt": "2026-07-16T03:50:48.564Z",
-    "stateHash": "d37000810f7e",
+    "generatedAt": "2026-07-16T05:15:12.438Z",
+    "stateHash": "32e47c572dba",
     "stale": false
   },
   {
-    "id": "DOC-0AB5FB42",
+    "id": "DOC-A90610B2",
     "type": "architecture-overview",
     "path": "docs/generated/ARCHITECTURE.md",
-    "generatedAt": "2026-07-16T03:50:48.564Z",
-    "stateHash": "d37000810f7e",
+    "generatedAt": "2026-07-16T05:15:12.438Z",
+    "stateHash": "32e47c572dba",
     "stale": false
   }
 ]
