@@ -892,6 +892,7 @@
 | 3.30 | Validacao de schema com zod/io-ts | Baixo | Validar todos os tipos de record lidos de disco |
 | 3.31 | shiten detect --format markdown | Baixo | Saida markdown para detect (atualmente so text/json) |
 | 3.32 | Briefing cache com compressao | Baixo | Comprimir cache JSON para reduzir tamanho em disco |
+| 3.33 | Quebrar ciclo `advanced-infrastructure.ts` ↔ `event-bus.ts` | Baixo | As duas direcoes importam valores (DeadLetterQueue/createVersionedEvent vs getEventBus/EventBus) — ciclo real em runtime. Extrair tipos/ifs compartilhados para `src/event-bus-types.ts` e fazer ambos importarem dali. Fonte: PLAN-2026-07-16-remediacao-complementar (Achado D). |
 | 3.33 | Feedback com campo `briefingProfile` | Baixo | Registrar qual profile (minimal/standard/full) foi usado |
 | 3.34 | shiten dashboard --export csv | Baixo | Exportar dados do dashboard em CSV |
 | 3.35 | Plugin sandboxing | Baixo | Isolar plugins em workers para seguranca |
@@ -1600,3 +1601,33 @@
 | **Modulos** | governance/plans/ |
 | **Descricao** | Plano de Ação — Arbitragem de Autoridade entre CLI e Daemon |
 | **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-cli-daemon-authority-arbitration.md` |
+
+
+### BACKLOG-PLAN_2026_07_16_SECURITY_FINDINGS_REMEDIATION — Plano de Ação — Remediação de Achados de Segurança
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Remediação de Achados de Segurança |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-security-findings-remediation.md` |
+
+
+### BACKLOG-PLAN_2026_07_16_REMEDIACAO_COMPLEMENTAR — Plano Complementar — Achados da Revisão Manual (fora do plano original)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano Complementar — Achados da Revisão Manual (fora do plano original) |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-remediacao-complementar.md` |

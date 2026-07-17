@@ -138,7 +138,8 @@ export async function executeRules(
         action,
         context,
         mode: "autonomous",
-        ruleAutonomousFlag: true,
+        ruleAutonomousFlag: rule.autonomous ?? false,
+        resourceClaimed: context.isResourceClaimed,
       });
       if (invokeResult.success) {
         actionsExecuted++;

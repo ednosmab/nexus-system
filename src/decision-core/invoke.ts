@@ -166,9 +166,10 @@ export async function invokeAction(params: InvokeActionParams): Promise<InvokeRe
 
     writeFileSync(execPath, JSON.stringify(record, null, 2), "utf-8");
 
+    const actionSuccess = output.success !== false;
     return {
-      success: true,
-      message: `Executed ${action.type}`,
+      success: actionSuccess,
+      message: actionSuccess ? `Executed ${action.type}` : (output.message as string ?? `Failed: ${action.type}`),
       executionId,
     };
   } catch (error) {

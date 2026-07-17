@@ -18,6 +18,7 @@ import {
 } from "./constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 import { logger } from "../logger.js";
+import * as ts from "typescript";
 import { getOrCreateProgram } from "./ts-program-cache.js";
 import { analyzeComplexity } from "./complexity/analyzer.js";
 
@@ -323,7 +324,7 @@ export function detectEmptyCatchBlocks(_projectRoot: string, files: SourceFileIn
   const issues: HealthIssue[] = [];
 
   for (const file of files) {
-    const emptyCatchRegex = /catch\s*(?:\([^)]*\))?\s*\{\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/|\s)*)\}/g;
+    const emptyCatchRegex = /catch\s*(?:\([^)]*\))?\s*\{\s*(?:(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)\s*)*\}/g;
     let match;
     while ((match = emptyCatchRegex.exec(file.content)) !== null) {
       const lineNum = file.content.substring(0, match.index).split("\n").length;
@@ -343,12 +344,12 @@ export function detectEmptyCatchBlocks(_projectRoot: string, files: SourceFileIn
 export function detectHighComplexity(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  try {
-    const program = getOrCreateProgram(projectRoot);
-
-    for (const file of files) {
-      if (file.relPath.includes("__tests__")) continue;
-      const sourceFile = program.getSourceFile(file.fullPath);
+  for (const file of files) {
+    if (file.relPath.includes("__tests__")) continue;
+    try {
+      const program = getOrCreateProgram(projectRoot);
+      const sourceFile = program.getSourceFile(file.fullPath)
+        ?? ts.createSourceFile(file.fullPath, file.content, ts.ScriptTarget.Latest, true);
       if (!sourceFile) continue;
 
       for (const result of analyzeComplexity(program, sourceFile)) {
@@ -363,9 +364,9 @@ export function detectHighComplexity(projectRoot: string, files: SourceFileInfo[
           });
         }
       }
+    } catch {
+      // Skip files that can't be analyzed (parse errors, standalone source files, etc.)
     }
-  } catch (err) {
-    logger.debug("engineering-detectors", "Error in detectHighComplexity:", err);
   }
 
   return issues;

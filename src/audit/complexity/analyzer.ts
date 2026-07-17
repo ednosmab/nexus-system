@@ -33,12 +33,16 @@ function isDecisionPoint(node: ts.Node): boolean {
 }
 
 function getFunctionName(node: ts.FunctionLikeDeclaration, sourceFile: ts.SourceFile): string {
-  if (node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if (ts.isConstructorDeclaration(node)) return "constructor";
-  if (ts.isArrowFunction(node) && ts.isVariableDeclaration(node.parent) && ts.isIdentifier(node.parent.name)) {
-    return node.parent.name.text;
+  try {
+    if (node.name && ts.isIdentifier(node.name)) return node.name.text;
+    if (ts.isConstructorDeclaration(node)) return "constructor";
+    if (ts.isArrowFunction(node) && node.parent && ts.isVariableDeclaration(node.parent) && node.parent.name && ts.isIdentifier(node.parent.name)) {
+      return node.parent.name.text;
+    }
+    return `<anonymous@${sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1}>`;
+  } catch {
+    return "<unknown>";
   }
-  return `<anonymous@${sourceFile.getLineAndCharacterOfPosition(node.getStart()).line + 1}>`;
 }
 
 /** Analyze cyclomatic complexity for all functions in a source file. */
@@ -59,7 +63,12 @@ export function analyzeComplexity(_program: ts.Program, sourceFile: ts.SourceFil
       count(fnNode.body);
     }
 
-    const { line } = sourceFile.getLineAndCharacterOfPosition(fnNode.getStart());
+    let line = 0;
+    try {
+      line = sourceFile.getLineAndCharacterOfPosition(fnNode.getStart()).line;
+    } catch {
+      // getStart() may fail for standalone source files (ts.createSourceFile fallback)
+    }
     results.push({
       functionName: getFunctionName(fnNode, sourceFile),
       line: line + 1,
@@ -75,7 +84,11 @@ export function analyzeComplexity(_program: ts.Program, sourceFile: ts.SourceFil
       "body" in node &&
       node.body
     ) {
-      visitFunction(node as ts.FunctionLikeDeclaration);
+      try {
+        visitFunction(node as ts.FunctionLikeDeclaration);
+      } catch {
+        // Skip functions that can't be analyzed (e.g., standalone source files)
+      }
     }
     ts.forEachChild(node, walk);
   }

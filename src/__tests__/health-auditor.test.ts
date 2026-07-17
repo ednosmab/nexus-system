@@ -4,11 +4,13 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { auditHealth, writeHealthReport, collectSourceFiles, detectHardcodedSecrets, detectSQLInjection, detectXSS, detectUnsafeEval, detectConsoleSecrets, detectWeakCrypto, detectInsecureHTTP, detectPrototypePollution, detectPathTraversal, detectRegexDos, detectUnsafeDeserialization, detectDependencyConfusion, detectCircularDeps } from "../health-auditor.js";
 import { TaintAnalyzer } from "../audit/taint/index.js";
+import { clearProgramCache } from "../audit/ts-program-cache.js";
 
 let tempDir: string;
 let shitenDir: string;
 
 beforeEach(() => {
+  clearProgramCache();
   tempDir = mkdtempSync(join(tmpdir(), "shiten-audit-"));
   shitenDir = join(tempDir, "shitenno-go");
   mkdirSync(shitenDir, { recursive: true });
@@ -16,6 +18,7 @@ beforeEach(() => {
 
 afterEach(() => {
   TaintAnalyzer.clearCache();
+  clearProgramCache();
   rmSync(tempDir, { recursive: true, force: true });
 });
 

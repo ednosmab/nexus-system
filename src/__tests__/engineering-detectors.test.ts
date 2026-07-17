@@ -538,6 +538,20 @@ describe("detectEmptyCatchBlocks", () => {
     const issues = detectEmptyCatchBlocks(tempDir, files);
     expect(issues.length).toBe(0);
   });
+
+  it("detects catch with multiple consecutive comments", () => {
+    const files = [makeFile("src/app.ts", "try {\n  run()\n} catch (e) {\n  /* a */ // b\n}")];
+    const issues = detectEmptyCatchBlocks(tempDir, files);
+    expect(issues.length).toBe(1);
+  });
+
+  it("does not hang on adversarial whitespace-only catch body (ReDoS resistance)", () => {
+    const adversarial = "try {\n  run()\n} catch (e) {" + " ".repeat(500_000) + "x";
+    const files = [makeFile("src/app.ts", adversarial)];
+    const start = Date.now();
+    detectEmptyCatchBlocks(tempDir, files);
+    expect(Date.now() - start).toBeLessThan(1000);
+  });
 });
 
 // ── detectHighComplexity ─────────────────────────────────────────────────────
