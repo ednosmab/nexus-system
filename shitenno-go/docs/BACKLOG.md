@@ -1486,3 +1486,117 @@
 - [ ] `shiten audit --apply` num repo de teste com um `unused_import` conhecido: import é removido, `npm run typecheck` roda automaticamente, e se passar o fix fica; se um fix quebrar o build, o arquivo volta ao estado original e o issue é reportado como "fix tentado e revertido".
 - [ ] `shiten audit --changed` num branch com 2 arquivos alterados de um projeto com 200 arquivos: tempo de execução cai proporcionalmente (medir com `durationMs` já existente no `HealthAuditReport`).
 - [ ] Output humano do `shiten audit` mostra um card por dimensão com nota/score antes da lista de issues.
+
+
+### BACKLOG-PLAN_2026_07_16_DAEMON_FULL_INTEGRATION — Plano de Ação — Integração Total CLI ↔ Daemon
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Integração Total CLI ↔ Daemon |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-daemon-full-integration.md` |
+
+
+### BACKLOG-PLAN_2026_07_16_DAEMON_LOG_ROTATION — Plano de Ação — Rotação e Controle de Tamanho do `daemon.log`
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Rotação e Controle de Tamanho do `daemon.log` |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-daemon-log-rotation.md` |
+
+#### Passos do Plano
+- [ ] Rodar o daemon com `SHITEN_DAEMON_LOG_MAX_BYTES=1024` (valor baixo, só para teste) e gerar >1KB de log — confirmar que `daemon.log.1` aparece e `daemon.log` reinicia vazio.
+- [ ] Gerar rotações suficientes para exceder `SHITEN_DAEMON_LOG_MAX_FILES` (ex. =2) e confirmar que nunca existem mais que 2 arquivos `.log.N` simultâneos.
+- [ ] Reiniciar o daemon (`daemon stop` + `daemon start`) com um `daemon.log` já grande (>maxBytes) e confirmar que a primeira escrita pós-restart já dispara rotação corretamente (valida o `initLogByteCounter`).
+- [ ] `shiten daemon logs` rodando durante uma rotação continua funcionando sem crashar e sem duplicar linhas.
+- [ ] `npm run typecheck` e `npm test` passam sem quebrar nada em `daemon.ts` ou seus testes relacionados.
+- [ ] Documentar as duas env vars novas (`SHITEN_DAEMON_LOG_MAX_BYTES`, `SHITEN_DAEMON_LOG_MAX_FILES`) em `docs/reference/cli.md` ou onde as outras env vars do daemon (`SHITEN_DAEMON_LOG`, `SHITEN_NO_DAEMON`) já estão documentadas.
+- [ ] Rodar o daemon com `SHITEN_DAEMON_LOG_MAX_BYTES=1024` (valor baixo, só para teste) e gerar >1KB de log — confirmar que `daemon.log.1` aparece e `daemon.log` reinicia vazio.
+- [ ] Gerar rotações suficientes para exceder `SHITEN_DAEMON_LOG_MAX_FILES` (ex. =2) e confirmar que nunca existem mais que 2 arquivos `.log.N` simultâneos.
+- [ ] Reiniciar o daemon (`daemon stop` + `daemon start`) com um `daemon.log` já grande (>maxBytes) e confirmar que a primeira escrita pós-restart já dispara rotação corretamente (valida o `initLogByteCounter`).
+- [ ] `shiten daemon logs` rodando durante uma rotação continua funcionando sem crashar e sem duplicar linhas.
+- [ ] `npm run typecheck` e `npm test` passam sem quebrar nada em `daemon.ts` ou seus testes relacionados.
+- [ ] Documentar as duas env vars novas (`SHITEN_DAEMON_LOG_MAX_BYTES`, `SHITEN_DAEMON_LOG_MAX_FILES`) em `docs/reference/cli.md` ou onde as outras env vars do daemon (`SHITEN_DAEMON_LOG`, `SHITEN_NO_DAEMON`) já estão documentadas.
+
+
+### BACKLOG-PLAN_2026_07_16_SYSTEM_RESILIENCE_REVISADO — Plano de Ação (Revisado) — Resiliência do Sistema Shitenno-go
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação (Revisado) — Resiliência do Sistema Shitenno-go |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-system-resilience-REVISADO.md` |
+
+#### Passos do Plano
+- [ ] `grep -rn "watcher.on(\"error\"" src/infrastructure/persistence/file-watcher.ts` — confirmar se error recovery ainda está lá e funcional
+- [ ] `grep -n "case \"query_health\"" src/daemon.ts` — confirmar assinatura de retorno atual
+- [ ] `grep -rn "publish(\"session.start\"\|publish(\"session.end\"\|publish(\"plan.status_changed\"" src --include="*.ts"` (excluindo `*.test.ts`) — confirmar que continuam sem publisher real
+- [ ] Rodar `npm run typecheck` e `npm test` para ter uma baseline limpa antes de começar
+- [ ] `grep -rn "watcher.on(\"error\"" src/infrastructure/persistence/file-watcher.ts` — confirmar se error recovery ainda está lá e funcional
+- [ ] `grep -n "case \"query_health\"" src/daemon.ts` — confirmar assinatura de retorno atual
+- [ ] `grep -rn "publish(\"session.start\"\|publish(\"session.end\"\|publish(\"plan.status_changed\"" src --include="*.ts"` (excluindo `*.test.ts`) — confirmar que continuam sem publisher real
+- [ ] Rodar `npm run typecheck` e `npm test` para ter uma baseline limpa antes de começar
+
+
+### BACKLOG-PLAN_2026_07_16_KNOWLEDGE_BRIDGE_ADR_SKILLS — Plano de Ação — Ponte de Conhecimento (ADRs + Skills) para Agentes
+
+| Campo | Valor |
+|---|---|
+| **Status** | Done |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Ponte de Conhecimento (ADRs + Skills) para Agentes |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-knowledge-bridge-adr-skills.md` |
+
+
+### BACKLOG-PLAN_2026_07_16_FOUR_ENGINE_EXECUTION_CORE — Plano de Ação — Núcleo de Execução Unificado (4 Engines)
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Núcleo de Execução Unificado (4 Engines) |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-four-engine-execution-core.md` |
+
+
+### BACKLOG-PLAN_2026_07_16_CLI_DAEMON_AUTHORITY_ARBITRATION — Plano de Ação — Arbitragem de Autoridade entre CLI e Daemon
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-17 |
+| **Fonte** | shiten plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | Plano de Ação — Arbitragem de Autoridade entre CLI e Daemon |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-16-cli-daemon-authority-arbitration.md` |
