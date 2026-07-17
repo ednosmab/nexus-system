@@ -113,6 +113,11 @@ export interface Briefing {
     syncCount: number;
     errorCount: number;
   };
+  /** Governance knowledge — lightweight summaries of ADRs and skills */
+  governanceKnowledge?: {
+    adrs: Array<{ id: string; title: string; status: string }>;
+    skills: Array<{ name: string; description: string }>;
+  };
 }
 
 // ── Briefing Generation ────────────────────────────────────────────────────

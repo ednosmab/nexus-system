@@ -18,6 +18,8 @@ export {
   handleGetBacklog,
   handleGetPlans,
   handleSubmitFeedback,
+  handleGetADRs,
+  handleGetSkills,
 } from "./mcp-server-handlers.js";
 
 import {
@@ -28,6 +30,8 @@ import {
   handleGetBacklog,
   handleGetPlans,
   handleSubmitFeedback,
+  handleGetADRs,
+  handleGetSkills,
 } from "./mcp-server-handlers.js";
 
 const TOOLS = [
@@ -112,6 +116,26 @@ const TOOLS = [
       required: ["outcome", "notes"],
     },
   },
+  {
+    name: "getADRs",
+    description: "List Architecture Decision Records, or get the full content of one by id (e.g. 'ADR-008')",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        id: { type: "string" as const, description: "Optional ADR id (e.g. 'ADR-008'). If omitted, lists all ADRs." },
+      },
+    },
+  },
+  {
+    name: "getSkills",
+    description: "List coding skills/guidelines, or get the full content of one by name",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        name: { type: "string" as const, description: "Optional skill name. If omitted, lists all skills." },
+      },
+    },
+  },
 ];
 
 export function createMcpServer(projectRoot: string, shitenDir?: string): Server {
@@ -144,6 +168,10 @@ export function createMcpServer(projectRoot: string, shitenDir?: string): Server
           return handleGetPlans(projectRoot, resolvedShitenDir, toolArgs);
         case "submitFeedback":
           return handleSubmitFeedback(projectRoot, resolvedShitenDir, toolArgs);
+        case "getADRs":
+          return await handleGetADRs(projectRoot, resolvedShitenDir, toolArgs);
+        case "getSkills":
+          return await handleGetSkills(projectRoot, resolvedShitenDir, toolArgs);
         default:
           return {
             content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }],

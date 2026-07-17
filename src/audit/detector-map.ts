@@ -36,6 +36,7 @@ import {
   detectCrossDocP0Contradiction,
   detectEmptyDataFiles,
   detectPhantomRuleRefs,
+  detectOrphanSkills,
 } from "../audit/governance-detectors.js";
 
 import {
@@ -268,6 +269,7 @@ export function buildDetectorMap(
     detectCrossDocP0Contradiction: () => detectCrossDocP0Contradiction(shitenDir),
     detectEmptyDataFiles: () => detectEmptyDataFiles(shitenDir),
     detectPhantomRuleRefs: () => detectPhantomRuleRefs(shitenDir),
+    detectOrphanSkills: () => detectOrphanSkills(shitenDir),
     detectOrphanModules: () => detectOrphanModules(projectRoot, sourceFiles),
     detectComplexityHotspots: () => detectComplexityHotspots(projectRoot, sourceFiles),
     detectTestCoverageGaps: () => detectTestCoverageGaps(projectRoot, sourceFiles),

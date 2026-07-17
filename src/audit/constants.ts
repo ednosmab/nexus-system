@@ -132,6 +132,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectCrossDocP0Contradiction",
     "detectEmptyDataFiles",
     "detectPhantomRuleRefs",
+  "detectOrphanSkills",
     "detectOrphanModules",
     "detectComplexityHotspots",
     "detectTestCoverageGaps",
@@ -238,6 +239,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectCrossDocP0Contradiction",
     "detectEmptyDataFiles",
     "detectPhantomRuleRefs",
+  "detectOrphanSkills",
     "detectOrphanModules",
     "detectComplexityHotspots",
     "detectTestCoverageGaps",
@@ -407,6 +409,7 @@ export const CROSS_FILE_ONLY_DETECTORS = new Set([
   "detectDocCountMismatch",
   "detectNumberingGap",
   "detectPhantomRuleRefs",
+  "detectOrphanSkills",
   "detectAgentContractRefs",
   // Enterprise cross-file detectors
   "detectSchemaConsistency",

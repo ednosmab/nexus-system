@@ -17,6 +17,7 @@ import { generateContextRules, type ContextRule } from "./context-rules.js";
 import { generateDynamicRules, type DynamicRule } from "./dynamic-rules.js";
 import { generateBriefing, type Briefing, type Reminder, type ReminderPriority, type ReminderCategory } from "./briefing.js";
 import { loadMaturityProfile, type MaturityProfile } from "./maturity-profile.js";
+import { listAdrs, listSkills } from "./knowledge-loader.js";
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -167,7 +168,10 @@ export function collectContext(
   const enrichedBriefing = enrichBriefingWithPatterns(briefing, projectRoot, shitenDir, deps);
 
   // 7b. Enrich briefing with recent activity from persisted events (last 24h)
-  const finalBriefing = enrichBriefingWithRecentActivity(enrichedBriefing, shitenDir);
+  const activityEnriched = enrichBriefingWithRecentActivity(enrichedBriefing, shitenDir);
+
+  // 7c. Enrich briefing with governance knowledge (ADRs + skills)
+  const finalBriefing = enrichBriefingWithGovernanceKnowledge(activityEnriched, shitenDir);
 
   // 8. Compute input hash for cache invalidation
   const inputHash = computeInputHash({
@@ -198,6 +202,36 @@ export function collectContext(
   }
 
   return snapshot;
+}
+
+// ── Governance Knowledge Enrichment ────────────────────────────────────────
+
+/**
+ * Enrich a briefing with governance knowledge (ADRs + skills).
+ * Only includes lightweight summaries (id/title/status for ADRs, name/description for skills).
+ * Full content is available on-demand via MCP getADRs/getSkills tools.
+ */
+function enrichBriefingWithGovernanceKnowledge(
+  briefing: Briefing,
+  shitenDir: string
+): Briefing {
+  try {
+    const activeAdrs = listAdrs(shitenDir).filter(
+      (a) => a.status === "Accepted" || a.status === "Proposed"
+    );
+    const availableSkills = listSkills(shitenDir);
+
+    return {
+      ...briefing,
+      governanceKnowledge: {
+        adrs: activeAdrs.map((a) => ({ id: a.id, title: a.title, status: a.status })),
+        skills: availableSkills.map((s) => ({ name: s.name, description: s.description })),
+      },
+    };
+  } catch (err) {
+    logger.debug("enrichBriefing", "Governance knowledge unavailable:", err instanceof Error ? err.message : err);
+    return briefing;
+  }
 }
 
 // ── Pattern Enrichment (Gaps 4+5) ─────────────────────────────────────────

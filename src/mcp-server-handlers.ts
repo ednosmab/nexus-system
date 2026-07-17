@@ -16,6 +16,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { queryDaemon, isDaemonRunning } from "./daemon-client.js";
 import { sanitizePlanName } from "./path-safety.js";
+import { listAdrs, getAdr, listSkills, getSkill } from "./knowledge-loader.js";
 
 type ToolResponse = { content: Array<{ type: string; text: string }> };
 
@@ -280,4 +281,50 @@ export function handleSubmitFeedback(
   });
 
   return { content: [{ type: "text", text: "Feedback submitted successfully." }] };
+}
+
+// ── Knowledge Bridge: ADRs & Skills ───────────────────────────────────────
+
+export async function handleGetADRs(
+  _projectRoot: string,
+  shitenDir: string,
+  args: Record<string, unknown>
+): Promise<ToolResponse> {
+  const id = args.id as string | undefined;
+
+  if (id) {
+    const adr = getAdr(shitenDir, id);
+    if (!adr) {
+      return { content: [{ type: "text", text: `ADR "${id}" not found` }] };
+    }
+    return { content: [{ type: "text", text: adr.content }] };
+  }
+
+  const summaries = listAdrs(shitenDir);
+  const text = summaries
+    .map((a) => `${a.id} [${a.status}]: ${a.title}`)
+    .join("\n");
+  return { content: [{ type: "text", text: text || "No ADRs found." }] };
+}
+
+export async function handleGetSkills(
+  _projectRoot: string,
+  shitenDir: string,
+  args: Record<string, unknown>
+): Promise<ToolResponse> {
+  const name = args.name as string | undefined;
+
+  if (name) {
+    const skill = getSkill(shitenDir, name);
+    if (!skill) {
+      return { content: [{ type: "text", text: `Skill "${name}" not found` }] };
+    }
+    return { content: [{ type: "text", text: skill.content }] };
+  }
+
+  const summaries = listSkills(shitenDir);
+  const text = summaries
+    .map((s) => `${s.name}: ${s.description}`)
+    .join("\n");
+  return { content: [{ type: "text", text: text || "No skills found." }] };
 }

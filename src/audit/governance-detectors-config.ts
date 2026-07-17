@@ -8,6 +8,8 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { logger } from "../logger.js";
 import type { HealthIssue } from "./types.js";
+import { listSkills } from "../knowledge-loader.js";
+import { ISSUE_TYPE_TO_SKILL } from "./skill-refs.js";
 
 export function detectAdrCoverage(shitenDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
@@ -481,8 +483,6 @@ export function detectEmptyStack(shitenDir: string): HealthIssue[] {
 
 
 // ── Orphan Skills Detector ────────────────────────────────────────────────
-import { listSkills } from "../knowledge-loader.js";
-import { ISSUE_TYPE_TO_SKILL } from "./skill-refs.js";
 
 /**
  * Detect skills that have no associated detector — they exist only as prose,
@@ -510,3 +510,4 @@ export function detectOrphanSkills(shitenDir: string): HealthIssue[] {
   } catch (err) { logger.debug("governance-detectors", "Error in detectOrphanSkills:", err); }
   return issues;
 }
+

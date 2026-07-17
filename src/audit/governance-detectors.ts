@@ -33,6 +33,7 @@ export {
   detectP0Inconsistency,
   detectTripleMaturityScore,
   detectEmptyStack,
+  detectOrphanSkills,
 } from "./governance-detectors-config.js";
 
 export {
