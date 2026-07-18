@@ -1,7 +1,7 @@
 # Plano Consolidado — Shiten Living: BUG-002 (fim-a-fim), Redesenho da Entropia, Item Futuro
 
-**Status:** done
-**Updated_at:** 2026-07-13T22:50:00.000Z
+**Status:** In Progress
+**Updated_at:** 2026-07-18T13:30:10.333Z
 **Date:** 2026-07-12
 
 > **Data:** 2026-07-13

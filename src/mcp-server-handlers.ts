@@ -244,8 +244,9 @@ export function handleGetBacklog(
   shitennoDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
-  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
-  let items = parseBacklog(backlogPath);
+  const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
+  const donePath = join(shitennoDir, "docs", "backlog", "DONE.md");
+  let items = [...parseBacklog(backlogPath), ...parseBacklog(donePath)];
 
   if (args.state && typeof args.state === "string") {
     const stateFilter = args.state.toLowerCase();

@@ -17,7 +17,7 @@ export function detectVisionAlignment(projectRoot: string): HealthIssue[] {
 
   const briefingPath = join(projectRoot, "BRIEFING.md");
   const readmePath = join(projectRoot, "README.md");
-  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "backlog", "ACTIVE.md");
 
   const briefing = existsSync(briefingPath) ? readFileSync(briefingPath, "utf-8") : "";
   const readme = existsSync(readmePath) ? readFileSync(readmePath, "utf-8") : "";
@@ -224,7 +224,7 @@ export function detectOrphanRequirements(projectRoot: string, files: SourceFileI
 export function detectRequirementTraceability(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "backlog", "ACTIVE.md");
   if (!existsSync(backlogPath)) return issues;
 
   const backlog = readFileSync(backlogPath, "utf-8");

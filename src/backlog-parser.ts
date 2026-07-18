@@ -8,6 +8,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export interface BacklogItem {
   id: string;
@@ -19,8 +20,24 @@ export interface BacklogItem {
   description: string;
 }
 
+const BACKLOG_DIR = "docs/backlog";
+const ACTIVE_PATH = join(BACKLOG_DIR, "ACTIVE.md");
+const DONE_PATH = join(BACKLOG_DIR, "DONE.md");
+
 /**
- * Parse BACKLOG.md and extract items with their states and properties.
+ * Get the appropriate backlog file path based on status.
+ * Items with "Done" status go to DONE.md, others to ACTIVE.md.
+ */
+export function getBacklogPath(status: string): string {
+  const normalized = status.toLowerCase().trim();
+  if (normalized === "done" || normalized.includes("done")) {
+    return DONE_PATH;
+  }
+  return ACTIVE_PATH;
+}
+
+/**
+ * Parse a backlog file and extract items with their states and properties.
  */
 export function parseBacklog(backlogPath: string): BacklogItem[] {
   if (!existsSync(backlogPath)) return [];
@@ -69,10 +86,10 @@ export function parseBacklog(backlogPath: string): BacklogItem[] {
           case "Status":
             currentItem.state = val;
             break;
-          case "Severity":
+          case "Severidade":
             currentItem.severity = val;
             break;
-          case "Priority":
+          case "Prioridade":
             currentItem.priority = val;
             break;
           case "Owner":
@@ -91,4 +108,27 @@ export function parseBacklog(backlogPath: string): BacklogItem[] {
   }
 
   return items;
+}
+
+/**
+ * Parse all backlog items from both ACTIVE.md and DONE.md.
+ */
+export function parseAllBacklog(): BacklogItem[] {
+  const activeItems = parseBacklog(ACTIVE_PATH);
+  const doneItems = parseBacklog(DONE_PATH);
+  return [...activeItems, ...doneItems];
+}
+
+/**
+ * Parse only active backlog items (non-Done).
+ */
+export function parseActiveBacklog(): BacklogItem[] {
+  return parseBacklog(ACTIVE_PATH);
+}
+
+/**
+ * Parse only done backlog items.
+ */
+export function parseDoneBacklog(): BacklogItem[] {
+  return parseBacklog(DONE_PATH);
 }

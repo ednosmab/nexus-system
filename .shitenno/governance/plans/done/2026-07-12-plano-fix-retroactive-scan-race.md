@@ -1,7 +1,7 @@
 # Plano — Corrigir Race Condition no Retroactive Scan (`plan-backlog-sync.ts`)
 
-**Status:** done
-**Updated_at:** 2026-07-12T21:14:01.279Z
+**Status:** Done
+**Updated_at:** 2026-07-18T13:30:10.329Z
 **Date:** 2026-07-12
 
 > **Contexto:** achado da validação de Fase 1/2 do Shiten Living. `initPlanBacklogSync()`

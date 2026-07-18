@@ -1,7 +1,7 @@
 # Plano de Correção — Loop do `shiten watch` + Finalizar Fase 2 (LIVING-002)
 
-**Status:** Done
-**Updated_at:** 2026-07-13T22:50:00.000Z
+**Status:** In Progress
+**Updated_at:** 2026-07-18T13:30:10.331Z
 **Date:** 2026-07-12
 
 > Gerado a partir de validação real (build/lint/test + E2E) da branch `feat/shiten-living`.

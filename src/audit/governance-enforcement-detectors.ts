@@ -107,7 +107,7 @@ const VALID_BACKLOG_STATES = new Set([
 
 export function detectInvalidBacklogStates(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
   if (!existsSync(backlogPath)) return issues;
 
   try {

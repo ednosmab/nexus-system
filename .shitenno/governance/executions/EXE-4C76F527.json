@@ -1,0 +1,20 @@
+{
+  "executionId": "EXE-4C76F527",
+  "request": {
+    "id": "invoke-mrqex9oo",
+    "type": "send_notification",
+    "params": {
+      "message": "📚 Handbook template detected — load skill handbook-fill and populate SEMANTIC blocks"
+    }
+  },
+  "executionHash": "994af64920229b75",
+  "status": "completed",
+  "startedAt": "2026-07-18T13:38:40.584Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "Unknown action type: send_notification"
+  },
+  "completedAt": "2026-07-18T13:38:40.587Z",
+  "duration": 0
+}

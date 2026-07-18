@@ -145,7 +145,7 @@ export async function executeAction(
     }
 
     case "update_backlog": {
-      const backlogPath = join(context.shitennoDir, "docs", "BACKLOG.md");
+      const backlogPath = join(context.shitennoDir, "docs", "backlog", "ACTIVE.md");
       if (!existsSync(backlogPath)) return { success: false, message: "BACKLOG.md not found" };
 
       try {
@@ -203,7 +203,7 @@ export async function executeAction(
     case "auto_populate_next_p0": {
       try {
         const shitennoDir = join(context.projectRoot, SHITENNO_DIR_NAME);
-        const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+        const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
 
         if (!existsSync(backlogPath)) {
           return { success: false, message: "BACKLOG.md not found" };

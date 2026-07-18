@@ -1,7 +1,7 @@
 # Plano de Refactor Estrutural — SA4 / SA10 / SA11
 
-**Status:** done
-**Updated_at:** 2026-07-15T06:27:34.339Z
+**Status:** In Progress
+**Updated_at:** 2026-07-18T13:30:10.335Z
 **Date:** 2026-07-13
 
 > **Data:** 2026-07-13

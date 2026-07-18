@@ -9,6 +9,7 @@ import {
   isDuplicate,
   issueToBacklogItem,
   dimensionToBacklogItem,
+  moveItemToDone,
   mapSeverityToPriority,
   severityLabel,
   type BacklogItem,
@@ -257,5 +258,60 @@ describe("dimensionToBacklogItem", () => {
     const item = dimensionToBacklogItem("quality", 45, "2026-06-30", "SA5");
     expect(item.severity).toBe("Medio");
     expect(item.priority).toBe("P1");
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// moveItemToDone
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe("moveItemToDone", () => {
+  it("moves a Done item from ACTIVE.md to DONE.md", () => {
+    const activePath = join(tempDir, "ACTIVE.md");
+    const donePath = join(tempDir, "DONE.md");
+
+    writeFileSync(
+      activePath,
+      `## Ativo
+
+### BUG-001 Fix login
+
+| Campo | Valor |
+|---|---|
+| **Status** | Backlog |
+| **Severidade** | Alto |
+| **Prioridade** | P0 |
+| **Owner** | unassigned |
+| **Descricao** | Login quebra em prod |
+
+`
+    );
+    writeFileSync(
+      donePath,
+      `## Done
+
+| Item | Severidade | Resolucao |
+|---|---|---|
+`
+    );
+
+    const moved = moveItemToDone("BUG-001", activePath, donePath);
+    expect(moved).toBe(true);
+
+    const active = readFileSync(activePath, "utf-8");
+    const done = readFileSync(donePath, "utf-8");
+
+    expect(active).not.toContain("BUG-001");
+    expect(done).toContain("BUG-001 Fix login");
+    expect(done).toContain("| Alto | Login quebra em prod |");
+  });
+
+  it("returns false when item not found in ACTIVE.md", () => {
+    const activePath = join(tempDir, "ACTIVE.md");
+    const donePath = join(tempDir, "DONE.md");
+    writeFileSync(activePath, "## Ativo\n");
+    writeFileSync(donePath, "## Done\n");
+
+    expect(moveItemToDone("NOPE", activePath, donePath)).toBe(false);
   });
 });

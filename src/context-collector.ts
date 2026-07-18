@@ -443,7 +443,7 @@ function loadQuickBoard(shitennoDir: string): {
       : "Nenhuma";
 
     // Auto-update next_p0 and current_task from BACKLOG.md if stale
-    const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+    const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
     let nextP0 = data?.next_p0 ?? "Verificar BACKLOG.md para próximo P0";
     let currentTaskVal = currentTask;
 

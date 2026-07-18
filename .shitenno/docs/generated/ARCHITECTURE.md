@@ -1,6 +1,6 @@
 # Architecture Overview
 
-> Generated: 2026-07-18T05:36:28.171Z
+> Generated: 2026-07-18T13:57:59.234Z
 
 ## System Architecture
 
@@ -28,4 +28,4 @@ Pipeline  Detection  Engine  Engine     Engine   Engine  Loop
 
 - **Active Rules:** 13
 - **Active Policies:** 13
-- **Total Assets:** 104
+- **Total Assets:** 115

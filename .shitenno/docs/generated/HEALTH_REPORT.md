@@ -1,6 +1,6 @@
 # Health Report
 
-> Generated: 2026-07-18T05:36:28.171Z
+> Generated: 2026-07-18T13:57:59.234Z
 
 ## Scores
 
@@ -10,11 +10,11 @@
 
 ## Entropy
 
-- **Orphaned Assets:** 8
+- **Orphaned Assets:** 9
 - **Stale Assets:** 0
 - **Missing Dependencies:** 0
-- **Entropy Score:** 3
+- **Entropy Score:** 4
 
 ## Summary
 
-104 assets. 9 capabilities. Health: 99/100. 8 orphaned. Lifecycle: governed.
+115 assets. 9 capabilities. Health: 99/100. 9 orphaned. Lifecycle: governed.

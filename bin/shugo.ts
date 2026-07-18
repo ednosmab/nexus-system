@@ -7,62 +7,18 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 
-import { initCommand } from "../src/commands/init.js";
-import { statusCommand } from "../src/commands/status.js";
-import { upgradeCommand } from "../src/commands/upgrade.js";
-import { validateCommand } from "../src/commands/validate.js";
-import { detectCommand } from "../src/commands/detect.js";
-import { auditCommand } from "../src/commands/audit.js";
-import { cleanCommand } from "../src/commands/clean.js";
-import { assessCommand } from "../src/commands/assess.js";
-import { doctorCommand } from "../src/commands/doctor.js";
-import { runCommand } from "../src/commands/run.js";
-import { evolveCommand } from "../src/commands/evolve.js";
-import { reportCommand } from "../src/commands/report.js";
-import { digestCommand } from "../src/commands/digest.js";
-import { briefingCommand } from "../src/commands/briefing.js";
-import { feedbackCommand } from "../src/commands/feedback.js";
-import { benchCommand } from "../src/commands/bench.js";
-import { dashboardCommand } from "../src/commands/dashboard.js";
-import { profileCommand } from "../src/commands/profile.js";
-import { goalCommand } from "../src/commands/goal.js";
-import { decideCommand } from "../src/commands/decide.js";
-import { policyCommand } from "../src/commands/policy.js";
-import { actCommand } from "../src/commands/act.js";
-import { planCommand } from "../src/commands/plan.js";
-import { shellInitCommand } from "../src/commands/shell-init.js";
-import { consoleCommand } from "../src/commands/console.js";
-import { docsAuditCommand } from "../src/commands/docs-audit.js";
-import { updateCommand } from "../src/commands/update.js";
-import { mcpCommand } from "../src/commands/mcp.js";
-import { syncCommand } from "../src/commands/sync.js";
-import { remindersCommand } from "../src/commands/reminders.js";
-import { historyCommand } from "../src/commands/history.js";
-import { eventsCommand } from "../src/commands/events.js";
-import { contextCommand } from "../src/commands/context.js";
-import { handbookCommand } from "../src/commands/handbook.js";
-import { hooksCommand } from "../src/commands/hooks.js";
-import { internalScheduledCheckCommand } from "../src/commands/scheduled-check.js";
+// NOTE: command modules and the heavy engine initializers are NOT imported
+// statically here. They are loaded on demand (see the command registration
+// block and `ensureHeavyBootstrap`) so that lightweight commands never pay the
+// cost of loading or initializing subsystems they don't use.
 
 import { getEventBus, enableEventPersistence } from "../src/event-bus.js";
-import { initializeRuleEngine, initializeRules } from "../src/rule-engine.js";
-import { initializeKnowledgeGraph } from "../src/knowledge-graph.js";
-import { initializeCapabilityEngine } from "../src/capability-engine.js";
 import { startSession, endSession } from "../src/session-tracker.js";
 import { setSessionContext, clearSessionContext } from "../src/session-context.js";
 import { installMiddleware } from "../src/cli-middleware.js";
 import { stopWatching } from "../src/infrastructure/persistence/file-watcher.js";
-import { initPlanBacklogSync } from "../src/plan-backlog-sync.js";
-import { initializeTaskPipeline } from "../src/task-pipeline.js";
-import { initializeEngineeringState } from "../src/engineering-state.js";
-import { initializeFromAnswers } from "../src/model-config.js";
-import { registerDocSyncHook } from "../src/doc-sync-hook.js";
-import { DocEngine } from "../src/doc-engine.js";
-import { consolidateEngineeringState } from "../src/engineering-state.js";
-import { initializeProactiveEngine } from "../src/prioritization/triggers.js";
 import { COMMAND_CATEGORIES, findCommand } from "../src/help-data.js";
 import { SHITENNO_DIR_NAME } from "../src/constants.js";
-import { daemonCommand } from "../src/commands/daemon.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -82,7 +38,7 @@ function findPackageRoot(startDir: string): string {
 const packageRoot = findPackageRoot(__dirname);
 const { version } = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf-8"));
 
-// ── Event-Driven Bootstrap ──────────────────────────────────────────────────
+// ── Event-Driven Bootstrap (lazy) ───────────────────────────────────────────
 
 const projectRoot = process.cwd();
 const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
@@ -91,7 +47,53 @@ const isInitialized = existsSync(shitennoDir);
 let currentSessionId: string | null = null;
 let currentSessionStartedAt: string | null = null;
 
+// Lightweight session start (cheap) — runs for every initialized invocation so
+// that middleware telemetry and session-context consumers (feedback/console)
+// keep working. The expensive engine initialization below is deferred to
+// `ensureHeavyBootstrap()` and only runs for commands that depend on it.
 if (isInitialized) {
+  const session = startSession(shitennoDir);
+  currentSessionId = session.id;
+  currentSessionStartedAt = session.startedAt;
+  setSessionContext(session.id, session.startedAt);
+}
+
+// Commands whose execution actually depends on the initialized engines
+// (rule-engine, knowledge-graph, capability-engine, task-pipeline,
+// engineering-state, proactive-engine, model-config, doc-sync, plan-backlog-sync).
+// All other commands are "light" and skip the heavy bootstrap entirely.
+const HEAVY_COMMANDS = new Set([
+  "audit",
+  "status",
+  "mcp",
+  "history",
+  "doctor",
+  "context",
+]);
+
+let heavyBootstrapDone = false;
+
+/**
+ * Idempotent, on-demand initialization of the heavy subsystems. Previously this
+ * ran unconditionally at module top-level on every CLI invocation (even for
+ * commands that never touch those subsystems). Now it runs only when a command
+ * that needs it is actually executed.
+ */
+async function ensureHeavyBootstrap(): Promise<void> {
+  if (heavyBootstrapDone || !isInitialized) return;
+  heavyBootstrapDone = true;
+
+  const { initializeRules, initializeRuleEngine } = await import("../src/rule-engine.js");
+  const { initializeKnowledgeGraph } = await import("../src/knowledge-graph.js");
+  const { initializeCapabilityEngine } = await import("../src/capability-engine.js");
+  const { initializeTaskPipeline } = await import("../src/task-pipeline.js");
+  const { initializeEngineeringState, consolidateEngineeringState } = await import("../src/engineering-state.js");
+  const { initializeProactiveEngine } = await import("../src/prioritization/triggers.js");
+  const { initializeFromAnswers } = await import("../src/model-config.js");
+  const { registerDocSyncHook } = await import("../src/doc-sync-hook.js");
+  const { DocEngine } = await import("../src/doc-engine.js");
+  const { initPlanBacklogSync } = await import("../src/plan-backlog-sync.js");
+
   enableEventPersistence(shitennoDir);
   getEventBus().enableDeadLetterQueue(shitennoDir);
   initializeRules(shitennoDir);
@@ -111,11 +113,6 @@ if (isInitialized) {
     docEngine.generateAll(state);
   });
 
-  const session = startSession(shitennoDir);
-  currentSessionId = session.id;
-  currentSessionStartedAt = session.startedAt;
-  setSessionContext(session.id, session.startedAt);
-
   // Skip watcher + briefing in child processes (avoids deadlock via rule engine)
   if (!process.env.SHITENNO_CHILD) {
     let branch: string | undefined;
@@ -130,7 +127,7 @@ if (isInitialized) {
     }
 
     getEventBus().publish("session.start", {
-      sessionId: session.id,
+      sessionId: currentSessionId,
       projectRoot,
       agentName: branch,
     });
@@ -329,43 +326,43 @@ const helpCmd = new Command("help")
 
 program.addCommand(helpCmd);
 
-program.addCommand(initCommand);
-program.addCommand(statusCommand);
-program.addCommand(upgradeCommand);
-program.addCommand(validateCommand);
-program.addCommand(detectCommand);
-program.addCommand(auditCommand);
-program.addCommand(cleanCommand);
-program.addCommand(assessCommand);
-program.addCommand(doctorCommand);
-program.addCommand(runCommand);
-program.addCommand(evolveCommand);
-program.addCommand(reportCommand());
-program.addCommand(digestCommand());
-program.addCommand(briefingCommand());
-program.addCommand(feedbackCommand());
-program.addCommand(benchCommand());
-program.addCommand(dashboardCommand());
-program.addCommand(profileCommand());
-program.addCommand(goalCommand());
-program.addCommand(decideCommand());
-program.addCommand(policyCommand());
-program.addCommand(actCommand());
-program.addCommand(planCommand());
-program.addCommand(consoleCommand());
-program.addCommand(shellInitCommand);
-program.addCommand(docsAuditCommand);
-program.addCommand(updateCommand);
-program.addCommand(mcpCommand());
-program.addCommand(syncCommand);
-program.addCommand(remindersCommand());
-program.addCommand(historyCommand);
-program.addCommand(eventsCommand);
-program.addCommand(contextCommand);
-program.addCommand(handbookCommand);
-program.addCommand(hooksCommand);
-program.addCommand(daemonCommand());
-program.addCommand(internalScheduledCheckCommand);
+program.addCommand((await import("../src/commands/init.js")).initCommand);
+program.addCommand((await import("../src/commands/status.js")).statusCommand);
+program.addCommand((await import("../src/commands/upgrade.js")).upgradeCommand);
+program.addCommand((await import("../src/commands/validate.js")).validateCommand);
+program.addCommand((await import("../src/commands/detect.js")).detectCommand);
+program.addCommand((await import("../src/commands/audit.js")).auditCommand);
+program.addCommand((await import("../src/commands/clean.js")).cleanCommand);
+program.addCommand((await import("../src/commands/assess.js")).assessCommand);
+program.addCommand((await import("../src/commands/doctor.js")).doctorCommand);
+program.addCommand((await import("../src/commands/run.js")).runCommand);
+program.addCommand((await import("../src/commands/evolve.js")).evolveCommand);
+program.addCommand((await import("../src/commands/report.js")).reportCommand());
+program.addCommand((await import("../src/commands/digest.js")).digestCommand());
+program.addCommand((await import("../src/commands/briefing.js")).briefingCommand());
+program.addCommand((await import("../src/commands/feedback.js")).feedbackCommand());
+program.addCommand((await import("../src/commands/bench.js")).benchCommand());
+program.addCommand((await import("../src/commands/dashboard.js")).dashboardCommand());
+program.addCommand((await import("../src/commands/profile.js")).profileCommand());
+program.addCommand((await import("../src/commands/goal.js")).goalCommand());
+program.addCommand((await import("../src/commands/decide.js")).decideCommand());
+program.addCommand((await import("../src/commands/policy.js")).policyCommand());
+program.addCommand((await import("../src/commands/act.js")).actCommand());
+program.addCommand((await import("../src/commands/plan.js")).planCommand());
+program.addCommand((await import("../src/commands/console.js")).consoleCommand());
+program.addCommand((await import("../src/commands/shell-init.js")).shellInitCommand);
+program.addCommand((await import("../src/commands/docs-audit.js")).docsAuditCommand);
+program.addCommand((await import("../src/commands/update.js")).updateCommand);
+program.addCommand((await import("../src/commands/mcp.js")).mcpCommand());
+program.addCommand((await import("../src/commands/sync.js")).syncCommand);
+program.addCommand((await import("../src/commands/reminders.js")).remindersCommand());
+program.addCommand((await import("../src/commands/history.js")).historyCommand);
+program.addCommand((await import("../src/commands/events.js")).eventsCommand);
+program.addCommand((await import("../src/commands/context.js")).contextCommand);
+program.addCommand((await import("../src/commands/handbook.js")).handbookCommand);
+program.addCommand((await import("../src/commands/hooks.js")).hooksCommand);
+program.addCommand((await import("../src/commands/daemon.js")).daemonCommand());
+program.addCommand((await import("../src/commands/scheduled-check.js")).internalScheduledCheckCommand);
 
 // ── Middleware Pipeline ──────────────────────────────────────────────────────
 
@@ -373,6 +370,15 @@ installMiddleware(program, {
   projectRoot,
   shitennoDir,
   sessionId: currentSessionId,
+});
+
+// Lazy heavy bootstrap: only commands that depend on the initialized engines
+// pay the cost. Light commands (validate, detect, act, run, briefing, ...) skip
+// the entire initialize* chain, git branch probe, and briefing entirely.
+program.hook("preAction", async (_thisCommand, actionCommand) => {
+  if (HEAVY_COMMANDS.has(actionCommand.name())) {
+    await ensureHeavyBootstrap();
+  }
 });
 
 await program.parseAsync();

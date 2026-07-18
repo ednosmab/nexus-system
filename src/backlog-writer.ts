@@ -13,6 +13,22 @@ import type { BacklogStatus } from "./backlog-transitions.js";
 export type { BacklogStatus };
 export { getCurrentStatus, transitionBacklogStatus, isValidTransition as validateTransition } from "./backlog-transitions.js";
 
+// ── New layout paths (modularized backlog) ───────────────────────────────────
+
+const BACKLOG_DIR = "docs/backlog";
+const ACTIVE_PATH = `${BACKLOG_DIR}/ACTIVE.md`;
+const LEGACY_PATH = "docs/BACKLOG.md";
+
+/**
+ * Resolve the target file for writing a new backlog item.
+ * New items are always "Backlog" status, so they go to ACTIVE.md.
+ * The legacy docs/BACKLOG.md path is redirected to ACTIVE.md.
+ */
+export function resolveWritePath(backlogPath: string): string {
+  if (backlogPath === LEGACY_PATH) return ACTIVE_PATH;
+  return backlogPath;
+}
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type BacklogSeverity = "Critico" | "Alto" | "Medio" | "Baixo";
@@ -185,12 +201,14 @@ export function appendBacklogSection(
     backlogPath,
   };
 
-  if (!existsSync(backlogPath)) {
-    logger.debug("backlog-writer", `Backlog file not found: ${backlogPath}`);
+  const targetPath = resolveWritePath(backlogPath);
+
+  if (!existsSync(targetPath)) {
+    logger.debug("backlog-writer", `Backlog file not found: ${targetPath}`);
     return result;
   }
 
-  let content = readFileSync(backlogPath, "utf-8");
+  let content = readFileSync(targetPath, "utf-8");
 
   // Filter duplicates
   const newItems = items.filter((item) => {
@@ -223,12 +241,91 @@ export function appendBacklogSection(
   content = updateSummary(content, newItems.length);
 
   // Write back
-  writeFileSync(backlogPath, content, "utf-8");
+  writeFileSync(targetPath, content, "utf-8");
 
   result.itemsAdded = newItems.length;
   result.sectionInserted = true;
 
   return result;
+}
+
+// ── Status Transition: move item between ACTIVE.md and DONE.md ──────────────
+
+/**
+ * Extract a `### ID Title` item block from markdown content.
+ * Returns the block (including the header) and the remaining content.
+ */
+function extractItemBlock(content: string, itemId: string): { block: string; rest: string } | null {
+  const lines = content.split("\n");
+  let startIdx = -1;
+  let endIdx = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (line.startsWith("### ") && line.slice(4).trim().startsWith(itemId)) {
+      startIdx = i;
+      continue;
+    }
+    if (startIdx !== -1 && line.startsWith("### ") && i > startIdx) {
+      endIdx = i;
+      break;
+    }
+  }
+
+  if (startIdx === -1) return null;
+  if (endIdx === -1) endIdx = lines.length;
+
+  const block = lines.slice(startIdx, endIdx).join("\n").trim();
+  const rest = [...lines.slice(0, startIdx), ...lines.slice(endIdx)].join("\n").trim();
+  return { block, rest };
+}
+
+/**
+ * Convert a `### ID Title` + table block into a DONE.md table row.
+ */
+function blockToDoneRow(block: string): string | null {
+  const titleMatch = block.match(/^### (.+)/m);
+  if (!titleMatch) return null;
+  const title = titleMatch[1]!.trim();
+
+  const severityMatch = block.match(/\*\*Severidade\*\*\s*\|\s*([^|]+)/);
+  const severity = severityMatch ? severityMatch[1]!.trim() : "—";
+
+  const descMatch = block.match(/\*\*Descricao\*\*\s*\|\s*([^|]+)/);
+  const description = descMatch ? descMatch[1]!.trim() : "Concluído";
+
+  return `| ${title} | ${severity} | ${description} |`;
+}
+
+/**
+ * Move a backlog item that became "Done" from ACTIVE.md to DONE.md.
+ * Returns true if the item was found in ACTIVE.md and moved.
+ */
+export function moveItemToDone(
+  itemId: string,
+  activePath: string = ACTIVE_PATH,
+  donePath: string = `${BACKLOG_DIR}/DONE.md`
+): boolean {
+  if (!existsSync(activePath)) return false;
+
+  const activeContent = readFileSync(activePath, "utf-8");
+  const extracted = extractItemBlock(activeContent, itemId);
+  if (!extracted) return false;
+
+  const row = blockToDoneRow(extracted.block);
+  if (!row) return false;
+
+  // Remove from ACTIVE.md
+  writeFileSync(activePath, extracted.rest + "\n", "utf-8");
+
+  // Append to DONE.md
+  let doneContent = existsSync(donePath) ? readFileSync(donePath, "utf-8") : "## Done\n\n| Item | Severidade | Resolucao |\n|---|---|---|\n";
+  const sep = doneContent.endsWith("\n") ? "" : "\n";
+  doneContent = doneContent + sep + row + "\n";
+  writeFileSync(donePath, doneContent, "utf-8");
+
+  logger.info("backlog-writer", `Moved ${itemId} from ACTIVE.md to DONE.md`);
+  return true;
 }
 
 // ── Audit Issue → Backlog Item Conversion ────────────────────────────────────

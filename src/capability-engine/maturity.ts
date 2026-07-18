@@ -76,7 +76,7 @@ function checkCapabilityMetrics(_capability: Capability, shitennoDir: string): b
 
 export function getCapabilityFilesForEngine(capability: Capability): string[] {
   const fileMap: Record<Capability, string[]> = {
-    core: ["docs/BACKLOG.md", "docs/AGENTS.md"],
+    core: ["docs/backlog/ACTIVE.md", "docs/AGENTS.md"],
     knowledge: ["docs/skills/", "docs/AGENTS.md"],
     architecture: ["docs/adrs/", "governance/plans/"],
     governance: ["governance/WORKFLOW.md", "governance/context/"],

@@ -150,10 +150,10 @@ export function moveCompletedBacklogToDone(
   shitennoDir: string,
   projectRoot: string
 ): { checked: number; moved: number; archivedPath: string | null } {
-  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "backlog", "ACTIVE.md");
   if (!existsSync(backlogPath)) {
     // Try alternative paths
-    const altPath = join(projectRoot, "docs", "BACKLOG.md");
+    const altPath = join(projectRoot, "docs", "backlog", "ACTIVE.md");
     if (!existsSync(altPath)) {
       return { checked: 0, moved: 0, archivedPath: null };
     }

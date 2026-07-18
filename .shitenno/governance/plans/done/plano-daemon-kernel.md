@@ -1,7 +1,7 @@
 # Plano: transformar o daemon no kernel do shitenno-go
 
-**Status:** Done
-**Updated_at:** 2026-07-16T04:15:00.000Z
+**Status:** In Progress
+**Updated_at:** 2026-07-18T13:30:10.339Z
 **Date:** 2026-07-16
 
 > Baseado em leitura direta de `src/daemon.ts`, `src/daemon-client.ts`, `src/mcp-server.ts`,

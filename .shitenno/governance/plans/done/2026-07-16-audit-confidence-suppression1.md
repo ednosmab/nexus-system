@@ -1,8 +1,8 @@
 # PLAN-AUDIT-CONF — Confidence Score + Suppression Baseline no `shiten audit`
 
-**Status:** Done
+**Status:** In Progress
 **Date:** 2026-07-16
-**Updated_at:** 2026-07-16T05:30:00.000Z
+**Updated_at:** 2026-07-18T13:30:10.359Z
 **Priority:** P1
 **Owner:** AI Agent
 **Estimated Time:** 4-6h

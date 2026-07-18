@@ -71,7 +71,7 @@ export function syncPlanToBacklog(
   planId: string,
   planContent: string
 ): void {
-  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
   if (!existsSync(backlogPath)) return;
 
   const backlog = readFileSync(backlogPath, "utf-8");
@@ -246,7 +246,7 @@ export function initPlanBacklogSync(projectRoot: string, shitennoDir: string): v
     if (planId) {
       logger.info("plan-backlog-sync", `Plan archived: ${planId}`);
       const planIdUpper = `BACKLOG-${planId.toUpperCase().replace(/-/g, "_")}`;
-      const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+      const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
       if (existsSync(backlogPath)) {
         let backlog = readFileSync(backlogPath, "utf-8");
         const statusRegex = new RegExp(
@@ -268,7 +268,7 @@ export function initPlanBacklogSync(projectRoot: string, shitennoDir: string): v
     markScanRun(shitennoDir);
     const scanPromises: Promise<void>[] = [];
 
-    const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
+    const backlogPath = join(shitennoDir, "docs", "backlog", "ACTIVE.md");
     const backlog = existsSync(backlogPath) ? readFileSync(backlogPath, "utf-8") : "";
 
     const planFiles = readdirSync(plansDir).filter(

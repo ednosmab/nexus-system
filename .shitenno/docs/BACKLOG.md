@@ -1708,3 +1708,46 @@
 | **Modulos** | governance/plans/ |
 | **Descricao** | Untitled Plan |
 | **Correcao** | Verificar checklist no plano `governance/plans/TEST-FILE-WATCHER-001.md` |
+
+
+### BACKLOG-PLAN_2026_07_17_A_CLI_LAZY_BOOTSTRAP — PLAN-2026-07-17-A — Lazy Loading do Bootstrap do CLI
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-18 |
+| **Fonte** | shugo plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-2026-07-17-A — Lazy Loading do Bootstrap do CLI |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-17-A-cli-lazy-bootstrap.md` |
+
+#### Passos do Plano
+- [ ] Passo 1 — Mapear quais comandos realmente precisam de quais subsistemas
+- [ ] Passo 2 — Extrair o bootstrap pesado para uma função sob demanda
+- [ ] Passo 3 — Converter registro de comandos para import dinâmico
+- [ ] Passo 4 — Medir o ganho
+
+
+### BACKLOG-PLAN_2026_07_17_B_BACKLOG_MODULAR — PLAN-2026-07-17-B — Modularização do BACKLOG.md por Status/Prioridade
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-18 |
+| **Fonte** | shugo plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-2026-07-17-B — Modularização do BACKLOG.md por Status/Prioridade |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-17-B-backlog-modular.md` |
+
+#### Passos do Plano
+- [ ] Passo 1 — Confirmar consumidores atuais do parser
+- [ ] Passo 2 — Estrutura de arquivo alvo
+- [ ] Passo 3 — Script de migração (roda uma vez)
+- [ ] Passo 4 — Atualizar `backlog-parser.ts`/`backlog-writer.ts` para o novo layout
+- [ ] Passo 5 — Atualizar comandos consumidores
