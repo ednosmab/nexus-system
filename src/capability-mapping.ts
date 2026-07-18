@@ -143,8 +143,8 @@ const CAPABILITY_MAPPINGS: Record<Capability, CapabilityMapping> = {
       { src: "plugins/health-monitor/plugin.js", dest: `${SHITENNO_DIR_NAME}/plugins/health-monitor/plugin.js` },
       { src: "plugins/health-check/plugin.js", dest: `${SHITENNO_DIR_NAME}/plugins/health-check/plugin.js` },
       { src: "plugins/health-check/plugin.ts", dest: `${SHITENNO_DIR_NAME}/plugins/health-check/plugin.ts` },
-      { src: "governance/knowledge-graph/artifacts.json", dest: `${SHITENNO_DIR_NAME}/governance/knowledge-graph/artifacts.json` },
-      { src: "governance/knowledge-graph/relations.json", dest: `${SHITENNO_DIR_NAME}/governance/knowledge-graph/relations.json` },
+      { src: "governance/knowledge-graph/artifacts.jsonl", dest: `${SHITENNO_DIR_NAME}/governance/knowledge-graph/artifacts.jsonl` },
+      { src: "governance/knowledge-graph/relations.jsonl", dest: `${SHITENNO_DIR_NAME}/governance/knowledge-graph/relations.jsonl` },
     ],
   },
   quality: {

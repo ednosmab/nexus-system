@@ -6,7 +6,7 @@
  * (visible via --show-suppressed).
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import type { HealthIssue } from "./types.js";
 import { issueFingerprint } from "./shared.js";
@@ -21,16 +21,16 @@ export interface Suppression {
 }
 
 function getSuppressionsPath(shitennoDir: string): string {
-  return join(shitennoDir, "audit-suppressions.json");
+  return join(shitennoDir, "audit-suppressions.jsonl");
 }
 
 export function loadSuppressions(shitennoDir: string): Suppression[] {
   const filePath = getSuppressionsPath(shitennoDir);
   if (!existsSync(filePath)) return [];
   try {
-    const raw = readFileSync(filePath, "utf-8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const raw = readFileSync(filePath, "utf-8").trim();
+    if (!raw) return [];
+    return raw.split("\n").map((line) => JSON.parse(line) as Suppression);
   } catch {
     return [];
   }
@@ -40,7 +40,14 @@ export function saveSuppressions(shitennoDir: string, suppressions: Suppression[
   const filePath = getSuppressionsPath(shitennoDir);
   const dir = dirname(filePath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(filePath, JSON.stringify(suppressions, null, 2), "utf-8");
+  writeFileSync(filePath, suppressions.map((s) => JSON.stringify(s)).join("\n") + "\n", "utf-8");
+}
+
+export function appendSuppression(shitennoDir: string, suppression: Suppression): void {
+  const filePath = getSuppressionsPath(shitennoDir);
+  const dir = dirname(filePath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  appendFileSync(filePath, JSON.stringify(suppression) + "\n", "utf-8");
 }
 
 export function addSuppression(
@@ -49,7 +56,6 @@ export function addSuppression(
   reason: string,
   suppressedBy: string
 ): Suppression {
-  const suppressions = loadSuppressions(shitennoDir);
   const suppression: Suppression = {
     fingerprint: issueFingerprint(issue),
     type: issue.type,
@@ -58,8 +64,7 @@ export function addSuppression(
     suppressedBy,
     suppressedAt: new Date().toISOString(),
   };
-  suppressions.push(suppression);
-  saveSuppressions(shitennoDir, suppressions);
+  appendSuppression(shitennoDir, suppression);
   return suppression;
 }
 

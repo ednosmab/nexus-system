@@ -293,7 +293,27 @@ model_assignments: {}
 
 ---
 
-## 8. Referências
+## 8. Modelo de Uso
+
+> **Modelo de uso:** o Shiten roda como instância local, uma por desenvolvedor. Não há coordenação em tempo real entre instâncias — o repositório Git é o único ponto de sincronização, de forma assíncrona (commit/push/pull). Arquivos em `governance/` versionados devem ser seguros para merge assíncrono; estado de sessão individual (checkpoints, cache, daemon) nunca é versionado.
+
+### 8.1 Arquivos Seguros para Merge Assíncrono
+
+- **`governance/knowledge-graph/relations.jsonl`** — Formato JSON Lines (uma entrada por linha). Dois devs adicionando relações diferentes geram commits mergeáveis automaticamente.
+- **`governance/knowledge-graph/artifacts.jsonl`** — Mesmo padrão JSON Lines.
+- **`audit-suppressions.jsonl`** — Supressões de auditoria em formato append-only.
+- **`governance/rules/*.json`** — Um arquivo por regra (padrão já existente).
+
+### 8.2 Estado Local Nunca Versionado
+
+- **`governance/context/checkpoints/`** — Snapshots de sessão individual.
+- **`governance/context/context_buffer.yaml`** — Estado da sessão em execução.
+- **`daemon/`** — Estado do processo daemon.
+- **Cache e logs** — Dados temporários de runtime.
+
+---
+
+## 9. Referências
 
 - `docs/AGENTS.md` — Regras do time (P0)
 - `docs/FORBIDDEN_OPERATIONS.md` — Regras vinculantes (P0)
