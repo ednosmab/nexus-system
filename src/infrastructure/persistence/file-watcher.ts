@@ -88,7 +88,6 @@ export function startWatching(
       ignoreInitial: true,
       depth: 3,
       ignored: [
-        /(^|[\/\\])\../,
         /node_modules/,
         /telemetry\/events-/,
         /docs\/generated\//,
@@ -138,6 +137,10 @@ export function startWatching(
 
     watcher.on("add", (filePath: string) => {
       if (!/\.(md|yaml|json|ts)$/.test(filePath)) return;
+
+      // Skip hidden files/dirs (e.g. .git, .env)
+      const addRelative = filePath.slice(shitennoDir.length + 1);
+      if (addRelative.split(/[/\\]/).some((s) => s.startsWith(".") && s !== "")) return;
 
       const artifactType = detectArtifactType(filePath, shitennoDir);
 
@@ -219,6 +222,12 @@ function handleFileChange(
   bus: ReturnType<typeof getEventBus>,
   enableDocSync: boolean
 ): void {
+  // Skip hidden files/dirs (e.g. .git, .env) — but NOT the shitennoDir root itself.
+  // relativePath strips the shitennoDir prefix, so ".shitenno" won't appear in segments.
+  const relativePath = filePath.slice(shitennoDir.length + 1);
+  const segments = relativePath.split(/[/\\]/);
+  if (segments.some((s) => s.startsWith(".") && s !== "")) return;
+
   const artifactType = detectArtifactType(filePath, shitennoDir);
 
   // Record change for frequency tracking
@@ -284,8 +293,6 @@ function handleFileChange(
 
   // Doc sync trigger based on significance
   if (enableDocSync && significance.shouldSync) {
-    const relativePath = filePath.slice(shitennoDir.length + 1);
-
     if (significance.level === "high") {
       logger.info(
         "file-watcher",
@@ -307,7 +314,6 @@ function handleFileChange(
   // Guard: if this change was caused by our own sync write, don't re-trigger
   if (isSyncWriteInProgress()) return;
 
-  const relativePath = filePath.slice(shitennoDir.length + 1);
   if (relativePath.startsWith("governance/plans/") && relativePath.endsWith(".md")) {
     const fileName = basename(filePath);
     if (fileName !== "TEMPLATE.md" && fileName !== "README.md" &&

@@ -21,7 +21,7 @@ import { auditHealth } from "../health-auditor.js";
 import { DaemonCircuitBreaker } from "../daemon-circuit-breaker.js";
 import { logger } from "../logger.js";
 import { initializeRuleEngine } from "../rule-engine/engine.js";
-import { initializeProactiveEngine } from "../proactive-engine.js";
+import { initializeProactiveEngine } from "../prioritization/triggers.js";
 import {
   createDaemonState,
   recordEvent,
@@ -141,6 +141,27 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
 
   // ── Initialize log byte counter for rotation ───────────────────────────────
   initLogByteCounter(logPath);
+
+  // ── Duplicate daemon guard ─────────────────────────────────────────────────
+
+  if (existsSync(pidPath)) {
+    try {
+      const existingPid = parseInt(readFileSync(pidPath, "utf-8").trim(), 10);
+      if (!isNaN(existingPid) && existingPid > 0) {
+        try {
+          process.kill(existingPid, 0); // signal 0 = check if alive
+          // Process is alive — another daemon is already running
+          daemonLog(logPath, "WARN", `Daemon already running (pid ${existingPid}). Exiting.`);
+          process.exit(0);
+        } catch {
+          // Process not found (ESRCH) — stale PID file, safe to continue
+          daemonLog(logPath, "INFO", `Stale PID file (pid ${existingPid} not running). Overwriting.`);
+        }
+      }
+    } catch {
+      // Corrupt PID file — safe to continue
+    }
+  }
 
   // ── Write PID ──────────────────────────────────────────────────────────────
 
