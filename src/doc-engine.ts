@@ -27,7 +27,7 @@ export interface DocMetadata {
   id: string;
   /** Doc type. */
   type: DocType;
-  /** Output path (relative to shiten-dir). */
+  /** Output path (relative to shitenno-dir). */
   path: string;
   /** ISO timestamp of last generation. */
   generatedAt: string;
@@ -175,7 +175,7 @@ function generateArchitectureOverview(state: EngineeringState): string {
     "",
     "## System Architecture",
     "",
-    "The Shitenno-go follows a cognitive cycle architecture:",
+    "The Shitenno follows a cognitive cycle architecture:",
     "",
     "```",
     "Observe → Understand → Reason → Decide → Validate → Act → Learn",
@@ -211,8 +211,8 @@ export class DocEngine {
   private docsDir: string;
   private metadata: Map<DocType, DocMetadata> = new Map();
 
-  constructor(shitenDir: string) {
-    this.docsDir = join(shitenDir, "docs", "generated");
+  constructor(shitennoDir: string) {
+    this.docsDir = join(shitennoDir, "docs", "generated");
     if (!existsSync(this.docsDir)) {
       mkdirSync(this.docsDir, { recursive: true });
     }

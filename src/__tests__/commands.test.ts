@@ -37,7 +37,7 @@ import type { PerformanceMetric } from "../feedback-loops.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-commands-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shugo-commands-"));
 });
 
 afterEach(() => {
@@ -99,40 +99,40 @@ function makeState(overrides: Partial<EngineeringState> = {}): EngineeringState 
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("sync.ts — getFilesToSync", () => {
-  it("returns empty array when shiten dir has no files", () => {
+  it("returns empty array when shugo dir has no files", () => {
     const result = getFilesToSync(tempDir, tempDir);
     expect(result).toEqual([]);
   });
 
   it("returns core files that exist", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "docs"), { recursive: true });
-    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "# Agents");
-    writeFileSync(join(shitenDir, "opencode.json"), "{}");
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "docs"), { recursive: true });
+    writeFileSync(join(shitennoDir, "docs", "AGENTS.md"), "# Agents");
+    writeFileSync(join(shitennoDir, "opencode.json"), "{}");
 
-    const result = getFilesToSync(shitenDir, tempDir);
+    const result = getFilesToSync(shitennoDir, tempDir);
     expect(result).toContain("docs/AGENTS.md");
     expect(result).toContain("opencode.json");
   });
 
   it("returns skill files", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
-    writeFileSync(join(shitenDir, "docs", "skills", "tdd.md"), "# TDD");
-    writeFileSync(join(shitenDir, "docs", "skills", "solid.md"), "# SOLID");
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
+    writeFileSync(join(shitennoDir, "docs", "skills", "tdd.md"), "# TDD");
+    writeFileSync(join(shitennoDir, "docs", "skills", "solid.md"), "# SOLID");
 
-    const result = getFilesToSync(shitenDir, tempDir);
+    const result = getFilesToSync(shitennoDir, tempDir);
     expect(result).toContain("docs/skills/tdd.md");
     expect(result).toContain("docs/skills/solid.md");
   });
 
   it("filters out non-md files in skills", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
-    writeFileSync(join(shitenDir, "docs", "skills", "tdd.md"), "# TDD");
-    writeFileSync(join(shitenDir, "docs", "skills", "notes.txt"), "notes");
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
+    writeFileSync(join(shitennoDir, "docs", "skills", "tdd.md"), "# TDD");
+    writeFileSync(join(shitennoDir, "docs", "skills", "notes.txt"), "notes");
 
-    const result = getFilesToSync(shitenDir, tempDir);
+    const result = getFilesToSync(shitennoDir, tempDir);
     expect(result).toContain("docs/skills/tdd.md");
     expect(result).not.toContain("docs/skills/notes.txt");
   });
@@ -158,48 +158,48 @@ describe("sync.ts — shouldPreserveCustomizations", () => {
 
 describe("sync.ts — mergeJsonFiles", () => {
   it("merges two valid JSON files", () => {
-    const shiten = JSON.stringify({ agent: { planner: { model: "new-model" } } });
+    const shugo = JSON.stringify({ agent: { planner: { model: "new-model" } } });
     const target = JSON.stringify({ agent: { planner: { model: "old-model", permission: "read" } } });
 
-    const result = mergeJsonFiles(shiten, target);
+    const result = mergeJsonFiles(shugo, target);
     const parsed = JSON.parse(result);
     expect(parsed.agent.planner.model).toBe("old-model");
     expect(parsed.agent.planner.permission).toBe("read");
   });
 
   it("preserves target MCP config", () => {
-    const shiten = JSON.stringify({ agent: {} });
+    const shugo = JSON.stringify({ agent: {} });
     const target = JSON.stringify({ mcp: { servers: ["postgres"] } });
 
-    const result = mergeJsonFiles(shiten, target);
+    const result = mergeJsonFiles(shugo, target);
     const parsed = JSON.parse(result);
     expect(parsed.mcp).toEqual({ servers: ["postgres"] });
   });
 
-  it("returns shiten content on parse error", () => {
-    const shiten = "not json";
+  it("returns shugo content on parse error", () => {
+    const shugo = "not json";
     const target = "also not json";
-    const result = mergeJsonFiles(shiten, target);
-    expect(result).toBe(shiten);
+    const result = mergeJsonFiles(shugo, target);
+    expect(result).toBe(shugo);
   });
 });
 
 describe("sync.ts — mergeMarkdownFiles", () => {
   it("preserves custom sections from target", () => {
-    const shiten = "## Standard Section\nShiten content";
+    const shugo = "## Standard Section\nShugo content";
     const target = "## Standard Section\nTarget content\n## My Custom Section\nCustom content";
 
-    const result = mergeMarkdownFiles(shiten, target);
+    const result = mergeMarkdownFiles(shugo, target);
     expect(result).toContain("My Custom Section");
     expect(result).toContain("Custom content");
   });
 
-  it("uses shiten content for standard sections with placeholders", () => {
-    const shiten = "## Standard Section\nShiten version";
+  it("uses shugo content for standard sections with placeholders", () => {
+    const shugo = "## Standard Section\nShugo version";
     const target = "## Standard Section\n[PERSONALIZAR: stuff]";
 
-    const result = mergeMarkdownFiles(shiten, target);
-    expect(result).toContain("Shiten version");
+    const result = mergeMarkdownFiles(shugo, target);
+    expect(result).toContain("Shugo version");
   });
 });
 
@@ -229,16 +229,16 @@ describe("sync.ts — extractSections", () => {
 
 describe("sync.ts — mergeWithCustomizations", () => {
   it("merges JSON files via mergeJsonFiles", () => {
-    const shitenDir = join(tempDir, "shiten");
+    const shitennoDir = join(tempDir, "shugo");
     const targetDir = join(tempDir, "target");
-    mkdirSync(shitenDir, { recursive: true });
+    mkdirSync(shitennoDir, { recursive: true });
     mkdirSync(targetDir, { recursive: true });
 
-    writeFileSync(join(shitenDir, "opencode.json"), '{"agent":{}}');
+    writeFileSync(join(shitennoDir, "opencode.json"), '{"agent":{}}');
     writeFileSync(join(targetDir, "opencode.json"), '{"mcp":{}}');
 
     const result = mergeWithCustomizations(
-      join(shitenDir, "opencode.json"),
+      join(shitennoDir, "opencode.json"),
       join(targetDir, "opencode.json")
     );
     const parsed = JSON.parse(result);
@@ -246,36 +246,36 @@ describe("sync.ts — mergeWithCustomizations", () => {
   });
 
   it("merges markdown files via mergeMarkdownFiles", () => {
-    const shitenDir = join(tempDir, "shiten");
+    const shitennoDir = join(tempDir, "shugo");
     const targetDir = join(tempDir, "target");
-    mkdirSync(join(shitenDir, "docs"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs"), { recursive: true });
     mkdirSync(join(targetDir, "docs"), { recursive: true });
 
-    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "## Standard\nShiten");
+    writeFileSync(join(shitennoDir, "docs", "AGENTS.md"), "## Standard\nShugo");
     writeFileSync(join(targetDir, "docs", "AGENTS.md"), "## Standard\nTarget\n## Custom\nMy stuff");
 
     const result = mergeWithCustomizations(
-      join(shitenDir, "docs", "AGENTS.md"),
+      join(shitennoDir, "docs", "AGENTS.md"),
       join(targetDir, "docs", "AGENTS.md")
     );
     expect(result).toContain("Custom");
     expect(result).toContain("My stuff");
   });
 
-  it("returns shiten content for non-json non-md files", () => {
-    const shitenDir = join(tempDir, "shiten");
+  it("returns shugo content for non-json non-md files", () => {
+    const shitennoDir = join(tempDir, "shugo");
     const targetDir = join(tempDir, "target");
-    mkdirSync(join(shitenDir, "scripts"), { recursive: true });
+    mkdirSync(join(shitennoDir, "scripts"), { recursive: true });
     mkdirSync(join(targetDir, "scripts"), { recursive: true });
 
-    writeFileSync(join(shitenDir, "scripts", "test.ts"), "shiten code");
+    writeFileSync(join(shitennoDir, "scripts", "test.ts"), "shugo code");
     writeFileSync(join(targetDir, "scripts", "test.ts"), "target code");
 
     const result = mergeWithCustomizations(
-      join(shitenDir, "scripts", "test.ts"),
+      join(shitennoDir, "scripts", "test.ts"),
       join(targetDir, "scripts", "test.ts")
     );
-    expect(result).toBe("shiten code");
+    expect(result).toBe("shugo code");
   });
 });
 
@@ -433,15 +433,15 @@ describe("doctor.ts — analyzeTeaching", () => {
 
 describe("doctor.ts — runDoctorAnalysis", () => {
   it("returns a valid DoctorReport", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(shitenDir, { recursive: true });
-    mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(shitennoDir, { recursive: true });
+    mkdirSync(join(shitennoDir, "governance", "context"), { recursive: true });
     writeFileSync(
-      join(shitenDir, "governance", "context", "context_buffer.yaml"),
+      join(shitennoDir, "governance", "context", "context_buffer.yaml"),
       'status: "closed"'
     );
 
-    const report = runDoctorAnalysis(tempDir, shitenDir);
+    const report = runDoctorAnalysis(tempDir, shitennoDir);
     expect(report).toHaveProperty("findings");
     expect(report).toHaveProperty("overallHealth");
     expect(report).toHaveProperty("healthScore");
@@ -574,7 +574,7 @@ describe("report.ts — formatReport", () => {
         { type: "strength", dimension: "decision_making" as PerformanceMetric, text: "Good coverage", evidence: "95%" },
         { type: "improvement", dimension: "prompt_quality" as PerformanceMetric, text: "Add tests" },
       ],
-      nextSteps: ["Run shiten upgrade", "Add more tests"],
+      nextSteps: ["Run shugo upgrade", "Add more tests"],
       summary: "Project is in good shape.",
     };
 

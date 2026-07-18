@@ -2,19 +2,19 @@
 
 > **Versão:** 1.0
 > **Data:** YYYY-MM-DD
-> **Autoridade:** Shitenno-go
+> **Autoridade:** Shitenno
 > **Propósito:** Referência canónica para toda decisão arquitetural
 
 ---
 
 ## Princípio Fundamental
 
-> **O Shiten não é um framework de documentação.**
-> **O Shiten não é um framework para IA.**
-> **O Shiten não é uma CLI.**
+> **O Shugo não é um framework de documentação.**
+> **O Shugo não é um framework para IA.**
+> **O Shugo não é uma CLI.**
 >
 > Todos esses elementos são apenas mecanismos.
-> O verdadeiro domínio do Shiten é:
+> O verdadeiro domínio do Shugo é:
 >
 > **«Gestão da Evolução de Produtos através de Conhecimento, Governança e Automação.»**
 
@@ -22,7 +22,7 @@
 
 ## Domínio Fundamental
 
-O Shiten gerencia a evolução de um produto ao longo do seu ciclo de vida. O ciclo começa com um produto e termina com evidências de evolução que retroalimentam o próprio produto.
+O Shugo gerencia a evolução de um produto ao longo do seu ciclo de vida. O ciclo começa com um produto e termina com evidências de evolução que retroalimentam o próprio produto.
 
 ```
 Produto
@@ -144,7 +144,7 @@ O processo contínuo de melhoria do produto. A evolução é impulsionada pelas 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    SHITEN SYSTEM                          │
+│                    SHUGO SYSTEM                          │
 │            Gestão da Evolução de Produtos                │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
@@ -187,11 +187,11 @@ O processo contínuo de melhoria do produto. A evolução é impulsionada pelas 
 
 ---
 
-## Capacidades do Shiten
+## Capacidades do Shugo
 
-O Shiten implementa este modelo através de 9 capacidades modulares:
+O Shugo implementa este modelo através de 9 capacidades modulares:
 
-| Capacidade | Conceito Shiten | Descrição |
+| Capacidade | Conceito Shugo | Descrição |
 |---|---|---|
 | **Core** | Produto | Configuração base, workspace |
 | **Knowledge** | Conhecimento | Skills, documentação, referências |
@@ -214,4 +214,4 @@ O Shiten implementa este modelo através de 9 capacidades modulares:
 - `governance/WORKFLOW.md` — Fluxos de sessão
 - `docs/AGENTS.md` — Regras do time
 - `docs/FORBIDDEN_OPERATIONS.md` — Regras vinculantes
-- `docs/Shitenno-go_GUIDE.md` — Guia completo do sistema
+- `docs/Shitenno_GUIDE.md` — Guia completo do sistema

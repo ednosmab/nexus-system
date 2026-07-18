@@ -29,14 +29,14 @@ const TIER_MISMATCH_EVENT = "context.tier_mismatch";
  * Read persisted events from the last N days.
  * Shared helper to avoid redundant loops.
  */
-function getRecentEvents(shitenDir: string, days: number): EventEnvelope[] {
+function getRecentEvents(shitennoDir: string, days: number): EventEnvelope[] {
   const events: EventEnvelope[] = [];
   const now = new Date();
 
   for (let i = 0; i < days; i++) {
     const date = new Date(now.getTime() - i * 86400000);
     const dateStr = date.toISOString().slice(0, 10);
-    const dayEvents = readPersistedEvents(shitenDir, dateStr);
+    const dayEvents = readPersistedEvents(shitennoDir, dateStr);
     events.push(...dayEvents);
   }
 
@@ -52,14 +52,14 @@ function getRecentEvents(shitenDir: string, days: number): EventEnvelope[] {
  * each document was loaded on-demand. If a document exceeds the
  * promotion threshold, it is flagged as a candidate for tier promotion.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns Array of HealthIssue with tier promotion candidates
  */
-export function detectMisclassifiedTier(shitenDir: string): HealthIssue[] {
+export function detectMisclassifiedTier(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
   try {
-    const events = getRecentEvents(shitenDir, 7);
+    const events = getRecentEvents(shitennoDir, 7);
     const p4Events = events.filter((e) => e.type === P4_LOADED_EVENT);
 
     if (p4Events.length === 0) {
@@ -103,14 +103,14 @@ export function detectMisclassifiedTier(shitenDir: string): HealthIssue[] {
  * Compares the tier declared in context metadata with the tier
  * used in actual on-demand loads.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns Array of HealthIssue with tier mismatches
  */
-export function detectTierMismatches(shitenDir: string): HealthIssue[] {
+export function detectTierMismatches(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
   try {
-    const events = getRecentEvents(shitenDir, 7);
+    const events = getRecentEvents(shitennoDir, 7);
     const mismatchEvents = events.filter((e) => e.type === TIER_MISMATCH_EVENT);
 
     for (const event of mismatchEvents) {

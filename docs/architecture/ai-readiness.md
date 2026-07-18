@@ -89,16 +89,16 @@ Without feedback, agents can't learn from mistakes.
 
 ## Measuring AI Readiness
 
-Shiten detects AI readiness by checking filesystem presence:
+Shugo detects AI readiness by checking filesystem presence:
 
 ```typescript
-function assessAIReadiness(shitenDir: string): AIReadinessReport {
+function assessAIReadiness(shitennoDir: string): AIReadinessReport {
   return {
-    governanceRules: checkGovernanceRules(shitenDir),
-    agentContracts: checkAgentContracts(shitenDir),
-    contextHierarchy: checkContextHierarchy(shitenDir),
-    workflowDefinition: checkWorkflowDefinition(shitenDir),
-    feedbackMechanism: checkFeedbackMechanism(shitenDir),
+    governanceRules: checkGovernanceRules(shitennoDir),
+    agentContracts: checkAgentContracts(shitennoDir),
+    contextHierarchy: checkContextHierarchy(shitennoDir),
+    workflowDefinition: checkWorkflowDefinition(shitennoDir),
+    feedbackMechanism: checkFeedbackMechanism(shitennoDir),
     overallScore: calculateScore(...),
   };
 }

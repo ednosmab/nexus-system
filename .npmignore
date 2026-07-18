@@ -3,7 +3,7 @@ src/
 bin/
 docs/
 plans/
-shitenno-go/plugins/
+shitenno/plugins/
 .github/
 
 # Config

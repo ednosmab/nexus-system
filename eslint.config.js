@@ -3,7 +3,7 @@ import tsparser from "@typescript-eslint/parser";
 
 export default [
   {
-    ignores: ["dist/", "node_modules/", "src/templates/", "src/__tests__/", "shitenno-go/"],
+    ignores: ["dist/", "node_modules/", "src/templates/", "src/__tests__/", "shitenno/"],
   },
   {
     files: ["src/**/*.ts", "bin/**/*.ts"],
@@ -29,10 +29,10 @@ export default [
       "prefer-const": "warn",
       "no-var": "error",
       "no-restricted-globals": ["error", "__dirname", "__filename"],
-      // Prevent hardcoding "shitenno-go" — use SHITEN_DIR_NAME from src/constants.ts
+      // Prevent hardcoding "shitenno" — use SHITENNO_DIR_NAME from src/constants.ts
       "no-restricted-syntax": ["error", {
-        selector: "Literal[value='shitenno-go']",
-        message: "Use SHITEN_DIR_NAME from src/constants.ts instead of hardcoding 'shitenno-go'.",
+        selector: "Literal[value='shitenno']",
+        message: "Use SHITENNO_DIR_NAME from src/constants.ts instead of hardcoding 'shitenno'.",
       }],
       "max-lines-per-function": ["warn", { max: 50, skipBlankLines: true, skipComments: true }],
       "max-depth": ["warn", 4],
@@ -64,7 +64,7 @@ export default [
       "no-restricted-imports": "off",
     },
   },
-  // Exception: constants.ts is where SHITEN_DIR_NAME is defined — must contain the literal
+  // Exception: constants.ts is where SHITENNO_DIR_NAME is defined — must contain the literal
   {
     files: ["src/constants.ts"],
     rules: {

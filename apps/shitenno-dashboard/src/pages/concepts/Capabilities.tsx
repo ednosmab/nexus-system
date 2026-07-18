@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const capabilities = [
   { name: 'Context Detection', description: 'Detecta automaticamente o contexto do projecto.', status: 'active' },
-  { name: 'Profile Generation', description: 'Gera o shiten-profile com configuracoes especificas.', status: 'active' },
+  { name: 'Profile Generation', description: 'Gera o shitenno-profile com configuracoes especificas.', status: 'active' },
   { name: 'Health Monitoring', description: 'Monitora a saude da governanca continuamente.', status: 'active' },
   { name: 'Complexity Scoring', description: 'Calcula scores de complexidade por area.', status: 'active' },
   { name: 'Pattern Detection', description: 'Detecta padroes de codigo e comportamento.', status: 'active' },
@@ -20,7 +20,7 @@ export default function Capabilities() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Capabilities</h1>
         <p className="text-text-secondary max-w-2xl">
-          As 9 capacidades do Shitenno-go. Cada uma serve a um proposito especifico.
+          As 9 capacidades do Shitenno. Cada uma serve a um proposito especifico.
         </p>
       </section>
 

@@ -4,13 +4,13 @@ import { promisify } from "node:util";
 import { mkdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldShitennoGo } from "../scaffolder.js";
+import { scaffoldShitenno } from "../scaffolder.js";
 
 const execAsync = promisify(exec);
-const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/shiten.js");
+const CLI_PATH = resolve(import.meta.dirname, "../../dist/bin/shugo.js");
 
 describe("console command", () => {
-  const TMP_DIR = join(tmpdir(), `shiten-console-test-${Date.now()}`);
+  const TMP_DIR = join(tmpdir(), `shitenno-console-test-${Date.now()}`);
 
   beforeAll(() => {
     mkdirSync(TMP_DIR, { recursive: true });
@@ -18,15 +18,15 @@ describe("console command", () => {
     mkdirSync(join(TMP_DIR, "src"), { recursive: true });
     writeFileSync(join(TMP_DIR, "src/index.ts"), "export const x = 1;");
 
-    // Scaffold shiten directly (non-interactive)
-    scaffoldShitennoGo(TMP_DIR, {
+    // Scaffold shugo directly (non-interactive)
+    scaffoldShitenno(TMP_DIR, {
       principalModel: "opencode/mimo-v2.5-free",
       executorModel: "opencode/deepseek-v4-flash-free",
       stack: ["typescript"],
       database: "none",
       styling: "none",
       maturity: {
-        usedShitenBefore: false,
+        usedShitennoBefore: false,
         isFirstProject: false,
         projectAge: "new",
         teamSize: "solo",
@@ -55,7 +55,7 @@ describe("console command", () => {
     const result = await execAsync(`node ${CLI_PATH} console --json`, {
       cwd: TMP_DIR,
       timeout: 15000,
-      env: { ...process.env, SHITEN_CHILD: "1", SHITEN_QUIET: "1" },
+      env: { ...process.env, SHITENNO_CHILD: "1", SHITENNO_QUIET: "1" },
     });
 
     const data = JSON.parse(result.stdout);

@@ -2,7 +2,7 @@
  * session-context.ts — Global Session State
  *
  * Provides access to the current session ID across all commands.
- * The session ID is set once at startup (bin/shiten.ts) and read by
+ * The session ID is set once at startup (bin/shugo.ts) and read by
  * commands that need to track session-level activity.
  *
  * PRINCIPLE: Session context is cross-cutting, not command-specific.

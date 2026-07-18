@@ -36,7 +36,7 @@ export const ACTION_TIER: Record<ActionType, ActionTier> = {
 
   run_local_script: 3,
   run_script: 3,
-  run_shiten_command: 3,
+  run_shugo_command: 3,
   update_file: 3,
   create_file: 3,
   remove_file: 3,

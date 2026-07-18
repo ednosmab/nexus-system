@@ -1,7 +1,7 @@
 /**
  * file-watcher.ts — Governance Artifact Watcher
  *
- * Watches shitenno-go/ for file changes and triggers automatic
+ * Watches shitenno/ for file changes and triggers automatic
  * context regeneration, knowledge graph rebuild, and briefing cache
  * invalidation.
  *
@@ -25,7 +25,7 @@ import { isSyncWriteInProgress } from "../../sync-write-guard.js";
 export interface WatcherOptions {
   /** Debounce interval in ms (default: 500) */
   debounceMs?: number;
-  /** Additional paths to watch beyond shitenno-go/ */
+  /** Additional paths to watch beyond shitenno/ */
   extraPaths?: string[];
   /** Enable doc sync on significant changes (default: true) */
   enableDocSync?: boolean;
@@ -35,8 +35,8 @@ export interface WatcherOptions {
 
 type ArtifactType = "adr" | "skill" | "workflow" | "rule" | "config" | "doc" | "unknown";
 
-function detectArtifactType(filePath: string, shitenDir: string): ArtifactType {
-  const relative = filePath.slice(shitenDir.length + 1);
+function detectArtifactType(filePath: string, shitennoDir: string): ArtifactType {
+  const relative = filePath.slice(shitennoDir.length + 1);
 
   if (relative.startsWith("docs/adrs/")) return "adr";
   if (relative.startsWith("docs/skills/")) return "skill";
@@ -65,7 +65,7 @@ function getRestartDelay(attempt: number): number {
  * Returns a stop function to close the watcher.
  */
 export function startWatching(
-  shitenDir: string,
+  shitennoDir: string,
   options: WatcherOptions = {}
 ): () => void {
   const { debounceMs = 500, enableDocSync = true } = options;
@@ -75,8 +75,8 @@ export function startWatching(
   }
 
   const watchPaths = [
-    join(shitenDir, "governance"),
-    join(shitenDir, "docs"),
+    join(shitennoDir, "governance"),
+    join(shitennoDir, "docs"),
     ...(options.extraPaths || []),
   ];
 
@@ -131,7 +131,7 @@ export function startWatching(
         filePath,
         setTimeout(() => {
           pendingEvents.delete(filePath);
-          handleFileChange(filePath, shitenDir, bus, enableDocSync);
+          handleFileChange(filePath, shitennoDir, bus, enableDocSync);
         }, debounceMs)
       );
     });
@@ -139,7 +139,7 @@ export function startWatching(
     watcher.on("add", (filePath: string) => {
       if (!/\.(md|yaml|json|ts)$/.test(filePath)) return;
 
-      const artifactType = detectArtifactType(filePath, shitenDir);
+      const artifactType = detectArtifactType(filePath, shitennoDir);
 
       if (artifactType === "adr") {
         bus.publish("adr.created", {
@@ -156,7 +156,7 @@ export function startWatching(
         });
       }
 
-      const relativePath = filePath.replace(shitenDir, "").replace(/^\//, "");
+      const relativePath = filePath.replace(shitennoDir, "").replace(/^\//, "");
       const plansDir = join("governance", "plans");
       if (
         relativePath.startsWith(plansDir) &&
@@ -215,11 +215,11 @@ export function startWatching(
  */
 function handleFileChange(
   filePath: string,
-  shitenDir: string,
+  shitennoDir: string,
   bus: ReturnType<typeof getEventBus>,
   enableDocSync: boolean
 ): void {
-  const artifactType = detectArtifactType(filePath, shitenDir);
+  const artifactType = detectArtifactType(filePath, shitennoDir);
 
   // Record change for frequency tracking
   const frequency = changeHistory.recordChange(filePath);
@@ -237,7 +237,7 @@ function handleFileChange(
   // Calculate significance
   const significance: SignificanceResult = calculateSignificance(
     filePath,
-    shitenDir,
+    shitennoDir,
     oldContent,
     newContent,
     frequency
@@ -284,7 +284,7 @@ function handleFileChange(
 
   // Doc sync trigger based on significance
   if (enableDocSync && significance.shouldSync) {
-    const relativePath = filePath.slice(shitenDir.length + 1);
+    const relativePath = filePath.slice(shitennoDir.length + 1);
 
     if (significance.level === "high") {
       logger.info(
@@ -307,7 +307,7 @@ function handleFileChange(
   // Guard: if this change was caused by our own sync write, don't re-trigger
   if (isSyncWriteInProgress()) return;
 
-  const relativePath = filePath.slice(shitenDir.length + 1);
+  const relativePath = filePath.slice(shitennoDir.length + 1);
   if (relativePath.startsWith("governance/plans/") && relativePath.endsWith(".md")) {
     const fileName = basename(filePath);
     if (fileName !== "TEMPLATE.md" && fileName !== "README.md" &&
@@ -341,7 +341,7 @@ function handleFileChange(
         const backlogStatus = statusMatch?.[1]?.trim().toLowerCase() ?? "planeado";
 
         syncBacklogToPlan(
-          shitenDir,
+          shitennoDir,
           planId,
           backlogStatus
         );

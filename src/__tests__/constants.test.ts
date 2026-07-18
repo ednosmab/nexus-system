@@ -53,7 +53,7 @@ describe("VALID_ACTION_TYPES", () => {
     expect(VALID_ACTION_TYPES).toContain("update_context_buffer");
     expect(VALID_ACTION_TYPES).toContain("create_reminder");
     expect(VALID_ACTION_TYPES).toContain("log_event");
-    expect(VALID_ACTION_TYPES).toContain("run_shiten_command");
+    expect(VALID_ACTION_TYPES).toContain("run_shugo_command");
     expect(VALID_ACTION_TYPES).toContain("auto_populate_next_p0");
   });
 });

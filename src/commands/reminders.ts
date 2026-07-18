@@ -1,19 +1,19 @@
 /**
  * reminders.ts — Reminders Management Command
  *
- * The `shiten reminders` command. List, add, remove, and manage reminders
+ * The `shugo reminders` command. List, add, remove, and manage reminders
  * with priority levels and categories.
  *
  * Usage:
- *   shiten reminders                                  # List all active reminders
- *   shiten reminders add "msg"                        # Add reminder (default: medium, feature)
- *   shiten reminders add "msg" --priority high        # Add with priority
- *   shiten reminders add "msg" --category bug         # Add with category
- *   shiten reminders add "msg" --notify               # Add with desktop notification
- *   shiten reminders rm <index>                       # Remove by index
- *   shiten reminders rm --message "partial match"     # Remove by message
- *   shiten reminders clear                            # Remove all
- *   shiten reminders --json                           # Output as JSON
+ *   shugo reminders                                  # List all active reminders
+ *   shugo reminders add "msg"                        # Add reminder (default: medium, feature)
+ *   shugo reminders add "msg" --priority high        # Add with priority
+ *   shugo reminders add "msg" --category bug         # Add with category
+ *   shugo reminders add "msg" --notify               # Add with desktop notification
+ *   shugo reminders rm <index>                       # Remove by index
+ *   shugo reminders rm --message "partial match"     # Remove by message
+ *   shugo reminders clear                            # Remove all
+ *   shugo reminders --json                           # Output as JSON
  */
 
 import { Command } from "commander";
@@ -26,7 +26,7 @@ import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { printDaemonBanner } from "../daemon-context-banner.js";
 import { output, outputBlank } from "../output.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { Reminder, ReminderPriority, ReminderCategory } from "../briefing.js";
 
 // ── Constants ─────────────────────────────────────────────────────────────
@@ -52,12 +52,12 @@ const CATEGORY_ICONS: Record<ReminderCategory, string> = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getBufferPath(projectRoot: string): string {
-  return join(projectRoot, SHITEN_DIR_NAME, "governance", "context", "context_buffer.yaml");
+  return join(projectRoot, SHITENNO_DIR_NAME, "governance", "context", "context_buffer.yaml");
 }
 
 function ensureBuffer(projectRoot: string): string {
   const bufferPath = getBufferPath(projectRoot);
-  const dir = join(projectRoot, SHITEN_DIR_NAME, "governance", "context");
+  const dir = join(projectRoot, SHITENNO_DIR_NAME, "governance", "context");
 
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
@@ -148,7 +148,7 @@ export function remindersCommand(): Command {
     const ctx = guardNotInitialized(opts, isJson);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, isJson);
+    void printDaemonBanner(ctx.shitennoDir, isJson);
 
     const reminders = loadReminders(ctx.projectRoot);
 
@@ -160,7 +160,7 @@ export function remindersCommand(): Command {
     outputBlank();
     if (reminders.length === 0) {
       output(chalk.dim("  No active reminders."));
-      output(chalk.dim("  Use 'shiten reminders add \"message\"' to create one."));
+      output(chalk.dim("  Use 'shugo reminders add \"message\"' to create one."));
     } else {
       output(chalk.bold(`  Active Reminders (${reminders.length})`));
       output(chalk.dim("  " + "─".repeat(60)));
@@ -195,7 +195,7 @@ export function remindersCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const priority = String(opts.priority) as ReminderPriority;
       const category = String(opts.category) as ReminderCategory;
@@ -244,7 +244,7 @@ export function remindersCommand(): Command {
 
       // Send desktop notification if requested
       if (opts.notify) {
-        sendDesktopNotification("Shiten Reminder Added", message, priority);
+        sendDesktopNotification("Shugo Reminder Added", message, priority);
       }
 
       if (isJson) {
@@ -269,7 +269,7 @@ export function remindersCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const reminders = loadReminders(ctx.projectRoot);
 
@@ -340,7 +340,7 @@ export function remindersCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const reminders = loadReminders(ctx.projectRoot);
       const count = reminders.length;

@@ -1,6 +1,6 @@
 
 [1m═══════════════════════════════════════════════════[0m
-[1m  E2E Validation Report — Shitenno-go[0m
+[1m  E2E Validation Report — Shitenno[0m
 [1m═══════════════════════════════════════════════════[0m
 
 Date:     2026-06-29
@@ -8,11 +8,11 @@ Project:  /media/edson-ubuntu/Data2/projeto-formação_tech/shitenno-cli
 Personas: junior-solo, established-team, senior-enterprise
 
 [0;36m▸ Building project (clean)...[0m
-ESM dist/shiten.js 362.15 KB
+ESM dist/shugo.js 362.15 KB
 ESM ⚡️ Build success in 72ms
 DTS Build start
 DTS ⚡️ Build success in 4217ms
-DTS dist/shiten.d.ts 20.00 B
+DTS dist/shugo.d.ts 20.00 B
 [0;32m✔ Build complete[0m
 
 [0;36m▸ Running unit tests...[0m
@@ -25,52 +25,52 @@ DTS dist/shiten.d.ts 20.00 B
 [1m  Persona: junior-solo[0m
 [1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
 
-  [0;32m✔[0m shiten init
-  [0;32m✔[0m shiten status
-  [0;32m✔[0m shiten detect
-  [0;32m✔[0m shiten audit
-  [0;32m✔[0m shiten assess
-  [0;32m✔[0m shiten run (exit)
-  [0;32m✔[0m shiten run (5 stages)
-  [0;32m✔[0m shiten evolve (executed)
-  [0;32m✔[0m shiten doctor
-  [0;32m✔[0m shiten validate
-  [0;32m✔[0m shiten report (exit)
-  [0;32m✔[0m shiten report (tie handled — balanced dimensions)
+  [0;32m✔[0m shugo init
+  [0;32m✔[0m shugo status
+  [0;32m✔[0m shugo detect
+  [0;32m✔[0m shugo audit
+  [0;32m✔[0m shugo assess
+  [0;32m✔[0m shugo run (exit)
+  [0;32m✔[0m shugo run (5 stages)
+  [0;32m✔[0m shugo evolve (executed)
+  [0;32m✔[0m shugo doctor
+  [0;32m✔[0m shugo validate
+  [0;32m✔[0m shugo report (exit)
+  [0;32m✔[0m shugo report (tie handled — balanced dimensions)
 
 [1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
 [1m  Persona: established-team[0m
 [1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
 
-  [0;32m✔[0m shiten init
-  [0;32m✔[0m shiten status
-  [0;32m✔[0m shiten detect
-  [0;32m✔[0m shiten audit
-  [0;32m✔[0m shiten assess
-  [0;32m✔[0m shiten run (exit)
-  [0;32m✔[0m shiten run (5 stages)
-  [0;32m✔[0m shiten evolve (executed)
-  [0;32m✔[0m shiten doctor
-  [0;32m✔[0m shiten validate
-  [0;32m✔[0m shiten report (exit)
-  [0;32m✔[0m shiten report (tie handled — balanced dimensions)
+  [0;32m✔[0m shugo init
+  [0;32m✔[0m shugo status
+  [0;32m✔[0m shugo detect
+  [0;32m✔[0m shugo audit
+  [0;32m✔[0m shugo assess
+  [0;32m✔[0m shugo run (exit)
+  [0;32m✔[0m shugo run (5 stages)
+  [0;32m✔[0m shugo evolve (executed)
+  [0;32m✔[0m shugo doctor
+  [0;32m✔[0m shugo validate
+  [0;32m✔[0m shugo report (exit)
+  [0;32m✔[0m shugo report (tie handled — balanced dimensions)
 
 [1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
 [1m  Persona: senior-enterprise[0m
 [1m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
 
-  [0;32m✔[0m shiten init
-  [0;32m✔[0m shiten status
-  [0;32m✔[0m shiten detect
-  [0;32m✔[0m shiten audit
-  [0;32m✔[0m shiten assess
-  [0;32m✔[0m shiten run (exit)
-  [0;32m✔[0m shiten run (5 stages)
-  [0;32m✔[0m shiten evolve (executed)
-  [0;32m✔[0m shiten doctor
-  [0;32m✔[0m shiten validate
-  [0;32m✔[0m shiten report (exit)
-  [0;32m✔[0m shiten report (tie handled — balanced dimensions)
+  [0;32m✔[0m shugo init
+  [0;32m✔[0m shugo status
+  [0;32m✔[0m shugo detect
+  [0;32m✔[0m shugo audit
+  [0;32m✔[0m shugo assess
+  [0;32m✔[0m shugo run (exit)
+  [0;32m✔[0m shugo run (5 stages)
+  [0;32m✔[0m shugo evolve (executed)
+  [0;32m✔[0m shugo doctor
+  [0;32m✔[0m shugo validate
+  [0;32m✔[0m shugo report (exit)
+  [0;32m✔[0m shugo report (tie handled — balanced dimensions)
 
 [1m═══════════════════════════════════════════════════[0m
 [1m  Summary[0m

@@ -30,7 +30,7 @@ export interface AutofixReport {
 
 const DEFAULT_MIN_CONFIDENCE = 0.85;
 const DEFAULT_VERIFY_COMMAND = "npx tsc --noEmit";
-const BACKUP_SUFFIX = ".shiten-backup";
+const BACKUP_SUFFIX = ".shitenno-backup";
 const VERIFY_TIMEOUT_MS = 60_000;
 
 // ── Core Function ───────────────────────────────────────────────────────────

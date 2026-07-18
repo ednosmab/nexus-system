@@ -20,12 +20,12 @@ export interface Suppression {
   suppressedAt: string;
 }
 
-function getSuppressionsPath(shitenDir: string): string {
-  return join(shitenDir, "audit-suppressions.json");
+function getSuppressionsPath(shitennoDir: string): string {
+  return join(shitennoDir, "audit-suppressions.json");
 }
 
-export function loadSuppressions(shitenDir: string): Suppression[] {
-  const filePath = getSuppressionsPath(shitenDir);
+export function loadSuppressions(shitennoDir: string): Suppression[] {
+  const filePath = getSuppressionsPath(shitennoDir);
   if (!existsSync(filePath)) return [];
   try {
     const raw = readFileSync(filePath, "utf-8");
@@ -36,20 +36,20 @@ export function loadSuppressions(shitenDir: string): Suppression[] {
   }
 }
 
-export function saveSuppressions(shitenDir: string, suppressions: Suppression[]): void {
-  const filePath = getSuppressionsPath(shitenDir);
+export function saveSuppressions(shitennoDir: string, suppressions: Suppression[]): void {
+  const filePath = getSuppressionsPath(shitennoDir);
   const dir = dirname(filePath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
   writeFileSync(filePath, JSON.stringify(suppressions, null, 2), "utf-8");
 }
 
 export function addSuppression(
-  shitenDir: string,
+  shitennoDir: string,
   issue: HealthIssue,
   reason: string,
   suppressedBy: string
 ): Suppression {
-  const suppressions = loadSuppressions(shitenDir);
+  const suppressions = loadSuppressions(shitennoDir);
   const suppression: Suppression = {
     fingerprint: issueFingerprint(issue),
     type: issue.type,
@@ -59,7 +59,7 @@ export function addSuppression(
     suppressedAt: new Date().toISOString(),
   };
   suppressions.push(suppression);
-  saveSuppressions(shitenDir, suppressions);
+  saveSuppressions(shitennoDir, suppressions);
   return suppression;
 }
 

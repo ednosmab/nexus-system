@@ -17,7 +17,7 @@ export default function Components() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Componentes</h1>
         <p className="text-text-secondary max-w-2xl">
-          Todos os componentes que formam o Shitenno-go e suas responsabilidades.
+          Todos os componentes que formam o Shitenno e suas responsabilidades.
         </p>
       </section>
 

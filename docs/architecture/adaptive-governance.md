@@ -4,7 +4,7 @@
 
 ## The Rule Engine
 
-Shiten includes a declarative rule engine that automates governance behaviors. Rules are defined as data, not code.
+Shugo includes a declarative rule engine that automates governance behaviors. Rules are defined as data, not code.
 
 ## Rule Structure
 

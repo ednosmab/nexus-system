@@ -23,7 +23,7 @@ import type { ActionExecutor } from "./executors/types.js";
 import {
   RunScriptExecutor,
   RunLocalScriptExecutor,
-  RunShitenCommandExecutor,
+  RunShugoCommandExecutor,
   CreateReminderExecutor,
   ApplyAutofixExecutor,
   GenericRuleActionExecutor,
@@ -53,7 +53,7 @@ export interface InvokeResult {
 const EXECUTORS: Record<string, ActionExecutor> = {
   run_script: new RunScriptExecutor(),
   run_local_script: new RunLocalScriptExecutor(),
-  run_shiten_command: new RunShitenCommandExecutor(),
+  run_shugo_command: new RunShugoCommandExecutor(),
   create_reminder: new CreateReminderExecutor(),
   apply_autofix: new ApplyAutofixExecutor(),
 };
@@ -72,9 +72,9 @@ function getExecutor(actionType: ActionType): ActionExecutor {
 
 let cachedPolicyEngine: PolicyEngine | undefined;
 
-function getPolicyEngine(shitenDir: string): PolicyEngine {
+function getPolicyEngine(shitennoDir: string): PolicyEngine {
   if (!cachedPolicyEngine) {
-    cachedPolicyEngine = new PolicyEngine(new FilePolicyRepository(shitenDir));
+    cachedPolicyEngine = new PolicyEngine(new FilePolicyRepository(shitennoDir));
   }
   return cachedPolicyEngine;
 }
@@ -83,8 +83,8 @@ function getPolicyEngine(shitenDir: string): PolicyEngine {
 
 const EXEC_LOG_PATH = "governance/executions";
 
-function getExecLogDir(shitenDir: string): string {
-  const dir = join(shitenDir, EXEC_LOG_PATH);
+function getExecLogDir(shitennoDir: string): string {
+  const dir = join(shitennoDir, EXEC_LOG_PATH);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -106,7 +106,7 @@ export async function invokeAction(params: InvokeActionParams): Promise<InvokeRe
   const executor = getExecutor(action.type);
 
   // 1. Policy gate — runs FIRST (ADR-009)
-  const policyEngine = getPolicyEngine(context.shitenDir);
+  const policyEngine = getPolicyEngine(context.shitennoDir);
   const policyResult = checkPolicyGate(action, context, policyEngine);
   if (!policyResult.allowed) {
     return {
@@ -146,7 +146,7 @@ export async function invokeAction(params: InvokeActionParams): Promise<InvokeRe
     startedAt: new Date().toISOString(),
   };
 
-  const execDir = getExecLogDir(context.shitenDir);
+  const execDir = getExecLogDir(context.shitennoDir);
   const execPath = join(execDir, `${executionId}.json`);
   writeFileSync(execPath, JSON.stringify(record, null, 2), "utf-8");
 
@@ -154,7 +154,7 @@ export async function invokeAction(params: InvokeActionParams): Promise<InvokeRe
     const startTime = Date.now();
     const output = await executor.execute(
       action.params as Record<string, unknown>,
-      { projectRoot: context.projectRoot, shitenDir: context.shitenDir }
+      { projectRoot: context.projectRoot, shitennoDir: context.shitennoDir }
     );
     const duration = Date.now() - startTime;
 

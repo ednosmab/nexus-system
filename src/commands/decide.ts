@@ -1,15 +1,15 @@
 /**
  * decide.ts — Decision Engine CLI Command
  *
- * The `shiten decide` command. Evaluates proposed actions using specialized evaluators.
+ * The `shugo decide` command. Evaluates proposed actions using specialized evaluators.
  *
  * Usage:
- *   shiten decide "Upgrade authentication module" --category security --risk high
- *   shiten decide "Add unit tests" --category quality --impact high --goal GOAL-abc123
- *   shiten decide "Refactor database layer" --category architecture --introduces-debt --debt-severity low
- *   shiten decide --list
- *   shiten decide --show DEC-abc123
- *   shiten decide --stats
+ *   shugo decide "Upgrade authentication module" --category security --risk high
+ *   shugo decide "Add unit tests" --category quality --impact high --goal GOAL-abc123
+ *   shugo decide "Refactor database layer" --category architecture --introduces-debt --debt-severity low
+ *   shugo decide --list
+ *   shugo decide --show DEC-abc123
+ *   shugo decide --stats
  */
 
 import { Command } from "commander";
@@ -24,14 +24,14 @@ import {
   type RiskLevel,
 } from "../decision-engine.js";
 import { outputJson } from "../formatting.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputSection, outputError } from "../output.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): DecisionEngine {
-  const shitenDir = join(dir, SHITEN_DIR_NAME);
-  return new DecisionEngine(new FileDecisionRepository(shitenDir));
+  const shitennoDir = join(dir, SHITENNO_DIR_NAME);
+  return new DecisionEngine(new FileDecisionRepository(shitennoDir));
 }
 
 const RECO_COLORS: Record<DecisionRecommendation, (s: string) => string> = {
@@ -74,7 +74,7 @@ export function decideCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
 
@@ -143,7 +143,7 @@ export function decideCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const decisions = engine.list({
@@ -181,7 +181,7 @@ export function decideCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const decision = engine.get(id);
@@ -227,7 +227,7 @@ export function decideCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const all = engine.list();

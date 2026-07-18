@@ -2,13 +2,13 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldShitennoGo } from "../scaffolder.js";
+import { scaffoldShitenno } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-answers-test-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-answers-test-"));
 });
 
 afterEach(() => {
@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 const DEFAULT_MATURITY = {
-  usedShitenBefore: false,
+  usedShitennoBefore: false,
   isFirstProject: false,
   projectAge: "new" as const,
   teamSize: "solo" as const,
@@ -47,20 +47,20 @@ function makeAnswers(overrides: Partial<UserAnswers> = {}): UserAnswers {
   };
 }
 
-describe("scaffoldShitennoGo with answers file (Bug 5 regression)", () => {
+describe("scaffoldShitenno with answers file (Bug 5 regression)", () => {
   it("does not throw when all required fields are provided", () => {
     const answers = makeAnswers();
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when stack is a non-empty array", () => {
     const answers = makeAnswers({ stack: ["typescript"] });
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when stack is an empty array", () => {
     const answers = makeAnswers({ stack: [] });
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when optional fields are missing", () => {
@@ -72,16 +72,16 @@ describe("scaffoldShitennoGo with answers file (Bug 5 regression)", () => {
       styling: "tailwind",
       maturity: DEFAULT_MATURITY,
     };
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when database is empty string", () => {
     const answers = makeAnswers({ database: "" });
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 
   it("does not throw when styling is empty string", () => {
     const answers = makeAnswers({ styling: "" });
-    expect(() => scaffoldShitennoGo(tempDir, answers, ["core"])).not.toThrow();
+    expect(() => scaffoldShitenno(tempDir, answers, ["core"])).not.toThrow();
   });
 });

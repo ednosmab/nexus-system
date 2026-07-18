@@ -1,24 +1,24 @@
 /**
  * policy.ts — Policy Engine CLI Command
  *
- * The `shiten policy` command. Manage and evaluate declarative policies.
+ * The `shugo policy` command. Manage and evaluate declarative policies.
  *
  * Usage:
- *   shiten policy list
- *   shiten policy show POL-abc123
- *   shiten policy create "No hardcoded secrets" --mode enforce --effect deny --field "fileContent" --operator contains --value "password"
- *   shiten policy evaluate --field "riskLevel" --operator equals --value "critical"
- *   shiten policy enable POL-abc123
- *   shiten policy disable POL-abc123
- *   shiten policy delete POL-abc123
- *   shiten policy stats
+ *   shugo policy list
+ *   shugo policy show POL-abc123
+ *   shugo policy create "No hardcoded secrets" --mode enforce --effect deny --field "fileContent" --operator contains --value "password"
+ *   shugo policy evaluate --field "riskLevel" --operator equals --value "critical"
+ *   shugo policy enable POL-abc123
+ *   shugo policy disable POL-abc123
+ *   shugo policy delete POL-abc123
+ *   shugo policy stats
  */
 
 import { Command } from "commander";
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../shared.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import {
   PolicyEngine,
   FilePolicyRepository,
@@ -32,8 +32,8 @@ import { output, outputBlank, outputSection, outputSuccess, outputError, outputW
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): PolicyEngine {
-  const shitenDir = join(dir, SHITEN_DIR_NAME);
-  return new PolicyEngine(new FilePolicyRepository(shitenDir));
+  const shitennoDir = join(dir, SHITENNO_DIR_NAME);
+  return new PolicyEngine(new FilePolicyRepository(shitennoDir));
 }
 
 const MODE_COLORS: Record<PolicyMode, (s: string) => string> = {
@@ -80,7 +80,7 @@ export function policyCommand(): Command {
 
       outputBlank();
       if (policies.length === 0) {
-        output(chalk.dim("  No policies defined. Create one with: shiten policy create \"<name>\""));
+        output(chalk.dim("  No policies defined. Create one with: shugo policy create \"<name>\""));
       } else {
         outputSection(`Policies (${policies.length})`);
         output(chalk.dim("  " + "─".repeat(70)));

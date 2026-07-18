@@ -35,7 +35,7 @@ function daemonLog(logPath: string, level: string, msg: string): void {
 export async function handleMessage(
   msg: IpcMessage,
   socket: Socket,
-  shitenDir: string,
+  shitennoDir: string,
   sockPath: string,
   startedAt: number,
   logPath: string,
@@ -72,7 +72,7 @@ export async function handleMessage(
         type: "status",
         pid: process.pid,
         version: daemonVersion,
-        shitenDir,
+        shitennoDir,
         socketPath: sockPath,
         uptimeSeconds: uptimeSec,
         eventsRecorded: state.events.length,
@@ -167,7 +167,7 @@ export async function handleMessage(
       if (!state.briefingCache) {
         try {
           const { collectContext } = await import("../context-collector.js");
-          const snapshot = collectContext(projectRoot, shitenDir);
+          const snapshot = collectContext(projectRoot, shitennoDir);
           state.briefingCache = {
             computedAt: new Date().toISOString(),
             data: snapshot.briefing,
@@ -187,7 +187,7 @@ export async function handleMessage(
       if (!state.riskMapCache) {
         try {
           const { generateRiskMap } = await import("../risk-map.js");
-          const riskMap = generateRiskMap(projectRoot, shitenDir);
+          const riskMap = generateRiskMap(projectRoot, shitennoDir);
           state.riskMapCache = {
             computedAt: new Date().toISOString(),
             data: riskMap,

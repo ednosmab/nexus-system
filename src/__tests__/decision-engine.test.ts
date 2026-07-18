@@ -62,7 +62,7 @@ describe("FileDecisionRepository", () => {
   let repo: FileDecisionRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-decision-repo-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-decision-repo-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     repo = new FileDecisionRepository(tmpDir);
   });

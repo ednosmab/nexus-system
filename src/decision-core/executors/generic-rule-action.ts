@@ -31,7 +31,7 @@ export class GenericRuleActionExecutor implements ActionExecutor {
       trigger: "manual",
       eventData: {},
       projectRoot: context.projectRoot,
-      shitenDir: context.shitenDir,
+      shitennoDir: context.shitennoDir,
       timestamp: new Date().toISOString(),
     };
 

@@ -7,7 +7,7 @@ import { outputJson, statusIcon, banner } from "../formatting.js";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { getEventBus } from "../event-bus.js";
 import { printDaemonBanner } from "../daemon-context-banner.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank } from "../output.js";
 import { muteLogs } from "../logger.js";
 
@@ -28,16 +28,16 @@ export const validateCommand = new Command("validate")
 
     if (!isJson) {
       outputBlank();
-      banner("shiten validate", "Session Check");
+      banner("shugo validate", "Session Check");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, isJson);
+    void printDaemonBanner(ctx.shitennoDir, isJson);
 
-    if (!checkLifecycleGate("validate", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("validate", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     const results = runValidationChecks(ctx.projectRoot);
 
@@ -74,22 +74,22 @@ export const validateCommand = new Command("validate")
 
 function runValidationChecks(targetDir: string): ValidationResult[] {
   const results: ValidationResult[] = [];
-  const shitenDir = join(targetDir, SHITEN_DIR_NAME);
+  const shitennoDir = join(targetDir, SHITENNO_DIR_NAME);
 
   // 1. Check context buffer
-  results.push(checkContextBuffer(shitenDir));
+  results.push(checkContextBuffer(shitennoDir));
 
   // 2. Check ADR directory
-  results.push(checkAdrDirectory(shitenDir));
+  results.push(checkAdrDirectory(shitennoDir));
 
   // 3. Check opencode.json consistency
   results.push(checkOpencodeConsistency(targetDir));
 
   // 4. Check agent contracts
-  results.push(checkAgentContracts(shitenDir));
+  results.push(checkAgentContracts(shitennoDir));
 
   // 5. Check if session is in progress
-  results.push(checkSessionStatus(shitenDir));
+  results.push(checkSessionStatus(shitennoDir));
 
   // 6. Check git status
   results.push(checkGitStatus(targetDir));
@@ -97,14 +97,14 @@ function runValidationChecks(targetDir: string): ValidationResult[] {
   return results;
 }
 
-function checkContextBuffer(shitenDir: string): ValidationResult {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+function checkContextBuffer(shitennoDir: string): ValidationResult {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
 
   if (!existsSync(bufferPath)) {
     return {
       name: "Context Buffer",
       status: "warn",
-      message: "shitenno-go/governance/context/context_buffer.yaml not found",
+      message: "shitenno/governance/context/context_buffer.yaml not found",
     };
   }
 
@@ -141,14 +141,14 @@ function checkContextBuffer(shitenDir: string): ValidationResult {
   }
 }
 
-function checkAdrDirectory(shitenDir: string): ValidationResult {
-  const adrDir = join(shitenDir, "docs", "adrs");
+function checkAdrDirectory(shitennoDir: string): ValidationResult {
+  const adrDir = join(shitennoDir, "docs", "adrs");
 
   if (!existsSync(adrDir)) {
     return {
       name: "ADR Directory",
       status: "warn",
-      message: "shitenno-go/docs/adrs/ not found",
+      message: "shitenno/docs/adrs/ not found",
     };
   }
 
@@ -231,14 +231,14 @@ function checkOpencodeConsistency(targetDir: string): ValidationResult {
   }
 }
 
-function checkAgentContracts(shitenDir: string): ValidationResult {
-  const contractsDir = join(shitenDir, "governance", "agents");
+function checkAgentContracts(shitennoDir: string): ValidationResult {
+  const contractsDir = join(shitennoDir, "governance", "agents");
 
   if (!existsSync(contractsDir)) {
     return {
       name: "Agent Contracts",
       status: "warn",
-      message: "shitenno-go/governance/agents/ not found",
+      message: "shitenno/governance/agents/ not found",
     };
   }
 
@@ -278,8 +278,8 @@ function checkAgentContracts(shitenDir: string): ValidationResult {
   };
 }
 
-function checkSessionStatus(shitenDir: string): ValidationResult {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+function checkSessionStatus(shitennoDir: string): ValidationResult {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
 
   if (!existsSync(bufferPath)) {
     return {
@@ -399,7 +399,7 @@ function displayValidationResults(
   }
 
   if (failCount > 0) {
-    output(chalk.red("  Some checks failed. Run 'shiten validate --fix' to attempt repairs."));
+    output(chalk.red("  Some checks failed. Run 'shugo validate --fix' to attempt repairs."));
   } else if (warnCount > 0) {
     output(chalk.yellow("  Session is valid with warnings."));
   } else {
@@ -411,7 +411,7 @@ function displayValidationResults(
 
 function attemptFixes(targetDir: string, results: ValidationResult[]): string[] {
   const fixes: string[] = [];
-  const shitenDir = join(targetDir, SHITEN_DIR_NAME);
+  const shitennoDir = join(targetDir, SHITENNO_DIR_NAME);
 
   for (const result of results) {
     if (result.status !== "fail") continue;
@@ -436,7 +436,7 @@ function attemptFixes(targetDir: string, results: ValidationResult[]): string[] 
 
     // Fix missing context buffer
     if (result.name === "Context Buffer" && result.message.includes("not found")) {
-      const bufferDir = join(shitenDir, "governance", "context");
+      const bufferDir = join(shitennoDir, "governance", "context");
       mkdirSync(bufferDir, { recursive: true });
 
       const defaultBuffer = `# CONTEXT_BUFFER — Memória RAM do Sistema
@@ -495,7 +495,7 @@ documents_loaded: []
 `;
 
       writeFileSync(join(bufferDir, "context_buffer.yaml"), defaultBuffer);
-      fixes.push("Created default context_buffer.yaml in shitenno-go/governance/context/");
+      fixes.push("Created default context_buffer.yaml in shitenno/governance/context/");
     }
   }
 

@@ -25,7 +25,7 @@ export default function Events() {
       <section className="layer-card flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-text-primary">Event Bus</h2>
         <p className="text-sm text-text-secondary">
-          O Shiten usa um event bus para comunicacao desacoplada entre componentes. Eventos sao disparados de forma sincrona ou assincrona.
+          O Shugo usa um event bus para comunicacao desacoplada entre componentes. Eventos sao disparados de forma sincrona ou assincrona.
         </p>
       </section>
 

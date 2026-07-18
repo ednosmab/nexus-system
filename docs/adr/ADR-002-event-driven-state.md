@@ -11,7 +11,7 @@
 
 ## Context
 
-The Shiten system has multiple independent modules (rule engine, knowledge graph, capability engine, pipeline, etc.) that need to react to changes in the system state. Without a coordination mechanism, these modules would need direct imports of each other, creating circular dependencies and tight coupling.
+The Shugo system has multiple independent modules (rule engine, knowledge graph, capability engine, pipeline, etc.) that need to react to changes in the system state. Without a coordination mechanism, these modules would need direct imports of each other, creating circular dependencies and tight coupling.
 
 ## Decision
 

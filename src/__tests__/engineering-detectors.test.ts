@@ -48,7 +48,7 @@ function makeFile(relPath: string, content: string): SourceFileInfo {
 }
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-detectors-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-detectors-"));
 });
 
 afterEach(() => {

@@ -4,21 +4,21 @@ Comandos para gerenciar metas, decisões e políticas.
 
 ---
 
-## `shiten goal`
+## `shugo goal`
 
 Gerencie metas de governança.
 
 ```bash
-shiten goal <subcommand> [options]
+shugo goal <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten goal create` | Criar nova meta |
-| `shiten goal list` | Listar todas as metas |
-| `shiten goal show <id>` | Mostrar detalhes da meta |
+| `shugo goal create` | Criar nova meta |
+| `shugo goal list` | Listar todas as metas |
+| `shugo goal show <id>` | Mostrar detalhes da meta |
 
 ### Opções
 
@@ -30,19 +30,19 @@ shiten goal <subcommand> [options]
 ### Exemplos
 
 ```bash
-shiten goal create --title 'Improve tests' --priority high
-shiten goal list            # Listar metas
-shiten goal show goal-001   # Detalhes da meta
+shugo goal create --title 'Improve tests' --priority high
+shugo goal list            # Listar metas
+shugo goal show goal-001   # Detalhes da meta
 ```
 
 ---
 
-## `shiten decide`
+## `shugo decide`
 
 Avalie ações propostas usando avaliadores especializados.
 
 ```bash
-shiten decide <action> [options]
+shugo decide <action> [options]
 ```
 
 ### Opções
@@ -54,9 +54,9 @@ shiten decide <action> [options]
 ### Exemplos
 
 ```bash
-shiten decide "upgrade auth to OAuth2"
-shiten decide "add rate limiting" --category security
-shiten decide list          # Listar todas as decisões
+shugo decide "upgrade auth to OAuth2"
+shugo decide "add rate limiting" --category security
+shugo decide list          # Listar todas as decisões
 ```
 
 ### Dicas
@@ -65,24 +65,24 @@ shiten decide list          # Listar todas as decisões
 
 ---
 
-## `shiten policy`
+## `shugo policy`
 
 Gerencie e avalie políticas de governança declarativas.
 
 ```bash
-shiten policy <subcommand> [options]
+shugo policy <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten policy list` | Listar todas as políticas |
-| `shiten policy evaluate` | Avaliar estado atual contra políticas |
+| `shugo policy list` | Listar todas as políticas |
+| `shugo policy evaluate` | Avaliar estado atual contra políticas |
 
 ### Exemplos
 
 ```bash
-shiten policy list          # Listar políticas
-shiten policy evaluate      # Avaliar políticas
+shugo policy list          # Listar políticas
+shugo policy evaluate      # Avaliar políticas
 ```

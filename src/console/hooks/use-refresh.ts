@@ -9,20 +9,20 @@ import { getOrCollectConsoleData, clearConsoleDataCache, type ConsoleData } from
 
 export function useRefresh(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   intervalMs: number = 0
 ) {
   const [data, setData] = useState<ConsoleData>(() =>
-    getOrCollectConsoleData(projectRoot, shitenDir)
+    getOrCollectConsoleData(projectRoot, shitennoDir)
   );
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   const refresh = useCallback(() => {
     clearConsoleDataCache(); // Force fresh data on manual refresh
-    const newData = getOrCollectConsoleData(projectRoot, shitenDir);
+    const newData = getOrCollectConsoleData(projectRoot, shitennoDir);
     setData(newData);
     setLastRefresh(new Date());
-  }, [projectRoot, shitenDir]);
+  }, [projectRoot, shitennoDir]);
 
   useEffect(() => {
     if (intervalMs <= 0) return;

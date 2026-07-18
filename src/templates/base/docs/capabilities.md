@@ -1,14 +1,14 @@
 # CAPABILITIES — Mapeamento Capacidade→Regras→Arquivos
 
 > **Versão:** 1.0
-> **Propósito:** Mapa centralizado de todas as capacidades do Shitenno-go,
+> **Propósito:** Mapa centralizado de todas as capacidades do Shitenno,
 > mostrando quais regras do AGENTS.md e arquivos são activados por cada capacidade.
 
 ---
 
 ## Visão Geral
 
-O Shitenno-go é construído sobre **capabilitides** — cada uma activa regras
+O Shitenno é construído sobre **capabilitides** — cada uma activa regras
 específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 
 ```
@@ -30,7 +30,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Fundação básica do sistema |
 | **Regras AGENTS.md** | #18-25 (evidência, métricas, estados, detecção proativa) |
-| **Directórios** | `shitenno-go/`, `shitenno-go/docs/`, `shitenno-go/scripts/` |
+| **Directórios** | `shitenno/`, `shitenno/docs/`, `shitenno/scripts/` |
 | **Arquivos-chave** | AGENTS.md, FORBIDDEN_OPERATIONS.md, DESDO.md, SYSTEM_MAP.md |
 | **Sem esta capacidade** | Sistema não funciona — nada é instalado |
 
@@ -40,7 +40,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Skills, documentação e regras de engenharia |
 | **Regras AGENTS.md** | #5-9 (TDD, validação, senior engineer), #14 (review mode) |
-| **Directórios** | `shitenno-go/docs/skills/` |
+| **Directórios** | `shitenno/docs/skills/` |
 | **Arquivos-chave** | 20+ skills (.md), AGENTS.md seções condicionais |
 | **Depende de** | core |
 
@@ -50,7 +50,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Workflows, context buffer e gestão de sessões |
 | **Regras AGENTS.md** | #1-4 (lazy loading, workflow, sessão), #10-13 (backlog, fim de sessão) |
-| **Directórios** | `shitenno-go/governance/context/` |
+| **Directórios** | `shitenno/governance/context/` |
 | **Arquivos-chave** | WORKFLOW.md, context_buffer.yaml |
 | **Depende de** | core |
 
@@ -60,7 +60,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Decisões arquiteturais, planos e templates |
 | **Regras AGENTS.md** | #12 (review mode), #15-16 (plan/build mode) |
-| **Directórios** | `shitenno-go/docs/adrs/`, `shitenno-go/governance/plans/` |
+| **Directórios** | `shitenno/docs/adrs/`, `shitenno/governance/plans/` |
 | **Arquivos-chave** | ADR-TEMPLATE.md, SDR-TEMPLATE.md, TEMPLATE.md |
 | **Depende de** | core |
 
@@ -70,7 +70,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Contratos de agentes IA e cognition |
 | **Regras AGENTS.md** | #11 (multi-agent), #12 (review), #15-16 (plan/build) |
-| **Directórios** | `shitenno-go/governance/agents/`, `shitenno-go/cognition/` |
+| **Directórios** | `shitenno/governance/agents/`, `shitenno/cognition/` |
 | **Arquivos-chave** | AI-CONTRACT-*.yaml, CONTEXT_HIERARCHY.md |
 | **Depende de** | governance |
 
@@ -80,7 +80,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Scripts de validação e sincronização |
 | **Regras AGENTS.md** | #5 (TDD), #9 (post-commit validation) |
-| **Directórios** | `shitenno-go/scripts/` |
+| **Directórios** | `shitenno/scripts/` |
 | **Arquivos-chave** | validate-session.ts, sync-docs.ts |
 | **Depende de** | core |
 
@@ -90,7 +90,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Relatórios e histórico de sessões |
 | **Regras AGENTS.md** | #13 (quick board), #17 (feedback) |
-| **Directórios** | `shitenno-go/reports/`, `shitenno-go/docs/history/` |
+| **Directórios** | `shitenno/reports/`, `shitenno/docs/history/` |
 | **Arquivos-chave** | README.md |
 | **Depende de** | core |
 
@@ -100,7 +100,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Runbooks, sessão e análise de riscos |
 | **Regras AGENTS.md** | #9 (post-commit), #10 (checklist) |
-| **Directórios** | `shitenno-go/docs/runbooks/` |
+| **Directórios** | `shitenno/docs/runbooks/` |
 | **Arquivos-chave** | merge.md, close-session.ts, premortem-check.ts |
 | **Depende de** | core |
 
@@ -110,7 +110,7 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 |---|---|
 | **Descrição** | Premortem e reviews de sessão |
 | **Regras AGENTS.md** | #12 (review mode), #17 (feedback) |
-| **Directórios** | `shitenno-go/governance/premortem/`, `reviews/` |
+| **Directórios** | `shitenno/governance/premortem/`, `reviews/` |
 | **Arquivos-chave** | PREMORTEM.md, SESSION_REVIEW.md |
 | **Depende de** | core |
 
@@ -119,16 +119,16 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 ## Fluxo de Instalação
 
 ```
-1. shiten init
+1. shugo init
    └── Instala: core + knowledge + governance + quality
    └── AGENTS.md: secções knowledge + governance activas
 
-2. shiten upgrade --capability architecture
+2. shugo upgrade --capability architecture
    └── Adiciona: architecture
    └── AGENTS.md: secção architecture activada
    └── Novos arquivos: adrs/, plans/, templates
 
-3. shiten upgrade --capability ai
+3. shugo upgrade --capability ai
    └── Adiciona: ai (requer governance)
    └── AGENTS.md: secção ai activada
    └── Novos arquivos: contracts/, cognition/
@@ -138,12 +138,12 @@ específicas no AGENTS.md e instala directórios/arquivos correspondentes.
 
 ## Diagnóstico
 
-Execute `shiten upgrade --list` para ver:
+Execute `shugo upgrade --list` para ver:
 - Capacidades instaladas (✅)
 - Capacidades disponíveis (📋)
 - Dependências não satisfeitas
 
-Execute `shiten status` para ver gaps de infraestrutura.
+Execute `shugo status` para ver gaps de infraestrutura.
 
 ---
 

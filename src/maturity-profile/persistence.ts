@@ -9,11 +9,11 @@ import { recommendCapabilities, getFutureCapabilities } from "./recommendation.j
 export function calculateMaturityProfile(
   answers: MaturityAnswers,
   analysis: ProjectAnalysis,
-  shitenDir?: string
+  shitennoDir?: string
 ): MaturityProfile {
-  const dimensions = calculateDimensions(answers, analysis, shitenDir);
+  const dimensions = calculateDimensions(answers, analysis, shitennoDir);
   const overallScore = calculateOverallScore(dimensions);
-  const installed: Capability[] = shitenDir ? detectCapabilitySignalsFromFilesystem(shitenDir) : ["core"];
+  const installed: Capability[] = shitennoDir ? detectCapabilitySignalsFromFilesystem(shitennoDir) : ["core"];
   const recommended = recommendCapabilities(dimensions, installed);
   const future = getFutureCapabilities(installed, recommended);
 
@@ -30,19 +30,19 @@ export function calculateMaturityProfile(
 const PROFILE_FILENAME = "maturity-profile.json";
 
 export function saveMaturityProfile(
-  shitenDir: string,
+  shitennoDir: string,
   profile: MaturityProfile
 ): void {
-  if (!existsSync(shitenDir)) {
-    mkdirSync(shitenDir, { recursive: true });
+  if (!existsSync(shitennoDir)) {
+    mkdirSync(shitennoDir, { recursive: true });
   }
 
-  const filePath = join(shitenDir, PROFILE_FILENAME);
+  const filePath = join(shitennoDir, PROFILE_FILENAME);
   writeFileSync(filePath, JSON.stringify(profile, null, 2), "utf-8");
 }
 
-export function loadMaturityProfile(shitenDir: string): MaturityProfile | null {
-  const filePath = join(shitenDir, PROFILE_FILENAME);
+export function loadMaturityProfile(shitennoDir: string): MaturityProfile | null {
+  const filePath = join(shitennoDir, PROFILE_FILENAME);
   if (!existsSync(filePath)) return null;
 
   try {

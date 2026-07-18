@@ -15,11 +15,11 @@ The [Engineering State](../domain/engineering-state.md) is the measurable condit
 The State Manager consolidates three tiers into a single snapshot:
 
 ```
-function consolidateState(projectRoot, shitenDir):
+function consolidateState(projectRoot, shitennoDir):
   return {
-    knowledge: readKnowledgeState(shitenDir),
-    project: readProjectState(projectRoot, shitenDir),
-    memory: readSessionMemory(shitenDir),
+    knowledge: readKnowledgeState(shitennoDir),
+    project: readProjectState(projectRoot, shitennoDir),
+    memory: readSessionMemory(shitennoDir),
     consolidatedAt: now()
   }
 ```

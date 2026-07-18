@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, each Shiten command duplicates:
+Today, each Shugo command duplicates:
 - Initialization guard (~20 lines each)
 - Banner display (~5 lines each)
 - JSON output mode (~10 lines each)
@@ -22,21 +22,21 @@ Replaces the duplicated initialization guard in every command:
 ```typescript
 interface ProjectContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   isInitialized: boolean;
   hasMaturityProfile: boolean;
 }
 
 function resolveProjectContext(options: { dir?: string }): ProjectContext {
   const projectRoot = options.dir || process.cwd();
-  const shitenDir = join(projectRoot, "shitenno-go");
+  const shitennoDir = join(projectRoot, "shitenno");
   
   const isInitialized = existsSync(join(projectRoot, "opencode.json")) 
-    && existsSync(shitenDir);
+    && existsSync(shitennoDir);
   
-  const hasMaturityProfile = existsSync(join(shitenDir, "maturity-profile.json"));
+  const hasMaturityProfile = existsSync(join(shitennoDir, "maturity-profile.json"));
   
-  return { projectRoot, shitenDir, isInitialized, hasMaturityProfile };
+  return { projectRoot, shitennoDir, isInitialized, hasMaturityProfile };
 }
 ```
 
@@ -66,7 +66,7 @@ function createCommand(
         const ctx = resolveProjectContext(options);
         
         if (!ctx.isInitialized) {
-          const error = { error: "not_initialized", message: "Run `shiten init` first" };
+          const error = { error: "not_initialized", message: "Run `shugo init` first" };
           if (isJson) {
             console.log(JSON.stringify(error));
           } else {
@@ -98,20 +98,20 @@ Wraps cache read/write:
 ```typescript
 async function withCache<T>(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   key: string,
   compute: () => Promise<T>,
   options?: { force?: boolean }
 ): Promise<{ data: T; cacheHit: boolean }> {
   if (!options?.force) {
-    const cached = getCached(projectRoot, shitenDir, key);
+    const cached = getCached(projectRoot, shitennoDir, key);
     if (cached) {
       return { data: cached as T, cacheHit: true };
     }
   }
   
   const data = await compute();
-  setCache(projectRoot, shitenDir, key, data);
+  setCache(projectRoot, shitennoDir, key, data);
   return { data, cacheHit: false };
 }
 ```
@@ -122,11 +122,11 @@ Replaces duplicated report writing:
 
 ```typescript
 function writeReport(
-  shitenDir: string,
+  shitennoDir: string,
   prefix: string,
   report: Record<string, unknown>
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
   
   const date = new Date().toISOString().split("T")[0];
@@ -177,22 +177,22 @@ function renderCheckResults(
 ```typescript
 // Duplicated in 8 commands (~20 lines each)
 const projectRoot = options.dir || process.cwd();
-const shitenDir = join(projectRoot, "shitenno-go");
+const shitennoDir = join(projectRoot, "shitenno");
 
 if (!existsSync(join(projectRoot, "opencode.json"))) {
   if (isJson) {
     console.log(JSON.stringify({ error: "not_initialized", message: "..." }));
   } else {
-    console.error("Project not initialized. Run `shiten init` first.");
+    console.error("Project not initialized. Run `shugo init` first.");
   }
   process.exit(1);
 }
 
-if (!existsSync(shitenDir)) {
+if (!existsSync(shitennoDir)) {
   if (isJson) {
     console.log(JSON.stringify({ error: "not_initialized", message: "..." }));
   } else {
-    console.error("shitenno-go/ directory not found. Run `shiten init`.");
+    console.error("shitenno/ directory not found. Run `shugo init`.");
   }
   process.exit(1);
 }
@@ -204,8 +204,8 @@ if (!existsSync(shitenDir)) {
 const cmd = createCommand("status", "Health check + complexity scoring", async (ctx) => {
   // Just the business logic, no boilerplate
   const { data: report, cacheHit } = await withCache(
-    ctx.projectRoot, ctx.shitenDir, "complexity",
-    () => calculateComplexityScore(ctx.projectRoot, ctx.shitenDir)
+    ctx.projectRoot, ctx.shitennoDir, "complexity",
+    () => calculateComplexityScore(ctx.projectRoot, ctx.shitennoDir)
   );
   
   if (isJson) {

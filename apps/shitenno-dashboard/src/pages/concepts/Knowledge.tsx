@@ -18,14 +18,14 @@ export default function Knowledge() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Conhecimento</h1>
         <p className="text-text-secondary max-w-2xl">
-          Como o Shiten gerencia o ciclo de vida do conhecimento no projeto.
+          Como o Shugo gerencia o ciclo de vida do conhecimento no projeto.
         </p>
       </section>
 
       <section className="layer-card flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-text-primary">Knowledge Graph</h2>
         <p className="text-sm text-text-secondary">
-          O Shiten mantem um grafo de conhecimento que conecta conceitos, componentes e decisoes. Este grafo e consultado para sugestoes e validacoes.
+          O Shugo mantem um grafo de conhecimento que conecta conceitos, componentes e decisoes. Este grafo e consultado para sugestoes e validacoes.
         </p>
       </section>
 

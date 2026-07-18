@@ -11,7 +11,7 @@
 | Ícone | Estado | Significado |
 |---|---|---|
 | ✅ | **Instalado** | Capacidade activa e operacional no projecto |
-| 📋 | **Disponível** | Capacidade pode ser instalada via `shiten upgrade` |
+| 📋 | **Disponível** | Capacidade pode ser instalada via `shugo upgrade` |
 | 🔮 | **Futuro** | Capacidade planeada mas ainda não disponível |
 
 ---
@@ -19,7 +19,7 @@
 ## Estrutura Geral
 
 ```
-shitenno-go/
+shitenno/
 ├── cognition/                          ← Arquitectura mental
 │   ├── context/                        ← Hierarquia de contexto
 │   ├── memory/                         ← Estado operacional
@@ -50,7 +50,7 @@ shitenno-go/
 
 <!-- CAPABILITY_STATUS -->
 As capacidades instaladas neste projecto determinam quais secções do AGENTS.md
-estão activas. Execute `shiten upgrade --list` para ver todas as capacidades.
+estão activas. Execute `shugo upgrade --list` para ver todas as capacidades.
 
 | Capacidade | Estado | Descrição |
 |---|---|---|
@@ -121,7 +121,7 @@ estão activas. Execute `shiten upgrade --list` para ver todas as capacidades.
 - `governance/WORKFLOW.md` — Fluxos de sessão
 - `docs/AGENTS.md` — Regras do time
 - `docs/capabilities.md` — Mapeamento capacidade→regras→arquivos
-- `docs/Shitenno-go_GUIDE.md` — Guia completo
+- `docs/Shitenno_GUIDE.md` — Guia completo
 
 ---
 
@@ -131,14 +131,14 @@ Quando uma regra do AGENTS.md referencia infraestrutura ausente (ex: WORKFLOW.md
 context buffer, agent contracts), o agente DEVE informar ao utilizador:
 
 ```
-shiten upgrade --capability <name>
+shugo upgrade --capability <name>
 ```
 
-para desbloquear essa funcionalidade. O `shiten upgrade --list` mostra todas as
+para desbloquear essa funcionalidade. O `shugo upgrade --list` mostra todas as
 capacidades e o seu estado actual.
 
 **Fluxo de detecção:**
 1. Detectar regra que referencia arquivo/capacidade ausente
 2. Identificar capacidade necessária
-3. Recomendar `shiten upgrade --capability <capacidade>`
+3. Recomendar `shugo upgrade --capability <capacidade>`
 4. Nunca assumir que o utilizador sabe o que falta

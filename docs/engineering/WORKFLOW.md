@@ -1,6 +1,6 @@
 # Workflow
 
-> Development workflow for Shiten CLI contributors.
+> Development workflow for Shugo CLI contributors.
 
 ## Branch Strategy
 

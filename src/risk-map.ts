@@ -235,7 +235,7 @@ function analyzeArea(
 
 // ── Main Function ──────────────────────────────────────────────────────────
 
-export function generateRiskMap(projectRoot: string, _shitenDir: string): RiskMap {
+export function generateRiskMap(projectRoot: string, _shitennoDir: string): RiskMap {
   const areas: RiskArea[] = [];
 
   // Detect areas to analyze

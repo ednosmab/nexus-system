@@ -1,6 +1,6 @@
 # Coding Standards
 
-> Code style and quality rules for the Shiten CLI codebase.
+> Code style and quality rules for the Shugo CLI codebase.
 
 ## TypeScript
 
@@ -16,7 +16,7 @@
 |---------|-----------|---------|
 | Files | kebab-case | `capability-engine.ts` |
 | Functions | camelCase | `calculateComplexityScore()` |
-| Classes | PascalCase | `ShitenEventBus` |
+| Classes | PascalCase | `ShitennoEventBus` |
 | Interfaces | PascalCase | `ProjectContext` |
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
 | Enums | PascalCase | `LifecycleState` |
@@ -40,7 +40,7 @@ import { getEventBus } from "./event-bus.js";
 
 ```typescript
 // Use structured errors
-const error = { error: "not_initialized", message: "Run `shiten init` first" };
+const error = { error: "not_initialized", message: "Run `shugo init` first" };
 
 // Never swallow errors silently
 try {

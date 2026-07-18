@@ -30,7 +30,7 @@ export interface MarkdownPlan {
   status: MarkdownPlanStatus;
   /** Absolute file path. */
   filePath: string;
-  /** Relative path from project root (e.g. shitenno-go/governance/plans/...). */
+  /** Relative path from project root (e.g. shitenno/governance/plans/...). */
   relativePath: string;
   /** Whether the plan is in the active directory (not done, not reference). */
   isActive: boolean;
@@ -158,7 +158,7 @@ function normalizeStatusValue(raw: string): MarkdownPlanStatus {
  *
  * Detection order:
  *   1. Strict frontmatter field (**Status:** value) — the canonical format
- *      written by `updateStatus()` / `shiten plan md done`.
+ *      written by `updateStatus()` / `shugo plan md done`.
  *   2. Loose status line — tolerates missing/misplaced bold markers and
  *      case, in case the field was hand-edited (e.g. "Status: Done" or
  *      "**Status**: Done") instead of set via the CLI.
@@ -188,7 +188,7 @@ function extractStatus(metadata: Record<string, string>, content: string): Markd
   if (openBoxes === 0 && closedBoxes === 0) {
     // No checklist present at all — this is a design-style document, not
     // a checklist-driven plan. There's nothing to infer from; status can
-    // only come from an explicit field (case above) or `shiten plan md done`.
+    // only come from an explicit field (case above) or `shugo plan md done`.
     return "andamento";
   }
 
@@ -204,8 +204,8 @@ export class MarkdownPlanEngine {
   private doneDir: string;
   private referenceDir: string;
 
-  constructor(shitenDir: string) {
-    this.plansDir = join(shitenDir, "governance", "plans");
+  constructor(shitennoDir: string) {
+    this.plansDir = join(shitennoDir, "governance", "plans");
     this.doneDir = join(this.plansDir, "done");
     this.referenceDir = join(this.plansDir, "reference");
 
@@ -235,7 +235,7 @@ export class MarkdownPlanEngine {
     for (const file of files) {
       const id = file.replace(".md", "");
       const filePath = join(this.plansDir, file);
-      const plan = this.parsePlan(id, filePath, `shitenno-go/governance/plans/${file}`);
+      const plan = this.parsePlan(id, filePath, `shitenno/governance/plans/${file}`);
       if (plan && plan.status !== "done") {
         plans.push(plan);
       }
@@ -259,7 +259,7 @@ export class MarkdownPlanEngine {
     for (const file of files) {
       const id = file.replace(".md", "");
       const filePath = join(this.plansDir, file);
-      const plan = this.parsePlan(id, filePath, `shitenno-go/governance/plans/${file}`);
+      const plan = this.parsePlan(id, filePath, `shitenno/governance/plans/${file}`);
       if (plan) {
         plans.push(plan);
       }
@@ -282,7 +282,7 @@ export class MarkdownPlanEngine {
     for (const file of files) {
       const id = file.replace(".md", "");
       const filePath = join(this.doneDir, file);
-      const plan = this.parsePlan(id, filePath, `shitenno-go/governance/plans/done/${file}`);
+      const plan = this.parsePlan(id, filePath, `shitenno/governance/plans/done/${file}`);
       if (plan) {
         plans.push(plan);
       }
@@ -301,19 +301,19 @@ export class MarkdownPlanEngine {
     // Search in active plans
     const activePath = join(this.plansDir, `${safeId}.md`);
     if (existsSync(activePath)) {
-      return this.parsePlan(safeId, activePath, `shitenno-go/governance/plans/${safeId}.md`);
+      return this.parsePlan(safeId, activePath, `shitenno/governance/plans/${safeId}.md`);
     }
 
     // Search in done plans
     const donePath = join(this.doneDir, `${safeId}.md`);
     if (existsSync(donePath)) {
-      return this.parsePlan(safeId, donePath, `shitenno-go/governance/plans/done/${safeId}.md`);
+      return this.parsePlan(safeId, donePath, `shitenno/governance/plans/done/${safeId}.md`);
     }
 
     // Search in reference plans
     const refPath = join(this.referenceDir, `${safeId}.md`);
     if (existsSync(refPath)) {
-      return this.parsePlan(safeId, refPath, `shitenno-go/governance/plans/reference/${safeId}.md`);
+      return this.parsePlan(safeId, refPath, `shitenno/governance/plans/reference/${safeId}.md`);
     }
 
     return null;
@@ -398,7 +398,7 @@ export class MarkdownPlanEngine {
       bus.publish("plan.archived", {
         planId: id,
         title: plan.title,
-        path: `shitenno-go/governance/plans/done/${id}.md`,
+        path: `shitenno/governance/plans/done/${id}.md`,
         finalStatus: "done",
       });
     }
@@ -441,7 +441,7 @@ export class MarkdownPlanEngine {
     bus.publish("plan.archived", {
       planId: id,
       title: plan.title,
-      path: `shitenno-go/governance/plans/done/${id}.md`,
+      path: `shitenno/governance/plans/done/${id}.md`,
       finalStatus: "done",
     });
 
@@ -464,7 +464,7 @@ export class MarkdownPlanEngine {
 
     writeFileSync(filePath, content, "utf-8");
 
-    return this.parsePlan(id, filePath, `shitenno-go/governance/plans/${id}.md`)!;
+    return this.parsePlan(id, filePath, `shitenno/governance/plans/${id}.md`)!;
   }
 
   /**

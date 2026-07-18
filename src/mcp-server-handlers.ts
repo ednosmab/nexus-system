@@ -22,7 +22,7 @@ type ToolResponse = { content: Array<{ type: string; text: string }> };
 
 export async function handleGetBriefing(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): Promise<ToolResponse> {
   const format = (args.format as string) ?? "json";
@@ -30,13 +30,13 @@ export async function handleGetBriefing(
 
   let briefing: Briefing;
 
-  if (isDaemonRunning(shitenDir)) {
-    const result = await queryDaemon<{ type: string; data: Briefing }>(shitenDir, {
+  if (isDaemonRunning(shitennoDir)) {
+    const result = await queryDaemon<{ type: string; data: Briefing }>(shitennoDir, {
       type: "query_briefing",
     });
-    briefing = result?.data ?? collectContext(projectRoot, shitenDir).briefing;
+    briefing = result?.data ?? collectContext(projectRoot, shitennoDir).briefing;
   } else {
-    briefing = collectContext(projectRoot, shitenDir).briefing;
+    briefing = collectContext(projectRoot, shitennoDir).briefing;
   }
 
   if (format === "markdown") {
@@ -80,19 +80,19 @@ export async function handleGetBriefing(
 
 export async function handleGetRiskMap(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): Promise<ToolResponse> {
   const format = (args.format as string) ?? "json";
 
   let riskMap: RiskMap;
-  if (isDaemonRunning(shitenDir)) {
-    const result = await queryDaemon<{ type: string; data: RiskMap }>(shitenDir, {
+  if (isDaemonRunning(shitennoDir)) {
+    const result = await queryDaemon<{ type: string; data: RiskMap }>(shitennoDir, {
       type: "query_riskmap",
     });
-    riskMap = result?.data ?? generateRiskMap(projectRoot, shitenDir);
+    riskMap = result?.data ?? generateRiskMap(projectRoot, shitennoDir);
   } else {
-    riskMap = generateRiskMap(projectRoot, shitenDir);
+    riskMap = generateRiskMap(projectRoot, shitennoDir);
   }
 
   if (format === "summary") {
@@ -125,7 +125,7 @@ export async function handleGetRiskMap(
 
 export async function handleGetRules(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): Promise<ToolResponse> {
   const type = (args.type as string) ?? "all";
@@ -139,17 +139,17 @@ export async function handleGetRules(
 
   if (type === "all" || type === "context") {
     let snapshot;
-    if (isDaemonRunning(shitenDir)) {
-      const briefingResult = await queryDaemon<{ type: string; data: Briefing }>(shitenDir, {
+    if (isDaemonRunning(shitennoDir)) {
+      const briefingResult = await queryDaemon<{ type: string; data: Briefing }>(shitennoDir, {
         type: "query_briefing",
       });
       if (briefingResult?.data) {
-        snapshot = { contextRules: collectContext(projectRoot, shitenDir).contextRules };
+        snapshot = { contextRules: collectContext(projectRoot, shitennoDir).contextRules };
       } else {
-        snapshot = collectContext(projectRoot, shitenDir);
+        snapshot = collectContext(projectRoot, shitennoDir);
       }
     } else {
-      snapshot = collectContext(projectRoot, shitenDir);
+      snapshot = collectContext(projectRoot, shitennoDir);
     }
     result.contextRules = snapshot.contextRules.map((r) => ({
       id: r.id, rule: r.rule, rationale: r.rationale, priority: r.priority, area: r.area, basedOn: r.basedOn,
@@ -157,14 +157,14 @@ export async function handleGetRules(
   }
 
   if (type === "all" || type === "dynamic") {
-    const dynamicRules = generateDynamicRules(projectRoot, shitenDir);
+    const dynamicRules = generateDynamicRules(projectRoot, shitennoDir);
     result.dynamicRules = dynamicRules.map((r) => ({
       id: r.id, rule: r.rule, severity: r.severity, evidence: r.evidence, source: r.source,
     }));
   }
 
   if (type === "all" || type === "engine") {
-    const engineRules = loadRules(shitenDir);
+    const engineRules = loadRules(shitennoDir);
     result.engineRules = engineRules.map((r) => ({
       id: r.id, description: r.description, trigger: r.trigger, priority: r.priority, enabled: r.enabled, conditions: r.conditions, actions: r.actions,
     }));
@@ -204,11 +204,11 @@ export async function handleGetRules(
 
 export async function handleGetEngineeringState(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   _args: Record<string, unknown>
 ): Promise<ToolResponse> {
   try {
-    const state = getEngineeringState(projectRoot, shitenDir);
+    const state = getEngineeringState(projectRoot, shitennoDir);
     return { content: [{ type: "text", text: JSON.stringify(state, null, 2) }] };
   } catch (error) {
     throw new Error(`Failed to get engineering state: ${error}`);
@@ -217,10 +217,10 @@ export async function handleGetEngineeringState(
 
 export function handleGetBacklog(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
-  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
   let items = parseBacklog(backlogPath);
 
   if (args.state && typeof args.state === "string") {
@@ -233,10 +233,10 @@ export function handleGetBacklog(
 
 export function handleGetPlans(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
-  const plansDir = join(shitenDir, "governance", "plans");
+  const plansDir = join(shitennoDir, "governance", "plans");
   if (!existsSync(plansDir)) {
     return { content: [{ type: "text", text: "[]" }] };
   }
@@ -257,7 +257,7 @@ export function handleGetPlans(
 
 export function handleSubmitFeedback(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): ToolResponse {
   const outcome = args.outcome as "success" | "failure" | "partial";
@@ -267,12 +267,12 @@ export function handleSubmitFeedback(
     throw new Error("Missing required arguments: outcome, notes");
   }
 
-  const cache = readCache(shitenDir);
+  const cache = readCache(shitennoDir);
   if (!cache || !cache.entry) {
     throw new Error("No briefing cache found. A briefing must be generated first.");
   }
 
-  const storage = createFileStorage(shitenDir);
+  const storage = createFileStorage(shitennoDir);
   recordOutcome(storage, {
     briefingHash: cache.entry.inputHash,
     briefingTimestamp: cache.entry.computedAt,
@@ -287,20 +287,20 @@ export function handleSubmitFeedback(
 
 export async function handleGetADRs(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): Promise<ToolResponse> {
   const id = args.id as string | undefined;
 
   if (id) {
-    const adr = getAdr(shitenDir, id);
+    const adr = getAdr(shitennoDir, id);
     if (!adr) {
       return { content: [{ type: "text", text: `ADR "${id}" not found` }] };
     }
     return { content: [{ type: "text", text: adr.content }] };
   }
 
-  const summaries = listAdrs(shitenDir);
+  const summaries = listAdrs(shitennoDir);
   const text = summaries
     .map((a) => `${a.id} [${a.status}]: ${a.title}`)
     .join("\n");
@@ -309,20 +309,20 @@ export async function handleGetADRs(
 
 export async function handleGetSkills(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   args: Record<string, unknown>
 ): Promise<ToolResponse> {
   const name = args.name as string | undefined;
 
   if (name) {
-    const skill = getSkill(shitenDir, name);
+    const skill = getSkill(shitennoDir, name);
     if (!skill) {
       return { content: [{ type: "text", text: `Skill "${name}" not found` }] };
     }
     return { content: [{ type: "text", text: skill.content }] };
   }
 
-  const summaries = listSkills(shitenDir);
+  const summaries = listSkills(shitennoDir);
   const text = summaries
     .map((s) => `${s.name}: ${s.description}`)
     .join("\n");

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "./constants.js";
+import { SHITENNO_DIR_NAME } from "./constants.js";
 
 export interface CompletionGate {
   name: string;
@@ -17,7 +17,7 @@ export interface CompletionResult {
 
 export interface CompletionGateOptions {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   affectedFiles?: string[];
   taskId: string;
   /** Optional exec function override (for testing) */
@@ -32,9 +32,9 @@ export function validateCompletionGate(
 
   gates.push(checkTestPass(options.projectRoot, execFn));
   gates.push(checkLintPass(options.projectRoot, execFn));
-  gates.push(checkDocumentationUpdated(options.projectRoot, options.shitenDir, execFn, options.affectedFiles));
-  gates.push(checkBacklogUpdated(options.shitenDir, options.taskId));
-  gates.push(checkPlanStatus(options.shitenDir, options.taskId));
+  gates.push(checkDocumentationUpdated(options.projectRoot, options.shitennoDir, execFn, options.affectedFiles));
+  gates.push(checkBacklogUpdated(options.shitennoDir, options.taskId));
+  gates.push(checkPlanStatus(options.shitennoDir, options.taskId));
 
   const allPassed = gates.every((g) => g.passed);
 
@@ -73,7 +73,7 @@ function checkLintPass(projectRoot: string, execFn: typeof execSync): Completion
 
 function checkDocumentationUpdated(
   projectRoot: string,
-  _shitenDir: string,
+  _shitennoDir: string,
   execFn: typeof execSync,
   affectedFiles?: string[]
 ): CompletionGate {
@@ -145,10 +145,10 @@ function checkDocumentationUpdated(
   }
 }
 
-function checkBacklogUpdated(shitenDir: string, taskId: string): CompletionGate {
+function checkBacklogUpdated(shitennoDir: string, taskId: string): CompletionGate {
   const backlogPaths = [
-    join(shitenDir, "docs", "BACKLOG.md"),
-    join(shitenDir, "..", SHITEN_DIR_NAME, "docs", "BACKLOG.md"),
+    join(shitennoDir, "docs", "BACKLOG.md"),
+    join(shitennoDir, "..", SHITENNO_DIR_NAME, "docs", "BACKLOG.md"),
   ];
 
   for (const path of backlogPaths) {
@@ -181,8 +181,8 @@ function checkBacklogUpdated(shitenDir: string, taskId: string): CompletionGate 
   };
 }
 
-function checkPlanStatus(shitenDir: string, taskId: string): CompletionGate {
-  const plansDir = join(shitenDir, "governance", "plans");
+function checkPlanStatus(shitennoDir: string, taskId: string): CompletionGate {
+  const plansDir = join(shitennoDir, "governance", "plans");
   if (!existsSync(plansDir)) {
     return {
       name: "plan_status",
@@ -234,7 +234,7 @@ function checkPlanStatus(shitenDir: string, taskId: string): CompletionGate {
     return {
       name: "plan_status",
       passed: false,
-      message: `Plan ${matchingPlan} status is "${statusValue.trim()}" — run "shiten plan md done ${matchingPlan.replace(".md", "")}" to archive`,
+      message: `Plan ${matchingPlan} status is "${statusValue.trim()}" — run "shugo plan md done ${matchingPlan.replace(".md", "")}" to archive`,
     };
   } catch {
     return {

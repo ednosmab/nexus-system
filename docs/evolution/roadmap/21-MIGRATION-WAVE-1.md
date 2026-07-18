@@ -55,7 +55,7 @@ Modo não interativo
 
 Adicionar
 
-shiten init --answers-file
+shugo init --answers-file
 
 ---
 

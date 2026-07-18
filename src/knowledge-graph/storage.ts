@@ -7,8 +7,8 @@ const GRAPH_DIR = "governance/knowledge-graph";
 const ARTIFACTS_FILE = "artifacts.json";
 const RELATIONS_FILE = "relations.json";
 
-export function loadArtifacts(shitenDir: string): Artifact[] {
-  const filepath = join(shitenDir, GRAPH_DIR, ARTIFACTS_FILE);
+export function loadArtifacts(shitennoDir: string): Artifact[] {
+  const filepath = join(shitennoDir, GRAPH_DIR, ARTIFACTS_FILE);
   if (!existsSync(filepath)) return [];
 
   try {
@@ -19,8 +19,8 @@ export function loadArtifacts(shitenDir: string): Artifact[] {
   }
 }
 
-export function loadRelations(shitenDir: string): Relation[] {
-  const filepath = join(shitenDir, GRAPH_DIR, RELATIONS_FILE);
+export function loadRelations(shitennoDir: string): Relation[] {
+  const filepath = join(shitennoDir, GRAPH_DIR, RELATIONS_FILE);
   if (!existsSync(filepath)) return [];
 
   try {
@@ -31,16 +31,16 @@ export function loadRelations(shitenDir: string): Relation[] {
   }
 }
 
-export function saveArtifacts(shitenDir: string, artifacts: Artifact[]): void {
-  const dir = join(shitenDir, GRAPH_DIR);
+export function saveArtifacts(shitennoDir: string, artifacts: Artifact[]): void {
+  const dir = join(shitennoDir, GRAPH_DIR);
   if (!existsSync(dir)) return;
 
   const filepath = join(dir, ARTIFACTS_FILE);
   writeFileSync(filepath, JSON.stringify(artifacts, null, 2), "utf-8");
 }
 
-export function saveRelations(shitenDir: string, relations: Relation[]): void {
-  const dir = join(shitenDir, GRAPH_DIR);
+export function saveRelations(shitennoDir: string, relations: Relation[]): void {
+  const dir = join(shitennoDir, GRAPH_DIR);
   if (!existsSync(dir)) return;
 
   const filepath = join(dir, RELATIONS_FILE);

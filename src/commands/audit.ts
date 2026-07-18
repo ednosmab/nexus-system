@@ -35,9 +35,9 @@ export const auditSuppressCommand = new Command("suppress")
     const ctx = guardNotInitialized(options, false);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, false);
+    void printDaemonBanner(ctx.shitennoDir, false);
 
-    const suppressions = loadSuppressions(ctx.shitenDir);
+    const suppressions = loadSuppressions(ctx.shitennoDir);
     const existing = suppressions.find((s) => s.fingerprint === fingerprint);
     if (existing) {
       output(chalk.yellow(`  ⚠ Issue ${fingerprint} is already suppressed.`));
@@ -46,7 +46,7 @@ export const auditSuppressCommand = new Command("suppress")
       return;
     }
 
-    const reportsDir = join(ctx.shitenDir, "reports");
+    const reportsDir = join(ctx.shitennoDir, "reports");
     let foundIssue: { type: string; location: string; description: string } | null = null;
     try {
       const { readdirSync, readFileSync: fsReadFileSync } = await import("node:fs");
@@ -78,12 +78,12 @@ export const auditSuppressCommand = new Command("suppress")
 
     if (!foundIssue) {
       output(chalk.red(`  ✘ Issue ${fingerprint} not found in any recent report.`));
-      output(chalk.gray("    Run 'shiten audit --json' first to see available fingerprints."));
+      output(chalk.gray("    Run 'shugo audit --json' first to see available fingerprints."));
       return;
     }
 
     addSuppression(
-      ctx.shitenDir,
+      ctx.shitennoDir,
       foundIssue as import("../audit/types.js").HealthIssue,
       options.reason,
       "user"
@@ -94,13 +94,13 @@ export const auditSuppressCommand = new Command("suppress")
     output(chalk.gray(`    Location: ${foundIssue.location}`));
     output(chalk.gray(`    Reason: ${options.reason}`));
     output(chalk.gray("    The issue will not appear in future audits."));
-    output(chalk.gray("    Use 'shiten audit --show-suppressed' to review suppressed issues."));
+    output(chalk.gray("    Use 'shugo audit --show-suppressed' to review suppressed issues."));
   });
 
 // ── Main audit command ───────────────────────────────────────────────────────
 
 export const auditCommand = new Command("audit")
-  .description("Audit Shitenno-go health (Phase 3)")
+  .description("Audit Shitenno health (Phase 3)")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("-l, --level <level>", "Audit level: quick, standard, code-review, enterprise (default: standard)", "standard")
   .option("--no-cache", "Skip cache and recalculate")
@@ -119,7 +119,7 @@ export const auditCommand = new Command("audit")
     if (!isJson) {
       const levelLabel = options.level === "enterprise" ? "enterprise" : options.level === "code-review" ? "code-review" : options.level === "quick" ? "quick" : "standard";
       outputBlank();
-      banner("shiten audit", "Health Audit");
+      banner("shugo audit", "Health Audit");
       output(chalk.gray(`    Level: ${levelLabel}`));
       outputBlank();
     }
@@ -127,9 +127,9 @@ export const auditCommand = new Command("audit")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, isJson);
+    void printDaemonBanner(ctx.shitennoDir, isJson);
 
-    if (!checkLifecycleGate("audit", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("audit", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     const spinner = isJson ? null : ora("Auditing governance health...").start();
 
@@ -167,32 +167,32 @@ export const auditCommand = new Command("audit")
         }
       }
 
-      const growthProfile = loadGrowthProfile(ctx.shitenDir);
+      const growthProfile = loadGrowthProfile(ctx.shitennoDir);
 
       let report: HealthAuditReport;
       let cacheHit = false;
       if (options.cache !== false && level !== "code-review" && level !== "enterprise") {
-        const cached = getCached<HealthAuditReport>(ctx.projectRoot, ctx.shitenDir, "health",
-          () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+        const cached = getCached<HealthAuditReport>(ctx.projectRoot, ctx.shitennoDir, "health",
+          () => computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
         if (cached) {
           report = cached;
           cacheHit = true;
         } else {
-          report = auditHealth(ctx.projectRoot, ctx.shitenDir, level, changedFiles);
-          setCache(ctx.projectRoot, ctx.shitenDir, "health", report,
-            computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+          report = auditHealth(ctx.projectRoot, ctx.shitennoDir, level, changedFiles);
+          setCache(ctx.projectRoot, ctx.shitennoDir, "health", report,
+            computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
         }
       } else {
-        report = auditHealth(ctx.projectRoot, ctx.shitenDir, level, changedFiles);
+        report = auditHealth(ctx.projectRoot, ctx.shitennoDir, level, changedFiles);
       }
 
       if (options.minConfidence !== undefined && options.minConfidence >= 0 && options.minConfidence <= 1) {
         report = { ...report, issues: report.issues.filter((i) => (i.confidence ?? 1.0) >= options.minConfidence) };
       }
 
-      const reportFile = writeHealthReport(ctx.shitenDir, report);
+      const reportFile = writeHealthReport(ctx.shitennoDir, report);
 
-      const artifacts = discoverArtifacts(ctx.shitenDir);
+      const artifacts = discoverArtifacts(ctx.shitennoDir);
       const relations = discoverRelations(artifacts);
       const graphAnalysis = analyzeGraph(artifacts, relations);
 
@@ -236,10 +236,10 @@ export const auditCommand = new Command("audit")
           const suggestions = generateFixSuggestions(report.issues as Parameters<typeof generateFixSuggestions>[0], []);
           const prioritized = prioritizeSuggestions(suggestions);
           if (prioritized.length > 0) {
-            const policyEngineJson = new PolicyEngine(new FilePolicyRepository(ctx.shitenDir));
+            const policyEngineJson = new PolicyEngine(new FilePolicyRepository(ctx.shitennoDir));
             const policyCheckJson = checkPolicyGate(
               { type: "apply_autofix", params: { suggestionCount: prioritized.length } },
-              { trigger: "manual", eventData: {}, projectRoot: ctx.projectRoot, shitenDir: ctx.shitenDir, timestamp: new Date().toISOString() },
+              { trigger: "manual", eventData: {}, projectRoot: ctx.projectRoot, shitennoDir: ctx.shitennoDir, timestamp: new Date().toISOString() },
               policyEngineJson
             );
             if (policyCheckJson.allowed) {
@@ -491,10 +491,10 @@ export const auditCommand = new Command("audit")
             output(chalk.bold("  🔧 Applying high-confidence fixes..."));
             outputBlank();
 
-            const policyEngine = new PolicyEngine(new FilePolicyRepository(ctx.shitenDir));
+            const policyEngine = new PolicyEngine(new FilePolicyRepository(ctx.shitennoDir));
             const policyCheck = checkPolicyGate(
               { type: "apply_autofix", params: { suggestionCount: prioritized.length } },
-              { trigger: "manual", eventData: {}, projectRoot: ctx.projectRoot, shitenDir: ctx.shitenDir, timestamp: new Date().toISOString() },
+              { trigger: "manual", eventData: {}, projectRoot: ctx.projectRoot, shitennoDir: ctx.shitennoDir, timestamp: new Date().toISOString() },
               policyEngine
             );
             if (!policyCheck.allowed) {
@@ -537,13 +537,13 @@ export const auditCommand = new Command("audit")
       }
 
       if (reportFile) {
-        output(chalk.gray(`  📄 Report saved: shitenno-go/reports/${reportFile}`));
+        output(chalk.gray(`  📄 Report saved: shitenno/reports/${reportFile}`));
         outputBlank();
       }
 
       try {
         const { generateDynamicRules } = await import("../dynamic-rules.js");
-        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.shitenDir);
+        const dynamicRules = generateDynamicRules(ctx.projectRoot, ctx.shitennoDir);
 
         if (dynamicRules.length > 0 && !isJson) {
           output(chalk.bold("  🚨 Dynamic Rules (from History):"));
@@ -600,16 +600,16 @@ export const auditCommand = new Command("audit")
             title: `${graphAnalysis.orphanArtifacts.length} artifacts orfaos no knowledge graph`,
             severity: "Alto",
             priority: "P1",
-            source: "shiten audit",
+            source: "shugo audit",
             date: today,
-            modules: ["shitenno-go/"],
+            modules: ["shitenno/"],
             description: `${graphAnalysis.orphanArtifacts.length} artifacts no knowledge graph sem relacoes conectando-os.`,
             correction: "Adicionar relacoes entre artifacts orfaos e existentes.",
           });
         }
 
         if (backlogItems.length > 0) {
-          const backlogPath = join(ctx.shitenDir, "docs", "BACKLOG.md");
+          const backlogPath = join(ctx.shitennoDir, "docs", "BACKLOG.md");
           const result = appendBacklogSection(backlogPath, backlogItems, today);
 
           if (!isJson) {
@@ -628,7 +628,7 @@ export const auditCommand = new Command("audit")
         if (plugin.hooks?.["custom-check"]) {
           return await plugin.hooks["custom-check"]({
             projectRoot: ctx.projectRoot,
-            shitenDir: ctx.shitenDir,
+            shitennoDir: ctx.shitennoDir,
             healthReport: report,
           });
         }

@@ -83,26 +83,26 @@ export interface FeedbackPattern {
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
-function getFeedbackDir(shitenDir: string): string {
-  return join(shitenDir, "feedback");
+function getFeedbackDir(shitennoDir: string): string {
+  return join(shitennoDir, "feedback");
 }
 
-function getRecordsDir(shitenDir: string): string {
-  return join(getFeedbackDir(shitenDir), "records");
+function getRecordsDir(shitennoDir: string): string {
+  return join(getFeedbackDir(shitennoDir), "records");
 }
 
-function getSummaryPath(shitenDir: string): string {
-  return join(getFeedbackDir(shitenDir), "summary.json");
+function getSummaryPath(shitennoDir: string): string {
+  return join(getFeedbackDir(shitennoDir), "summary.json");
 }
 
 // ── Core Functions ───────────────────────────────────────────────────────────
 
 /** Record a feedback event. */
 export function recordFeedback(
-  shitenDir: string,
+  shitennoDir: string,
   record: Omit<FeedbackRecord, "id" | "timestamp">
 ): FeedbackRecord {
-  const recordsDir = getRecordsDir(shitenDir);
+  const recordsDir = getRecordsDir(shitennoDir);
 
   if (!existsSync(recordsDir)) {
     mkdirSync(recordsDir, { recursive: true });
@@ -119,7 +119,7 @@ export function recordFeedback(
   writeFileSync(join(recordsDir, filename), JSON.stringify(fullRecord, null, 2));
 
   // Update summary
-  updateSummary(shitenDir, fullRecord);
+  updateSummary(shitennoDir, fullRecord);
 
   // Publish event to event bus
   const eventType = fullRecord.action === "accepted"
@@ -144,8 +144,8 @@ export function recordFeedback(
 }
 
 /** Get all feedback records. */
-export function getFeedbackRecords(shitenDir: string): FeedbackRecord[] {
-  const recordsDir = getRecordsDir(shitenDir);
+export function getFeedbackRecords(shitennoDir: string): FeedbackRecord[] {
+  const recordsDir = getRecordsDir(shitennoDir);
   if (!existsSync(recordsDir)) return [];
 
   const files = readdirSync(recordsDir).filter((f) => f.endsWith(".json"));
@@ -167,10 +167,10 @@ export function getFeedbackRecords(shitenDir: string): FeedbackRecord[] {
 
 /** Get feedback summary for a specific recommendation. */
 export function getFeedbackSummary(
-  shitenDir: string,
+  shitennoDir: string,
   recommendationId: string
 ): FeedbackSummary | null {
-  const summaryPath = getSummaryPath(shitenDir);
+  const summaryPath = getSummaryPath(shitennoDir);
   if (!existsSync(summaryPath)) return null;
 
   try {
@@ -184,8 +184,8 @@ export function getFeedbackSummary(
 }
 
 /** Get all feedback summaries. */
-export function getAllFeedbackSummaries(shitenDir: string): Record<string, FeedbackSummary> {
-  const summaryPath = getSummaryPath(shitenDir);
+export function getAllFeedbackSummaries(shitennoDir: string): Record<string, FeedbackSummary> {
+  const summaryPath = getSummaryPath(shitennoDir);
   if (!existsSync(summaryPath)) return {};
 
   try {
@@ -219,8 +219,8 @@ export function shouldSuppress(
 }
 
 /** Detect feedback patterns. */
-export function detectFeedbackPatterns(shitenDir: string): FeedbackPattern[] {
-  const summaries = getAllFeedbackSummaries(shitenDir);
+export function detectFeedbackPatterns(shitennoDir: string): FeedbackPattern[] {
+  const summaries = getAllFeedbackSummaries(shitennoDir);
   const patterns: FeedbackPattern[] = [];
 
   for (const [recId, summary] of Object.entries(summaries)) {
@@ -272,7 +272,7 @@ export interface DimensionSummary {
 
 /** Record feedback with a performance dimension. */
 export function recordDimensionFeedback(
-  shitenDir: string,
+  shitennoDir: string,
   record: {
     recommendationId: string;
     action: "accepted" | "rejected" | "deferred";
@@ -288,7 +288,7 @@ export function recordDimensionFeedback(
     };
   }
 ): FeedbackRecord {
-  return recordFeedback(shitenDir, {
+  return recordFeedback(shitennoDir, {
     recommendationId: record.recommendationId,
     action: record.action,
     reason: record.reason,
@@ -306,10 +306,10 @@ export function recordDimensionFeedback(
 
 /** Get feedback summary for a specific dimension. */
 export function getDimensionSummary(
-  shitenDir: string,
+  shitennoDir: string,
   dimension: PerformanceMetric
 ): DimensionSummary {
-  const records = getFeedbackRecords(shitenDir);
+  const records = getFeedbackRecords(shitennoDir);
   const filtered = records.filter((r) => r.dimension === dimension);
 
   return {
@@ -326,7 +326,7 @@ export function getDimensionSummary(
 
 /** Get feedback summaries for all dimensions. */
 export function getAllDimensionSummaries(
-  shitenDir: string
+  shitennoDir: string
 ): Record<PerformanceMetric, DimensionSummary> {
   const dimensions: PerformanceMetric[] = [
     "architectural_vision",
@@ -340,15 +340,15 @@ export function getAllDimensionSummaries(
 
   const result = {} as Record<PerformanceMetric, DimensionSummary>;
   for (const dim of dimensions) {
-    result[dim] = getDimensionSummary(shitenDir, dim);
+    result[dim] = getDimensionSummary(shitennoDir, dim);
   }
   return result;
 }
 
 // ── Internal Helpers ─────────────────────────────────────────────────────────
 
-function updateSummary(shitenDir: string, record: FeedbackRecord): void {
-  const summaryPath = getSummaryPath(shitenDir);
+function updateSummary(shitennoDir: string, record: FeedbackRecord): void {
+  const summaryPath = getSummaryPath(shitennoDir);
   const summaries: Record<string, FeedbackSummary> = existsSync(summaryPath)
     ? JSON.parse(readFileSync(summaryPath, "utf-8"))
     : {};

@@ -4,7 +4,7 @@
 
 ## The Graph Model
 
-Shiten models knowledge as a directed graph. Artifacts are nodes. Relations are edges.
+Shugo models knowledge as a directed graph. Artifacts are nodes. Relations are edges.
 
 ## Artifact Types (14)
 
@@ -79,7 +79,7 @@ interface Relation {
 Artifacts are auto-discovered by scanning the filesystem:
 
 ```typescript
-function discoverArtifacts(shitenDir: string): Artifact[] {
+function discoverArtifacts(shitennoDir: string): Artifact[] {
   const artifacts: Artifact[] = [];
   
   // Scan ADRs

@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── 5.1 Schema Consistency ──────────────────────────────────────────────────
@@ -68,7 +68,7 @@ export function detectDataOwnership(projectRoot: string): HealthIssue[] {
 
   const dataFiles = ["CONCEPTUAL_MODEL.md", "CONCEPTUAL_MODEL.yaml"];
   for (const file of dataFiles) {
-    const path = join(projectRoot, SHITEN_DIR_NAME, "docs", file);
+    const path = join(projectRoot, SHITENNO_DIR_NAME, "docs", file);
     if (!existsSync(path)) continue;
 
     const content = readFileSync(path, "utf-8");
@@ -79,7 +79,7 @@ export function detectDataOwnership(projectRoot: string): HealthIssue[] {
         type: "missing_data_owner",
         severity: 1,
         description: `"${file}" não contém campos de ownership — dados sem responsável definido`,
-        location: `shitenno-go/docs/${file}`,
+        location: `shitenno/docs/${file}`,
         recommendation: "Adicionar campos owner/team a cada entidade de dados documentada.",
         confidence: 0.75,
       });

@@ -54,13 +54,13 @@ const DAEMON_VERSION = getVersion();
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
 
-export function getPaths(shitenDir: string) {
-  const daemonDir = join(shitenDir, "daemon");
+export function getPaths(shitennoDir: string) {
+  const daemonDir = join(shitennoDir, "daemon");
   return {
     daemonDir,
     pidPath: join(daemonDir, "daemon.pid"),
     sockPath: join(daemonDir, "daemon.sock"),
-    logPath: process.env["SHITEN_DAEMON_LOG"] ?? join(daemonDir, "daemon.log"),
+    logPath: process.env["SHITENNO_DAEMON_LOG"] ?? join(daemonDir, "daemon.log"),
     approvedPath: join(daemonDir, "daemon.approved"),
     statePath: join(daemonDir, "daemon-state.json"),
   };
@@ -74,8 +74,8 @@ const DEFAULT_MAX_ROTATED_FILES = 3;
 let currentLogBytes = 0;
 
 function getLogRotationConfig(): { maxBytes: number; maxFiles: number } {
-  const maxBytes = Number(process.env["SHITEN_DAEMON_LOG_MAX_BYTES"]) || DEFAULT_MAX_LOG_BYTES;
-  const maxFiles = Number(process.env["SHITEN_DAEMON_LOG_MAX_FILES"]) || DEFAULT_MAX_ROTATED_FILES;
+  const maxBytes = Number(process.env["SHITENNO_DAEMON_LOG_MAX_BYTES"]) || DEFAULT_MAX_LOG_BYTES;
+  const maxFiles = Number(process.env["SHITENNO_DAEMON_LOG_MAX_FILES"]) || DEFAULT_MAX_ROTATED_FILES;
   return { maxBytes, maxFiles };
 }
 
@@ -128,16 +128,16 @@ function cleanup(pidPath: string, sockPath: string): void {
 
 // ── Daemon ────────────────────────────────────────────────────────────────────
 
-export async function runDaemon(shitenDir: string, projectRoot?: string): Promise<void> {
-  const paths = getPaths(shitenDir);
+export async function runDaemon(shitennoDir: string, projectRoot?: string): Promise<void> {
+  const paths = getPaths(shitennoDir);
   const { daemonDir, pidPath, sockPath, logPath, approvedPath, statePath } = paths;
-  const resolvedProjectRoot = projectRoot ?? join(shitenDir, "..");
+  const resolvedProjectRoot = projectRoot ?? join(shitennoDir, "..");
 
   if (!existsSync(daemonDir)) {
     mkdirSync(daemonDir, { recursive: true });
   }
 
-  daemonLog(logPath, "INFO", `Shiten Daemon v${DAEMON_VERSION} starting — shitenDir: ${shitenDir}`);
+  daemonLog(logPath, "INFO", `Shugo Daemon v${DAEMON_VERSION} starting — shitennoDir: ${shitennoDir}`);
 
   // ── Initialize log byte counter for rotation ───────────────────────────────
   initLogByteCounter(logPath);
@@ -182,7 +182,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
         if (!line.trim()) continue;
         try {
           const msg = JSON.parse(line) as IpcMessage;
-          await handleMessage(msg, socket, shitenDir, sockPath, startedAt, logPath, state, resolvedProjectRoot, DAEMON_VERSION);
+          await handleMessage(msg, socket, shitennoDir, sockPath, startedAt, logPath, state, resolvedProjectRoot, DAEMON_VERSION);
         } catch {
           sendJson(socket, { type: "error", message: "Invalid JSON" });
         }
@@ -205,7 +205,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
   // ── File Watcher & Reactive Logic ──────────────────────────────────────────
 
   const bus = getEventBus();
-  const stopWatcher = startWatching(shitenDir);
+  const stopWatcher = startWatching(shitennoDir);
 
   // ── Resource Arbitration: track resources claimed by active CLI sessions ────
   // TTL is short (5min) so a claim self-expires if the CLI crashes without releasing.
@@ -227,11 +227,11 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
   });
 
   // ── Rule Engine: subscribe to event bus events ──────────────────────────────
-  initializeRuleEngine(resolvedProjectRoot, shitenDir, isResourceClaimed);
+  initializeRuleEngine(resolvedProjectRoot, shitennoDir, isResourceClaimed);
   daemonLog(logPath, "INFO", "Rule engine initialized — subscribed to event bus");
 
   // ── Proactive Engine: subscribe to engineering state events ─────────────────
-  const stopProactive = initializeProactiveEngine(resolvedProjectRoot, shitenDir);
+  const stopProactive = initializeProactiveEngine(resolvedProjectRoot, shitennoDir);
   daemonLog(logPath, "INFO", "Proactive engine initialized — subscribed to event bus");
 
   // ── Initial Startup Scan (async — doesn't block daemon readiness) ─────────
@@ -243,7 +243,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
 
     // 1. Archive done plans
     try {
-      const archiveResult = checkAndArchiveDonePlans(shitenDir);
+      const archiveResult = checkAndArchiveDonePlans(shitennoDir);
       if (archiveResult.archived > 0) {
         daemonLog(logPath, "INFO", `Startup scan: archived ${archiveResult.archived} plan(s): ${archiveResult.archivedIds.join(", ")}`);
       }
@@ -254,7 +254,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
 
     // 2. Check plan inconsistencies
     try {
-      const inconsistencies = checkInconsistencies(shitenDir);
+      const inconsistencies = checkInconsistencies(shitennoDir);
       if (inconsistencies.inconsistencies > 0) {
         daemonLog(logPath, "WARN", `Startup scan: found ${inconsistencies.inconsistencies} inconsistent plan(s)`);
       }
@@ -265,7 +265,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
 
     // 3. Validate reminders
     try {
-      const reminders = validateReminders(shitenDir);
+      const reminders = validateReminders(shitennoDir);
       if (reminders.removed > 0) {
         daemonLog(logPath, "INFO", `Startup scan: removed ${reminders.removed} stale reminder(s)`);
       }
@@ -276,7 +276,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
 
   // 4. Move completed backlog items
   try {
-    const backlog = moveCompletedBacklogToDone(shitenDir, shitenDir);
+    const backlog = moveCompletedBacklogToDone(shitennoDir, shitennoDir);
     if (backlog.moved > 0) {
       daemonLog(logPath, "INFO", `Startup scan: moved ${backlog.moved} completed backlog item(s)`);
     }
@@ -298,7 +298,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
     state.briefingCache = null;
     state.riskMapCache = null;
     try {
-      const result = checkAndArchiveDonePlans(shitenDir);
+      const result = checkAndArchiveDonePlans(shitennoDir);
       if (result.archived > 0) {
         daemonLog(logPath, "INFO", `Auto-archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
       }
@@ -325,7 +325,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
   bus.subscribe("task.completed", () => {
     recordEvent(state, "task.completed");
     try {
-      const result = checkAndArchiveDonePlans(shitenDir);
+      const result = checkAndArchiveDonePlans(shitennoDir);
       if (result.archived > 0) {
         daemonLog(logPath, "INFO", `Task completed — auto-archived ${result.archived} plan(s)`);
       }
@@ -409,7 +409,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
     state.briefingCache = null;
     state.riskMapCache = null;
     try {
-      const backlog = moveCompletedBacklogToDone(shitenDir, shitenDir);
+      const backlog = moveCompletedBacklogToDone(shitennoDir, shitennoDir);
       if (backlog.moved > 0) {
         daemonLog(logPath, "INFO", `backlog.updated: moved ${backlog.moved} completed item(s)`);
       }
@@ -451,7 +451,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
   const LARGE_COMMIT_THRESHOLD = 50;
   const largeCommitTimer = setInterval(() => {
     try {
-      if (isLargeCommit(shitenDir, LARGE_COMMIT_THRESHOLD)) {
+      if (isLargeCommit(shitennoDir, LARGE_COMMIT_THRESHOLD)) {
         daemonLog(logPath, "WARN", `Large commit detected (${LARGE_COMMIT_THRESHOLD}+ staged files) — triggering standard audit`);
         runPeriodicAudit();
       }
@@ -488,7 +488,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
   function runPeriodicAudit(): void {
     try {
       const level = getAuditLevel();
-      const report = auditHealth(shitenDir, shitenDir, level);
+      const report = auditHealth(shitennoDir, shitennoDir, level);
 
       // Update state with new health score
       state.health = {
@@ -515,7 +515,7 @@ export async function runDaemon(shitenDir: string, projectRoot?: string): Promis
 
   // ── Circuit Breaker: Reset after stable uptime ─────────────────────────────
 
-  const breaker = new DaemonCircuitBreaker(shitenDir);
+  const breaker = new DaemonCircuitBreaker(shitennoDir);
   const stableTimer = setTimeout(() => {
     breaker.reset();
     daemonLog(logPath, "INFO", "Stable uptime reached — circuit breaker reset");

@@ -1,6 +1,6 @@
 # Event System
 
-O sistema de eventos do Shiten é a base para comunicação entre componentes.
+O sistema de eventos do Shugo é a base para comunicação entre componentes.
 
 ---
 

@@ -7,7 +7,7 @@ import { analyseProject } from "../analyser.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-analyser-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-analyser-"));
 });
 
 afterEach(() => {
@@ -20,7 +20,7 @@ describe("analyseProject", () => {
     expect(result.rootDir).toBe(tempDir);
     expect(result.hasGit).toBe(false);
     expect(result.hasPackageJson).toBe(false);
-    expect(result.hasShiten).toBe(false);
+    expect(result.hasShitenno).toBe(false);
   });
 
   it("detects git repository", () => {

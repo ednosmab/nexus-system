@@ -1,10 +1,10 @@
 /**
- * proactive-engine.ts — Proactive Engine for Shiten
+ * proactive-engine.ts — Proactive Engine for Shugo
  *
  * Subscribes to multiple event types and triggers
  * recommendations and challenges automatically.
  *
- * PRINCIPLE: Shiten should proactively suggest improvements,
+ * PRINCIPLE: Shugo should proactively suggest improvements,
  * not wait for the user to ask.
  */
 
@@ -18,8 +18,8 @@ import { logger } from "./logger.js";
 /**
  * Load historical engineering state snapshots for trend analysis.
  */
-function loadHistoricalStates(shitenDir: string): EngineeringState[] {
-  const snapshotsDir = join(shitenDir, "history", "snapshots");
+function loadHistoricalStates(shitennoDir: string): EngineeringState[] {
+  const snapshotsDir = join(shitennoDir, "history", "snapshots");
   if (!existsSync(snapshotsDir)) return [];
 
   const files = readdirSync(snapshotsDir)
@@ -45,16 +45,16 @@ function loadHistoricalStates(shitenDir: string): EngineeringState[] {
  */
 export function initializeProactiveEngine(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): () => void {
   const bus = getEventBus();
   const unsubscribers: (() => void)[] = [];
 
   // ── engineering_state.consolidated — trend-aware challenges ─────────────────
   const onStateConsolidated = () => {
-    const state = consolidateEngineeringState(projectRoot, shitenDir);
+    const state = consolidateEngineeringState(projectRoot, shitennoDir);
 
-    const historicalStates = loadHistoricalStates(shitenDir);
+    const historicalStates = loadHistoricalStates(shitennoDir);
     const forecast = generateForecast(historicalStates);
 
     if (forecast) {

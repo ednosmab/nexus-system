@@ -6,14 +6,14 @@ import { execSync } from "node:child_process";
 import { generateDigest, } from "../commands/digest.js";
 
 let tempDir: string;
-let shitenDir: string;
+let shitennoDir: string;
 let projectRoot: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-digest-"));
-  shitenDir = join(tempDir, "shitenno-go");
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-digest-"));
+  shitennoDir = join(tempDir, "shitenno");
   projectRoot = join(tempDir, "project");
-  mkdirSync(shitenDir, { recursive: true });
+  mkdirSync(shitennoDir, { recursive: true });
   mkdirSync(projectRoot, { recursive: true });
 });
 
@@ -44,7 +44,7 @@ function commitFile(dir: string, filename: string, content: string) {
 
 describe("generateDigest", () => {
   it("returns valid DigestData structure", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
 
     expect(digest).toHaveProperty("generatedAt");
     expect(digest).toHaveProperty("project");
@@ -67,64 +67,64 @@ describe("generateDigest", () => {
   });
 
   it("extracts project name from projectRoot path", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.project.name).toBe("project");
   });
 
   it("returns null maturityScore when no profile exists", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.project.maturityScore).toBeNull();
     expect(digest.project.maturityLevel).toBe("Unknown");
   });
 
   it("reads maturityScore from maturity-profile.json", () => {
     writeFileSync(
-      join(shitenDir, "maturity-profile.json"),
+      join(shitennoDir, "maturity-profile.json"),
       JSON.stringify({ overallScore: 62 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.project.maturityScore).toBe(62);
     expect(digest.project.maturityLevel).toBe("Mature");
   });
 
   it("reads knowledge debt from knowledge-debt.json", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 42 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.knowledgeDebt.current).toBe(42);
   });
 
   it("defaults knowledge debt to 0 when file missing", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.knowledgeDebt.current).toBe(0);
   });
 
   // ── Health determination ─────────────────────────────────────────────────
 
   it("health is 'good' when no issues", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.health.overall).toBe("good");
     expect(digest.health.issues).toEqual([]);
   });
 
   it("health is 'fair' when one issue (high debt)", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 60 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.health.overall).toBe("fair");
     expect(digest.health.issues).toContain("High knowledge debt");
   });
 
   it("health is 'needs attention' when multiple issues", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 60 })
     );
 
@@ -134,7 +134,7 @@ describe("generateDigest", () => {
       commitFile(projectRoot, `file-${i}.ts`, `export const x${i} = ${i};`);
     }
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.health.overall).toBe("needs attention");
     expect(digest.health.issues.length).toBeGreaterThanOrEqual(2);
   });
@@ -143,21 +143,21 @@ describe("generateDigest", () => {
 
   it("trend is 'stable' when debt <= 30", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 20 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.knowledgeDebt.trend).toBe("stable");
   });
 
   it("trend is 'increasing' when debt > 30", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 35 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.knowledgeDebt.trend).toBe("increasing");
   });
 
@@ -165,28 +165,28 @@ describe("generateDigest", () => {
 
   it("recommends audit when debt > 30", () => {
     writeFileSync(
-      join(shitenDir, "knowledge-debt.json"),
+      join(shitennoDir, "knowledge-debt.json"),
       JSON.stringify({ total: 40 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
-    expect(digest.recommendations).toContain("Run `shiten audit` to reduce knowledge debt");
+    const digest = generateDigest(projectRoot, shitennoDir);
+    expect(digest.recommendations).toContain("Run `shugo audit` to reduce knowledge debt");
   });
 
   it("recommends assess when no changes detected", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.recommendations).toContain(
-      "No changes detected today — consider running `shiten assess`"
+      "No changes detected today — consider running `shugo assess`"
     );
   });
 
   it("recommends foundation practices when maturity < 50", () => {
     writeFileSync(
-      join(shitenDir, "maturity-profile.json"),
+      join(shitennoDir, "maturity-profile.json"),
       JSON.stringify({ overallScore: 30 })
     );
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.recommendations).toContain(
       "Project is in early maturity — focus on foundation practices"
     );
@@ -196,7 +196,7 @@ describe("generateDigest", () => {
     initGit(projectRoot);
     commitFile(projectRoot, "index.ts", "export const x = 1;");
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.recommendations).toContain("Project is healthy — continue current practices");
   });
 
@@ -206,13 +206,13 @@ describe("generateDigest", () => {
     initGit(projectRoot);
     commitFile(projectRoot, "index.ts", "export const x = 1;");
 
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.recentChanges.filesModified).toBeGreaterThanOrEqual(1);
     expect(digest.recentChanges.linesAdded).toBeGreaterThanOrEqual(1);
   });
 
   it("returns zero changes when no git repo", () => {
-    const digest = generateDigest(projectRoot, shitenDir);
+    const digest = generateDigest(projectRoot, shitennoDir);
     expect(digest.recentChanges.filesModified).toBe(0);
     expect(digest.recentChanges.linesAdded).toBe(0);
     expect(digest.recentChanges.linesRemoved).toBe(0);

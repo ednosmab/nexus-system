@@ -1,5 +1,5 @@
 /**
- * index.tsx — ShitenConsole main component
+ * index.tsx — ShitennoConsole main component
  *
  * Root component that manages tab navigation, keyboard input,
  * mouse events, and screen reader accessibility.
@@ -44,9 +44,9 @@ const TABS = [
 
 // ── Props ──────────────────────────────────────────────────────────────────
 
-interface ShitenConsoleProps {
+interface ShitennoConsoleProps {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   refreshInterval?: number;
   isScreenReaderEnabled?: boolean;
 }
@@ -55,13 +55,13 @@ interface ShitenConsoleProps {
 
 // ── Inner Component (inside MouseProvider) ──────────────────────────────────
 
-function ShitenConsoleInner({
+function ShitennoConsoleInner({
   projectRoot,
-  shitenDir,
+  shitennoDir,
   refreshInterval,
   isScreenReaderEnabled,
-}: ShitenConsoleProps): React.ReactElement {
-  const { data, refresh, } = useRefresh(projectRoot, shitenDir, refreshInterval);
+}: ShitennoConsoleProps): React.ReactElement {
+  const { data, refresh, } = useRefresh(projectRoot, shitennoDir, refreshInterval);
   const nav = useNavigate(TABS.length);
 
   const contentRef = useRef(null);
@@ -188,7 +188,7 @@ function ShitenConsoleInner({
     const currentTab = TABS[nav.activeTab];
     const tabLabel = currentTab?.label ?? "Overview";
     return (
-      <Box flexDirection="column" aria-label="Shiten Console Dashboard">
+      <Box flexDirection="column" aria-label="Shugo Console Dashboard">
         <Box aria-label={`Current tab: ${tabLabel}`}>
           <Text>
             Tab {nav.activeTab + 1} of {TABS.length}: {tabLabel}
@@ -216,7 +216,7 @@ function ShitenConsoleInner({
         justifyContent="space-between"
       >
         <Box>
-          <Text bold color="cyan">SHITEN CONSOLE v0.1.0</Text>
+          <Text bold color="cyan">SHUGO CONSOLE v0.1.0</Text>
         </Box>
         <Box>
           <Text dimColor>{data.timestamp.slice(0, 16).replace("T", " ")}</Text>
@@ -249,10 +249,10 @@ function ShitenConsoleInner({
 
 // ── Root Component (with MouseProvider) ─────────────────────────────────────
 
-export function ShitenConsole(props: ShitenConsoleProps): React.ReactElement {
+export function ShitennoConsole(props: ShitennoConsoleProps): React.ReactElement {
   return (
     <MouseProvider autoEnable={true}>
-      <ShitenConsoleInner {...props} />
+      <ShitennoConsoleInner {...props} />
     </MouseProvider>
   );
 }

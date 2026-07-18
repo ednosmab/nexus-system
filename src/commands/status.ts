@@ -32,16 +32,16 @@ export const statusCommand = new Command("status")
     if (isJson) muteLogs();
 
     if (!isJson) {
-      outputBlank();        banner("shiten status", "Health Check");
+      outputBlank();        banner("shugo status", "Health Check");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("status", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("status", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
-    const checks = runHealthChecks(ctx.projectRoot, ctx.shitenDir);
+    const checks = runHealthChecks(ctx.projectRoot, ctx.shitennoDir);
 
     // Complexity analysis (with cache)
     const analysis = analyseProject(ctx.projectRoot);
@@ -49,29 +49,29 @@ export const statusCommand = new Command("status")
     let cacheHit = false;
 
     if (options.cache !== false) {
-      const cached = getCached<ComplexityReport>(ctx.projectRoot, ctx.shitenDir, "complexity",
-        () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+      const cached = getCached<ComplexityReport>(ctx.projectRoot, ctx.shitennoDir, "complexity",
+        () => computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
       if (cached) {
         complexity = cached;
         cacheHit = true;
       } else {
-        complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir, analysis);
-        setCache(ctx.projectRoot, ctx.shitenDir, "complexity", complexity,
-          computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+        complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitennoDir, analysis);
+        setCache(ctx.projectRoot, ctx.shitennoDir, "complexity", complexity,
+          computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
       }
     } else {
-      complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir, analysis);
+      complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitennoDir, analysis);
     }
 
     // Write report to reports/
-    const reportFile = writeComplexityReport(ctx.projectRoot, ctx.shitenDir, complexity);
+    const reportFile = writeComplexityReport(ctx.projectRoot, ctx.shitennoDir, complexity);
 
     // Load maturity profile
-    const maturityProfile = loadMaturityProfile(ctx.shitenDir);
+    const maturityProfile = loadMaturityProfile(ctx.shitennoDir);
     const installedCapabilities = maturityProfile?.installedCapabilities ?? ["core"];
 
     // Load growth profile (needed for both JSON and human output)
-    const growthProfile = loadGrowthProfile(ctx.shitenDir);
+    const growthProfile = loadGrowthProfile(ctx.shitennoDir);
 
     // JSON output
     if (isJson) {
@@ -132,13 +132,13 @@ export const statusCommand = new Command("status")
         outputBlank();
         if (failCount > 0) {
           output(chalk.gray("  Attempting fixes for failed checks..."));
-          output(chalk.gray("  → Run 'shiten init' to fix failed governance checks"));
-          output(chalk.gray("  → Run 'shiten upgrade --accept-recommended' to add missing capabilities"));
+          output(chalk.gray("  → Run 'shugo init' to fix failed governance checks"));
+          output(chalk.gray("  → Run 'shugo upgrade --accept-recommended' to add missing capabilities"));
         }
         if (warnCount > 0) {
           output(chalk.gray("  Attempting fixes for warnings..."));
-          output(chalk.gray("  → Run 'shiten upgrade' to add optional components"));
-          output(chalk.gray("  → Run 'shiten sync' to synchronize documentation"));
+          output(chalk.gray("  → Run 'shugo upgrade' to add optional components"));
+          output(chalk.gray("  → Run 'shugo sync' to synchronize documentation"));
         }
         if (failCount === 0 && warnCount === 0) {
           output(chalk.green("  ✔ No fixes needed — governance is healthy!"));
@@ -152,11 +152,11 @@ export const statusCommand = new Command("status")
 
     // Display project fingerprint
     const { loadFingerprint, isFingerprintStale, generateProjectFingerprint, saveFingerprint } = await import("../project-fingerprint.js");
-    const staleFingerprint = isFingerprintStale(ctx.shitenDir);
-    let fingerprint = loadFingerprint(ctx.shitenDir);
+    const staleFingerprint = isFingerprintStale(ctx.shitennoDir);
+    let fingerprint = loadFingerprint(ctx.shitennoDir);
     if (!fingerprint || staleFingerprint) {
       fingerprint = generateProjectFingerprint(ctx.projectRoot, analysis, maturityProfile?.overallScore);
-      saveFingerprint(ctx.shitenDir, fingerprint);
+      saveFingerprint(ctx.shitennoDir, fingerprint);
     }
     if (fingerprint) {
       output(chalk.bold("  🔍 Project Fingerprint:"));
@@ -173,8 +173,8 @@ export const statusCommand = new Command("status")
       const { computeInputHash, getCachedBriefing } = await import("../briefing-cache.js");
 
       let briefing;
-      if (isDaemonRunning(ctx.shitenDir)) {
-        const result = await queryDaemon<{ type: string; data: typeof briefing }>(ctx.shitenDir, {
+      if (isDaemonRunning(ctx.shitennoDir)) {
+        const result = await queryDaemon<{ type: string; data: typeof briefing }>(ctx.shitennoDir, {
           type: "query_briefing",
         });
         if (result?.data) {
@@ -183,7 +183,7 @@ export const statusCommand = new Command("status")
       }
 
       if (!briefing) {
-        const snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+        const snapshot = collectContext(ctx.projectRoot, ctx.shitennoDir);
         const inputHash = computeInputHash({
           fingerprintHash: snapshot.fingerprint.hash,
           riskMapHash: snapshot.riskMap.generatedAt,
@@ -191,7 +191,7 @@ export const statusCommand = new Command("status")
           dynamicRuleCount: snapshot.dynamicRules.length,
           maturityScore: snapshot.maturityProfile?.overallScore ?? null,
         });
-        const cached = getCachedBriefing(ctx.shitenDir, inputHash);
+        const cached = getCachedBriefing(ctx.shitennoDir, inputHash);
         briefing = cached?.briefing ?? snapshot.briefing;
       }
 
@@ -212,7 +212,7 @@ export const statusCommand = new Command("status")
     }
 
     // Display daemon health + challenges (if daemon is running)
-    if (isDaemonRunning(ctx.shitenDir)) {
+    if (isDaemonRunning(ctx.shitennoDir)) {
       try {
         const health = await queryDaemon<{
           type: string;
@@ -222,7 +222,7 @@ export const statusCommand = new Command("status")
           pid: number;
           activeSessions: number;
           lastCommand: string | null;
-        }>(ctx.shitenDir, { type: "query_health" });
+        }>(ctx.shitennoDir, { type: "query_health" });
         if (health) {
           const icon = health.trend === "degrading" ? "🟡" : "🟢";
           output(chalk.bold("  🔍 Daemon Health:"));
@@ -237,7 +237,7 @@ export const statusCommand = new Command("status")
         const challenges = await queryDaemon<{
           type: string;
           challenges: Array<{ type: string; severity: string; message: string }>;
-        }>(ctx.shitenDir, { type: "query_challenges" });
+        }>(ctx.shitennoDir, { type: "query_challenges" });
         if (challenges?.challenges?.length) {
           output(chalk.bold("  🎯 Pending Challenges:"));
           for (const c of challenges.challenges.slice(0, 5)) {
@@ -255,10 +255,10 @@ export const statusCommand = new Command("status")
     try {
       const { evaluateCapabilities } = await import("../capability-engine.js");
       const { subscribeToEngineeringState } = await import("../engineering-state-subscription.js");
-      const { getState, unsubscribe } = subscribeToEngineeringState(ctx.projectRoot, ctx.shitenDir);
+      const { getState, unsubscribe } = subscribeToEngineeringState(ctx.projectRoot, ctx.shitennoDir);
       const state = getState();
       unsubscribe();
-      const engineResult = evaluateCapabilities(state, ctx.shitenDir);
+      const engineResult = evaluateCapabilities(state, ctx.shitennoDir);
 
       output(chalk.bold("  ⚙ Capability Engine:"));
       output(chalk.gray(`    Overall: ${engineResult.overallScore}% | Installed: ${engineResult.byMaturity.installed.length + engineResult.byMaturity.configured.length + engineResult.byMaturity.active.length + engineResult.byMaturity.optimized.length} | Dormant: ${engineResult.byMaturity.dormant.length}`));
@@ -282,7 +282,7 @@ export const statusCommand = new Command("status")
     }
 
     if (reportFile) {
-      output(chalk.gray(`  📄 Report saved: shitenno-go/reports/${reportFile}`));
+      output(chalk.gray(`  📄 Report saved: shitenno/reports/${reportFile}`));
       outputBlank();
     }
 
@@ -295,29 +295,29 @@ export const statusCommand = new Command("status")
     });
   });
 
-function runHealthChecks(projectRoot: string, shitenDir: string): StatusCheck[] {
+function runHealthChecks(projectRoot: string, shitennoDir: string): StatusCheck[] {
   const checks: StatusCheck[] = [];
 
   // 1. Check opencode.json at project root
   checks.push(checkOpencodeConfig(projectRoot));
 
-  // 2. Check AGENTS.md in shitenno-go/docs/
-  checks.push(checkAgentsFile(shitenDir));
+  // 2. Check AGENTS.md in shitenno/docs/
+  checks.push(checkAgentsFile(shitennoDir));
 
-  // 3. Check skills directory in shitenno-go/docs/skills/
-  checks.push(checkSkillsDirectory(shitenDir));
+  // 3. Check skills directory in shitenno/docs/skills/
+  checks.push(checkSkillsDirectory(shitennoDir));
 
-  // 4. Check governance directory in shitenno-go/governance/
-  checks.push(checkGovernanceDirectory(shitenDir));
+  // 4. Check governance directory in shitenno/governance/
+  checks.push(checkGovernanceDirectory(shitennoDir));
 
-  // 5. Check context buffer in shitenno-go/governance/context/
-  checks.push(checkContextBuffer(shitenDir));
+  // 5. Check context buffer in shitenno/governance/context/
+  checks.push(checkContextBuffer(shitennoDir));
 
-  // 6. Check scripts in shitenno-go/scripts/
-  checks.push(checkScripts(shitenDir));
+  // 6. Check scripts in shitenno/scripts/
+  checks.push(checkScripts(shitennoDir));
 
-  // 7. Check agent contracts in shitenno-go/governance/agents/
-  checks.push(checkAgentContracts(shitenDir));
+  // 7. Check agent contracts in shitenno/governance/agents/
+  checks.push(checkAgentContracts(shitennoDir));
 
   return checks;
 }
@@ -352,11 +352,11 @@ function checkOpencodeConfig(projectRoot: string): StatusCheck {
   }
 }
 
-function checkAgentsFile(shitenDir: string): StatusCheck {
-  const agentsPath = join(shitenDir, "docs", "AGENTS.md");
+function checkAgentsFile(shitennoDir: string): StatusCheck {
+  const agentsPath = join(shitennoDir, "docs", "AGENTS.md");
 
   if (!existsSync(agentsPath)) {
-    return { name: "shitenno-go/docs/AGENTS.md", status: "fail", message: "File not found" };
+    return { name: "shitenno/docs/AGENTS.md", status: "fail", message: "File not found" };
   }
 
   const content = readFileSync(agentsPath, "utf-8");
@@ -364,24 +364,24 @@ function checkAgentsFile(shitenDir: string): StatusCheck {
 
   if (ruleCount < 10) {
     return {
-      name: "shitenno-go/docs/AGENTS.md",
+      name: "shitenno/docs/AGENTS.md",
       status: "warn",
       message: `Only ${ruleCount} rules found (expected 22+)`,
     };
   }
 
   return {
-    name: "shitenno-go/docs/AGENTS.md",
+    name: "shitenno/docs/AGENTS.md",
     status: "pass",
     message: `${ruleCount} rules configured`,
   };
 }
 
-function checkSkillsDirectory(shitenDir: string): StatusCheck {
-  const skillsDir = join(shitenDir, "docs", "skills");
+function checkSkillsDirectory(shitennoDir: string): StatusCheck {
+  const skillsDir = join(shitennoDir, "docs", "skills");
 
   if (!existsSync(skillsDir)) {
-    return { name: "shitenno-go/docs/skills/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno/docs/skills/", status: "warn", message: "Directory not found" };
   }
 
   const skillFiles = readdirSync(skillsDir).filter((f: string) =>
@@ -389,21 +389,21 @@ function checkSkillsDirectory(shitenDir: string): StatusCheck {
   );
 
   if (skillFiles.length === 0) {
-    return { name: "shitenno-go/docs/skills/", status: "warn", message: "No skills found" };
+    return { name: "shitenno/docs/skills/", status: "warn", message: "No skills found" };
   }
 
   return {
-    name: "shitenno-go/docs/skills/",
+    name: "shitenno/docs/skills/",
     status: "pass",
     message: `${skillFiles.length} skills installed`,
   };
 }
 
-function checkGovernanceDirectory(shitenDir: string): StatusCheck {
-  const govDir = join(shitenDir, "governance");
+function checkGovernanceDirectory(shitennoDir: string): StatusCheck {
+  const govDir = join(shitennoDir, "governance");
 
   if (!existsSync(govDir)) {
-    return { name: "shitenno-go/governance/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno/governance/", status: "warn", message: "Directory not found" };
   }
 
   const hasContext = existsSync(join(govDir, "context"));
@@ -414,14 +414,14 @@ function checkGovernanceDirectory(shitenDir: string): StatusCheck {
   if (hasAgents) parts.push("agents");
 
   return {
-    name: "shitenno-go/governance/",
+    name: "shitenno/governance/",
     status: "pass",
     message: `Contains: ${parts.join(", ") || "empty"}`,
   };
 }
 
-function checkContextBuffer(shitenDir: string): StatusCheck {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+function checkContextBuffer(shitennoDir: string): StatusCheck {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
 
   if (!existsSync(bufferPath)) {
     return { name: "context_buffer.yaml", status: "warn", message: "Not found" };
@@ -436,11 +436,11 @@ function checkContextBuffer(shitenDir: string): StatusCheck {
   return { name: "context_buffer.yaml", status: "pass", message: "Valid" };
 }
 
-function checkScripts(shitenDir: string): StatusCheck {
-  const scriptsDir = join(shitenDir, "scripts");
+function checkScripts(shitennoDir: string): StatusCheck {
+  const scriptsDir = join(shitennoDir, "scripts");
 
   if (!existsSync(scriptsDir)) {
-    return { name: "shitenno-go/scripts/", status: "warn", message: "Directory not found" };
+    return { name: "shitenno/scripts/", status: "warn", message: "Directory not found" };
   }
 
   const scriptFiles = readdirSync(scriptsDir).filter((f: string) =>
@@ -448,18 +448,18 @@ function checkScripts(shitenDir: string): StatusCheck {
   );
 
   if (scriptFiles.length === 0) {
-    return { name: "shitenno-go/scripts/", status: "warn", message: "No scripts found" };
+    return { name: "shitenno/scripts/", status: "warn", message: "No scripts found" };
   }
 
   return {
-    name: "shitenno-go/scripts/",
+    name: "shitenno/scripts/",
     status: "pass",
     message: `${scriptFiles.length} scripts installed`,
   };
 }
 
-function checkAgentContracts(shitenDir: string): StatusCheck {
-  const contractsDir = join(shitenDir, "governance", "agents");
+function checkAgentContracts(shitennoDir: string): StatusCheck {
+  const contractsDir = join(shitennoDir, "governance", "agents");
 
   if (!existsSync(contractsDir)) {
     return { name: "agent contracts", status: "warn", message: "Not found" };
@@ -505,9 +505,9 @@ function displayResults(checks: StatusCheck[]): void {
   outputBlank();
 
   if (failCount > 0) {
-    output(chalk.red("  Run 'shiten init' to fix failed checks."));
+    output(chalk.red("  Run 'shugo init' to fix failed checks."));
   } else if (warnCount > 0) {
-    output(chalk.yellow("  Some optional components are missing. Run 'shiten upgrade' to add them."));
+    output(chalk.yellow("  Some optional components are missing. Run 'shugo upgrade' to add them."));
   } else {
     output(chalk.green("  Governance is healthy!"));
   }
@@ -523,7 +523,7 @@ function displayMaturityProfile(
   outputBlank();
 
   if (!profile) {
-    output(chalk.gray("    No maturity profile found. Run 'shiten init' to create one."));
+    output(chalk.gray("    No maturity profile found. Run 'shugo init' to create one."));
     outputBlank();
     return;
   }

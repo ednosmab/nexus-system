@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const modules = [
   { name: 'CLI', description: 'Interface de linha de comandos. Parsing, output, interacao.' },
-  { name: 'Profile', description: 'Deteccao de stack e geracao de shiten-profile.' },
+  { name: 'Profile', description: 'Deteccao de stack e geracao de shitenno-profile.' },
   { name: 'State', description: 'Gestao de context_buffer e engineering-state.' },
   { name: 'Telemetry', description: 'Gravacao de snapshots e metricas periodicas.' },
   { name: 'Governance', description: 'Aplicacao de regras e validacao de conformidade.' },
@@ -17,7 +17,7 @@ export default function Modules() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Modulos</h1>
         <p className="text-text-secondary max-w-2xl">
-          Organizacao modular do Shitenno-go. Cada modulo tem uma responsabilidade unica.
+          Organizacao modular do Shitenno. Cada modulo tem uma responsabilidade unica.
         </p>
       </section>
 

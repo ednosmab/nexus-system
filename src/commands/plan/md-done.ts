@@ -5,7 +5,7 @@
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../../shared.js";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 import { MarkdownPlanEngine } from "../../markdown-plan-engine.js";
 import { outputJson } from "../../formatting.js";
 import { output } from "../../output.js";
@@ -21,7 +21,7 @@ export function registerMdDone(cmd: import("commander").Command) {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITEN_DIR_NAME));
+      const engine = new MarkdownPlanEngine(join(ctx.projectRoot, SHITENNO_DIR_NAME));
       try {
         const updated = engine.updateStatus(id, "done");
         if (isJson) outputJson(updated as unknown as Record<string, unknown>);

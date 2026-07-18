@@ -14,7 +14,7 @@ import { logger } from "./logger.js";
 // ── Types ───────────────────────────────────────────────────────────────────
 
 export interface StateMutation {
-  shitenDir: string;
+  shitennoDir: string;
   newState: EngineeringState;
   description: string;
 }
@@ -109,7 +109,7 @@ export function proposeStateMutation(
   }
 
   // Apply the mutation
-  saveEngineeringState(mutation.shitenDir, mutation.newState);
+  saveEngineeringState(mutation.shitennoDir, mutation.newState);
 
   // Publish event
   getEventBus().publish("state.mutated", {

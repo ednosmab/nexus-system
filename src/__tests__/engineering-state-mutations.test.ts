@@ -48,9 +48,9 @@ function makeValidState(): EngineeringState {
   };
 }
 
-function makeValidMutation(shitenDir: string, overrides?: Partial<StateMutation>): StateMutation {
+function makeValidMutation(shitennoDir: string, overrides?: Partial<StateMutation>): StateMutation {
   return {
-    shitenDir,
+    shitennoDir,
     newState: makeValidState(),
     description: "Test mutation",
     ...overrides,
@@ -63,13 +63,13 @@ function makeSource(): MutationSource {
 
 describe("proposeStateMutation", () => {
   let tmpDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
     clearMutationLog();
-    tmpDir = join(tmpdir(), `shiten-mutations-${Date.now()}`);
-    shitenDir = join(tmpDir, "shitenno-go");
-    mkdirSync(shitenDir, { recursive: true });
+    tmpDir = join(tmpdir(), `shitenno-mutations-${Date.now()}`);
+    shitennoDir = join(tmpDir, "shitenno");
+    mkdirSync(shitennoDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -77,14 +77,14 @@ describe("proposeStateMutation", () => {
   });
 
   it("allows valid mutation", () => {
-    const result = proposeStateMutation(makeValidMutation(shitenDir), makeSource());
+    const result = proposeStateMutation(makeValidMutation(shitennoDir), makeSource());
     expect(result.allowed).toBe(true);
     expect(result.timestamp).toBeDefined();
   });
 
   it("rejects mutation without consolidatedAt", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const mutation = makeValidMutation(shitenDir);
+    const mutation = makeValidMutation(shitennoDir);
     mutation.newState.consolidatedAt = "";
     const result = proposeStateMutation(mutation, makeSource());
     expect(result.allowed).toBe(false);
@@ -93,7 +93,7 @@ describe("proposeStateMutation", () => {
 
   it("rejects mutation with health score out of range", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const mutation = makeValidMutation(shitenDir);
+    const mutation = makeValidMutation(shitennoDir);
     mutation.newState.healthScores.overall = 150;
     const result = proposeStateMutation(mutation, makeSource());
     expect(result.allowed).toBe(false);
@@ -102,7 +102,7 @@ describe("proposeStateMutation", () => {
 
   it("rejects mutation with entropy score out of range", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const mutation = makeValidMutation(shitenDir);
+    const mutation = makeValidMutation(shitennoDir);
     mutation.newState.entropy.score = -10;
     const result = proposeStateMutation(mutation, makeSource());
     expect(result.allowed).toBe(false);
@@ -110,7 +110,7 @@ describe("proposeStateMutation", () => {
   });
 
   it("logs mutation in mutation log", () => {
-    proposeStateMutation(makeValidMutation(shitenDir), makeSource());
+    proposeStateMutation(makeValidMutation(shitennoDir), makeSource());
     const log = getMutationLog();
     expect(log.length).toBe(1);
     expect(log[0]?.allowed).toBe(true);
@@ -118,7 +118,7 @@ describe("proposeStateMutation", () => {
 
   it("logs rejected mutation in mutation log", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const mutation = makeValidMutation(shitenDir);
+    const mutation = makeValidMutation(shitennoDir);
     mutation.newState.healthScores.overall = 200;
     proposeStateMutation(mutation, makeSource());
     const log = getMutationLog();

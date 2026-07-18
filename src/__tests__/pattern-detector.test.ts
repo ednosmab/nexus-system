@@ -5,12 +5,12 @@ import { tmpdir } from "node:os";
 import { detectPatterns, writePatternReport } from "../pattern-detector.js";
 
 let tempDir: string;
-let shitenDir: string;
+let shitennoDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-pattern-"));
-  shitenDir = join(tempDir, "shitenno-go");
-  mkdirSync(join(shitenDir, "docs", "history"), { recursive: true });
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-pattern-"));
+  shitennoDir = join(tempDir, "shitenno");
+  mkdirSync(join(shitennoDir, "docs", "history"), { recursive: true });
 });
 
 afterEach(() => {
@@ -19,7 +19,7 @@ afterEach(() => {
 
 describe("detectPatterns", () => {
   it("returns empty results for empty history", () => {
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     expect(report.historyEntriesAnalyzed).toBe(0);
     expect(report.reportsAnalyzed).toBe(0);
     expect(report.patterns).toHaveLength(0);
@@ -28,19 +28,19 @@ describe("detectPatterns", () => {
 
   it("detects recurring errors when 3+ history entries have violations in same area", () => {
     writeFileSync(
-      join(shitenDir, "docs", "history", "2025-06-20-sessao-1.md"),
+      join(shitennoDir, "docs", "history", "2025-06-20-sessao-1.md"),
       "# Session 1\nThe bug in src/services was fixed."
     );
     writeFileSync(
-      join(shitenDir, "docs", "history", "2025-06-21-sessao-1.md"),
+      join(shitennoDir, "docs", "history", "2025-06-21-sessao-1.md"),
       "# Session 2\nAnother erro in src/services area."
     );
     writeFileSync(
-      join(shitenDir, "docs", "history", "2025-06-22-sessao-1.md"),
+      join(shitennoDir, "docs", "history", "2025-06-22-sessao-1.md"),
       "# Session 3\nFalhou again in src/services, needs fix."
     );
 
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     expect(report.historyEntriesAnalyzed).toBe(3);
     expect(report.patterns.length).toBeGreaterThanOrEqual(1);
 
@@ -54,15 +54,15 @@ describe("detectPatterns", () => {
 
   it("detects reverted decisions when 2+ entries have revert/rollback", () => {
     writeFileSync(
-      join(shitenDir, "docs", "history", "2025-06-20-sessao-1.md"),
+      join(shitennoDir, "docs", "history", "2025-06-20-sessao-1.md"),
       "# Session 1\nReverted the database migration."
     );
     writeFileSync(
-      join(shitenDir, "docs", "history", "2025-06-21-sessao-1.md"),
+      join(shitennoDir, "docs", "history", "2025-06-21-sessao-1.md"),
       "# Session 2\nHad to rollback the API changes."
     );
 
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     const reverted = report.patterns.find(
       (p) => p.type === "reverted_decision"
     );
@@ -71,9 +71,9 @@ describe("detectPatterns", () => {
   });
 
   it("detects hot areas from reports", () => {
-    mkdirSync(join(shitenDir, "reports"), { recursive: true });
+    mkdirSync(join(shitennoDir, "reports"), { recursive: true });
     writeFileSync(
-      join(shitenDir, "reports", "complexity-proj-2025-06-20-s1.json"),
+      join(shitennoDir, "reports", "complexity-proj-2025-06-20-s1.json"),
       JSON.stringify({
         projectName: "proj",
         score: 8,
@@ -84,7 +84,7 @@ describe("detectPatterns", () => {
       })
     );
     writeFileSync(
-      join(shitenDir, "reports", "complexity-proj-2025-06-21-s1.json"),
+      join(shitennoDir, "reports", "complexity-proj-2025-06-21-s1.json"),
       JSON.stringify({
         projectName: "proj",
         score: 9,
@@ -95,7 +95,7 @@ describe("detectPatterns", () => {
       })
     );
 
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     expect(report.reportsAnalyzed).toBe(2);
 
     const hotArea = report.patterns.find((p) => p.type === "hot_area");
@@ -106,12 +106,12 @@ describe("detectPatterns", () => {
   it("proposes rules for recurring errors", () => {
     for (let i = 0; i < 4; i++) {
       writeFileSync(
-        join(shitenDir, "docs", "history", `2025-06-${20 + i}-s1.md`),
+        join(shitennoDir, "docs", "history", `2025-06-${20 + i}-s1.md`),
         "# Session\nBug in src/services: erro, falhou, fix."
       );
     }
 
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     expect(report.candidateRules.length).toBeGreaterThanOrEqual(1);
 
     const rule = report.candidateRules[0];
@@ -121,7 +121,7 @@ describe("detectPatterns", () => {
   });
 
   it("generates a summary", () => {
-    const report = detectPatterns(tempDir, shitenDir);
+    const report = detectPatterns(tempDir, shitennoDir);
     expect(report.summary).toBeTruthy();
     expect(report.summary).toContain("histórico");
   });
@@ -129,15 +129,15 @@ describe("detectPatterns", () => {
 
 describe("writePatternReport", () => {
   it("returns null when reports/ doesn't exist", () => {
-    const report = detectPatterns(tempDir, shitenDir);
-    const result = writePatternReport(shitenDir, report);
+    const report = detectPatterns(tempDir, shitennoDir);
+    const result = writePatternReport(shitennoDir, report);
     expect(result).toBeNull();
   });
 
   it("writes pattern report when reports/ exists", () => {
-    mkdirSync(join(shitenDir, "reports"), { recursive: true });
-    const report = detectPatterns(tempDir, shitenDir);
-    const filename = writePatternReport(shitenDir, report);
+    mkdirSync(join(shitennoDir, "reports"), { recursive: true });
+    const report = detectPatterns(tempDir, shitennoDir);
+    const filename = writePatternReport(shitennoDir, report);
     expect(filename).toMatch(/^patterns-\d{4}-\d{2}-\d{2}\.json$/);
   });
 });

@@ -2,14 +2,14 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldShitennoGo, } from "../scaffolder.js";
+import { scaffoldShitenno, } from "../scaffolder.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-scaffold-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-scaffold-"));
 });
 
 afterEach(() => {
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 const DEFAULT_MATURITY = {
-  usedShitenBefore: false,
+  usedShitennoBefore: false,
   isFirstProject: false,
   projectAge: "new" as const,
   teamSize: "solo" as const,
@@ -48,47 +48,47 @@ function makeAnswers(overrides: Partial<UserAnswers> = {}): UserAnswers {
   };
 }
 
-// ── scaffoldShitennoGo ──────────────────────────────────────────────────────
+// ── scaffoldShitenno ──────────────────────────────────────────────────────
 
-describe("scaffoldShitennoGo", () => {
+describe("scaffoldShitenno", () => {
   describe("junior level", () => {
     const coreCaps: Capability[] = ["core", "knowledge"];
 
     it("creates base directories", () => {
-      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      const result = scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
       expect(result.capabilities).toContain("core");
-      expect(result.directoriesCreated).toContain("shitenno-go");
-      expect(result.directoriesCreated).toContain("shitenno-go/docs");
-      expect(result.directoriesCreated).toContain("shitenno-go/scripts");
-      expect(result.directoriesCreated).toContain("shitenno-go/docs/skills");
+      expect(result.directoriesCreated).toContain(".shitenno");
+      expect(result.directoriesCreated).toContain(".shitenno/docs");
+      expect(result.directoriesCreated).toContain(".shitenno/scripts");
+      expect(result.directoriesCreated).toContain(".shitenno/docs/skills");
     });
 
     it("creates base files", () => {
-      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
-      expect(result.filesCreated).toContain("shitenno-go/docs/AGENTS.md");
-      expect(result.filesCreated).toContain("shitenno-go/docs/FORBIDDEN_OPERATIONS.md");
-      expect(result.filesCreated).toContain("shitenno-go/docs/DESDO.md");
-      expect(result.filesCreated).toContain("shitenno-go/governance/SYSTEM_MAP.md");
+      const result = scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
+      expect(result.filesCreated).toContain(".shitenno/docs/AGENTS.md");
+      expect(result.filesCreated).toContain(".shitenno/docs/FORBIDDEN_OPERATIONS.md");
+      expect(result.filesCreated).toContain(".shitenno/docs/DESDO.md");
+      expect(result.filesCreated).toContain(".shitenno/governance/SYSTEM_MAP.md");
       expect(result.filesCreated).toContain("opencode.json");
     });
 
     it("copies core skills", () => {
-      const result = scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      const result = scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
       const skills = result.filesCreated.filter((f) =>
-        f.includes("shitenno-go/docs/skills/")
+        f.includes(".shitenno/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
 
     it("generates opencode.json at project root", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
       expect(existsSync(join(tempDir, "opencode.json"))).toBe(true);
     });
 
     it("customizes AGENTS.md with stack info", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers({ stack: ["react", "nextjs"] }), coreCaps);
+      scaffoldShitenno(tempDir, makeAnswers({ stack: ["react", "nextjs"] }), coreCaps);
       const content = require("node:fs").readFileSync(
-        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
+        join(tempDir, ".shitenno", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("react");
@@ -97,31 +97,31 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("does NOT create governance-only files for core only", () => {
-      const result = scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      const result = scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       // context_buffer.yaml IS now in core (always created)
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/context/context_buffer.yaml"
+        ".shitenno/governance/context/context_buffer.yaml"
       );
       // WORKFLOW.md is governance-only
       expect(result.filesCreated).not.toContain(
-        "shitenno-go/governance/WORKFLOW.md"
+        ".shitenno/governance/WORKFLOW.md"
       );
     });
 
     it("creates .gitignore with feedback pattern", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
+      scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
       const content = readFileSync(
         join(tempDir, ".gitignore"),
         "utf-8"
       );
-      expect(content).toContain("shitenno-go/docs/feedback");
+      expect(content).toContain(".shitenno/docs/feedback");
     });
 
     it("creates capabilities.md with customization", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), coreCaps);
-      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitenno(tempDir, makeAnswers(), coreCaps);
+      expect(existsSync(join(tempDir, ".shitenno", "docs", "capabilities.md"))).toBe(true);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
+        join(tempDir, ".shitenno", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("CAPABILITIES");
@@ -129,9 +129,9 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("AGENTS.md excludes governance section when governance not installed", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
+        join(tempDir, ".shitenno", "docs", "AGENTS.md"),
         "utf-8"
       );
       // The governance section should be removed
@@ -141,18 +141,18 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("AGENTS.md includes governance section when governance installed", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "governance"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core", "governance"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
+        join(tempDir, ".shitenno", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("ALGORITMO DE GESTÃO DE CONTEXTO");
     });
 
     it("AGENTS.md includes knowledge section when knowledge installed", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core", "knowledge"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "AGENTS.md"),
+        join(tempDir, ".shitenno", "docs", "AGENTS.md"),
         "utf-8"
       );
       expect(content).toContain("GOVERNANÇA DO DESIGN SYSTEM");
@@ -161,25 +161,25 @@ describe("scaffoldShitennoGo", () => {
 
   describe("pleno level", () => {
     it("adds context_buffer.yaml", () => {
-      const result = scaffoldShitennoGo(
+      const result = scaffoldShitenno(
         tempDir,
         makeAnswers(),
         ["core", "knowledge", "governance"]
       );
       expect(result.capabilities).toContain("governance");
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/context/context_buffer.yaml"
+        ".shitenno/governance/context/context_buffer.yaml"
       );
     });
 
     it("copies knowledge + governance skills", () => {
-      const result = scaffoldShitennoGo(
+      const result = scaffoldShitenno(
         tempDir,
         makeAnswers(),
         ["core", "knowledge", "governance"]
       );
       const skills = result.filesCreated.filter((f) =>
-        f.includes("shitenno-go/docs/skills/")
+        f.includes(".shitenno/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
@@ -189,60 +189,60 @@ describe("scaffoldShitennoGo", () => {
     const seniorCaps: Capability[] = ["core", "knowledge", "architecture", "governance", "ai", "quality", "metrics", "operations", "compliance"];
 
     it("adds cognition and all governance templates", () => {
-      const result = scaffoldShitennoGo(
+      const result = scaffoldShitenno(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
       expect(result.capabilities).toContain("ai");
       expect(result.filesCreated).toContain(
-        "shitenno-go/cognition/context/CONTEXT_HIERARCHY.md"
+        ".shitenno/cognition/context/CONTEXT_HIERARCHY.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/contracts/CONTRACTS_INDEX.md"
+        ".shitenno/governance/contracts/CONTRACTS_INDEX.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/handoffs/TEMPLATE.md"
+        ".shitenno/governance/handoffs/TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/premortem/PREMORTEM.md"
+        ".shitenno/governance/premortem/PREMORTEM.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/reviews/SESSION_REVIEW.md"
+        ".shitenno/governance/reviews/SESSION_REVIEW.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/docs/adrs/ADR-TEMPLATE.md"
+        ".shitenno/docs/adrs/ADR-TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/docs/sdr/SDR-TEMPLATE.md"
+        ".shitenno/docs/sdr/SDR-TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/governance/plans/TEMPLATE.md"
+        ".shitenno/governance/plans/TEMPLATE.md"
       );
       expect(result.filesCreated).toContain(
-        "shitenno-go/docs/session-template.md"
+        ".shitenno/docs/session-template.md"
       );
     });
 
     it("copies all skills for senior", () => {
-      const result = scaffoldShitennoGo(
+      const result = scaffoldShitenno(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
       const skills = result.filesCreated.filter((f) =>
-        f.includes("shitenno-go/docs/skills/")
+        f.includes(".shitenno/docs/skills/")
       );
       expect(skills.length).toBeGreaterThanOrEqual(11);
     });
 
     it("creates reports/ directory", () => {
-      const result = scaffoldShitennoGo(
+      const result = scaffoldShitenno(
         tempDir,
         makeAnswers(),
         seniorCaps
       );
-      expect(result.directoriesCreated).toContain("shitenno-go/reports");
+      expect(result.directoriesCreated).toContain(".shitenno/reports");
     });
   });
 
@@ -250,9 +250,9 @@ describe("scaffoldShitennoGo", () => {
 
   describe("SYSTEM_MAP.md capability status indicators", () => {
     it("shows ✅ for installed capabilities and 📋 for uninstalled", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "governance"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core", "governance"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, ".shitenno", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core and governance should be installed
@@ -265,9 +265,9 @@ describe("scaffoldShitennoGo", () => {
 
     it("shows all ✅ when all capabilities installed", () => {
       const allCaps: Capability[] = ["core", "knowledge", "architecture", "governance", "ai", "quality", "metrics", "operations", "compliance"];
-      scaffoldShitennoGo(tempDir, makeAnswers(), allCaps);
+      scaffoldShitenno(tempDir, makeAnswers(), allCaps);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, ".shitenno", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core should be ✅
@@ -283,9 +283,9 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("core is always ✅ even with only core installed", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, ".shitenno", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // core should be ✅
@@ -297,9 +297,9 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("preserves non-capability sections of SYSTEM_MAP.md", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "governance", "SYSTEM_MAP.md"),
+        join(tempDir, ".shitenno", "governance", "SYSTEM_MAP.md"),
         "utf-8"
       );
       // Core sections should remain
@@ -314,14 +314,14 @@ describe("scaffoldShitennoGo", () => {
 
   describe("capabilities.md scaffolding", () => {
     it("creates capabilities.md during scaffold", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
-      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
+      expect(existsSync(join(tempDir, ".shitenno", "docs", "capabilities.md"))).toBe(true);
     });
 
     it("capabilities.md contains all capability definitions", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
+        join(tempDir, ".shitenno", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("core");
@@ -336,16 +336,16 @@ describe("scaffoldShitennoGo", () => {
     });
 
     it("capabilities.md is not duplicated when same capability set", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core", "knowledge"]);
       // Run again with same capabilities - should not fail
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core", "knowledge"]);
-      expect(existsSync(join(tempDir, "shitenno-go", "docs", "capabilities.md"))).toBe(true);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core", "knowledge"]);
+      expect(existsSync(join(tempDir, ".shitenno", "docs", "capabilities.md"))).toBe(true);
     });
 
     it("capabilities.md references SYSTEM_MAP.md", () => {
-      scaffoldShitennoGo(tempDir, makeAnswers(), ["core"]);
+      scaffoldShitenno(tempDir, makeAnswers(), ["core"]);
       const content = readFileSync(
-        join(tempDir, "shitenno-go", "docs", "capabilities.md"),
+        join(tempDir, ".shitenno", "docs", "capabilities.md"),
         "utf-8"
       );
       expect(content).toContain("SYSTEM_MAP.md");

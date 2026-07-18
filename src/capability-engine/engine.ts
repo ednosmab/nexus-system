@@ -6,12 +6,12 @@ import { generateCapabilityRecommendations } from "./recommendations.js";
 
 export function evaluateCapabilities(
   state: EngineeringState,
-  shitenDir: string
+  shitennoDir: string
 ): CapabilityEngineResult {
   const capabilities = CAPABILITIES.map((capInfo) =>
     buildCapabilityEntity(
       capInfo,
-      shitenDir,
+      shitennoDir,
       state.capabilities,
       state.assets,
       state.maturity?.overallScore ?? 0

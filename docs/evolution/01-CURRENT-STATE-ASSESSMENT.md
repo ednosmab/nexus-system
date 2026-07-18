@@ -1,6 +1,6 @@
 # Current State Assessment
 
-> Where the Shitenno-go stands today.
+> Where the Shitenno stands today.
 
 ## Strengths
 

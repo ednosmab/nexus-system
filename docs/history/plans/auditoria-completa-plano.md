@@ -16,7 +16,7 @@
 ## Fase 1 — Segurança Crítica (P0)
 
 **Commit:** `fix: security critical vulnerabilities`
-**Ficheiros:** `src/rule-engine.ts`, `src/plugin-system.ts`, `src/event-bus.ts`, `src/pipeline.ts`, `shiten-plugins/health-check/plugin.ts`
+**Ficheiros:** `src/rule-engine.ts`, `src/plugin-system.ts`, `src/event-bus.ts`, `src/pipeline.ts`, `shitenno-plugins/health-check/plugin.ts`
 
 ### 1.1 Restringir `run_script` → `run_local_script`
 
@@ -116,8 +116,8 @@ function sanitizeFilename(input: string, maxLength = 64): string {
 
 Aplicar em `saveRule`:
 ```typescript
-export function saveRule(shitenDir: string, rule: Rule): void {
-  const rulesPath = join(shitenDir, RULES_DIR);
+export function saveRule(shitennoDir: string, rule: Rule): void {
+  const rulesPath = join(shitennoDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
@@ -130,7 +130,7 @@ export function saveRule(shitenDir: string, rule: Rule): void {
 Aplicar em `log_event`:
 ```typescript
 case "log_event": {
-  const historyDir = join(context.shitenDir, "docs", "history");
+  const historyDir = join(context.shitennoDir, "docs", "history");
   if (!existsSync(historyDir)) return { success: false, message: "history/ not found" };
 
   try {
@@ -183,7 +183,7 @@ case "matches_regex":
 
 ```typescript
 case "update_quick_board": {
-  const bufferPath = join(context.shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(context.shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return { success: false, message: "context_buffer.yaml not found" };
 
   try {
@@ -218,12 +218,12 @@ case "update_quick_board": {
 ### 1.5 Corrigir `require()` em ESM no health-check plugin
 
 **Problema:** `require("node:fs")` em contexto `"type": "module"` vai falhar.
-**Ficheiro:** `shiten-plugins/health-check/plugin.ts:50`
+**Ficheiro:** `shitenno-plugins/health-check/plugin.ts:50`
 
 **Solução:** Usar o import já existente no topo do ficheiro:
 
 ```typescript
-// shiten-plugins/health-check/plugin.ts — adicionar statSync ao import existente no topo:
+// shitenno-plugins/health-check/plugin.ts — adicionar statSync ao import existente no topo:
 import { existsSync, readdirSync, statSync } from "node:fs";
 // ...
 // linha 50 — ANTES:
@@ -232,7 +232,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 const stat = statSync(filepath);
 ```
 
-### 1.6 Adicionar `"knowledge.analyzed"` e eventos pipeline ao ShitenEventType
+### 1.6 Adicionar `"knowledge.analyzed"` e eventos pipeline ao ShitennoEventType
 
 **Problema:** Eventos publicados com `as never` porque não existem no tipo.
 **Ficheiro:** `src/event-bus.ts:12-30`
@@ -240,7 +240,7 @@ const stat = statSync(filepath);
 **Solução:** Adicionar tipos em falta:
 
 ```typescript
-export type ShitenEventType =
+export type ShitennoEventType =
   | "session.start"
   | "session.end"
   | "analysis.complete"
@@ -262,12 +262,12 @@ export type ShitenEventType =
   | "knowledge.analyzed";   // ← adicionar
 ```
 
-Depois remover os casts `as ShitenEventType` em `pipeline.ts` e `as never` em `audit.ts`:
+Depois remover os casts `as ShitennoEventType` em `pipeline.ts` e `as never` em `audit.ts`:
 
 ```typescript
 // src/pipeline.ts — linhas 60, 68, 90, 106, 119
 // ANTES:
-bus.publish("pipeline.complete" as ShitenEventType, { ... });
+bus.publish("pipeline.complete" as ShitennoEventType, { ... });
 // DEPOIS:
 bus.publish("pipeline.complete", { ... });
 
@@ -288,7 +288,7 @@ getEventBus().publish("knowledge.analyzed", ...);
 ```typescript
 import { chmodSync } from "node:fs";
 
-function writeCache(projectRoot: string, cache: ShitenCache): void {
+function writeCache(projectRoot: string, cache: ShitennoCache): void {
   const cachePath = join(projectRoot, CACHE_FILENAME);
   try {
     writeFileSync(cachePath, JSON.stringify(cache, null, 2), "utf-8");
@@ -322,7 +322,7 @@ export interface PipelineContext<
   TEvolution = unknown
 > {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
 
   analysis?: TAnalysis;
   complexityReport?: TComplexity;
@@ -407,12 +407,12 @@ export function safeJsonParse<T extends Record<string, unknown>>(
 Aplicar em `cache.ts`:
 ```typescript
 // src/cache.ts — readCache()
-function readCache(projectRoot: string): ShitenCache | null {
+function readCache(projectRoot: string): ShitennoCache | null {
   const cachePath = join(projectRoot, CACHE_FILENAME);
   if (!existsSync(cachePath)) return null;
 
   const content = readFileSync(cachePath, "utf-8");
-  const parsed = safeJsonParse<ShitenCache>(content, ["version", "projectRoot"], "ShitenCache");
+  const parsed = safeJsonParse<ShitennoCache>(content, ["version", "projectRoot"], "ShitennoCache");
   if (!parsed || parsed.version !== 1) return null;
   return parsed;
 }
@@ -472,7 +472,7 @@ Aplicar em todos os catch blocks de comandos:
 export function logOptionalError(error: unknown, context: string, verbose = false): void {
   if (verbose) {
     const message = error instanceof Error ? error.message : String(error);
-    console.warn(`[Shiten] ${context}: ${message}`);
+    console.warn(`[Shugo] ${context}: ${message}`);
   }
 }
 ```
@@ -574,11 +574,11 @@ export class FileContentCache {
 **Solução:** Manter apenas os últimos 100 eventos:
 
 ```typescript
-// src/event-bus.ts — ShitenEventBus
+// src/event-bus.ts — ShitennoEventBus
 
 private readonly MAX_HISTORY = 100;
 
-publish<T>(eventType: ShitenEventType, payload: T): void {
+publish<T>(eventType: ShitennoEventType, payload: T): void {
   this.eventHistory.push({
     type: eventType,
     payload,
@@ -690,26 +690,26 @@ export function calculateHealthPenalty(severity: "critical" | "high" | "medium" 
 // src/commands/detect.ts — ANTES:
 let patterns: PatternReport;
 let cacheHit = false;
-const cached = getCached<PatternReport>(ctx.projectRoot, ctx.shitenDir, "patterns",
-  () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+const cached = getCached<PatternReport>(ctx.projectRoot, ctx.shitennoDir, "patterns",
+  () => computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
 if (cached) {
   patterns = cached;
   cacheHit = true;
 } else {
-  patterns = detectPatterns(ctx.projectRoot, ctx.shitenDir);
-  setCache(ctx.projectRoot, ctx.shitenDir, "patterns",
+  patterns = detectPatterns(ctx.projectRoot, ctx.shitennoDir);
+  setCache(ctx.projectRoot, ctx.shitennoDir, "patterns",
     patterns as unknown as Record<string, unknown>,
-    computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+    computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
 }
 
 // DEPOIS:
 const { data: patterns, cacheHit } = await withCache(
-  ctx.projectRoot, ctx.shitenDir, "patterns",
-  () => detectPatterns(ctx.projectRoot, ctx.shitenDir)
+  ctx.projectRoot, ctx.shitennoDir, "patterns",
+  () => detectPatterns(ctx.projectRoot, ctx.shitennoDir)
 );
 ```
 
-### 3.5 Remover `createShitenCommand` (dead code)
+### 3.5 Remover `createShugoCommand` (dead code)
 
 **Problema:** Função definida mas nunca chamada.
 **Ficheiro:** `src/shared.ts:44-93`
@@ -732,16 +732,16 @@ import { existsSync, writeFileSync, readdirSync } from "node:fs";
 
 ### 3.7 Deduplicar COMMAND_GATES
 
-**Problema:** Mesma definição em `shared.ts` e `shiten-state-machine.ts`.
-**Ficheiros:** `src/shared.ts:131-146`, `src/shiten-state-machine.ts:181-194`
+**Problema:** Mesma definição em `shared.ts` e `shitenno-state-machine.ts`.
+**Ficheiros:** `src/shared.ts:131-146`, `src/shitenno-state-machine.ts:181-194`
 
-**Solução:** Usar uma única fonte em `shiten-state-machine.ts` e importar em `shared.ts`:
+**Solução:** Usar uma única fonte em `shitenno-state-machine.ts` e importar em `shared.ts`:
 
 ```typescript
 // src/shared.ts — substituir getRequiredState()
-import { COMMAND_GATES, type ShitenLifecycleState } from "./shiten-state-machine.js";
+import { COMMAND_GATES, type ShitennoLifecycleState } from "./shitenno-state-machine.js";
 
-function getRequiredState(command: string): ShitenLifecycleState {
+function getRequiredState(command: string): ShitennoLifecycleState {
   return COMMAND_GATES[command] || "discovered";
 }
 ```
@@ -794,7 +794,7 @@ Notas:
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["bin/shiten.ts"],
+  entry: ["bin/shugo.ts"],
   format: ["esm"],
   dts: true,
   clean: true,
@@ -842,13 +842,13 @@ import {
 
 describe("rule-engine", () => {
   let tempDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-test-"));
-    shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "governance", "rules"), { recursive: true });
-    mkdirSync(join(shitenDir, "docs", "history"), { recursive: true });
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-test-"));
+    shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "governance", "rules"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "history"), { recursive: true });
   });
 
   afterEach(() => {
@@ -857,8 +857,8 @@ describe("rule-engine", () => {
 
   describe("loadRules", () => {
     it("returns empty array when no rules dir exists", () => {
-      const emptyDir = mkdtempSync(join(tmpdir(), "shiten-empty-"));
-      const result = loadRules(join(emptyDir, "shitenno-go"));
+      const emptyDir = mkdtempSync(join(tmpdir(), "shitenno-empty-"));
+      const result = loadRules(join(emptyDir, "shitenno"));
       expect(result).toEqual([]);
       rmSync(emptyDir, { recursive: true, force: true });
     });
@@ -869,15 +869,15 @@ describe("rule-engine", () => {
         conditions: [], actions: [], priority: 1, dependencies: [],
         enabled: true, tags: [],
       };
-      saveRule(shitenDir, rule);
-      const rules = loadRules(shitenDir);
+      saveRule(shitennoDir, rule);
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(1);
       expect(rules[0].id).toBe("TEST-001");
     });
 
     it("skips invalid JSON files", () => {
-      writeFileSync(join(shitenDir, "governance", "rules", "bad.json"), "{ invalid");
-      const rules = loadRules(shitenDir);
+      writeFileSync(join(shitennoDir, "governance", "rules", "bad.json"), "{ invalid");
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(0);
     });
 
@@ -887,8 +887,8 @@ describe("rule-engine", () => {
         conditions: [], actions: [], priority: 1, dependencies: [],
         enabled: true, tags: [],
       };
-      writeFileSync(join(shitenDir, "governance", "rules", "_disabled.json"), JSON.stringify(rule));
-      const rules = loadRules(shitenDir);
+      writeFileSync(join(shitennoDir, "governance", "rules", "_disabled.json"), JSON.stringify(rule));
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(0);
     });
   });
@@ -900,9 +900,9 @@ describe("rule-engine", () => {
         conditions: [], actions: [], priority: 1, dependencies: [],
         enabled: true, tags: [],
       };
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
       const { existsSync } = await import("node:fs");
-      expect(existsSync(join(shitenDir, "governance", "rules", "RULE-001.json"))).toBe(true);
+      expect(existsSync(join(shitennoDir, "governance", "rules", "RULE-001.json"))).toBe(true);
     });
 
     it("rejects unsafe filenames", () => {
@@ -911,7 +911,7 @@ describe("rule-engine", () => {
         conditions: [], actions: [], priority: 1, dependencies: [],
         enabled: true, tags: [],
       };
-      expect(() => saveRule(shitenDir, rule as Rule)).toThrow("Invalid filename");
+      expect(() => saveRule(shitennoDir, rule as Rule)).toThrow("Invalid filename");
     });
   });
 
@@ -925,7 +925,7 @@ describe("rule-engine", () => {
       };
       const context: RuleContext = {
         trigger: "session_start", eventData: {},
-        projectRoot: tempDir, shitenDir, timestamp: new Date().toISOString(),
+        projectRoot: tempDir, shitennoDir, timestamp: new Date().toISOString(),
       };
       const result = executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
@@ -939,7 +939,7 @@ describe("rule-engine", () => {
       };
       const context: RuleContext = {
         trigger: "session_start", eventData: {},
-        projectRoot: tempDir, shitenDir, timestamp: new Date().toISOString(),
+        projectRoot: tempDir, shitennoDir, timestamp: new Date().toISOString(),
       };
       const result = executeRules([rule], context);
       expect(result.rulesExecuted).toBe(0);
@@ -953,7 +953,7 @@ describe("rule-engine", () => {
       };
       const context: RuleContext = {
         trigger: "session_start", eventData: { score: 60 },
-        projectRoot: tempDir, shitenDir, timestamp: new Date().toISOString(),
+        projectRoot: tempDir, shitennoDir, timestamp: new Date().toISOString(),
       };
       const result = executeRules([rule], context);
       expect(result.rulesExecuted).toBe(1);
@@ -967,7 +967,7 @@ describe("rule-engine", () => {
       };
       const context: RuleContext = {
         trigger: "session_start", eventData: { name: "aaaaaaaaaa" },
-        projectRoot: tempDir, shitenDir, timestamp: new Date().toISOString(),
+        projectRoot: tempDir, shitennoDir, timestamp: new Date().toISOString(),
       };
       const result = executeRules([rule], context);
       expect(result.rulesSkipped).toBe(1);
@@ -1011,7 +1011,7 @@ describe("knowledge-graph", () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-kg-"));
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-kg-"));
   });
 
   afterEach(() => {
@@ -1081,14 +1081,14 @@ import { detectKnowledgeDebt } from "../knowledge-debt.js";
 
 describe("knowledge-debt", () => {
   let tempDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-debt-"));
-    shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
-    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
-    mkdirSync(join(shitenDir, "governance", "contracts"), { recursive: true });
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-debt-"));
+    shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "docs", "adrs"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
+    mkdirSync(join(shitennoDir, "governance", "contracts"), { recursive: true });
   });
 
   afterEach(() => {
@@ -1096,16 +1096,16 @@ describe("knowledge-debt", () => {
   });
 
   it("detects missing ADRs", () => {
-    const report = detectKnowledgeDebt(tempDir, shitenDir);
+    const report = detectKnowledgeDebt(tempDir, shitennoDir);
     expect(report.totalGaps).toBeGreaterThan(0);
     expect(report.gaps.some((g) => g.type === "missing_adrs")).toBe(true);
   });
 
   it("detects no debt when all artifacts exist", () => {
-    writeFileSync(join(shitenDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
-    writeFileSync(join(shitenDir, "docs", "skills", "skill-001.md"), "# Skill 001");
-    writeFileSync(join(shitenDir, "governance", "contracts", "contract-001.md"), "# Contract 001");
-    const report = detectKnowledgeDebt(tempDir, shitenDir);
+    writeFileSync(join(shitennoDir, "docs", "adrs", "ADR-001.md"), "# ADR 001");
+    writeFileSync(join(shitennoDir, "docs", "skills", "skill-001.md"), "# Skill 001");
+    writeFileSync(join(shitennoDir, "governance", "contracts", "contract-001.md"), "# Contract 001");
+    const report = detectKnowledgeDebt(tempDir, shitennoDir);
     expect(report.totalGaps).toBe(0);
   });
 });
@@ -1124,12 +1124,12 @@ import { consolidateState } from "../state-manager.js";
 
 describe("state-manager", () => {
   let tempDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-state-"));
-    shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(shitenDir, { recursive: true });
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-state-"));
+    shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(shitennoDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -1137,14 +1137,14 @@ describe("state-manager", () => {
   });
 
   it("consolidates state from project files", () => {
-    const state = consolidateState(tempDir, shitenDir);
+    const state = consolidateState(tempDir, shitennoDir);
     expect(state).toBeDefined();
     expect(state.projectRoot).toBe(tempDir);
-    expect(state.shitenDir).toBe(shitenDir);
+    expect(state.shitennoDir).toBe(shitennoDir);
   });
 
   it("handles missing maturity profile gracefully", () => {
-    const state = consolidateState(tempDir, shitenDir);
+    const state = consolidateState(tempDir, shitennoDir);
     expect(state.maturity).toBeNull();
   });
 });
@@ -1165,7 +1165,7 @@ describe("auto-evolution", () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-evo-"));
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-evo-"));
   });
 
   afterEach(() => {
@@ -1173,15 +1173,15 @@ describe("auto-evolution", () => {
   });
 
   it("generates recommendations for uninitialized project", () => {
-    const recs = generateEvolutionRecommendations(tempDir, join(tempDir, "shitenno-go"));
+    const recs = generateEvolutionRecommendations(tempDir, join(tempDir, "shitenno"));
     expect(Array.isArray(recs)).toBe(true);
   });
 
   it("returns fewer recommendations for complete project", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
-    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
-    const recs = generateEvolutionRecommendations(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(join(shitennoDir, "docs", "adrs"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
+    const recs = generateEvolutionRecommendations(tempDir, shitennoDir);
     expect(recs.length).toBeLessThan(5);
   });
 });
@@ -1244,7 +1244,7 @@ describe("auto-evolution", () => {
 - Add restrictive file permissions for cache and reports
 
 ### Fixed
-- Add missing `knowledge.analyzed` and pipeline event types to ShitenEventType
+- Add missing `knowledge.analyzed` and pipeline event types to ShitennoEventType
 - Standardize exit codes — all commands now exit with code 1 on error
 - Fix inverted color logic in `miniBar` formatting function
 - Replace empty catch blocks with conditional error logging
@@ -1256,8 +1256,8 @@ describe("auto-evolution", () => {
 - Extract banner display to shared function (removed 12x duplication)
 - Extract health score deductions to shared constants (removed 3x duplication)
 - Use `withCache()` helper in commands (removed manual cache pattern)
-- Remove dead code: `createShitenCommand`, unused imports
-- Consolidate COMMAND_GATES to single source in shiten-state-machine.ts
+- Remove dead code: `createShugoCommand`, unused imports
+- Consolidate COMMAND_GATES to single source in shitenno-state-machine.ts
 - Add LRU eviction to FileContentCache (max 1000 entries)
 - Limit eventHistory to last 100 events
 

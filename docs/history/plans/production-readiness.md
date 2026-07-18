@@ -1,7 +1,7 @@
 # Plano: Production Readiness — shitenno-cli
 
 **Data:** 2026-06-27
-**Objetivo:** Cobrir os gaps restantes para o shiten ser um sistema production-ready.
+**Objetivo:** Cobrir os gaps restantes para o shugo ser um sistema production-ready.
 **Escopo:** 3 fases leves, ~2-3 horas de trabalho.
 
 ---
@@ -56,31 +56,31 @@ export function analyseProject(projectRoot: string): ProjectAnalysis {
  * score composto com nível recomendado (junior/pleno/senior).
  *
  * @param projectRoot - Diretório raiz do projeto
- * @param shitenDir - Caminho para shitenno-go/
+ * @param shitennoDir - Caminho para shitenno/
  * @param analysis - Resultado de analyseProject()
  * @returns Relatório completo de complexidade
  */
 export async function calculateComplexityScore(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   analysis: ProjectAnalysis
 ): Promise<ComplexityReport> {
 ```
 
-### 1.3 `src/scaffolder.ts:91` — `scaffoldShitennoGo`
+### 1.3 `src/scaffolder.ts:91` — `scaffoldShitenno`
 
 ```typescript
 /**
- * Cria a estrutura inicial do Shitenno-go num projeto.
+ * Cria a estrutura inicial do Shitenno num projeto.
  *
- * Gera opencode.json, shitenno-go/, shiten-profile/, skills,
+ * Gera opencode.json, shitenno/, shitenno-profile/, skills,
  * scripts e docs baseado no nível do time.
  *
  * @param projectRoot - Diretório onde criar a estrutura
  * @param options - Opções de scaffolding (level, force, etc.)
  * @returns Resultado com arquivos criados
  */
-export function scaffoldShitennoGo(
+export function scaffoldShitenno(
   projectRoot: string,
   options: ScaffolderOptions
 ): ScaffolderResult {
@@ -90,14 +90,14 @@ export function scaffoldShitennoGo(
 
 ```typescript
 /**
- * Grava relatório de saúde em shitenno-go/reports/.
+ * Grava relatório de saúde em shitenno/reports/.
  *
- * @param shitenDir - Diretório do shitenno-go
+ * @param shitennoDir - Diretório do shitenno
  * @param report - Relatório de auditoria de saúde
  * @returns Nome do ficheiro criado ou null se reports/ não existir
  */
 export function writeHealthReport(
-  shitenDir: string,
+  shitennoDir: string,
   report: HealthAuditReport
 ): string | null {
 ```
@@ -186,11 +186,11 @@ describe("Edge Cases", () => {
     expect(analysis.packageCount).toBe(0);
   });
 
-  it("handles non-existent shiten dir", async () => {
+  it("handles non-existent shugo dir", async () => {
     const analysis = analyseProject("/tmp/nonexistent");
     const report = await calculateComplexityScore(
       "/tmp/nonexistent",
-      "/tmp/nonexistent/shitenno-go",
+      "/tmp/nonexistent/shitenno",
       analysis
     );
     expect(report.score).toBe(0);
@@ -199,11 +199,11 @@ describe("Edge Cases", () => {
 
   it("handles project with 1000+ files", async () => {
     // Create temp dir with 1000 files
-    const tmpDir = "/tmp/shiten-bulk-test";
+    const tmpDir = "/tmp/shitenno-bulk-test";
     // ... setup ...
     const analysis = analyseProject(tmpDir);
     const start = Date.now();
-    await calculateComplexityScore(tmpDir, `${tmpDir}/shitenno-go`, analysis);
+    await calculateComplexityScore(tmpDir, `${tmpDir}/shitenno`, analysis);
     expect(Date.now() - start).toBeLessThan(5000); // <5s
   });
 });

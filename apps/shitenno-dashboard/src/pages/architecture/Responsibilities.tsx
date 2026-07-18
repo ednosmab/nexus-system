@@ -17,7 +17,7 @@ export default function Responsibilities() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Responsabilidades</h1>
         <p className="text-text-secondary max-w-2xl">
-          Quem faz o que no Shitenno-go. Cada componente tem uma responsabilidade clara.
+          Quem faz o que no Shitenno. Cada componente tem uma responsabilidade clara.
         </p>
       </section>
 

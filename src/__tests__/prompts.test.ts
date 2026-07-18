@@ -104,7 +104,7 @@ describe("askQuestions", () => {
   it("maps maturity answers from all blocks", async () => {
     const result = await callAskQuestions();
     const m = result.maturity;
-    expect(m).toHaveProperty("usedShitenBefore");
+    expect(m).toHaveProperty("usedShitennoBefore");
     expect(m).toHaveProperty("isFirstProject");
     expect(m).toHaveProperty("projectAge");
     expect(m).toHaveProperty("teamSize");

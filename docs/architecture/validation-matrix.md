@@ -4,7 +4,7 @@
 
 ## Purpose
 
-This matrix validates that every module in the Shitenno-go maps clearly to a [Meta Model](../domain/meta-model.md) concept. Modules that cannot be mapped should have their responsibility re-evaluated.
+This matrix validates that every module in the Shitenno maps clearly to a [Meta Model](../domain/meta-model.md) concept. Modules that cannot be mapped should have their responsibility re-evaluated.
 
 ---
 
@@ -24,7 +24,7 @@ This matrix validates that every module in the Shitenno-go maps clearly to a [Me
 | `auto-evolution.ts` | Decisions → Actions | Evolution recs | System state | No | Yes | No | No |
 | `feedback-loops.ts` | Actions → Project Evolution | Feedback records | Outcomes | Yes | Yes | No | Yes |
 | `knowledge-graph.ts` | Knowledge → Assets (Relations) | Graph analysis | Artifacts | Yes | Yes | No | No |
-| `shiten-state-machine.ts` | Infrastructure (Lifecycle) | Lifecycle state | Transitions | Yes | Yes | No | Yes |
+| `shitenno-state-machine.ts` | Infrastructure (Lifecycle) | Lifecycle state | Transitions | Yes | Yes | No | Yes |
 | `rule-engine.ts` | Infrastructure (Rules) | Rule results | Rules, events | Depends | Yes | No | Yes |
 | `event-bus.ts` | Infrastructure (Events) | Event distribution | Events | No | Yes | No | Yes |
 | `pipeline.ts` | Infrastructure (Orchestration) | Stage results | Stages | No | Yes | No | Yes |
@@ -83,7 +83,7 @@ This matrix validates that every module in the Shitenno-go maps clearly to a [Me
 
 ### All Modules Mapped
 
-Every module in the Shitenno-go maps to either a Meta Model concept or an Infrastructure concern. No modules are unmapped.
+Every module in the Shitenno maps to either a Meta Model concept or an Infrastructure concern. No modules are unmapped.
 
 ### Meta Model Alignment
 

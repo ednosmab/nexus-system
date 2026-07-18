@@ -21,7 +21,7 @@ import { DaemonCircuitBreaker } from "./daemon-circuit-breaker.js";
 
 export interface MiddlewareContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   sessionId: string | null;
 }
 
@@ -64,7 +64,7 @@ export function installMiddleware(program: Command, ctx: MiddlewareContext): voi
 
     // Track command in session
     if (ctx.sessionId) {
-      trackCommand(ctx.shitenDir, ctx.sessionId, commandName);
+      trackCommand(ctx.shitennoDir, ctx.sessionId, commandName);
     }
 
     // Publish session.start once per CLI invocation
@@ -83,14 +83,14 @@ export function installMiddleware(program: Command, ctx: MiddlewareContext): voi
     // Fire-and-forget — never blocks or throws into CLI flow
     if (!shouldSkipDaemon() && commandName !== "daemon") {
       try {
-        const breaker = new DaemonCircuitBreaker(ctx.shitenDir);
-        const approvedPath = getApprovedPath(ctx.shitenDir);
+        const breaker = new DaemonCircuitBreaker(ctx.shitennoDir);
+        const approvedPath = getApprovedPath(ctx.shitennoDir);
         if (
           existsSync(approvedPath) &&
           !breaker.isTripped() &&
-          !isDaemonRunning(ctx.shitenDir)
+          !isDaemonRunning(ctx.shitennoDir)
         ) {
-          startDaemon(ctx.shitenDir).catch(() => {
+          startDaemon(ctx.shitennoDir).catch(() => {
             // Auto-start failure is silent — CLI continues without daemon
           });
         }

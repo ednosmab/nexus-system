@@ -17,7 +17,7 @@ import {
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-backlog-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-backlog-"));
 });
 
 afterEach(() => {
@@ -29,7 +29,7 @@ const sampleItem: BacklogItem = {
   title: "Test issue",
   severity: "Critico",
   priority: "P0",
-  source: "shiten audit",
+  source: "shugo audit",
   date: "2026-06-30",
   modules: ["src/test.ts"],
   description: "This is a test issue",
@@ -126,7 +126,7 @@ describe("formatBacklogItem", () => {
     expect(result).toContain("**Prioridade** | P0");
     expect(result).toContain("**Owner** | unassigned");
     expect(result).toContain("**Data** | 2026-06-30");
-    expect(result).toContain("**Fonte** | shiten audit");
+    expect(result).toContain("**Fonte** | shugo audit");
     expect(result).toContain("**Modulos** | src/test.ts");
     expect(result).toContain("**Descricao** | This is a test issue");
     expect(result).toContain("**Correcao** | Fix the test");
@@ -219,7 +219,7 @@ describe("issueToBacklogItem", () => {
       type: "missing_docs",
       severity: 3,
       description: "Missing WORKFLOW.md",
-      location: "shitenno-go/governance/WORKFLOW.md",
+      location: "shitenno/governance/WORKFLOW.md",
       recommendation: "Create WORKFLOW.md",
     };
 
@@ -228,8 +228,8 @@ describe("issueToBacklogItem", () => {
     expect(item.title).toBe("Missing WORKFLOW.md");
     expect(item.severity).toBe("Critico");
     expect(item.priority).toBe("P0");
-    expect(item.source).toBe("shiten audit");
-    expect(item.modules).toContain("shitenno-go/governance/WORKFLOW.md");
+    expect(item.source).toBe("shugo audit");
+    expect(item.modules).toContain("shitenno/governance/WORKFLOW.md");
   });
 });
 

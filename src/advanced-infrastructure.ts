@@ -12,7 +12,7 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { getEventBus, type ShitenEventType, type EventBus } from "./event-bus.js";
+import { getEventBus, type ShitennoEventType, type EventBus } from "./event-bus.js";
 import { logger } from "./logger.js";
 import { BoundedQueue, LRUCache } from "./daemon-resources.js";
 
@@ -30,7 +30,7 @@ export interface VersionedEvent<T = unknown> {
   /** Unique event ID. */
   id: string;
   /** Event type. */
-  type: ShitenEventType;
+  type: ShitennoEventType;
   /** Event payload. */
   payload: T;
   /** Schema version (for migration). */
@@ -73,7 +73,7 @@ export interface ReplayResult {
 
 // ── Event Version Registry ─────────────────────────────────────────────────
 
-const EVENT_VERSIONS: Record<ShitenEventType, EventVersion> = {
+const EVENT_VERSIONS: Record<ShitennoEventType, EventVersion> = {
   "session.start": 1,
   "session.end": 1,
   "analysis.complete": 1,
@@ -146,9 +146,9 @@ export class DeadLetterQueue {
   private queue: BoundedQueue<DeadLetterEvent>;
   private dir: string;
 
-  constructor(shitenDir: string) {
+  constructor(shitennoDir: string) {
     this.queue = new BoundedQueue<DeadLetterEvent>(MAX_DLQ_SIZE);
-    this.dir = join(shitenDir, "telemetry", "dead-letter");
+    this.dir = join(shitennoDir, "telemetry", "dead-letter");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }
@@ -182,7 +182,7 @@ export class DeadLetterQueue {
   }
 
   /** Get dead-letter events for a specific event type. */
-  getByType(type: ShitenEventType): DeadLetterEvent[] {
+  getByType(type: ShitennoEventType): DeadLetterEvent[] {
     return this.queue.filter((dl) => dl.event.type === type);
   }
 
@@ -196,7 +196,7 @@ export class DeadLetterQueue {
     const eventBus = bus ?? getEventBus();
 
     try {
-      eventBus.publish(dl.event.type as ShitenEventType, dl.event.payload as Record<string, unknown>, {
+      eventBus.publish(dl.event.type as ShitennoEventType, dl.event.payload as Record<string, unknown>, {
         correlationId: dl.event.correlationId,
         traceId: dl.event.traceId,
       });
@@ -323,9 +323,9 @@ export class EventReplayer {
     const history = this.bus.getHistory();
     const events: VersionedEvent[] = history.map((entry) => ({
       id: randomUUID(),
-      type: entry.type as ShitenEventType,
+      type: entry.type as ShitennoEventType,
       payload: entry.payload,
-      version: EVENT_VERSIONS[entry.type as ShitenEventType] ?? 1,
+      version: EVENT_VERSIONS[entry.type as ShitennoEventType] ?? 1,
       timestamp: entry.timestamp,
     }));
 
@@ -347,7 +347,7 @@ export class EventReplayer {
 
 /** Create a versioned event with automatic version. */
 export function createVersionedEvent<T>(
-  type: ShitenEventType,
+  type: ShitennoEventType,
   payload: T,
   options?: { correlationId?: string; traceId?: string; version?: EventVersion }
 ): VersionedEvent<T> {
@@ -375,6 +375,6 @@ export function migrateEvent<T>(event: VersionedEvent<T>): VersionedEvent<T> {
 }
 
 /** Get current version for an event type. */
-export function getEventVersion(type: ShitenEventType): EventVersion {
+export function getEventVersion(type: ShitennoEventType): EventVersion {
   return EVENT_VERSIONS[type] ?? 1;
 }

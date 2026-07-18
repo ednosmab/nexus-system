@@ -22,7 +22,7 @@ import type { SessionFeedbackRecord } from "../session-feedback.js";
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function createTmpDir(): string {
-  const dir = join(tmpdir(), `shiten-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(tmpdir(), `shitenno-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }

@@ -6,12 +6,12 @@ import chalk from "chalk";
 import { join } from "node:path";
 import { PlanEngine, FilePlanRepository, type PlanStatus } from "../../plan-engine.js";
 import { ActionEngine, FileExecutionRepository } from "../../action-engine.js";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 
 export function getEngine(dir: string): PlanEngine {
-  const shitenDir = join(dir, SHITEN_DIR_NAME);
-  const actionEngine = new ActionEngine(new FileExecutionRepository(shitenDir));
-  return new PlanEngine(new FilePlanRepository(shitenDir), actionEngine);
+  const shitennoDir = join(dir, SHITENNO_DIR_NAME);
+  const actionEngine = new ActionEngine(new FileExecutionRepository(shitennoDir));
+  return new PlanEngine(new FilePlanRepository(shitennoDir), actionEngine);
 }
 
 export const STATUS_COLORS: Record<PlanStatus, (s: string) => string> = {

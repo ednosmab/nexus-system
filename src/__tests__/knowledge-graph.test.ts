@@ -24,16 +24,16 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function createTmpDir(): string {
-  const dir = join(tmpdir(), `shiten-kg-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(tmpdir(), `shitenno-kg-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
 
-function createShitenDir(tmpDir: string): string {
-  const shitenDir = join(tmpDir, "shitenno-go");
-  mkdirSync(shitenDir, { recursive: true });
-  mkdirSync(join(shitenDir, "governance", "knowledge-graph"), { recursive: true });
-  return shitenDir;
+function createShitennoDir(tmpDir: string): string {
+  const shitennoDir = join(tmpDir, "shitenno");
+  mkdirSync(shitennoDir, { recursive: true });
+  mkdirSync(join(shitennoDir, "governance", "knowledge-graph"), { recursive: true });
+  return shitennoDir;
 }
 
 function createMockArtifact(overrides: Partial<Artifact> = {}): Artifact {
@@ -66,11 +66,11 @@ function createMockRelation(overrides: Partial<Relation> = {}): Relation {
 
 describe("knowledge-graph", () => {
   let tmpDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    shitenDir = createShitenDir(tmpDir);
+    shitennoDir = createShitennoDir(tmpDir);
   });
 
   afterEach(() => {
@@ -79,41 +79,41 @@ describe("knowledge-graph", () => {
 
   describe("loadArtifacts", () => {
     it("returns empty array when file does not exist", () => {
-      const artifacts = loadArtifacts(shitenDir);
+      const artifacts = loadArtifacts(shitennoDir);
       expect(artifacts).toEqual([]);
     });
 
     it("loads artifacts from file", () => {
-      const artifactsPath = join(shitenDir, "governance", "knowledge-graph", "artifacts.json");
+      const artifactsPath = join(shitennoDir, "governance", "knowledge-graph", "artifacts.json");
       const artifacts = [createMockArtifact(), createMockArtifact({ id: "adr-002" })];
       writeFileSync(artifactsPath, JSON.stringify(artifacts), "utf-8");
 
-      const loaded = loadArtifacts(shitenDir);
+      const loaded = loadArtifacts(shitennoDir);
       expect(loaded).toHaveLength(2);
       expect(loaded[0]?.id).toBe("adr-001");
     });
 
     it("returns empty array on invalid JSON", () => {
-      const artifactsPath = join(shitenDir, "governance", "knowledge-graph", "artifacts.json");
+      const artifactsPath = join(shitennoDir, "governance", "knowledge-graph", "artifacts.json");
       writeFileSync(artifactsPath, "invalid json", "utf-8");
 
-      const artifacts = loadArtifacts(shitenDir);
+      const artifacts = loadArtifacts(shitennoDir);
       expect(artifacts).toEqual([]);
     });
   });
 
   describe("loadRelations", () => {
     it("returns empty array when file does not exist", () => {
-      const relations = loadRelations(shitenDir);
+      const relations = loadRelations(shitennoDir);
       expect(relations).toEqual([]);
     });
 
     it("loads relations from file", () => {
-      const relationsPath = join(shitenDir, "governance", "knowledge-graph", "relations.json");
+      const relationsPath = join(shitennoDir, "governance", "knowledge-graph", "relations.json");
       const relations = [createMockRelation(), createMockRelation({ source: "adr-002" })];
       writeFileSync(relationsPath, JSON.stringify(relations), "utf-8");
 
-      const loaded = loadRelations(shitenDir);
+      const loaded = loadRelations(shitennoDir);
       expect(loaded).toHaveLength(2);
     });
   });
@@ -121,9 +121,9 @@ describe("knowledge-graph", () => {
   describe("saveArtifacts", () => {
     it("saves artifacts to file", () => {
       const artifacts = [createMockArtifact(), createMockArtifact({ id: "adr-002" })];
-      saveArtifacts(shitenDir, artifacts);
+      saveArtifacts(shitennoDir, artifacts);
 
-      const artifactsPath = join(shitenDir, "governance", "knowledge-graph", "artifacts.json");
+      const artifactsPath = join(shitennoDir, "governance", "knowledge-graph", "artifacts.json");
       expect(existsSync(artifactsPath)).toBe(true);
 
       const loaded = JSON.parse(require("node:fs").readFileSync(artifactsPath, "utf-8"));
@@ -140,9 +140,9 @@ describe("knowledge-graph", () => {
   describe("saveRelations", () => {
     it("saves relations to file", () => {
       const relations = [createMockRelation()];
-      saveRelations(shitenDir, relations);
+      saveRelations(shitennoDir, relations);
 
-      const relationsPath = join(shitenDir, "governance", "knowledge-graph", "relations.json");
+      const relationsPath = join(shitennoDir, "governance", "knowledge-graph", "relations.json");
       expect(existsSync(relationsPath)).toBe(true);
 
       const loaded = JSON.parse(require("node:fs").readFileSync(relationsPath, "utf-8"));
@@ -152,40 +152,40 @@ describe("knowledge-graph", () => {
 
   describe("discoverArtifacts", () => {
     it("discovers ADRs", () => {
-      const adrDir = join(shitenDir, "docs", "adrs");
+      const adrDir = join(shitennoDir, "docs", "adrs");
       mkdirSync(adrDir, { recursive: true });
       writeFileSync(join(adrDir, "ADR-001.md"), "# ADR 001", "utf-8");
       writeFileSync(join(adrDir, "ADR-002.md"), "# ADR 002", "utf-8");
 
-      const artifacts = discoverArtifacts(shitenDir);
+      const artifacts = discoverArtifacts(shitennoDir);
       const adrs = artifacts.filter((a) => a.type === "adr");
       expect(adrs).toHaveLength(2);
       expect(adrs[0]?.id).toBe("adr-ADR-001");
     });
 
     it("discovers skills", () => {
-      const skillsDir = join(shitenDir, "docs", "skills");
+      const skillsDir = join(shitennoDir, "docs", "skills");
       mkdirSync(skillsDir, { recursive: true });
       writeFileSync(join(skillsDir, "test_skill.md"), "# Skill", "utf-8");
 
-      const artifacts = discoverArtifacts(shitenDir);
+      const artifacts = discoverArtifacts(shitennoDir);
       const skills = artifacts.filter((a) => a.type === "skill");
       expect(skills).toHaveLength(1);
       expect(skills[0]?.id).toContain("skill");
     });
 
     it("returns empty array when no artifacts exist", () => {
-      const artifacts = discoverArtifacts(shitenDir);
+      const artifacts = discoverArtifacts(shitennoDir);
       expect(artifacts).toEqual([]);
     });
 
     it("ignores template files", () => {
-      const adrDir = join(shitenDir, "docs", "adrs");
+      const adrDir = join(shitennoDir, "docs", "adrs");
       mkdirSync(adrDir, { recursive: true });
       writeFileSync(join(adrDir, "ADR-TEMPLATE.md"), "# Template", "utf-8");
       writeFileSync(join(adrDir, "ADR-001.md"), "# ADR 001", "utf-8");
 
-      const artifacts = discoverArtifacts(shitenDir);
+      const artifacts = discoverArtifacts(shitennoDir);
       const adrs = artifacts.filter((a) => a.type === "adr");
       expect(adrs).toHaveLength(1);
     });

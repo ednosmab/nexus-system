@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { resolveWithinRoot } from "../../path-safety.js";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 import { logger } from "../../logger.js";
 import { getEventBus } from "../../event-bus.js";
 import type {
@@ -18,8 +18,8 @@ import type {
 import { detectStatusMarkers, detectCrossReferences, detectSupersession } from "./detectors.js";
 import { classifyDocument, discoverDocuments, hasRecentCommits, getLastModified } from "./classifier.js";
 
-export function auditDocLifecycle(projectRoot: string, shitenDir: string): DocLifecycleReport {
-  const docs = discoverDocuments(projectRoot, shitenDir);
+export function auditDocLifecycle(projectRoot: string, shitennoDir: string): DocLifecycleReport {
+  const docs = discoverDocuments(projectRoot, shitennoDir);
   const allDocPaths = docs.map((d) => d.path);
 
   const plans = docs.filter((d) => d.docType === "plan");
@@ -71,7 +71,7 @@ export function auditDocLifecycle(projectRoot: string, shitenDir: string): DocLi
     .filter((c) => c.confidence >= 0.5)
     .map((c) => ({
       source: c.relativePath,
-      destination: join(SHITEN_DIR_NAME, "docs", c.suggestedDestination, basename(c.path)),
+      destination: join(SHITENNO_DIR_NAME, "docs", c.suggestedDestination, basename(c.path)),
       docType: c.docType,
       status: c.status,
       reason: c.evidence.join("; "),
@@ -106,12 +106,12 @@ export function auditDocLifecycle(projectRoot: string, shitenDir: string): DocLi
   };
 }
 
-export function applyMoves(report: DocLifecycleReport, shitenDir: string, dryRun: boolean): MoveResult {
+export function applyMoves(report: DocLifecycleReport, shitennoDir: string, dryRun: boolean): MoveResult {
   const result: MoveResult = { movesApplied: 0, movesSkipped: 0, errors: [] };
 
   for (const move of report.proposedMoves) {
-    const sourcePath = join(shitenDir, "..", move.source);
-    const destDir = join(shitenDir, "docs", move.destination.replace("shitenno-go/docs/", ""));
+    const sourcePath = join(shitennoDir, "..", move.source);
+    const destDir = join(shitennoDir, "docs", move.destination.replace(/\.?shitenno\/docs\//, ""));
     const destPath = resolveWithinRoot(destDir, basename(move.source));
 
     if (!existsSync(sourcePath)) {
@@ -138,7 +138,7 @@ export function applyMoves(report: DocLifecycleReport, shitenDir: string, dryRun
         timestamp: new Date().toISOString(),
       });
 
-      const changelogPath = join(shitenDir, "docs", "_archive", "CHANGELOG.md");
+      const changelogPath = join(shitennoDir, "docs", "_archive", "CHANGELOG.md");
       const entry = [
         `## ${new Date().toISOString().split("T")[0]}`,
         "",
@@ -165,8 +165,8 @@ export function applyMoves(report: DocLifecycleReport, shitenDir: string, dryRun
   return result;
 }
 
-export function writeDocLifecycleReport(shitenDir: string, report: DocLifecycleReport): string {
-  const reportsDir = join(shitenDir, "reports");
+export function writeDocLifecycleReport(shitennoDir: string, report: DocLifecycleReport): string {
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) {
     mkdirSync(reportsDir, { recursive: true });
   }

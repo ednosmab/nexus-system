@@ -3,7 +3,7 @@
 #
 # Usage: bash tests/e2e/validate.sh
 #
-# Validates the full Shiten workflow using 3 pre-defined personas:
+# Validates the full Shugo workflow using 3 pre-defined personas:
 #   1. junior-solo: new project, solo dev, no governance
 #   2. established-team: 6-month project, small team, CI + tests
 #   3. senior-enterprise: mature project, full governance
@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SHITENNO_CLI="$PROJECT_ROOT/dist/bin/shiten.js"
+SHITENNO_CLI="$PROJECT_ROOT/dist/bin/shugo.js"
 PERSONAS_DIR="$SCRIPT_DIR/personas"
 DATE=$(date +%Y-%m-%d)
 REPORT="$SCRIPT_DIR/e2e-report-$DATE.txt"
@@ -81,7 +81,7 @@ create_test_project() {
 # ── Header ──────────────────────────────────────────────────────────────────────
 echo "" > "$REPORT"
 log "${BOLD}═══════════════════════════════════════════════════${NC}"
-log "${BOLD}  E2E Validation Report — Shitenno-go${NC}"
+log "${BOLD}  E2E Validation Report — Shitenno${NC}"
 log "${BOLD}═══════════════════════════════════════════════════${NC}"
 log ""
 log "Date:     $DATE"
@@ -96,7 +96,7 @@ rm -rf dist
 pnpm run build 2>&1 | tail -5 | tee -a "$REPORT"
 
 if [ ! -f "$SHITENNO_CLI" ]; then
-  log "${RED}✘ Build failed — dist/bin/shiten.js not found${NC}"
+  log "${RED}✘ Build failed — dist/bin/shugo.js not found${NC}"
   exit 1
 fi
 log "${GREEN}✔ Build complete${NC}"
@@ -140,73 +140,73 @@ for persona in junior-solo established-team senior-enterprise; do
   log "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   log ""
 
-  TEST_DIR="/tmp/shiten-e2e-$persona-$$"
+  TEST_DIR="/tmp/shitenno-e2e-$persona-$$"
   rm -rf "$TEST_DIR"
   create_test_project "$TEST_DIR" "$persona"
 
-  # ── shiten init ──────────────────────────────────────────────────────────────
+  # ── shugo init ──────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" init --dir "$TEST_DIR" --answers-file "$PERSONA_FILE" 2>&1) || true
-  check "shiten init" "$?" "$output" "Framework|installed|Shitenno-go"
+  check "shugo init" "$?" "$output" "Framework|installed|Shitenno"
 
-  # ── shiten status ────────────────────────────────────────────────────────────
+  # ── shugo status ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" status --dir "$TEST_DIR" 2>&1) || true
-  check "shiten status" "$?" "$output" "Complexity|Health|Maturity|Score|score"
+  check "shugo status" "$?" "$output" "Complexity|Health|Maturity|Score|score"
 
-  # ── shiten detect ────────────────────────────────────────────────────────────
+  # ── shugo detect ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" detect --dir "$TEST_DIR" 2>&1) || true
-  check "shiten detect" "$?" "$output" "Pattern|pattern|No patterns|Detect|detect"
+  check "shugo detect" "$?" "$output" "Pattern|pattern|No patterns|Detect|detect"
 
-  # ── shiten audit ─────────────────────────────────────────────────────────────
+  # ── shugo audit ─────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" audit --dir "$TEST_DIR" 2>&1) || true
-  check "shiten audit" "$?" "$output" "Health|Score|Audit|audit|health"
+  check "shugo audit" "$?" "$output" "Health|Score|Audit|audit|health"
 
-  # ── shiten assess ────────────────────────────────────────────────────────────
+  # ── shugo assess ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" assess --dir "$TEST_DIR" --answers-file "$PERSONA_FILE" 2>&1) || true
-  check "shiten assess" "$?" "$output" "Capability|Maturity|assessed|Assess"
+  check "shugo assess" "$?" "$output" "Capability|Maturity|assessed|Assess"
 
-  # ── shiten run ───────────────────────────────────────────────────────────────
+  # ── shugo run ───────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" run --dir "$TEST_DIR" 2>&1) || true
-  check "shiten run (exit)" "$?" "$output" "Pipeline|stage|✔|pipeline"
+  check "shugo run (exit)" "$?" "$output" "Pipeline|stage|✔|pipeline"
 
   # Validate 5 stages specifically
-  check_pattern "shiten run (5 stages)" 0 "$output" "analyze|score|detect|audit|evolve"
+  check_pattern "shugo run (5 stages)" 0 "$output" "analyze|score|detect|audit|evolve"
 
-  # ── shiten evolve ────────────────────────────────────────────────────────────
+  # ── shugo evolve ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" evolve --dir "$TEST_DIR" 2>&1) || true
   # evolve may be skipped if lifecycle gate requires "governed" state
   if echo "$output" | grep -qiE "Evolution|Recommendation|evolve"; then
-    check "shiten evolve (executed)" 0 "$output" "Evolution|Recommendation|evolve"
+    check "shugo evolve (executed)" 0 "$output" "Evolution|Recommendation|evolve"
   elif echo "$output" | grep -qiE "cannot run|lifecycle gate|requires.*state"; then
-    log "  ${YELLOW}⚠${NC} shiten evolve (skipped by lifecycle gate — expected for junior/established)"
+    log "  ${YELLOW}⚠${NC} shugo evolve (skipped by lifecycle gate — expected for junior/established)"
     passed=$((passed + 1))
     total=$((total + 1))
   else
-    check "shiten evolve" "$?" "$output" "Evolution|Recommendation|evolve"
+    check "shugo evolve" "$?" "$output" "Evolution|Recommendation|evolve"
   fi
 
-  # ── shiten doctor ────────────────────────────────────────────────────────────
+  # ── shugo doctor ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" doctor --dir "$TEST_DIR" 2>&1) || true
-  check "shiten doctor" "$?" "$output" "Check|OK|Warning|Doctor|doctor|health"
+  check "shugo doctor" "$?" "$output" "Check|OK|Warning|Doctor|doctor|health"
 
-  # ── shiten validate ──────────────────────────────────────────────────────────
+  # ── shugo validate ──────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" validate --dir "$TEST_DIR" 2>&1) || true
-  check "shiten validate" "$?" "$output" "Valid|Check|validate|passed"
+  check "shugo validate" "$?" "$output" "Valid|Check|validate|passed"
 
-  # ── shiten report ────────────────────────────────────────────────────────────
+  # ── shugo report ────────────────────────────────────────────────────────────
   output=$(node "$SHITENNO_CLI" report --dir "$TEST_DIR" 2>&1) || true
-  check "shiten report (exit)" "$?" "$output" "Score|Dimension|Report|Insight|insight"
+  check "shugo report (exit)" "$?" "$output" "Score|Dimension|Report|Insight|insight"
 
   # Validate tie handling (Bug 3 fix)
   total=$((total + 1))
   if echo "$output" | grep -qiE "equilibradas|balanced|Todas as dimensões"; then
-    log "  ${GREEN}✔${NC} shiten report (tie handled — balanced dimensions)"
+    log "  ${GREEN}✔${NC} shugo report (tie handled — balanced dimensions)"
     passed=$((passed + 1))
   elif echo "$output" | grep -qiE "Força|força|strength"; then
     # Check if strength ≠ weakness (they should differ for non-tied scenarios)
-    log "  ${GREEN}✔${NC} shiten report (insights generated — non-tied or properly handled)"
+    log "  ${GREEN}✔${NC} shugo report (insights generated — non-tied or properly handled)"
     passed=$((passed + 1))
   else
-    log "  ${YELLOW}⚠${NC} shiten report (could not verify tie handling)"
+    log "  ${YELLOW}⚠${NC} shugo report (could not verify tie handling)"
     passed=$((passed + 1))
   fi
 

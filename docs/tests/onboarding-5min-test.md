@@ -1,6 +1,6 @@
 # Manual Test: 5-Minute Onboarding
 
-> **Objective:** Validate that a person with zero Shiten context can run `shiten init` and understand the output within 5 minutes, without asking anyone for help.
+> **Objective:** Validate that a person with zero Shugo context can run `shugo init` and understand the output within 5 minutes, without asking anyone for help.
 >
 > **When to run:** After any change to README.md, dashboard `discover/` or `use/` pages, or onboarding-related content.
 >
@@ -10,11 +10,11 @@
 
 ## Pre-conditions
 
-- [ ] Dashboard is running: `pnpm --filter @shiten/dashboard dev`
-- [ ] Shiten CLI is installed globally: `shiten --version` returns a version
+- [ ] Dashboard is running: `pnpm --filter @shugo/dashboard dev`
+- [ ] Shugo CLI is installed globally: `shugo --version` returns a version
 - [ ] A test project exists (or create one with `mkdir /tmp/onboarding-test && cd /tmp/onboarding-test && git init`)
 - [ ] Timer ready (phone, watch, or online timer)
-- [ ] Participant has **never** used or read about Shiten before
+- [ ] Participant has **never** used or read about Shugo before
 
 ---
 
@@ -26,7 +26,7 @@ Give the participant ONE of these:
 - **Option A:** The README.md link (open in browser)
 - **Option B:** The dashboard URL (`http://localhost:5173`)
 
-Say: *"This is a tool called Shiten. I want you to figure out what it does and try it. Go."*
+Say: *"This is a tool called Shugo. I want you to figure out what it does and try it. Go."*
 
 Start the timer.
 
@@ -57,8 +57,8 @@ Do **not** help the participant. Take notes on:
 | Criterion | Pass | Fail |
 |---|---|---|
 | Found the install command | ≤ 60s | > 60s |
-| Ran `shiten init` successfully | ≤ 3 min | > 3 min or gave up |
-| Explained what Shiten does (1 sentence) | ≤ 5 min | > 5 min or couldn't |
+| Ran `shugo init` successfully | ≤ 3 min | > 3 min or gave up |
+| Explained what Shugo does (1 sentence) | ≤ 5 min | > 5 min or couldn't |
 | Did not ask for help | 0 questions | ≥ 1 question |
 
 **Overall:** All 4 criteria pass = **PASS**. Any fail = **FAIL**.
@@ -67,7 +67,7 @@ Do **not** help the participant. Take notes on:
 
 ## Post-test Questions (ask the participant)
 
-1. *"In one sentence, what does Shiten do?"*
+1. *"In one sentence, what does Shugo do?"*
 2. *"Who is this for?"*
 3. *"Was anything confusing?"*
 4. *"What would you change on this page?"*

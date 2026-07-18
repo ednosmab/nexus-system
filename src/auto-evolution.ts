@@ -1,7 +1,7 @@
 /**
  * auto-evolution.ts — Pilar 10: Evolução Autónoma
  *
- * Permite que o Shiten recomende a sua própria evolução.
+ * Permite que o Shugo recomende a sua própria evolução.
  * Detect → Assess → Recommend → Confirm → Install → Govern → Automate
  *
  * PRINCÍPIO: O crescimento não depende exclusivamente do usuário.
@@ -110,9 +110,9 @@ function generateCapabilityRecommendations(state: EngineeringState): EvolutionRe
       title: `Install ${capInfo.name} capability`,
       description: capInfo.description,
       expectedImpact: `Adds ${capInfo.name.toLowerCase()} governance to your project`,
-      action: `Run 'shiten upgrade --capability ${capId}'`,
-      command: `shiten upgrade --capability ${capId}`,
-      affectedArtifacts: [`shitenno-go/ (${capInfo.name})`],
+      action: `Run 'shugo upgrade --capability ${capId}'`,
+      command: `shugo upgrade --capability ${capId}`,
+      affectedArtifacts: [`shitenno/ (${capInfo.name})`],
       dependencies: capInfo.requires.map((r) => `capability:${r}`),
       confidence: 0.8,
       evidence: [`Maturity profile recommends this capability`],
@@ -252,7 +252,7 @@ function generateAutomationRecommendations(state: EngineeringState): EvolutionRe
       description: `Only ${scripts.length} script(s) for a project with ${state.project.sourceFileCount} files`,
       expectedImpact: "Reduces manual work and human error",
       action: "Identify repetitive processes and create automation scripts",
-      affectedArtifacts: ["shitenno-go/scripts/"],
+      affectedArtifacts: ["shitenno/scripts/"],
       dependencies: [],
       confidence: 0.7,
       evidence: [`${scripts.length} scripts, ${state.project.sourceFileCount} source files`],
@@ -277,9 +277,9 @@ function generateSmartSuggestions(state: EngineeringState): EvolutionRecommendat
       type: "automation_addition",
       priority: "low",
       title: "Enable daily digest",
-      description: "No daily digest found — run `shiten digest` to see project health at a glance",
+      description: "No daily digest found — run `shugo digest` to see project health at a glance",
       expectedImpact: "Quick daily health check keeps issues visible",
-      action: "Run `shiten digest` each morning",
+      action: "Run `shugo digest` each morning",
       affectedArtifacts: [],
       dependencies: [],
       confidence: 0.6,
@@ -300,7 +300,7 @@ function generateSmartSuggestions(state: EngineeringState): EvolutionRecommendat
         title: "Generate context-aware rules",
         description: "Context rules adapt governance to your project's specific risk profile",
         expectedImpact: "More targeted governance reduces noise",
-        action: "Run `shiten upgrade --capability governance` to generate context rules",
+        action: "Run `shugo upgrade --capability governance` to generate context rules",
         affectedArtifacts: ["CONTEXT_RULES.md"],
         dependencies: ["capability:governance"],
         confidence: 0.75,
@@ -318,13 +318,13 @@ function generateSmartSuggestions(state: EngineeringState): EvolutionRecommendat
 /** Executa análise de evolução autónoma. */
 export function analyzeEvolution(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): EvolutionReport {
-  const state = consolidateEngineeringState(projectRoot, shitenDir);
+  const state = consolidateEngineeringState(projectRoot, shitennoDir);
 
   let debtReport: KnowledgeDebtReport | null = null;
   try {
-    debtReport = detectKnowledgeDebt(projectRoot, shitenDir);
+    debtReport = detectKnowledgeDebt(projectRoot, shitennoDir);
   } catch (err) {
     logger.debug("auto-evolution", "Knowledge debt detection unavailable:", err instanceof Error ? err.message : err);
   }
@@ -339,7 +339,7 @@ export function analyzeEvolution(
   ];
 
   // Load feedback and adjust confidence
-  const feedbackSummaries = getAllFeedbackSummaries(shitenDir);
+  const feedbackSummaries = getAllFeedbackSummaries(shitennoDir);
   let suppressedCount = 0;
 
   for (const rec of allRecommendations) {
@@ -379,7 +379,7 @@ export function analyzeEvolution(
   recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
   // Load growth profile and generate dual paths
-  const growthProfile = loadGrowthProfile(shitenDir);
+  const growthProfile = loadGrowthProfile(shitennoDir);
   const dualPaths: DualPath[] = [];
 
   for (const rec of recommendations) {
@@ -437,10 +437,10 @@ export function analyzeEvolution(
 
 /** Grava relatório de evolução. */
 export function writeEvolutionReport(
-  shitenDir: string,
+  shitennoDir: string,
   report: EvolutionReport
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

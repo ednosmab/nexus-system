@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 
 export interface ProjectProfile {
   projectName: string;
@@ -13,7 +13,7 @@ export interface ProjectProfile {
 }
 
 export function loadProjectProfile(projectRoot: string): ProjectProfile | null {
-  const profileDir = join(projectRoot, SHITEN_DIR_NAME, "profile");
+  const profileDir = join(projectRoot, SHITENNO_DIR_NAME, "profile");
   if (!existsSync(profileDir)) return null;
 
   const files = readdirSync(profileDir).filter(

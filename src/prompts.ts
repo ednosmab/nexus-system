@@ -2,9 +2,9 @@
  * prompts.ts — Questionário de Descoberta de Maturidade
  *
  * Substitui a seleção simples de nível (L1/L2/L3) por um questionário
- * multi-categoria que permite ao Shiten construir um perfil de maturidade.
+ * multi-categoria que permite ao Shugo construir um perfil de maturidade.
  *
- * PRINCÍPIO: O usuário responde perguntas — o Shiten determina a configuração.
+ * PRINCÍPIO: O usuário responde perguntas — o Shugo determina a configuração.
  */
 
 import inquirer from "inquirer";
@@ -22,7 +22,7 @@ export interface UserAnswers {
   maturity: MaturityAnswers;
   /** Capacidades selecionadas pelo usuário (override do perfil) */
   selectedCapabilities?: string[];
-  /** Whether to register shiten-mcp in .mcp.json */
+  /** Whether to register shitenno-mcp in .mcp.json */
   enableMcpRegistration?: boolean;
   /** User profile for personalized feedback */
   userProfile?: {
@@ -119,14 +119,14 @@ export async function askQuestions(
   const experience = await inquirer.prompt([
     {
       type: "confirm",
-      name: "usedShitenBefore",
-      message: "Já utilizou o Shiten anteriormente?",
+      name: "usedShitennoBefore",
+      message: "Já utilizou o Shugo anteriormente?",
       default: false,
     },
     {
       type: "confirm",
       name: "isFirstProject",
-      message: "É seu primeiro projeto utilizando o Shiten?",
+      message: "É seu primeiro projeto utilizando o Shugo?",
       default: false,
     },
   ]);
@@ -288,7 +288,7 @@ export async function askQuestions(
   output(chalk.bold.cyan("  │   👤  Perfil do Usuário              │"));
   output(chalk.bold.cyan("  ╰──────────────────────────────────────╯"));
   outputBlank();
-  output(chalk.gray("  Para feedback personalizado. Pode configurar depois com 'shiten profile'."));
+  output(chalk.gray("  Para feedback personalizado. Pode configurar depois com 'shugo profile'."));
   outputBlank();
 
   const userProfile = await inquirer.prompt([
@@ -386,7 +386,7 @@ export async function askQuestions(
   output(chalk.bold.cyan("  │   🔌  MCP Server                     │"));
   output(chalk.bold.cyan("  ╰──────────────────────────────────────╯"));
   outputBlank();
-  output(chalk.gray("  Regista o shiten-mcp em .mcp.json para AI agents (Claude Code, Cursor, etc.)."));
+  output(chalk.gray("  Regista o shitenno-mcp em .mcp.json para AI agents (Claude Code, Cursor, etc.)."));
   outputBlank();
 
   const mcpConfig = await inquirer.prompt([

@@ -2,31 +2,31 @@ import { Link } from 'react-router-dom'
 
 const commands = [
   {
-    name: 'shiten init',
+    name: 'shugo init',
     description: 'Inicializa o framework no projecto actual.',
     params: [],
-    example: 'shiten init',
+    example: 'shugo init',
     output: 'Detecta stack, gera profile, cria estrutura.',
   },
   {
-    name: 'shiten status',
+    name: 'shugo status',
     description: 'Verifica a saude da governanca do projecto.',
     params: [],
-    example: 'shiten status',
+    example: 'shugo status',
     output: 'Mostra capabilities, maturidade, health score.',
   },
   {
-    name: 'shiten upgrade',
+    name: 'shugo upgrade',
     description: 'Adiciona capacidades ao projecto.',
     params: ['--capability <name>', '--accept-recommended'],
-    example: 'shiten upgrade --capability context-detection',
+    example: 'shugo upgrade --capability context-detection',
     output: 'Instala capability e actualiza context_buffer.',
   },
   {
-    name: 'shiten validate',
+    name: 'shugo validate',
     description: 'Valida a conformidade do projecto.',
     params: [],
-    example: 'shiten validate',
+    example: 'shugo validate',
     output: 'Verifica regras, tipos, estrutura e gera relatorio.',
   },
 ]
@@ -37,7 +37,7 @@ export default function API() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">API — Comandos CLI</h1>
         <p className="text-text-secondary max-w-2xl">
-          Referencia completa dos comandos disponiveis no Shiten CLI.
+          Referencia completa dos comandos disponiveis no Shugo CLI.
         </p>
       </section>
 

@@ -8,7 +8,7 @@
 export type {
   AssetType,
   EngineeringAsset,
-  ShitenLifecycleState,
+  ShitennoLifecycleState,
   StateTransition,
   MaturityDimensions,
   Capability,

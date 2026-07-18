@@ -2,7 +2,7 @@
 
 > **Versão:** 1.0
 > **Data:** YYYY-MM-DD
-> **Autoridade:** Shitenno-go
+> **Autoridade:** Shitenno
 > **Propósito:** Formalizar como o conhecimento nasce, amadurece e passa a fazer parte do sistema
 
 ---
@@ -171,16 +171,16 @@ A automação é exposta como comando de CLI acessível.
 | Propriedade | Descrição |
 |---|---|
 | **Origem** | Automação embutida no CLI |
-| **Forma** | Comando `shiten <subcomando>` |
+| **Forma** | Comando `shugo <subcomando>` |
 | **Critério de avanço** | Comando documentado e testado |
 
 **Comandos disponíveis:**
-- `shiten init` — Instalação por capacidades
-- `shiten status` — Estado do projecto
-- `shiten validate` — Validação de integridade
-- `shiten sync` — Sincronização de templates
-- `shiten upgrade` — Actualização de capacidades
-- `shiten assess` — Avaliação de maturidade (Phase 2)
+- `shugo init` — Instalação por capacidades
+- `shugo status` — Estado do projecto
+- `shugo validate` — Validação de integridade
+- `shugo sync` — Sincronização de templates
+- `shugo upgrade` — Actualização de capacidades
+- `shugo assess` — Avaliação de maturidade (Phase 2)
 
 ---
 
@@ -196,7 +196,7 @@ A automação é exposta como comando de CLI acessível.
 | Skill | 🟠 Maduro | `skills/*.md` | Peer review |
 | Contrato | 🔴 Estável | `agents/*.yaml` | Tech Lead |
 | Automação | 🔴 Estável | Script / Pipeline | Imutável |
-| CLI | 🔴 Estável | `shiten <cmd>` | Imutável |
+| CLI | 🔴 Estável | `shugo <cmd>` | Imutável |
 
 ---
 

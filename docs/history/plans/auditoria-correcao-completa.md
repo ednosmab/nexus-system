@@ -90,12 +90,12 @@ function isValidRuleId(id: string): boolean {
 
 // ── Substituir saveRule (linhas 184-192) ──
 
-export function saveRule(shitenDir: string, rule: Rule): void {
+export function saveRule(shitennoDir: string, rule: Rule): void {
   if (!isValidRuleId(rule.id)) {
     throw new Error(`Invalid rule ID: "${rule.id}". Only alphanumeric, hyphens and underscores allowed.`);
   }
 
-  const rulesPath = join(shitenDir, RULES_DIR);
+  const rulesPath = join(shitennoDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
@@ -166,7 +166,7 @@ content = content.replace(
 // ── Substituir case "log_event" (linhas 293-309) ──
 
 case "log_event": {
-  const historyDir = join(context.shitenDir, "docs", "history");
+  const historyDir = join(context.shitennoDir, "docs", "history");
   if (!existsSync(historyDir)) return { success: false, message: "history/ not found" };
 
   try {
@@ -302,7 +302,7 @@ function resolveField(
 **Solução:** Validar hooks e nome do plugin.
 
 ```typescript
-// ── Substituir isShitenPlugin (linhas 165-173) ──
+// ── Substituir isShitennoPlugin (linhas 165-173) ──
 
 const VALID_HOOK_NAMES = new Set([
   "pre-analysis", "post-analysis", "pre-scaffold", "post-scaffold",
@@ -311,7 +311,7 @@ const VALID_HOOK_NAMES = new Set([
 
 const SAFE_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
-function isShitenPlugin(obj: unknown): obj is ShitenPlugin {
+function isShitennoPlugin(obj: unknown): obj is ShitennoPlugin {
   if (typeof obj !== "object" || obj === null) return false;
   const plugin = obj as Record<string, unknown>;
 
@@ -348,7 +348,7 @@ function isShitenPlugin(obj: unknown): obj is ShitenPlugin {
 
 ```typescript
 /**
- * logger.ts — Logging centralizado para Shiten
+ * logger.ts — Logging centralizado para Shugo
  *
  * Substitui console.* em código de biblioteca.
  * Permite suprimir output em testes.
@@ -458,7 +458,7 @@ try {
 
 ```typescript
 /**
- * constants.ts — Constantes compartilhadas do Shiten
+ * constants.ts — Constantes compartilhadas do Shugo
  *
  * Elimina duplicação de VIOLATION_KEYWORDS e COMMAND_GATES.
  */
@@ -509,7 +509,7 @@ export const VALID_ACTION_TYPES = [
 
 ### 2.4 Atualizar imports das constantes
 
-**Arquivos:** `scorer.ts`, `health-auditor.ts`, `pattern-detector.ts`, `shared.ts`, `shiten-state-machine.ts`
+**Arquivos:** `scorer.ts`, `health-auditor.ts`, `pattern-detector.ts`, `shared.ts`, `shitenno-state-machine.ts`
 
 ```typescript
 // ANTES (scorer.ts:122)
@@ -522,16 +522,16 @@ import { VIOLATION_KEYWORDS, GIT_TIMEOUT } from "./constants.js";
 
 ```typescript
 // ANTES (shared.ts:130-146)
-function getRequiredState(command: string): ShitenLifecycleState {
-  const gates: Record<string, ShitenLifecycleState> = { ... };
+function getRequiredState(command: string): ShitennoLifecycleState {
+  const gates: Record<string, ShitennoLifecycleState> = { ... };
 }
 
 // DEPOIS
 import { COMMAND_GATES } from "./constants.js";
-import { type ShitenLifecycleState } from "./shiten-state-machine.js";
+import { type ShitennoLifecycleState } from "./shitenno-state-machine.js";
 
-function getRequiredState(command: string): ShitenLifecycleState {
-  return (COMMAND_GATES[command] || "discovered") as ShitenLifecycleState;
+function getRequiredState(command: string): ShitennoLifecycleState {
+  return (COMMAND_GATES[command] || "discovered") as ShitennoLifecycleState;
 }
 ```
 
@@ -542,35 +542,35 @@ function getRequiredState(command: string): ShitenLifecycleState {
 
 ```typescript
 /**
- * errors.ts — Erros tipados do Shiten
+ * errors.ts — Erros tipados do Shugo
  *
  * Substitui process.exit(1) por erros que Commander captura.
  */
 
-export class ShitenError extends Error {
+export class ShitennoError extends Error {
   constructor(
     message: string,
     public readonly code: string,
     public readonly exitCode: number = 1
   ) {
     super(message);
-    this.name = "ShitenError";
+    this.name = "ShitennoError";
   }
 }
 
-export class NotInitializedError extends ShitenError {
+export class NotInitializedError extends ShitennoError {
   constructor() {
-    super("Project not initialized. Run `shiten init` first.", "NOT_INITIALIZED");
+    super("Project not initialized. Run `shugo init` first.", "NOT_INITIALIZED");
   }
 }
 
-export class InvalidRuleError extends ShitenError {
+export class InvalidRuleError extends ShitennoError {
   constructor(detail: string) {
     super(`Invalid rule: ${detail}`, "INVALID_RULE");
   }
 }
 
-export class ScriptNotAllowedError extends ShitenError {
+export class ScriptNotAllowedError extends ShitennoError {
   constructor(script: string) {
     super(`Script "${script}" is not in the allowlist.`, "SCRIPT_NOT_ALLOWED");
   }
@@ -609,20 +609,20 @@ if (mkdirSync(dir, { recursive: true })) {
 }
 ```
 
-### 2.7 Adicionar evento faltante ao ShitenEventType
+### 2.7 Adicionar evento faltante ao ShitennoEventType
 
 **Problema:** `audit.ts:63` usa `as never` porque `knowledge.analyzed` não está no tipo.
 **Arquivo:** `src/event-bus.ts`
 
 ```typescript
 // ANTES (event-bus.ts:12-30)
-export type ShitenEventType =
+export type ShitennoEventType =
   | "session.start"
   | ...
   | "lifecycle.state_changed";
 
 // DEPOIS — adicionar o evento faltante
-export type ShitenEventType =
+export type ShitennoEventType =
   | "session.start"
   | ...
   | "lifecycle.state_changed"
@@ -793,8 +793,8 @@ yarn-error.log*
 coverage/
 .vitest/
 
-# Shiten
-.shiten-cache.json
+# Shugo
+.shitenno-cache.json
 
 # Plans (manter no repo)
 # plans/*
@@ -810,7 +810,7 @@ src/
 bin/
 docs/
 plans/
-shiten-plugins/
+shitenno-plugins/
 .github/
 
 # Config
@@ -839,7 +839,7 @@ coverage/
 
 ```typescript
 // ANTES (cache.ts:154-161)
-function writeCache(projectRoot: string, cache: ShitenCache): void {
+function writeCache(projectRoot: string, cache: ShitennoCache): void {
   const cachePath = join(projectRoot, CACHE_FILENAME);
   try {
     writeFileSync(cachePath, JSON.stringify(cache, null, 2), "utf-8");
@@ -852,9 +852,9 @@ function writeCache(projectRoot: string, cache: ShitenCache): void {
 import { renameSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 
-function writeCache(projectRoot: string, cache: ShitenCache): void {
+function writeCache(projectRoot: string, cache: ShitennoCache): void {
   const cachePath = join(projectRoot, CACHE_FILENAME);
-  const tmpPath = join(tmpdir(), `shiten-cache-${Date.now()}.json`);
+  const tmpPath = join(tmpdir(), `shitenno-cache-${Date.now()}.json`);
   try {
     writeFileSync(tmpPath, JSON.stringify(cache, null, 2), "utf-8");
     renameSync(tmpPath, cachePath); // atômico no mesmo filesystem
@@ -879,8 +879,8 @@ private eventHistory: Array<{ type: string; payload: unknown; timestamp: string 
 private static readonly MAX_HISTORY = 1000;
 
 // No método publish, adicionar após o push:
-if (this.eventHistory.length > ShitenEventBus.MAX_HISTORY) {
-  this.eventHistory = this.eventHistory.slice(-ShitenEventBus.MAX_HISTORY);
+if (this.eventHistory.length > ShitennoEventBus.MAX_HISTORY) {
+  this.eventHistory = this.eventHistory.slice(-ShitennoEventBus.MAX_HISTORY);
 }
 ```
 
@@ -1045,7 +1045,7 @@ Já incluído no step `npm audit --omit=dev || true` no ci.yml acima. O `|| true
 
 ## Fase 5 — README e Documentação
 
-**Objetivo:** Atualizar README para refletir o estado atual do Shitenno-go (12 comandos, features completas).
+**Objetivo:** Atualizar README para refletir o estado atual do Shitenno (12 comandos, features completas).
 **Dependências:** Fases 1-4 (para que o código refletido no README esteja correto).
 **Esforço estimado:** 1-2 horas.
 
@@ -1061,7 +1061,7 @@ O README atualizado deve conter:
 6. **Documentação detalhada de cada comando** — com exemplos de uso
 7. **Arquitetura** — árvore de diretórios atualizada com novos módulos (logger, constants, errors)
 8. **Performance** — otimizações de caching
-9. **Configuração** — opencode.json e shiten-profile
+9. **Configuração** — opencode.json e shitenno-profile
 10. **Desenvolvimento** — comandos npm (dev, build, test, typecheck, lint, bench)
 11. **Testes** — estatísticas atualizadas
 12. **Segurança** — medidas implementadas
@@ -1070,7 +1070,7 @@ O README atualizado deve conter:
 **Conteúdo do novo README:**
 
 ```markdown
-# Shitenno-go
+# Shitenno
 
 > Framework de governança de IA que cresce com seu projeto — scoring, detecção de padrões, auditoria de saúde.
 
@@ -1082,31 +1082,31 @@ Uma ferramenta CLI que analisa a complexidade do seu projeto, detecta padrões n
 
 | Comando | Descrição | Status |
 |---------|-----------|--------|
-| `shiten init` | Inicializa o framework de governança no seu projeto | Estável |
-| `shiten status` | Verifica saúde da governança + scoring de complexidade | Estável |
-| `shiten detect` | Detecta padrões no histórico e propõe regras candidatas | Estável |
-| `shiten audit` | Auditoria metacognitiva da saúde do Shiten | Estável |
-| `shiten upgrade` | Atualiza nível de governança (L1 → L2 → L3) | Estável |
-| `shiten validate` | Valida integridade da sessão | Estável |
-| `shiten sync` | Sincroniza arquivos de governança externos | Estável |
-| `shiten clean` | Limpa cache e arquivos temporários | Estável |
-| `shiten assess` | Reavalia perfil de maturidade | Estável |
-| `shiten doctor` | Diagnósticos e verificações de saúde | Estável |
-| `shiten run` | Executa uma tarefa/script específica | Estável |
-| `shiten evolve` | Sugere passos de evolução baseados na maturidade | Estável |
+| `shugo init` | Inicializa o framework de governança no seu projeto | Estável |
+| `shugo status` | Verifica saúde da governança + scoring de complexidade | Estável |
+| `shugo detect` | Detecta padrões no histórico e propõe regras candidatas | Estável |
+| `shugo audit` | Auditoria metacognitiva da saúde do Shugo | Estável |
+| `shugo upgrade` | Atualiza nível de governança (L1 → L2 → L3) | Estável |
+| `shugo validate` | Valida integridade da sessão | Estável |
+| `shugo sync` | Sincroniza arquivos de governança externos | Estável |
+| `shugo clean` | Limpa cache e arquivos temporários | Estável |
+| `shugo assess` | Reavalia perfil de maturidade | Estável |
+| `shugo doctor` | Diagnósticos e verificações de saúde | Estável |
+| `shugo run` | Executa uma tarefa/script específica | Estável |
+| `shugo evolve` | Sugere passos de evolução baseados na maturidade | Estável |
 
 ---
 
 ## Instalação
 
 \`\`\`bash
-npm install -g shitenno-go
+npm install -g shitenno
 \`\`\`
 
 Ou execute diretamente com npx:
 
 \`\`\`bash
-npx shitenno-go status
+npx shitenno status
 \`\`\`
 
 ### Requisitos
@@ -1120,47 +1120,47 @@ npx shitenno-go status
 
 \`\`\`bash
 # 1. Inicializar no seu projeto
-shiten init
+shugo init
 
 # 2. Verificar saúde da governança
-shiten status
+shugo status
 
 # 3. Detectar padrões
-shiten detect
+shugo detect
 
 # 4. Auditar saúde da governança
-shiten audit
+shugo audit
 \`\`\`
 
 ---
 
 ## Comandos
 
-### `shiten init`
+### `shugo init`
 
 Scaffolding completo do framework de governança.
 
 \`\`\`bash
-shiten init              # setup interativo
-shiten init -d /path     # especificar diretório alvo
-shiten init --force      # forçar criação dentro do shitenno-cli
+shugo init              # setup interativo
+shugo init -d /path     # especificar diretório alvo
+shugo init --force      # forçar criação dentro do shitenno-cli
 \`\`\`
 
 **O que cria:**
 - `opencode.json` — configuração de agentes IA (raiz do projeto)
-- `shitenno-go/` — diretório do framework de governança
-- `shiten-profile/` — perfil do projeto com definições de áreas
+- `shitenno/` — diretório do framework de governança
+- `shitenno-profile/` — perfil do projeto com definições de áreas
 - Skills, scripts, docs e templates de governança baseados no nível do time
 
-### `shiten status`
+### `shugo status`
 
 Analisa complexidade do projeto e saúde da governança.
 
 \`\`\`bash
-shiten status              # auto-detectar projeto
-shiten status -d /path     # especificar diretório
-shiten status --no-cache   # pular cache, recalcular
-shiten status --json       # saída em formato JSON
+shugo status              # auto-detectar projeto
+shugo status -d /path     # especificar diretório
+shugo status --no-cache   # pular cache, recalcular
+shugo status --json       # saída em formato JSON
 \`\`\`
 
 **Saídas:**
@@ -1169,14 +1169,14 @@ shiten status --json       # saída em formato JSON
 - Detalhamento por área (contagem de arquivos, churn, superfície sensível, violações, dependências)
 - Sugestões acionáveis
 
-### `shiten detect`
+### `shugo detect`
 
 Lê histórico e relatórios para detectar padrões recorrentes.
 
 \`\`\`bash
-shiten detect              # auto-detectar projeto
-shiten detect -d /path     # especificar diretório
-shiten detect --json       # saída em formato JSON
+shugo detect              # auto-detectar projeto
+shugo detect -d /path     # especificar diretório
+shugo detect --json       # saída em formato JSON
 \`\`\`
 
 **Detecta:**
@@ -1184,14 +1184,14 @@ shiten detect --json       # saída em formato JSON
 - Decisões revertidas (padrões de rollback)
 - Áreas quentes (scores consistentemente altos)
 
-### `shiten audit`
+### `shugo audit`
 
 Auditoria metacognitiva — o sistema avaliando sua própria eficácia de governança.
 
 \`\`\`bash
-shiten audit              # auto-detectar projeto
-shiten audit -d /path     # especificar diretório
-shiten audit --json       # saída em formato JSON
+shugo audit              # auto-detectar projeto
+shugo audit -d /path     # especificar diretório
+shugo audit --json       # saída em formato JSON
 \`\`\`
 
 **Audita:**
@@ -1201,15 +1201,15 @@ shiten audit --json       # saída em formato JSON
 - Diretórios órfãos (estrutura vazia)
 - Context buffer desatualizado
 
-### `shiten upgrade`
+### `shugo upgrade`
 
 Adicione mais capacidades de governança conforme seu projeto cresce.
 
 \`\`\`bash
-shiten upgrade                    # seleção interativa de nível
-shiten upgrade --level pleno      # atualizar para L2
-shiten upgrade --level senior     # atualizar para L3
-shiten upgrade --list             # mostrar upgrades disponíveis
+shugo upgrade                    # seleção interativa de nível
+shugo upgrade --level pleno      # atualizar para L2
+shugo upgrade --level senior     # atualizar para L3
+shugo upgrade --list             # mostrar upgrades disponíveis
 \`\`\`
 
 **Níveis:**
@@ -1217,68 +1217,68 @@ shiten upgrade --list             # mostrar upgrades disponíveis
 - **L2 (Pleno):** + Governança + Context Buffer
 - **L3 (Senior):** + Cognição + Contratos + Relatórios + ADRs
 
-### `shiten validate`
+### `shugo validate`
 
 Valida integridade da sessão antes de fechar.
 
 \`\`\`bash
-shiten validate              # executar todas as verificações
-shiten validate --fix        # tentar reparos automáticos
-shiten validate --json       # saída em formato JSON
+shugo validate              # executar todas as verificações
+shugo validate --fix        # tentar reparos automáticos
+shugo validate --json       # saída em formato JSON
 \`\`\`
 
-### `shiten sync`
+### `shugo sync`
 
-Sincroniza arquivos de governança de um shitenno-go externo.
+Sincroniza arquivos de governança de um shitenno externo.
 
 \`\`\`bash
-shiten sync --shiten-path /path/to/shitenno-go
-shiten sync --dry-run        # visualizar mudanças sem aplicar
-shiten sync --force          # sobrescrever sem confirmação
+shugo sync --shitenno-path /path/to/shitenno
+shugo sync --dry-run        # visualizar mudanças sem aplicar
+shugo sync --force          # sobrescrever sem confirmação
 \`\`\`
 
-### `shiten clean`
+### `shugo clean`
 
 Limpa cache e arquivos temporários.
 
 \`\`\`bash
-shiten clean                # limpar cache
-shiten clean --all          # limpar cache + relatórios
+shugo clean                # limpar cache
+shugo clean --all          # limpar cache + relatórios
 \`\`\`
 
-### `shiten assess`
+### `shugo assess`
 
 Reavalia o perfil de maturidade do projeto.
 
 \`\`\`bash
-shiten assess               # reavaliar maturidade
-shiten assess -d /path      # especificar diretório
+shugo assess               # reavaliar maturidade
+shugo assess -d /path      # especificar diretório
 \`\`\`
 
-### `shiten doctor`
+### `shugo doctor`
 
 Executa diagnósticos de saúde do sistema.
 
 \`\`\`bash
-shiten doctor               # executar diagnósticos
-shiten doctor --json        # saída em formato JSON
+shugo doctor               # executar diagnósticos
+shugo doctor --json        # saída em formato JSON
 \`\`\`
 
-### `shiten run`
+### `shugo run`
 
 Executa uma tarefa ou script específico.
 
 \`\`\`bash
-shiten run <task>           # executar tarefa
+shugo run <task>           # executar tarefa
 \`\`\`
 
-### `shiten evolve`
+### `shugo evolve`
 
 Sugere passos de evolução baseados no perfil de maturidade atual.
 
 \`\`\`bash
-shiten evolve               # sugestões interativas
-shiten evolve --json        # saída em formato JSON
+shugo evolve               # sugestões interativas
+shugo evolve --json        # saída em formato JSON
 \`\`\`
 
 ---
@@ -1287,7 +1287,7 @@ shiten evolve --json        # saída em formato JSON
 
 \`\`\`
 shitenno-cli/
-├── bin/shiten.ts              # Ponto de entrada CLI (Commander.js)
+├── bin/shugo.ts              # Ponto de entrada CLI (Commander.js)
 ├── src/
 │   ├── analyser.ts           # Análise de projeto & detecção de stack
 │   ├── scorer.ts             # Engine de scoring de complexidade (Fase 1)
@@ -1308,7 +1308,7 @@ shitenno-cli/
 │   ├── templates/            # Template files para scaffolding
 │   └── __tests__/            # Testes unitários + integração
 ├── docs/architecture/        # Documentação de arquitetura
-└── shiten-plugins/            # Plugins de extensibilidade
+└── shitenno-plugins/            # Plugins de extensibilidade
 \`\`\`
 
 ### Performance
@@ -1322,11 +1322,11 @@ O engine de scoring utiliza várias otimizações:
 
 ### Cache
 
-Resultados são cacheados em `.shiten-cache.json` na raiz do projeto. O cache é invalidado quando:
+Resultados são cacheados em `.shitenno-cache.json` na raiz do projeto. O cache é invalidado quando:
 - `git HEAD` muda (qualquer commit)
 - `package.json` é modificado
 - `opencode.json` é modificado
-- `shiten-profile/` ou `shitenno-go/` mudam
+- `shitenno-profile/` ou `shitenno/` mudam
 
 Cache hit: **<1ms** vs 15-106ms sem cache.
 
@@ -1347,9 +1347,9 @@ Cache hit: **<1ms** vs 15-106ms sem cache.
 }
 \`\`\`
 
-### `shiten-profile/` (Perfil do Projeto)
+### `shitenno-profile/` (Perfil do Projeto)
 
-Gerado automaticamente durante `shiten init`. Define:
+Gerado automaticamente durante `shugo init`. Define:
 - Nome do projeto
 - Áreas de código fonte para monitorar
 - Palavras-chave sensíveis
@@ -1401,7 +1401,7 @@ npm run bench         # executar benchmarks
 
 ## Segurança
 
-O Shitenno-go implementa as seguintes medidas de segurança:
+O Shitenno implementa as seguintes medidas de segurança:
 
 - **Allowlist de scripts** — Apenas comandos pré-aprovados podem ser executados via regras
 - **Validação de IDs** — Rule IDs são restritos a caracteres alfanuméricos, hífens e underscores

@@ -9,10 +9,10 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import type { ActionExecutor } from "./types.js";
 
-function ensureContextBuffer(shitenDir: string): string {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+function ensureContextBuffer(shitennoDir: string): string {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) {
-    const contextDir = join(shitenDir, "governance", "context");
+    const contextDir = join(shitennoDir, "governance", "context");
     if (!existsSync(contextDir)) {
       mkdirSync(contextDir, { recursive: true });
     }
@@ -24,8 +24,8 @@ function ensureContextBuffer(shitenDir: string): string {
 export class CreateReminderExecutor implements ActionExecutor {
   name = "create_reminder" as const;
 
-  async execute(params: Record<string, unknown>, context: { projectRoot: string; shitenDir: string }): Promise<Record<string, unknown>> {
-    const bufferPath = ensureContextBuffer(context.shitenDir);
+  async execute(params: Record<string, unknown>, context: { projectRoot: string; shitennoDir: string }): Promise<Record<string, unknown>> {
+    const bufferPath = ensureContextBuffer(context.shitennoDir);
 
     let content = readFileSync(bufferPath, "utf-8");
     let reminder = String(params.message ?? "Reminder from rule engine");

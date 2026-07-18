@@ -18,9 +18,9 @@
 
 | Arquivo | Propósito | Quando Ler |
 |---|---|---|
-| `shitenno-go/docs/AGENTS.md` | Regras do time de engenharia | Toda sessão |
-| `shitenno-go/docs/FORBIDDEN_OPERATIONS.md` | Regras vinculantes | Toda sessão |
-| `shitenno-go/docs/DESDO.md` | Diretrizes de engenharia | Toda sessão |
+| `shitenno/docs/AGENTS.md` | Regras do time de engenharia | Toda sessão |
+| `shitenno/docs/FORBIDDEN_OPERATIONS.md` | Regras vinculantes | Toda sessão |
+| `shitenno/docs/DESDO.md` | Diretrizes de engenharia | Toda sessão |
 
 **Regra:** P0 é carregado **sempre**, independentemente do tipo de tarefa.
 
@@ -30,7 +30,7 @@
 
 | Arquivo | Propósito | Quando Ler |
 |---|---|---|
-| `shitenno-go/governance/context/context_buffer.yaml` | Estado da sessão activa | Toda sessão |
+| `shitenno/governance/context/context_buffer.yaml` | Estado da sessão activa | Toda sessão |
 
 **Regra:** P1 é carregado **sempre** para entender o estado actual do sistema.
 
@@ -40,8 +40,8 @@
 
 | Arquivo | Propósito | Quando Ler |
 |---|---|---|
-| `shitenno-go/docs/layers/[camada]/execution_plan.md` | Plano técnico da camada | Por tarefa |
-| `shitenno-go/docs/skills/[skill].md` | Skill operacional | Por tarefa |
+| `shitenno/docs/layers/[camada]/execution_plan.md` | Plano técnico da camada | Por tarefa |
+| `shitenno/docs/skills/[skill].md` | Skill operacional | Por tarefa |
 
 **Regra:** P2 é carregado **apenas quando** se trabalha numa camada específica.
 
@@ -61,8 +61,8 @@
 
 | Arquivo | Propósito | Quando Ler |
 |---|---|---|
-| `shitenno-go/docs/history/*.md` | Registos históricos | Sob demanda |
-| `shitenno-go/docs/feedback/*.md` | Feedback de sessões | Sob demanda |
+| `shitenno/docs/history/*.md` | Registos históricos | Sob demanda |
+| `shitenno/docs/feedback/*.md` | Feedback de sessões | Sob demanda |
 
 **Regra:** P4 é carregado **apenas quando** solicitado explicitamente.
 

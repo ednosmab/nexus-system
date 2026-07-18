@@ -1,5 +1,5 @@
 /**
- * mcp-server.ts — MCP Server for Shiten Context Pipeline
+ * mcp-server.ts — MCP Server for Shugo Context Pipeline
  *
  * Thin facade — handlers split into mcp-server-handlers.ts.
  */
@@ -138,11 +138,11 @@ const TOOLS = [
   },
 ];
 
-export function createMcpServer(projectRoot: string, shitenDir?: string): Server {
-  const resolvedShitenDir = shitenDir ?? `${projectRoot}/shitenno-go`;
+export function createMcpServer(projectRoot: string, shitennoDir?: string): Server {
+  const resolvedShitennoDir = shitennoDir ?? `${projectRoot}/shitenno`;
 
   const server = new Server(
-    { name: "shiten-mcp", version: "0.1.0" },
+    { name: "shitenno-mcp", version: "0.1.0" },
     { capabilities: { tools: {} } }
   );
 
@@ -155,23 +155,23 @@ export function createMcpServer(projectRoot: string, shitenDir?: string): Server
     try {
       switch (name) {
         case "getBriefing":
-          return await handleGetBriefing(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetBriefing(projectRoot, resolvedShitennoDir, toolArgs);
         case "getRiskMap":
-          return await handleGetRiskMap(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetRiskMap(projectRoot, resolvedShitennoDir, toolArgs);
         case "getRules":
-          return await handleGetRules(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetRules(projectRoot, resolvedShitennoDir, toolArgs);
         case "getEngineeringState":
-          return await handleGetEngineeringState(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetEngineeringState(projectRoot, resolvedShitennoDir, toolArgs);
         case "getBacklog":
-          return handleGetBacklog(projectRoot, resolvedShitenDir, toolArgs);
+          return handleGetBacklog(projectRoot, resolvedShitennoDir, toolArgs);
         case "getPlans":
-          return handleGetPlans(projectRoot, resolvedShitenDir, toolArgs);
+          return handleGetPlans(projectRoot, resolvedShitennoDir, toolArgs);
         case "submitFeedback":
-          return handleSubmitFeedback(projectRoot, resolvedShitenDir, toolArgs);
+          return handleSubmitFeedback(projectRoot, resolvedShitennoDir, toolArgs);
         case "getADRs":
-          return await handleGetADRs(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetADRs(projectRoot, resolvedShitennoDir, toolArgs);
         case "getSkills":
-          return await handleGetSkills(projectRoot, resolvedShitenDir, toolArgs);
+          return await handleGetSkills(projectRoot, resolvedShitennoDir, toolArgs);
         default:
           return {
             content: [{ type: "text", text: `Unknown tool: ${name}. Available: ${TOOLS.map((t) => t.name).join(", ")}` }],
@@ -189,8 +189,8 @@ export function createMcpServer(projectRoot: string, shitenDir?: string): Server
   return server;
 }
 
-export async function startMcpServer(projectRoot: string, shitenDir?: string): Promise<void> {
-  const server = createMcpServer(projectRoot, shitenDir);
+export async function startMcpServer(projectRoot: string, shitennoDir?: string): Promise<void> {
+  const server = createMcpServer(projectRoot, shitennoDir);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

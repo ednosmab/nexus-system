@@ -43,7 +43,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       >
         <div className="flex items-center gap-2.5 px-5 h-14 border-b border-border-subtle">
           <Logo size="sm" />
-          <span className="text-sm font-semibold text-text-primary tracking-tight">Shiten</span>
+          <span className="text-sm font-semibold text-text-primary tracking-tight">Shugo</span>
           <span className="text-[10px] text-text-muted font-mono ml-auto">v0.1</span>
         </div>
 

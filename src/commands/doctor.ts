@@ -5,7 +5,7 @@
  * Identifica riscos, sugere melhorias, explica impactos,
  * orienta próximos passos e ensina boas práticas.
  *
- * PRINCÍPIO: O Shiten actua como mentor durante o desenvolvimento.
+ * PRINCÍPIO: O Shugo actua como mentor durante o desenvolvimento.
  * Nunca impõe — sempre orienta.
  */
 
@@ -57,7 +57,7 @@ export function analyzeRisks(state: EngineeringState, debtReport: KnowledgeDebtR
         description: `${critical.length} critical knowledge gap(s) detected`,
         impact: "Missing knowledge can lead to repeated mistakes and architectural drift",
         nextSteps: [
-          "Review knowledge debt report: shiten assess --json",
+          "Review knowledge debt report: shugo assess --json",
           "Address critical gaps first",
           "Create ADRs for undocumented decisions",
         ],
@@ -78,7 +78,7 @@ export function analyzeRisks(state: EngineeringState, debtReport: KnowledgeDebtR
         impact: "Low maturity areas are more likely to have issues and require manual intervention",
         nextSteps: [
           `Focus on improving: ${lowDims.map(([k]) => k).join(", ")}`,
-          "Run 'shiten upgrade --accept-recommended' to install relevant capabilities",
+          "Run 'shugo upgrade --accept-recommended' to install relevant capabilities",
           "Consider adding governance for low-maturity areas",
         ],
       });
@@ -133,8 +133,8 @@ export function analyzeImprovements(state: EngineeringState): DoctorFinding[] {
       description: `Only ${state.capabilities.length} capability(ies) installed`,
       impact: "Missing capabilities may leave governance gaps",
       nextSteps: [
-        "Run 'shiten upgrade --list' to see available capabilities",
-        "Run 'shiten upgrade --accept-recommended' to install suggested capabilities",
+        "Run 'shugo upgrade --list' to see available capabilities",
+        "Run 'shugo upgrade --accept-recommended' to install suggested capabilities",
       ],
     });
   }
@@ -205,14 +205,14 @@ export function analyzeTeaching(state: EngineeringState): { findings: DoctorFind
 
 export function runDoctorAnalysis(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): DoctorReport {
-  const state = consolidateEngineeringState(projectRoot, shitenDir);
+  const state = consolidateEngineeringState(projectRoot, shitennoDir);
 
   // Knowledge debt
   let debtReport: KnowledgeDebtReport | null = null;
   try {
-    debtReport = detectKnowledgeDebt(projectRoot, shitenDir);
+    debtReport = detectKnowledgeDebt(projectRoot, shitennoDir);
   } catch {
     logger.debug("doctor", "Knowledge debt detection unavailable");
   }
@@ -261,7 +261,7 @@ export const doctorCommand = new Command("doctor")
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║    shiten doctor — Engineering Mentor ║"));
+      output(chalk.bold.cyan("  ║    shugo doctor — Engineering Mentor ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
@@ -269,12 +269,12 @@ export const doctorCommand = new Command("doctor")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("doctor", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("doctor", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     const spinner = ora("Analyzing project health...").start();
 
     try {
-      const report = runDoctorAnalysis(ctx.projectRoot, ctx.shitenDir);
+      const report = runDoctorAnalysis(ctx.projectRoot, ctx.shitennoDir);
       spinner.stop();
 
       if (isJson) {
@@ -360,7 +360,7 @@ export const doctorCommand = new Command("doctor")
       // Record feedback for improvement findings
       for (const finding of report.findings) {
         if (finding.category === "improvement") {
-          recordFeedback(ctx.shitenDir, {
+          recordFeedback(ctx.shitennoDir, {
             recommendationId: `doctor-${finding.title}`,
             action: "deferred",
             context: { maturityScore: report.healthScore, installedCapabilities: [], knowledgeDebt: 0 },

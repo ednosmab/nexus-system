@@ -10,7 +10,7 @@ import { logger } from "../logger.js";
 import { output, outputBlank } from "../output.js";
 
 export const cleanCommand = new Command("clean")
-  .description("Clear shiten cache and temporary files")
+  .description("Clear shugo cache and temporary files")
   .option("-d, --dir <path>", "Project root directory (default: auto-detect)")
   .option("--json", "Output results as JSON")
   .action((options) => {
@@ -19,22 +19,22 @@ export const cleanCommand = new Command("clean")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("clean", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("clean", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     if (!isJson) {
       outputBlank();
-      banner("shiten clean", "Clear Cache");
+      banner("shugo clean", "Clear Cache");
       outputBlank();
     }
 
     const itemsRemoved: string[] = [];
 
-    // 1. Remove .shiten-cache.json
-    const cachePath = join(ctx.projectRoot, ".shiten-cache.json");
+    // 1. Remove .shitenno-cache.json
+    const cachePath = join(ctx.projectRoot, ".shitenno-cache.json");
     if (existsSync(cachePath)) {
       try {
         unlinkSync(cachePath);
-        itemsRemoved.push(".shiten-cache.json");
+        itemsRemoved.push(".shitenno-cache.json");
       } catch {
         // skip
       }

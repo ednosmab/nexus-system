@@ -4,12 +4,12 @@ Comandos para verificar saúde do projeto, maturidade e padrões.
 
 ---
 
-## `shiten status`
+## `shugo status`
 
 Verifica o status de saúde da governança com pontuação de maturidade.
 
 ```bash
-shiten status [options]
+shugo status [options]
 ```
 
 ### Opções
@@ -22,9 +22,9 @@ shiten status [options]
 ### Exemplos
 
 ```bash
-shiten status              # Relatório completo
-shiten status --json       # Saída JSON
-shiten status --no-cache   # Recalcular tudo
+shugo status              # Relatório completo
+shugo status --json       # Saída JSON
+shugo status --no-cache   # Recalcular tudo
 ```
 
 ### Dicas
@@ -34,12 +34,12 @@ shiten status --no-cache   # Recalcular tudo
 
 ---
 
-## `shiten audit`
+## `shugo audit`
 
 Audite a saúde da governança, knowledge graph e problemas.
 
 ```bash
-shiten audit [options]
+shugo audit [options]
 ```
 
 ### Opções
@@ -51,18 +51,18 @@ shiten audit [options]
 ### Exemplos
 
 ```bash
-shiten audit               # Auditoria completa com pontuação
-shiten audit --json        # Saída JSON
+shugo audit               # Auditoria completa com pontuação
+shugo audit --json        # Saída JSON
 ```
 
 ---
 
-## `shiten doctor`
+## `shugo doctor`
 
 Mentor de engenharia — identifique riscos e sugira melhorias.
 
 ```bash
-shiten doctor [options]
+shugo doctor [options]
 ```
 
 ### Opções
@@ -74,18 +74,18 @@ shiten doctor [options]
 ### Exemplos
 
 ```bash
-shiten doctor              # Relatório diagnóstico completo
-shiten doctor --json       # Saída JSON
+shugo doctor              # Relatório diagnóstico completo
+shugo doctor --json       # Saída JSON
 ```
 
 ---
 
-## `shiten assess`
+## `shugo assess`
 
 Reavalie a maturidade do projeto e recomende novas capacidades.
 
 ```bash
-shiten assess [options]
+shugo assess [options]
 ```
 
 ### Opções
@@ -97,8 +97,8 @@ shiten assess [options]
 ### Exemplos
 
 ```bash
-shiten assess              # Reavaliação interativa
-shiten assess --json       # Saída JSON
+shugo assess              # Reavaliação interativa
+shugo assess --json       # Saída JSON
 ```
 
 ### Dicas
@@ -107,12 +107,12 @@ shiten assess --json       # Saída JSON
 
 ---
 
-## `shiten detect`
+## `shugo detect`
 
 Detecte padrões no histórico e proponha regras candidatas.
 
 ```bash
-shiten detect [options]
+shugo detect [options]
 ```
 
 ### Opções
@@ -124,6 +124,6 @@ shiten detect [options]
 ### Exemplos
 
 ```bash
-shiten detect              # Analisar histórico
-shiten detect --json       # Saída JSON
+shugo detect              # Analisar histórico
+shugo detect --json       # Saída JSON
 ```

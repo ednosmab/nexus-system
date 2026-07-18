@@ -17,7 +17,7 @@ import {
   detectCapabilitySignalsFromFilesystem,
   loadMaturityProfile,
 } from "./maturity-profile.js";
-import { detectLifecycleState, type ShitenLifecycleState } from "./shiten-state-machine.js";
+import { detectLifecycleState, type ShitennoLifecycleState } from "./shitenno-state-machine.js";
 import {
   loadArtifacts,
   loadRelations,
@@ -73,7 +73,7 @@ const STALE_THRESHOLDS_DAYS: Record<AssetType, number> = {
 
 const ORPHAN_EXEMPT_TYPES = new Set<AssetType>(["report", "doc", "adr", "policy"]);
 
-function orphanWeightFor(lifecycle: ShitenLifecycleState): number {
+function orphanWeightFor(lifecycle: ShitennoLifecycleState): number {
   if (lifecycle === "uninitialized" || lifecycle === "discovered") return 20;
   if (lifecycle === "governed" || lifecycle === "evolved") return 45;
   return 40;
@@ -82,7 +82,7 @@ function orphanWeightFor(lifecycle: ShitenLifecycleState): number {
 export function calculateEntropy(
   assets: EngineeringAsset[],
   relations: Relation[],
-  lifecycle: ShitenLifecycleState
+  lifecycle: ShitennoLifecycleState
 ): { orphanedAssets: number; staleAssets: number; missingDependencies: number; score: number } {
   const now = Date.now();
 
@@ -132,15 +132,15 @@ let isConsolidating = false;
 
 export function consolidateEngineeringState(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): EngineeringState {
   if (isConsolidating) {
-    const cached = loadEngineeringState(shitenDir);
+    const cached = loadEngineeringState(shitennoDir);
     if (cached) return cached;
 
     return {
       consolidatedAt: new Date().toISOString(),
-      lifecycle: detectLifecycleState(projectRoot, shitenDir),
+      lifecycle: detectLifecycleState(projectRoot, shitennoDir),
       project: { name: projectRoot.split("/").pop() || "", root: projectRoot, stack: [], hasGit: false, hasCI: false, hasTests: false, hasTypeScript: false, packageCount: 0, sourceFileCount: 0, monorepo: false },
       maturity: null,
       capabilities: ["core"],
@@ -161,28 +161,28 @@ export function consolidateEngineeringState(
 
   try {
     const projectAnalysis = analyseProject(projectRoot);
-    const lifecycle = detectLifecycleState(projectRoot, shitenDir);
-    const maturityProfile = loadMaturityProfile(shitenDir);
+    const lifecycle = detectLifecycleState(projectRoot, shitennoDir);
+    const maturityProfile = loadMaturityProfile(shitennoDir);
 
     const installedCapabilities = maturityProfile?.installedCapabilities ?? ["core"];
 
-    const fsDetected = detectCapabilitySignalsFromFilesystem(shitenDir);
+    const fsDetected = detectCapabilitySignalsFromFilesystem(shitennoDir);
     const capabilityDrift = {
       detectedNotRegistered: fsDetected.filter((c) => !installedCapabilities.includes(c)),
       registeredNotDetected: installedCapabilities.filter((c) => !fsDetected.includes(c)),
     };
 
-    const assets = discoverAssets(shitenDir);
+    const assets = discoverAssets(shitennoDir);
 
-    const artifacts = loadArtifacts(shitenDir);
-    const relations = loadRelations(shitenDir);
+    const artifacts = loadArtifacts(shitennoDir);
+    const relations = loadRelations(shitennoDir);
     const graphAnalysis = artifacts.length > 0
       ? analyzeGraph(artifacts, relations)
       : null;
 
     let debtReport: KnowledgeDebtReport | null = null;
     try {
-      debtReport = detectKnowledgeDebt(projectRoot, shitenDir);
+      debtReport = detectKnowledgeDebt(projectRoot, shitennoDir);
     } catch {
       logger.debug("engineering-state", "Knowledge debt detection unavailable");
     }
@@ -194,7 +194,7 @@ export function consolidateEngineeringState(
       assetsByType[asset.type] = (assetsByType[asset.type] || 0) + 1;
     }
 
-    const rulesDir = join(shitenDir, "governance", "rules");
+    const rulesDir = join(shitennoDir, "governance", "rules");
     let activeRules = 0;
     if (existsSync(rulesDir)) {
       const ruleFiles = readdirSync(rulesDir).filter((f) => f.endsWith(".json"));
@@ -292,13 +292,13 @@ export function consolidateEngineeringState(
 
 export function initializeEngineeringState(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): () => void {
   const bus = getEventBus();
 
   const reconsolidate = () => {
-    const state = consolidateEngineeringState(projectRoot, shitenDir);
-    saveEngineeringState(shitenDir, state);
+    const state = consolidateEngineeringState(projectRoot, shitennoDir);
+    saveEngineeringState(shitennoDir, state);
     bus.publish("engineering_state.consolidated", {
       consolidatedAt: state.consolidatedAt,
       lifecycle: state.lifecycle,

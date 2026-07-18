@@ -18,7 +18,7 @@ describe("subscribeToEngineeringState", () => {
   it("returns getState and unsubscribe functions", () => {
     const { getState, unsubscribe } = subscribeToEngineeringState(
       "/tmp/project",
-      "/tmp/project/shitenno-go"
+      "/tmp/project/shitenno"
     );
 
     expect(typeof getState).toBe("function");
@@ -30,7 +30,7 @@ describe("subscribeToEngineeringState", () => {
   it("getState returns initial state", () => {
     const { getState, unsubscribe } = subscribeToEngineeringState(
       "/tmp/project",
-      "/tmp/project/shitenno-go"
+      "/tmp/project/shitenno"
     );
 
     const state = getState();
@@ -44,7 +44,7 @@ describe("subscribeToEngineeringState", () => {
     const bus = getEventBus();
     const { unsubscribe } = subscribeToEngineeringState(
       "/tmp/project",
-      "/tmp/project/shitenno-go"
+      "/tmp/project/shitenno"
     );
 
     expect(bus.listenerCount("engineering_state.consolidated")).toBeGreaterThanOrEqual(1);
@@ -56,7 +56,7 @@ describe("subscribeToEngineeringState", () => {
     const bus = getEventBus();
     const { unsubscribe } = subscribeToEngineeringState(
       "/tmp/project",
-      "/tmp/project/shitenno-go"
+      "/tmp/project/shitenno"
     );
 
     const before = bus.listenerCount("engineering_state.consolidated");

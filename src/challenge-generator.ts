@@ -10,7 +10,7 @@
 
 import type { EvolutionRecommendation, RecommendationType } from "./auto-evolution.js";
 import type { GrowthProfile } from "./growth-profile.js";
-import type { ShitenState } from "./state-manager.js";
+import type { ShitennoState } from "./state-manager.js";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -140,7 +140,7 @@ const CHALLENGE_TEMPLATES: Record<RecommendationType, {
 export function generateChallengingAlternative(
   comfortable: EvolutionRecommendation,
   profile: GrowthProfile,
-  state?: ShitenState
+  state?: ShitennoState
 ): EvolutionRecommendation {
   const template = CHALLENGE_TEMPLATES[comfortable.type];
 
@@ -184,7 +184,7 @@ export function generateChallengingAlternative(
 /** Calculate knowledge gap for a recommendation. */
 export function calculateKnowledgeGap(
   recommendation: EvolutionRecommendation,
-  state: ShitenState
+  state: ShitennoState
 ): KnowledgeGap {
   const requiredKnowledge: string[] = [];
   const currentKnowledge: string[] = [];

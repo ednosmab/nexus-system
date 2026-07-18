@@ -182,12 +182,12 @@ export function getAllowedTransitions(state: BacklogState): BacklogState[] {
  * Updates both BACKLOG.md and context_buffer.yaml.
  */
 export function transitionTask(
-  shitenDir: string,
+  shitennoDir: string,
   taskId: string,
   fromState: BacklogState,
   toState: BacklogState
 ): TransitionResult {
-  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
 
   // Validate transition
   if (!isValidTransition(fromState, toState)) {
@@ -248,9 +248,9 @@ export function transitionTask(
 
     // Update context_buffer.yaml if current_task matches
     const bufStatus = toState === "concluído" ? "completed" : "in_progress";
-    updateCurrentTask(shitenDir, { status: bufStatus });
+    updateCurrentTask(shitennoDir, { status: bufStatus });
     if (toState === "concluído") {
-      addCompletedTask(shitenDir, {
+      addCompletedTask(shitennoDir, {
         id: taskId,
         description: "Auto-completed via backlog state machine",
         completed_at: new Date().toISOString(),
@@ -278,10 +278,10 @@ export function transitionTask(
  * Finds the shortest path from current state to "concluído".
  */
 export function completeTask(
-  shitenDir: string,
+  shitennoDir: string,
   taskId: string
 ): TransitionResult {
-  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
   const item = findBacklogItem(backlogPath, taskId);
 
   if (!item) {
@@ -315,7 +315,7 @@ export function completeTask(
   let lastResult: TransitionResult = { success: true, message: "Initial state" };
 
   for (const nextState of path) {
-    lastResult = transitionTask(shitenDir, taskId, currentState, nextState);
+    lastResult = transitionTask(shitennoDir, taskId, currentState, nextState);
     if (!lastResult.success) {
       return lastResult;
     }

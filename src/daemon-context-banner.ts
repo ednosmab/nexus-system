@@ -13,10 +13,10 @@ interface DaemonHealth {
  * Print a one-line daemon health banner if the daemon is running.
  * Skips output when isJson is true to avoid polluting JSON streams.
  */
-export async function printDaemonBanner(shitenDir: string, isJson = false): Promise<void> {
+export async function printDaemonBanner(shitennoDir: string, isJson = false): Promise<void> {
   if (isJson) return;
   const health = await queryDaemonWithFallback<DaemonHealth>(
-    shitenDir,
+    shitennoDir,
     { type: "query_health" },
     () => null as unknown as DaemonHealth,
   );

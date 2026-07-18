@@ -4,9 +4,9 @@ export default function FirstSteps() {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
-        <h1 className="text-2xl font-bold text-text-primary">What happens after shiten init</h1>
+        <h1 className="text-2xl font-bold text-text-primary">What happens after shugo init</h1>
         <p className="text-text-secondary max-w-2xl">
-          You've initialized Shiten. Here's what it created and how to use it.
+          You've initialized Shugo. Here's what it created and how to use it.
         </p>
       </section>
 
@@ -15,15 +15,15 @@ export default function FirstSteps() {
           <h3 className="text-sm font-semibold text-text-primary">What was created</h3>
           <ul className="text-sm text-text-secondary flex flex-col gap-1">
             <li><code className="text-accent">opencode.json</code> — Agent configuration (4 agents: planner, build, review, orchestrator)</li>
-            <li><code className="text-accent">shitenno-go/</code> — Governance framework (skills, scripts, contracts)</li>
-            <li><code className="text-accent">shitenno-go/docs/skills/</code> — 22 engineering skills</li>
-            <li><code className="text-accent">shitenno-go/governance/</code> — Agent contracts and context</li>
+            <li><code className="text-accent">shitenno/</code> — Governance framework (skills, scripts, contracts)</li>
+            <li><code className="text-accent">shitenno/docs/skills/</code> — 22 engineering skills</li>
+            <li><code className="text-accent">shitenno/governance/</code> — Agent contracts and context</li>
           </ul>
         </div>
 
         <div className="layer-card flex flex-col gap-3">
           <h3 className="text-sm font-semibold text-text-primary">Check the full picture</h3>
-          <div className="command-block">shiten status</div>
+          <div className="command-block">shugo status</div>
           <pre className="text-xs text-text-secondary bg-surface-2 rounded-lg p-3 overflow-x-auto">{`  Governance Health:
     ✔ opencode.json: Configured with 4 agents
     ✔ AGENTS.md: 45 rules configured
@@ -47,7 +47,7 @@ export default function FirstSteps() {
 
         <div className="layer-card flex flex-col gap-3">
           <h3 className="text-sm font-semibold text-text-primary">Run the full pipeline</h3>
-          <div className="command-block">shiten run</div>
+          <div className="command-block">shugo run</div>
           <p className="text-xs text-text-muted">
             Executes 5 stages: Analyse → Score → Detect → Audit → Evolve. Run this periodically to track improvement.
           </p>

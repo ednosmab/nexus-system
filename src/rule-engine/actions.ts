@@ -5,7 +5,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { escapeRegex } from "../validation.js";
 import { transitionTask, type BacklogState } from "../backlog-state-machine.js";
 import { replaceSectionField, updateNextP0 } from "../context-buffer-writer.js";
@@ -24,10 +24,10 @@ function resolveParam(value: unknown, context: RuleContext): string {
 }
 
 /** Garante que governance/context/context_buffer.yaml existe, criando-o se necessário. */
-function ensureContextBuffer(shitenDir: string): string {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+function ensureContextBuffer(shitennoDir: string): string {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) {
-    const contextDir = join(shitenDir, "governance", "context");
+    const contextDir = join(shitennoDir, "governance", "context");
     if (!existsSync(contextDir)) {
       mkdirSync(contextDir, { recursive: true });
     }
@@ -51,20 +51,20 @@ export async function executeAction(
       }
 
       const result = replaceSectionField(
-        readFileSync(join(context.shitenDir, "governance", "context", "context_buffer.yaml"), "utf-8"),
+        readFileSync(join(context.shitennoDir, "governance", "context", "context_buffer.yaml"), "utf-8"),
         field,
         value
       );
 
       if (result.updated) {
-        writeFileSync(join(context.shitenDir, "governance", "context", "context_buffer.yaml"), result.content, "utf-8");
+        writeFileSync(join(context.shitennoDir, "governance", "context", "context_buffer.yaml"), result.content, "utf-8");
         return { success: true, message: `Updated ${field} = ${value}` };
       }
       return { success: false, message: `Field "${field}" not found in buffer` };
     }
 
     case "update_quick_board": {
-      const bufferPath = ensureContextBuffer(context.shitenDir);
+      const bufferPath = ensureContextBuffer(context.shitennoDir);
 
       try {
         let content = readFileSync(bufferPath, "utf-8");
@@ -86,7 +86,7 @@ export async function executeAction(
     }
 
     case "log_event": {
-      const historyDir = join(context.shitenDir, "docs", "history");
+      const historyDir = join(context.shitennoDir, "docs", "history");
       if (!existsSync(historyDir)) {
         mkdirSync(historyDir, { recursive: true });
       }
@@ -109,12 +109,12 @@ export async function executeAction(
     }
 
     case "trigger_assessment": {
-      const assessBin = join(context.projectRoot, "dist", "shiten.js");
+      const assessBin = join(context.projectRoot, "dist", "shugo.js");
       if (!existsSync(assessBin)) {
-        return { success: true, message: "Assessment skipped: shiten binary not found (dev environment)" };
+        return { success: true, message: "Assessment skipped: shugo binary not found (dev environment)" };
       }
       try {
-        execSync("SHITEN_CHILD=1 node dist/shiten.js assess", {
+        execSync("SHITENNO_CHILD=1 node dist/shugo.js assess", {
           cwd: context.projectRoot,
           timeout: 60000,
           encoding: "utf-8",
@@ -127,12 +127,12 @@ export async function executeAction(
     }
 
     case "trigger_health_check": {
-      const doctorBin = join(context.projectRoot, "dist", "shiten.js");
+      const doctorBin = join(context.projectRoot, "dist", "shugo.js");
       if (!existsSync(doctorBin)) {
-        return { success: true, message: "Health check skipped: shiten binary not found (dev environment)" };
+        return { success: true, message: "Health check skipped: shugo binary not found (dev environment)" };
       }
       try {
-        execSync("SHITEN_CHILD=1 node dist/shiten.js doctor", {
+        execSync("SHITENNO_CHILD=1 node dist/shugo.js doctor", {
           cwd: context.projectRoot,
           timeout: 60000,
           encoding: "utf-8",
@@ -145,7 +145,7 @@ export async function executeAction(
     }
 
     case "update_backlog": {
-      const backlogPath = join(context.shitenDir, "docs", "BACKLOG.md");
+      const backlogPath = join(context.shitennoDir, "docs", "BACKLOG.md");
       if (!existsSync(backlogPath)) return { success: false, message: "BACKLOG.md not found" };
 
       try {
@@ -172,7 +172,7 @@ export async function executeAction(
       }
 
       try {
-        const result = transitionTask(context.shitenDir, taskId, fromState as BacklogState, toState as BacklogState);
+        const result = transitionTask(context.shitennoDir, taskId, fromState as BacklogState, toState as BacklogState);
         return { success: result.success, message: result.message };
       } catch (error) {
         return { success: false, message: `Failed to transition backlog: ${error instanceof Error ? error.message : String(error)}` };
@@ -187,12 +187,12 @@ export async function executeAction(
 
       try {
         const { execFileSync } = await import("node:child_process");
-        execFileSync("node", ["dist/shiten.js", "plan", "md", "done", planId], {
+        execFileSync("node", ["dist/shugo.js", "plan", "md", "done", planId], {
           cwd: context.projectRoot,
           timeout: 30000,
           encoding: "utf-8",
           stdio: "pipe",
-          env: { ...process.env, SHITEN_CHILD: "1" },
+          env: { ...process.env, SHITENNO_CHILD: "1" },
         });
         return { success: true, message: `Plan archived: ${planId}` };
       } catch (error) {
@@ -202,8 +202,8 @@ export async function executeAction(
 
     case "auto_populate_next_p0": {
       try {
-        const shitenDir = join(context.projectRoot, SHITEN_DIR_NAME);
-        const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+        const shitennoDir = join(context.projectRoot, SHITENNO_DIR_NAME);
+        const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
 
         if (!existsSync(backlogPath)) {
           return { success: false, message: "BACKLOG.md not found" };
@@ -217,7 +217,7 @@ export async function executeAction(
         }
 
         const taskDesc = p0Match[2]!.trim();
-        const result = updateNextP0(shitenDir, taskDesc);
+        const result = updateNextP0(shitennoDir, taskDesc);
         return { success: result.success, message: result.message };
       } catch (error) {
         return { success: false, message: `auto_populate_next_p0 failed: ${error instanceof Error ? error.message : String(error)}` };

@@ -24,15 +24,15 @@ import { getEventBus } from "./event-bus.js";
 
 export function initializeCapabilityEngine(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): void {
   const bus = getEventBus();
 
   bus.subscribe("capability.installed", () => {
     import("./engineering-state.js").then((mod) => {
-      const state = mod.consolidateEngineeringState(projectRoot, shitenDir);
-      const result = evaluateCapabilities(state, shitenDir);
-      saveCapabilityEngineResult(shitenDir, result);
+      const state = mod.consolidateEngineeringState(projectRoot, shitennoDir);
+      const result = evaluateCapabilities(state, shitennoDir);
+      saveCapabilityEngineResult(shitennoDir, result);
     }).catch(() => {
       // skip
     });

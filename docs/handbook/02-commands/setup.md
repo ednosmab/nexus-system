@@ -1,15 +1,15 @@
 # Setup & Configuration
 
-Comandos para inicializar e configurar o projeto Shiten.
+Comandos para inicializar e configurar o projeto Shugo.
 
 ---
 
-## `shiten init`
+## `shugo init`
 
-Inicializa o ecossistema Shiten com descoberta baseada em maturidade.
+Inicializa o ecossistema Shugo com descoberta baseada em maturidade.
 
 ```bash
-shiten init [options]
+shugo init [options]
 ```
 
 ### Opções
@@ -22,9 +22,9 @@ shiten init [options]
 ### Exemplos
 
 ```bash
-shiten init                          # Setup interativo
-shiten init --dir ./my-project       # Diretório específico
-shiten init --answers-file config.json  # Modo não-interativo
+shugo init                          # Setup interativo
+shugo init --dir ./my-project       # Diretório específico
+shugo init --answers-file config.json  # Modo não-interativo
 ```
 
 ### Dicas
@@ -34,22 +34,22 @@ shiten init --answers-file config.json  # Modo não-interativo
 
 ---
 
-## `shiten mcp`
+## `shugo mcp`
 
 Servidor MCP para agentes AI — inicie o servidor ou instale globalmente.
 
 ```bash
-shiten mcp [options] [command]
+shugo mcp [options] [command]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten mcp` | Inicia o servidor MCP |
-| `shiten mcp install` | Instala o servidor MCP Filesystem |
-| `shiten mcp install --check` | Verifica status da instalação |
-| `shiten mcp install --upgrade` | Atualiza para a versão mais recente |
+| `shugo mcp` | Inicia o servidor MCP |
+| `shugo mcp install` | Instala o servidor MCP Filesystem |
+| `shugo mcp install --check` | Verifica status da instalação |
+| `shugo mcp install --upgrade` | Atualiza para a versão mais recente |
 
 ### Opções
 
@@ -60,26 +60,26 @@ shiten mcp [options] [command]
 ### Exemplos
 
 ```bash
-shiten mcp                    # Iniciar servidor
-shiten mcp --project-root .   # Raiz específica
-shiten mcp install            # Instalar servidor
-shiten mcp install --check    # Verificar instalação
-shiten mcp install --upgrade  # Atualizar
+shugo mcp                    # Iniciar servidor
+shugo mcp --project-root .   # Raiz específica
+shugo mcp install            # Instalar servidor
+shugo mcp install --check    # Verificar instalação
+shugo mcp install --upgrade  # Atualizar
 ```
 
 ### Dicas
 
 - Conecte seu agente AI a este servidor para contexto ao vivo do projeto
-- Execute `shiten mcp install` uma vez para corrigir timeouts do MCP
+- Execute `shugo mcp install` uma vez para corrigir timeouts do MCP
 
 ---
 
-## `shiten upgrade`
+## `shugo upgrade`
 
 Adicione capacidades ao ecossistema de governança.
 
 ```bash
-shiten upgrade [options]
+shugo upgrade [options]
 ```
 
 ### Opções
@@ -92,19 +92,19 @@ shiten upgrade [options]
 ### Exemplos
 
 ```bash
-shiten upgrade                          # Mostrar capacidades disponíveis
-shiten upgrade --capability architecture # Instalar capacidade específica
-shiten upgrade --accept-recommended     # Instalar todas recomendadas
+shugo upgrade                          # Mostrar capacidades disponíveis
+shugo upgrade --capability architecture # Instalar capacidade específica
+shugo upgrade --accept-recommended     # Instalar todas recomendadas
 ```
 
 ---
 
-## `shiten clean`
+## `shugo clean`
 
-Limpe o cache e arquivos temporários do Shiten.
+Limpe o cache e arquivos temporários do Shugo.
 
 ```bash
-shiten clean [options]
+shugo clean [options]
 ```
 
 ### Opções
@@ -116,6 +116,6 @@ shiten clean [options]
 ### Exemplos
 
 ```bash
-shiten clean              # Limpar todo cache
-shiten clean --dry-run    # Pré-visualizar limpeza
+shugo clean              # Limpar todo cache
+shugo clean --dry-run    # Pré-visualizar limpeza
 ```

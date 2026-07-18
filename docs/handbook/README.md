@@ -1,6 +1,6 @@
-# 📚 Shiten Handbook
+# 📚 Shugo Handbook
 
-> Manual de referência do Shitenno-go — do básico à arquitetura interna.
+> Manual de referência do Shitenno — do básico à arquitetura interna.
 
 ---
 
@@ -10,7 +10,7 @@ O handbook é organizado em **3 níveis de abstração**, do mais simples ao mai
 
 | Nível | Para quem | Conteúdo |
 |---|---|---|
-| **[1. Fundamentos](01-fundamentals/)** | Developers iniciantes, PMs, qualquer pessoa | O que é Shiten, instalação, primeiros passos, conceitos |
+| **[1. Fundamentos](01-fundamentals/)** | Developers iniciantes, PMs, qualquer pessoa | O que é Shugo, instalação, primeiros passos, conceitos |
 | **[2. Comandos](02-commands/)** | Developers, tech leads | Referência completa dos 35+ comandos CLI |
 | **[3. Arquitetura](03-architecture/)** | Tech leads, architects, contribuidores | Event system, rule engine, MCP, custom rules |
 
@@ -18,11 +18,11 @@ O handbook é organizado em **3 níveis de abstração**, do mais simples ao mai
 
 ## Nível 1 — Fundamentos
 
-Comece aqui se você é novo no Shiten.
+Comece aqui se você é novo no Shugo.
 
 | Arquivo | Conteúdo |
 |---|---|
-| [O que é Shiten](01-fundamentals/what-is-shiten.md) | Definição, problema que resolve, para quem serve |
+| [O que é Shugo](01-fundamentals/what-is-shitenno.md) | Definição, problema que resolve, para quem serve |
 | [Instalação](01-fundamentals/installation.md) | Pré-requisitos, métodos de instalação, verificação |
 | [Primeiros Passos](01-fundamentals/quick-start.md) | Init, status, detect, briefing, feedback |
 | [Conceitos](01-fundamentals/concepts.md) | Maturity, capabilities, governance, knowledge debt |
@@ -48,7 +48,7 @@ Referência completa de todos os comandos, organizados por categoria.
 
 ## Nível 3 — Arquitetura
 
-Para quem quer entender como Shiten funciona por dentro ou contribuir.
+Para quem quer entender como Shugo funciona por dentro ou contribuir.
 
 | Arquivo | Conteúdo |
 |---|---|
@@ -63,11 +63,11 @@ Para quem quer entender como Shiten funciona por dentro ou contribuir.
 ## Acesso rápido via CLI
 
 ```bash
-shiten handbook              # Abre este handbook no terminal
-shiten handbook --level 1    # Apenas fundamentos
-shiten handbook --level 2    # Apenas comandos
-shiten handbook --level 3    # Apenas arquitetura
-shiten handbook --topic init # Busca por tópico específico
+shugo handbook              # Abre este handbook no terminal
+shugo handbook --level 1    # Apenas fundamentos
+shugo handbook --level 2    # Apenas comandos
+shugo handbook --level 3    # Apenas arquitetura
+shugo handbook --topic init # Busca por tópico específico
 ```
 
 ---

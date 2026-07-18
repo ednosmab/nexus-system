@@ -2,7 +2,7 @@
  * commands.tsx — Tab 11: Commands
  *
  * Interactive CLI command panel. Users can browse, select,
- * and execute shiten commands directly from the dashboard.
+ * and execute shugo commands directly from the dashboard.
  * Destructive commands require confirmation.
  */
 

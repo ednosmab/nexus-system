@@ -4,7 +4,7 @@
  * Records the outcome of a session (success/failure) and associates it
  * with the briefing that was used. Enables learning from results.
  *
- * Storage: .shiten/session-feedback.jsonl (append-only).
+ * Storage: .shugo/session-feedback.jsonl (append-only).
  *
  * PRINCIPLE: Close the feedback loop — outcomes inform future briefings.
  */
@@ -88,16 +88,16 @@ export interface SessionFeedbackSummary {
 
 // ── Storage ────────────────────────────────────────────────────────────────
 
-function getFeedbackDir(shitenDir: string): string {
-  return join(shitenDir, "session-feedback");
+function getFeedbackDir(shitennoDir: string): string {
+  return join(shitennoDir, "session-feedback");
 }
 
-function getRecordsPath(shitenDir: string): string {
-  return join(getFeedbackDir(shitenDir), "records.jsonl");
+function getRecordsPath(shitennoDir: string): string {
+  return join(getFeedbackDir(shitennoDir), "records.jsonl");
 }
 
-function ensureDir(shitenDir: string): void {
-  const dir = getFeedbackDir(shitenDir);
+function ensureDir(shitennoDir: string): void {
+  const dir = getFeedbackDir(shitennoDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -125,9 +125,9 @@ export function recordOutcome(
 /**
  * Get a file-system based storage for session feedback.
  */
-export function createFileStorage(shitenDir: string) {
-  ensureDir(shitenDir);
-  const recordsPath = getRecordsPath(shitenDir);
+export function createFileStorage(shitennoDir: string) {
+  ensureDir(shitennoDir);
+  const recordsPath = getRecordsPath(shitennoDir);
 
   return {
     read(): SessionFeedbackRecord[] {
@@ -158,7 +158,7 @@ export function createFileStorage(shitenDir: string) {
       }
     },
     append(record: SessionFeedbackRecord): void {
-      ensureDir(shitenDir);
+      ensureDir(shitennoDir);
       appendFileSync(recordsPath, JSON.stringify(record) + "\n", "utf-8");
     },
   };
@@ -167,8 +167,8 @@ export function createFileStorage(shitenDir: string) {
 /**
  * Get all session feedback records.
  */
-export function getFeedbackRecords(shitenDir: string): SessionFeedbackRecord[] {
-  return createFileStorage(shitenDir).read();
+export function getFeedbackRecords(shitennoDir: string): SessionFeedbackRecord[] {
+  return createFileStorage(shitennoDir).read();
 }
 
 /**
@@ -176,17 +176,17 @@ export function getFeedbackRecords(shitenDir: string): SessionFeedbackRecord[] {
  * Bridges session-feedback with session-tracker.
  */
 export function getFeedbackForSession(
-  shitenDir: string,
+  shitennoDir: string,
   sessionId: string
 ): SessionFeedbackRecord[] {
-  return getFeedbackRecords(shitenDir).filter((r) => r.sessionId === sessionId);
+  return getFeedbackRecords(shitennoDir).filter((r) => r.sessionId === sessionId);
 }
 
 /**
  * Get the latest feedback record (for pattern analysis).
  */
-export function getLatestFeedback(shitenDir: string): SessionFeedbackRecord | null {
-  const records = getFeedbackRecords(shitenDir);
+export function getLatestFeedback(shitennoDir: string): SessionFeedbackRecord | null {
+  const records = getFeedbackRecords(shitennoDir);
   return records.at(-1) ?? null;
 }
 

@@ -1,6 +1,6 @@
 # AI Agent Rules
 
-> Rules for AI agents working on the Shiten CLI codebase.
+> Rules for AI agents working on the Shugo CLI codebase.
 
 ## Repository Structure
 

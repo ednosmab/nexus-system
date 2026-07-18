@@ -1,12 +1,12 @@
 # Contributing
 
-Guia para contribuidores do Shiten.
+Guia para contribuidores do Shugo.
 
 ---
 
 ## Visão Geral
 
-O Shiten é um projeto open-source e contribuições são bem-vindas!
+O Shugo é um projeto open-source e contribuições são bem-vindas!
 
 ---
 
@@ -92,7 +92,7 @@ shitenno-cli/
 │   ├── engine/            # Motor de análise
 │   ├── governance/        # Governança
 │   └── __tests__/         # Testes
-├── shitenno-go/          # Sistema Shiten
+├── shitenno/          # Sistema Shugo
 │   ├── governance/        # Regras e políticas
 │   └── docs/              # Documentação
 └── docs/                  # Documentação do projeto
@@ -112,7 +112,7 @@ shitenno-cli/
 
 ### Como adicionar uma nova regra?
 
-1. Crie o arquivo JSON em `shitenno-go/governance/rules/`
+1. Crie o arquivo JSON em `shitenno/governance/rules/`
 2. Valide o schema
 3. Teste a regra
 4. Documente

@@ -1,8 +1,8 @@
 # Principles
 
-> Immutable principles that govern every decision in the Shitenno-go.
+> Immutable principles that govern every decision in the Shitenno.
 
-These principles cannot be overridden by convenience, by technology choices, or by market pressure. They are the identity of the Shiten. Every architecture decision, every domain model, every implementation must be consistent with them.
+These principles cannot be overridden by convenience, by technology choices, or by market pressure. They are the identity of the Shugo. Every architecture decision, every domain model, every implementation must be consistent with them.
 
 ---
 
@@ -12,7 +12,7 @@ Code exists because knowledge was organized. Knowledge does not exist because co
 
 When a team understands its domain, its patterns, and its constraints, the code follows naturally. When code is written without understanding, it accumulates debt that compounds over time.
 
-Shiten organizes the knowledge first. The code is the result.
+Shugo organizes the knowledge first. The code is the result.
 
 ---
 
@@ -22,7 +22,7 @@ Architecture does not exist for its own sake. It exists to serve the domain.
 
 The domain defines what matters. The architecture defines how to organize it. When architecture diverges from domain, it becomes overhead. When architecture serves domain, it becomes leverage.
 
-Shiten models the domain of engineering governance. The architecture is a consequence of that model.
+Shugo models the domain of engineering governance. The architecture is a consequence of that model.
 
 ---
 
@@ -32,7 +32,7 @@ A capability is a unit of governance maturity. A feature is a unit of functional
 
 Features can be added without understanding. Capabilities cannot. When a team installs a capability, it is committing to a new dimension of governance. This commitment must be earned through knowledge, not assumed through installation.
 
-Shiten recommends capabilities based on maturity. It never forces installation based on labels.
+Shugo recommends capabilities based on maturity. It never forces installation based on labels.
 
 ---
 
@@ -42,7 +42,7 @@ AI does not fix bad engineering. It amplifies whatever exists.
 
 A project with organized knowledge, clear decisions, and governed context becomes more powerful with AI. A project without these things becomes more chaotic with AI.
 
-Shiten provides the structure that makes AI useful. It ensures that AI agents receive governed, hierarchical context. It ensures that AI recommendations are grounded in evidence, not speculation.
+Shugo provides the structure that makes AI useful. It ensures that AI agents receive governed, hierarchical context. It ensures that AI recommendations are grounded in evidence, not speculation.
 
 ---
 
@@ -52,7 +52,7 @@ A decision that is not recorded is a decision that will be repeated.
 
 Every decision made in a project — architectural, technical, procedural — generates knowledge. That knowledge must be captured, connected, and made available for future decisions. Otherwise, the team is condemned to repeat itself.
 
-Shiten tracks decisions through the knowledge lifecycle. It ensures that knowledge compounds instead of decaying.
+Shugo tracks decisions through the knowledge lifecycle. It ensures that knowledge compounds instead of decaying.
 
 ---
 
@@ -64,7 +64,7 @@ A project can have clean code and broken governance. It can have high test cover
 
 The Engineering State measures what matters: the maturity of governance, the health of knowledge, the readiness of capabilities. It is the source of truth for understanding a project's actual condition.
 
-Shiten makes the Engineering State visible, measurable, and actionable.
+Shugo makes the Engineering State visible, measurable, and actionable.
 
 ---
 
@@ -88,6 +88,6 @@ These six principles form a closed loop. They reinforce each other. Breaking one
 
 ---
 
-*These principles are permanent. They define the identity of the Shitenno-go. They cannot be changed without changing what Shiten is.*
+*These principles are permanent. They define the identity of the Shitenno. They cannot be changed without changing what Shugo is.*
 
 *Last updated: 2026-06-28*

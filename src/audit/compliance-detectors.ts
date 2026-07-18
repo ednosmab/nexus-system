@@ -8,7 +8,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── OWASP Top 10 2025 Mapping ───────────────────────────────────────────────
@@ -153,7 +153,7 @@ const SOC2_CONTROL_FILES = [
 
 export function detectSOC2Controls(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const docsDir = join(projectRoot, SHITEN_DIR_NAME, "docs");
+  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
 
   const missingControls = SOC2_CONTROL_FILES.filter(
     (f) => !existsSync(join(docsDir, f)) && !existsSync(join(projectRoot, "docs", f)),
@@ -177,18 +177,18 @@ export function detectSOC2Controls(projectRoot: string, _files: SourceFileInfo[]
 
 export function detectNISTAlignment(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+  const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
 
-  const hasGovernance = existsSync(join(shitenDir, "governance"));
-  const hasPolicies = existsSync(join(shitenDir, "governance", "policies"));
-  const hasRules = existsSync(join(shitenDir, "governance", "rules"));
+  const hasGovernance = existsSync(join(shitennoDir, "governance"));
+  const hasPolicies = existsSync(join(shitennoDir, "governance", "policies"));
+  const hasRules = existsSync(join(shitennoDir, "governance", "rules"));
 
   if (!hasGovernance || !hasPolicies || !hasRules) {
     issues.push({
       type: "nist_gap",
       severity: 2,
       description: "NIST: Estrutura de governança incompleta",
-      location: "shitenno-go/governance",
+      location: "shitenno/governance",
       recommendation: "Implementar estrutura completa de governança conforme NIST SP 800-53",
       confidence: 0.95,
     });
@@ -438,8 +438,8 @@ export function detectComplianceReport(projectRoot: string, _files: SourceFileIn
   const compliancePaths = [
     join(projectRoot, "docs", "COMPLIANCE.md"),
     join(projectRoot, "docs", "compliance"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "COMPLIANCE.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "compliance"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "COMPLIANCE.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "compliance"),
   ];
 
   const hasComplianceReport = compliancePaths.some((p) => existsSync(p));

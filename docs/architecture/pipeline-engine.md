@@ -4,7 +4,7 @@
 
 ## The Problem
 
-Today, each Shiten command runs independently. `shiten status` scores and writes a report. `shiten detect` reads reports and detects patterns. `shiten audit` reads rules and checks health. But there's no orchestration — each command is a standalone tool.
+Today, each Shugo command runs independently. `shugo status` scores and writes a report. `shugo detect` reads reports and detects patterns. `shugo audit` reads rules and checks health. But there's no orchestration — each command is a standalone tool.
 
 The pipeline engine chains these stages into a single, coherent analysis.
 
@@ -32,7 +32,7 @@ Each stage reads from and writes to a shared context:
 ```typescript
 interface PipelineContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   
   // Stage outputs
   analysis?: ProjectAnalysis;
@@ -81,7 +81,7 @@ const scoreStage: PipelineStage = {
   description: "Calculate complexity score",
   execute: async (ctx) => {
     if (!ctx.analysis) throw new Error("Analysis required");
-    ctx.complexityReport = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir);
+    ctx.complexityReport = await calculateComplexityScore(ctx.projectRoot, ctx.shitennoDir);
     return ctx;
   },
 };
@@ -94,7 +94,7 @@ const detectStage: PipelineStage = {
   name: "detect",
   description: "Detect patterns from history",
   execute: async (ctx) => {
-    ctx.patternReport = await detectPatterns(ctx.shitenDir);
+    ctx.patternReport = await detectPatterns(ctx.shitennoDir);
     return ctx;
   },
 };
@@ -107,7 +107,7 @@ const auditStage: PipelineStage = {
   name: "audit",
   description: "Audit governance health",
   execute: async (ctx) => {
-    ctx.healthReport = await auditHealth(ctx.shitenDir);
+    ctx.healthReport = await auditHealth(ctx.shitennoDir);
     return ctx;
   },
 };
@@ -169,7 +169,7 @@ const pipeline = new Pipeline()
 
 const result = await pipeline.execute({
   projectRoot: "/path/to/project",
-  shitenDir: "/path/to/project/shitenno-go",
+  shitennoDir: "/path/to/project/shitenno",
   errors: [],
   startedAt: new Date().toISOString(),
 });

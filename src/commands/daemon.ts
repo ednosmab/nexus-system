@@ -1,7 +1,7 @@
 /**
- * commands/daemon.ts — shiten daemon <start|stop|status|restart>
+ * commands/daemon.ts — shugo daemon <start|stop|status|restart>
  *
- * Manages the Shiten background daemon lifecycle.
+ * Manages the Shugo background daemon lifecycle.
  *
  * PRINCIPLE: The daemon is opt-in. These commands give full control.
  */
@@ -26,13 +26,13 @@ function formatUptime(seconds: number): string {
 
 export function daemonCommand(): Command {
   const cmd = new Command("daemon")
-    .description("Manage the Shiten background daemon")
+    .description("Manage the Shugo background daemon")
     .addHelpText("after", `
 Exemplos:
-  shiten daemon start     Iniciar o daemon em segundo plano
-  shiten daemon stop      Parar o daemon graciosamente
-  shiten daemon status    Mostrar estado e uptime do daemon
-  shiten daemon restart   Reiniciar o daemon
+  shugo daemon start     Iniciar o daemon em segundo plano
+  shugo daemon stop      Parar o daemon graciosamente
+  shugo daemon status    Mostrar estado e uptime do daemon
+  shugo daemon restart   Reiniciar o daemon
 
 O daemon é um hub de eventos que monitoriza:
   - Arquivo automático de planos concluídos
@@ -45,37 +45,37 @@ O daemon é um hub de eventos que monitoriza:
   // ── start ──────────────────────────────────────────────────────────────────
 
   cmd.command("start")
-    .description("Start the Shiten daemon in the background")
+    .description("Start the Shugo daemon in the background")
     .action(async (opts: Record<string, unknown>) => {
       const ctx = guardNotInitialized(opts, false);
       if (!ctx) return;
 
       if (shouldSkipDaemon()) {
-        output(chalk.yellow("  ⚠  Daemon is disabled (SHITEN_NO_DAEMON=1 or CI=true)"));
+        output(chalk.yellow("  ⚠  Daemon is disabled (SHITENNO_NO_DAEMON=1 or CI=true)"));
         return;
       }
 
-      const breaker = new DaemonCircuitBreaker(ctx.shitenDir);
+      const breaker = new DaemonCircuitBreaker(ctx.shitennoDir);
       if (breaker.isTripped()) {
         const state = breaker.getState();
         output(chalk.red("  ✗ Circuit breaker is tripped — too many crashes"));
         output(chalk.gray(`    Last crash: ${state.lastCrashAt}`));
-        output(chalk.gray("    Run 'shiten daemon status' for details."));
-        output(chalk.dim("    To force-reset: delete shitenno-go/daemon/circuit-breaker.json"));
+        output(chalk.gray("    Run 'shugo daemon status' for details."));
+        output(chalk.dim("    To force-reset: delete shitenno/daemon/circuit-breaker.json"));
         process.exitCode = 1;
         return;
       }
 
-      if (isDaemonRunning(ctx.shitenDir)) {
+      if (isDaemonRunning(ctx.shitennoDir)) {
         output(chalk.yellow("  ℹ  Daemon is already running"));
         return;
       }
 
       output(chalk.gray("  Starting daemon..."));
       try {
-        await startDaemon(ctx.shitenDir);
+        await startDaemon(ctx.shitennoDir);
         output(chalk.green("  ✓ Daemon started"));
-        output(chalk.gray(`    Socket: ${getSocketPath(ctx.shitenDir)}`));
+        output(chalk.gray(`    Socket: ${getSocketPath(ctx.shitennoDir)}`));
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         output(chalk.red(`  ✗ Failed to start daemon: ${msg}`));
@@ -87,17 +87,17 @@ O daemon é um hub de eventos que monitoriza:
   // ── stop ───────────────────────────────────────────────────────────────────
 
   cmd.command("stop")
-    .description("Stop the Shiten daemon")
+    .description("Stop the Shugo daemon")
     .action((opts: Record<string, unknown>) => {
       const ctx = guardNotInitialized(opts, false);
       if (!ctx) return;
 
-      if (!isDaemonRunning(ctx.shitenDir)) {
+      if (!isDaemonRunning(ctx.shitennoDir)) {
         output(chalk.yellow("  ℹ  Daemon is not running"));
         return;
       }
 
-      const stopped = stopDaemon(ctx.shitenDir);
+      const stopped = stopDaemon(ctx.shitennoDir);
       if (stopped) {
         output(chalk.green("  ✓ Daemon stopped"));
       } else {
@@ -115,17 +115,17 @@ O daemon é um hub de eventos que monitoriza:
       if (!ctx) return;
 
       outputBlank();
-      output(chalk.bold.cyan("  🔧 Shiten Daemon Status"));
+      output(chalk.bold.cyan("  🔧 Shugo Daemon Status"));
       outputBlank();
 
-      const running = isDaemonRunning(ctx.shitenDir);
-      const breaker = new DaemonCircuitBreaker(ctx.shitenDir);
+      const running = isDaemonRunning(ctx.shitennoDir);
+      const breaker = new DaemonCircuitBreaker(ctx.shitennoDir);
       const breakerState = breaker.getState();
 
       output(`  Running:    ${running ? chalk.green("yes") : chalk.red("no")}`);
 
       if (running) {
-        const status = await queryDaemonStatus(ctx.shitenDir);
+        const status = await queryDaemonStatus(ctx.shitennoDir);
 
         if (status) {
           output(`  PID:        ${chalk.bold(status.pid)}`);
@@ -192,26 +192,26 @@ O daemon é um hub de eventos que monitoriza:
       outputBlank();
       output(chalk.bold("  Environment:"));
       output(`    Skip daemon: ${shouldSkipDaemon() ? chalk.yellow("yes (env override)") : chalk.green("no")}`);
-      output(`    Approved:    ${isDaemonApproved(ctx.shitenDir) ? chalk.green("yes") : chalk.gray("no (run 'shiten daemon start' once to approve)")}`);
+      output(`    Approved:    ${isDaemonApproved(ctx.shitennoDir) ? chalk.green("yes") : chalk.gray("no (run 'shugo daemon start' once to approve)")}`);
       outputBlank();
     });
 
   // ── restart ────────────────────────────────────────────────────────────────
 
   cmd.command("restart")
-    .description("Restart the Shiten daemon")
+    .description("Restart the Shugo daemon")
     .action(async (opts: Record<string, unknown>) => {
       const ctx = guardNotInitialized(opts, false);
       if (!ctx) return;
 
-      if (isDaemonRunning(ctx.shitenDir)) {
+      if (isDaemonRunning(ctx.shitennoDir)) {
         output(chalk.gray("  Stopping daemon..."));
-        stopDaemon(ctx.shitenDir);
+        stopDaemon(ctx.shitennoDir);
         // Brief pause to allow cleanup
         await new Promise<void>((r) => setTimeout(r, 1_000));
       }
 
-      const breaker = new DaemonCircuitBreaker(ctx.shitenDir);
+      const breaker = new DaemonCircuitBreaker(ctx.shitennoDir);
       if (breaker.isTripped()) {
         output(chalk.red("  ✗ Circuit breaker is tripped — cannot restart"));
         process.exitCode = 1;
@@ -220,7 +220,7 @@ O daemon é um hub de eventos que monitoriza:
 
       output(chalk.gray("  Starting daemon..."));
       try {
-        await startDaemon(ctx.shitenDir);
+        await startDaemon(ctx.shitennoDir);
         output(chalk.green("  ✓ Daemon restarted"));
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -230,7 +230,7 @@ O daemon é um hub de eventos que monitoriza:
       }
     });
 
-  // ── shiten daemon logs ────────────────────────────────────────────────────
+  // ── shugo daemon logs ────────────────────────────────────────────────────
 
   cmd.command("logs")
     .description("Attach to the running daemon and stream its log in real time")
@@ -239,14 +239,14 @@ O daemon é um hub de eventos que monitoriza:
       const ctx = guardNotInitialized(opts, false);
       if (!ctx) return;
 
-      if (!isDaemonRunning(ctx.shitenDir)) {
+      if (!isDaemonRunning(ctx.shitennoDir)) {
         output(chalk.yellow("  ℹ  Daemon is not running — nothing to attach to."));
-        output(chalk.gray("     Start it with: shiten daemon start"));
+        output(chalk.gray("     Start it with: shugo daemon start"));
         return;
       }
 
-      const daemonDir = join(ctx.shitenDir, "daemon");
-      const logPath = process.env["SHITEN_DAEMON_LOG"] ?? join(daemonDir, "daemon.log");
+      const daemonDir = join(ctx.shitennoDir, "daemon");
+      const logPath = process.env["SHITENNO_DAEMON_LOG"] ?? join(daemonDir, "daemon.log");
       if (!existsSync(logPath)) {
         output(chalk.yellow(`  ℹ  Log file not found yet at ${logPath}`));
         return;

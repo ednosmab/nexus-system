@@ -40,8 +40,8 @@ const scoreStage: PipelineStage = {
   execute: async (ctx: PipelineContext) => {
     if (!ctx.analysis) return ctx;
     const analysis = ctx.analysis as ReturnType<typeof analyseProject>;
-    const complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitenDir, analysis);
-    writeComplexityReport(ctx.projectRoot, ctx.shitenDir, complexity);
+    const complexity = await calculateComplexityScore(ctx.projectRoot, ctx.shitennoDir, analysis);
+    writeComplexityReport(ctx.projectRoot, ctx.shitennoDir, complexity);
     ctx.complexityReport = complexity as ComplexityReport;
     return ctx;
   },
@@ -51,8 +51,8 @@ const detectStage: PipelineStage = {
   name: "detect",
   description: "Detect patterns in history",
   execute: async (ctx: PipelineContext) => {
-    const report = detectPatterns(ctx.projectRoot, ctx.shitenDir);
-    writePatternReport(ctx.shitenDir, report);
+    const report = detectPatterns(ctx.projectRoot, ctx.shitennoDir);
+    writePatternReport(ctx.shitennoDir, report);
     ctx.patternReport = report;
     return ctx;
   },
@@ -62,8 +62,8 @@ const auditStage: PipelineStage = {
   name: "audit",
   description: "Audit governance health",
   execute: async (ctx: PipelineContext) => {
-    const report = auditHealth(ctx.projectRoot, ctx.shitenDir);
-    writeHealthReport(ctx.shitenDir, report);
+    const report = auditHealth(ctx.projectRoot, ctx.shitennoDir);
+    writeHealthReport(ctx.shitennoDir, report);
     ctx.healthReport = report;
     return ctx;
   },
@@ -73,12 +73,12 @@ const evolveStage: PipelineStage = {
   name: "evolve",
   description: "Generate evolution recommendations",
   execute: async (ctx: PipelineContext) => {
-    if (!checkLifecycleGate("evolve", ctx.projectRoot, ctx.shitenDir, false)) {
+    if (!checkLifecycleGate("evolve", ctx.projectRoot, ctx.shitennoDir, false)) {
       output(chalk.yellow("  ⚠ Skipping evolve stage (requires 'governed' state)"));
       return { ...ctx, __lastStageSkipped: true };
     }
-    const report = analyzeEvolution(ctx.projectRoot, ctx.shitenDir);
-    writeEvolutionReport(ctx.shitenDir, report);
+    const report = analyzeEvolution(ctx.projectRoot, ctx.shitennoDir);
+    writeEvolutionReport(ctx.shitennoDir, report);
     ctx.evolutionReport = report;
     return { ...ctx, __lastStageSkipped: false };
   },
@@ -97,7 +97,7 @@ export const runCommand = new Command("run")
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║    shiten run — Full Analysis         ║"));
+      output(chalk.bold.cyan("  ║    shugo run — Full Analysis         ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
@@ -105,7 +105,7 @@ export const runCommand = new Command("run")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("run", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("run", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     const pipeline = new Pipeline()
       .addStage(analyzeStage)
@@ -114,7 +114,7 @@ export const runCommand = new Command("run")
       .addStage(auditStage)
       .addStage(evolveStage);
 
-    const pipelineCtx = createPipelineContext(ctx.projectRoot, ctx.shitenDir);
+    const pipelineCtx = createPipelineContext(ctx.projectRoot, ctx.shitennoDir);
     const spinner = isJson ? null : ora("Running analysis pipeline...").start();
 
     try {

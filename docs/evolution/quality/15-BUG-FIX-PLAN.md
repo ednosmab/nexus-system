@@ -100,7 +100,7 @@ Plano
 Adicionar:
 
 ```bash
-shiten init --answers-file config.yaml
+shugo init --answers-file config.yaml
 ```
 
 Objetivo

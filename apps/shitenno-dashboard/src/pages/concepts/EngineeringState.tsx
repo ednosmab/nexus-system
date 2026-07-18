@@ -23,7 +23,7 @@ export default function EngineeringState() {
       <section className="layer-card flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-text-primary">O que e</h2>
         <p className="text-sm text-text-secondary">
-          Engineering State e o principio fundamental do Shiten. Tudo que importa na engenharia — decisoes, contexto, conhecimento — deve ser preservado de forma explicita, versionavel e verificavel.
+          Engineering State e o principio fundamental do Shugo. Tudo que importa na engenharia — decisoes, contexto, conhecimento — deve ser preservado de forma explicita, versionavel e verificavel.
         </p>
       </section>
 

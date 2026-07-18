@@ -1,6 +1,6 @@
 # Ubiquitous Language
 
-> Official domain specification of the Shitenno-go. Every term here has exactly one meaning. When in doubt, refer here.
+> Official domain specification of the Shitenno. Every term here has exactly one meaning. When in doubt, refer here.
 
 This is the primary conceptual reference of the project. In case of conflict between documents, the definition in this Domain layer prevails.
 
@@ -114,7 +114,7 @@ This is the primary conceptual reference of the project. In case of conflict bet
 
 - **Definition:** A multi-dimensional assessment of engineering maturity across seven dimensions. It shows where a team is strong and where it needs improvement.
 - **Responsibility:** Provide a nuanced view of maturity that avoids false uniformity.
-- **When born:** When the system first analyzes a project. Re-evaluated on each `shiten assess` run.
+- **When born:** When the system first analyzes a project. Re-evaluated on each `shugo assess` run.
 - **Produced by:** The Maturity Profiler (through scoring each dimension based on detected artifacts and practices).
 - **Consumed by:** Capability Engine (as recommendation input), Engineering State (as a component), Humans (for self-assessment).
 - **Relationships:** ← Engineering Assets (detection), → Capability Engine (recommendation input), → Engineering State (component).
@@ -164,7 +164,7 @@ This is the primary conceptual reference of the project. In case of conflict bet
 
 ## Rule
 
-- **Definition:** A declarative governance behavior consisting of a trigger, conditions, and actions. Rules are the nervous system of Shiten — they respond to events automatically.
+- **Definition:** A declarative governance behavior consisting of a trigger, conditions, and actions. Rules are the nervous system of Shugo — they respond to events automatically.
 - **Responsibility:** Automate governance behaviors without requiring human intervention for routine decisions.
 - **When born:** When a governance behavior needs to be automated (e.g., "when a session starts, load context hierarchy").
 - **Produced by:** Humans (through definition), AI agents (through recommendation), the Rule Engine (through evaluation).

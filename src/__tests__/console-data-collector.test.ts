@@ -13,7 +13,7 @@ describe("collectConsoleData", () => {
   let tempDir: string;
 
   beforeAll(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "shiten-console-test-"));
+    tempDir = mkdtempSync(join(tmpdir(), "shitenno-console-test-"));
   });
 
   afterAll(() => {
@@ -21,14 +21,14 @@ describe("collectConsoleData", () => {
   });
 
   it("should return an object with all required fields", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    mkdirSync(shitenDir, { recursive: true });
+    const shitennoDir = join(tempDir, "shitenno");
+    mkdirSync(shitennoDir, { recursive: true });
 
-    const data = collectConsoleData(tempDir, shitenDir);
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data).toHaveProperty("timestamp");
     expect(data).toHaveProperty("projectRoot");
-    expect(data).toHaveProperty("shitenDir");
+    expect(data).toHaveProperty("shitennoDir");
     expect(data).toHaveProperty("lifecycle");
     expect(data).toHaveProperty("engineering");
     expect(data).toHaveProperty("maturity");
@@ -47,24 +47,24 @@ describe("collectConsoleData", () => {
   });
 
   it("should return valid timestamp", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     const timestamp = new Date(data.timestamp);
     expect(timestamp.getTime()).not.toBeNaN();
   });
 
-  it("should return correct projectRoot and shitenDir", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+  it("should return correct projectRoot and shitennoDir", () => {
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.projectRoot).toBe(tempDir);
-    expect(data.shitenDir).toBe(shitenDir);
+    expect(data.shitennoDir).toBe(shitennoDir);
   });
 
   it("should return engineering state with maturity", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.engineering).toBeDefined();
     // maturity can be null if no profile exists
@@ -75,8 +75,8 @@ describe("collectConsoleData", () => {
   });
 
   it("should return health scores between 0 and 100", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.health.overall).toBeGreaterThanOrEqual(0);
     expect(data.health.overall).toBeLessThanOrEqual(100);
@@ -89,8 +89,8 @@ describe("collectConsoleData", () => {
   });
 
   it("should return graph with required fields", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.graph).toBeDefined();
     expect(typeof data.graph.totalArtifacts).toBe("number");
@@ -102,8 +102,8 @@ describe("collectConsoleData", () => {
   });
 
   it("should return session with required fields", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.session).toBeDefined();
     expect(typeof data.session.totalSessions).toBe("number");
@@ -113,16 +113,16 @@ describe("collectConsoleData", () => {
   });
 
   it("should return arrays for goals and decisions", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(Array.isArray(data.goals)).toBe(true);
     expect(Array.isArray(data.decisions)).toBe(true);
   });
 
   it("should return entropy with required fields", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.entropy).toBeDefined();
     expect(typeof data.entropy.orphanedAssets).toBe("number");
@@ -132,8 +132,8 @@ describe("collectConsoleData", () => {
   });
 
   it("should return stats with required fields", () => {
-    const shitenDir = join(tempDir, "shitenno-go");
-    const data = collectConsoleData(tempDir, shitenDir);
+    const shitennoDir = join(tempDir, "shitenno");
+    const data = collectConsoleData(tempDir, shitennoDir);
 
     expect(data.stats).toBeDefined();
     expect(typeof data.stats.totalAssets).toBe("number");
@@ -144,9 +144,9 @@ describe("collectConsoleData", () => {
 
   it("should handle non-existent directory gracefully", () => {
     const fakeDir = join(tempDir, "non-existent");
-    const fakeShiten = join(fakeDir, "shitenno-go");
+    const fakeShitenno = join(fakeDir, "shitenno");
 
-    const data = collectConsoleData(fakeDir, fakeShiten);
+    const data = collectConsoleData(fakeDir, fakeShitenno);
 
     expect(data).toBeDefined();
     expect(data.projectRoot).toBe(fakeDir);

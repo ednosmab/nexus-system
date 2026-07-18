@@ -180,10 +180,10 @@ interface UserAnswers {
 }
 
 /**
- * Load user answers from shiten init.
+ * Load user answers from shugo init.
  */
-export function loadAnswers(shitenDir: string): UserAnswers | null {
-  const answersPath = join(shitenDir, "answers.json");
+export function loadAnswers(shitennoDir: string): UserAnswers | null {
+  const answersPath = join(shitennoDir, "answers.json");
   if (!existsSync(answersPath)) return null;
   try {
     return JSON.parse(readFileSync(answersPath, "utf-8")) as UserAnswers;
@@ -194,10 +194,10 @@ export function loadAnswers(shitenDir: string): UserAnswers | null {
 
 /**
  * Initialize model config from answers.json.
- * Logs the active model chosen during `shiten init`.
+ * Logs the active model chosen during `shugo init`.
  */
-export function initializeFromAnswers(shitenDir: string): void {
-  const answers = loadAnswers(shitenDir);
+export function initializeFromAnswers(shitennoDir: string): void {
+  const answers = loadAnswers(shitennoDir);
   if (!answers) return;
 
   if (answers.principalModel) {

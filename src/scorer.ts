@@ -42,21 +42,21 @@ import { calculateAreaScores, scoreProject } from "./domain/scoring/project-scor
  * score composto com nível recomendado (junior/pleno/senior).
  *
  * @param projectRoot - Diretório raiz do projeto
- * @param shitenDir - Caminho para shitenno-go/
+ * @param shitennoDir - Caminho para shitenno/
  * @param analysis - Resultado de analyseProject()
  * @returns Relatório completo de complexidade com scores por área
  */
 export async function calculateComplexityScore(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   analysis: ProjectAnalysis
 ): Promise<ComplexityReport> {
   const staticMetrics = collectStaticMetrics(analysis);
-  const behavioralMetrics = collectBehavioralMetrics(projectRoot, shitenDir);
+  const behavioralMetrics = collectBehavioralMetrics(projectRoot, shitennoDir);
 
   const profile = loadProjectProfile(projectRoot);
   const areaScores = profile
-    ? await calculateAreaScores(projectRoot, shitenDir, profile, new FileContentCache())
+    ? await calculateAreaScores(projectRoot, shitennoDir, profile, new FileContentCache())
     : [];
 
   return scoreProject(analysis, staticMetrics, behavioralMetrics, areaScores);
@@ -70,10 +70,10 @@ export async function calculateComplexityScore(
  */
 export function writeComplexityReport(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   report: ComplexityReport
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) {
     return null;
   }

@@ -17,7 +17,7 @@ export default function Interfaces() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Interfaces</h1>
         <p className="text-text-secondary max-w-2xl">
-          Tipos e interfaces principais usados no Shitenno-go.
+          Tipos e interfaces principais usados no Shitenno.
         </p>
       </section>
 

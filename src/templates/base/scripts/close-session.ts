@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = resolve(__dirname, '..', '..');
-const GOV = resolve(ROOT, 'shitenno-go', 'governance');
+const GOV = resolve(ROOT, 'shitenno', 'governance');
 
 let exitCode = 0;
 let warnings: string[] = [];
@@ -71,7 +71,7 @@ function checkBuffer() {
 
 // ── 4. Backlog updated? ───────────────────────────────────────────────────
 function checkBacklog() {
-  const backlogPath = resolve(ROOT, 'shitenno-go', 'docs', 'BACKLOG.md');
+  const backlogPath = resolve(ROOT, 'shitenno', 'docs', 'BACKLOG.md');
   if (!existsSync(backlogPath)) {
     warn('BACKLOG', 'BACKLOG.md not found');
     return;
@@ -114,7 +114,7 @@ async function checkPlanLifecycle() {
     const { detectActivePlans } = await import(resolve(ROOT, 'dist', 'plan-lifecycle.js'));
     const plans = detectActivePlans(resolve(GOV, 'plans'));
     if (plans.length > 0) {
-      warn('PLAN_LIFECYCLE', `${plans.length} active plan(s) — run "shiten plan md lifecycle" to review and archive`);
+      warn('PLAN_LIFECYCLE', `${plans.length} active plan(s) — run "shugo plan md lifecycle" to review and archive`);
       for (const p of plans) {
         console.log(`         → ${p.id}: ${p.title} [${p.status}]`);
       }

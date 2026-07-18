@@ -4,12 +4,12 @@ Comandos de sistema e utilitários.
 
 ---
 
-## `shiten validate`
+## `shugo validate`
 
 Valide a configuração e integridade do projeto.
 
 ```bash
-shiten validate [options]
+shugo validate [options]
 ```
 
 ### Opções
@@ -21,18 +21,18 @@ shiten validate [options]
 ### Exemplos
 
 ```bash
-shiten validate             # Validação completa
-shiten validate --json      # Saída JSON
+shugo validate             # Validação completa
+shugo validate --json      # Saída JSON
 ```
 
 ---
 
-## `shiten shell-init`
+## `shugo shell-init`
 
-Inicialize o shell para integração com o Shiten.
+Inicialize o shell para integração com o Shugo.
 
 ```bash
-shiten shell-init [options]
+shugo shell-init [options]
 ```
 
 ### Opções
@@ -44,18 +44,18 @@ shiten shell-init [options]
 ### Exemplos
 
 ```bash
-shiten shell-init           # Detectar shell automaticamente
-shiten shell-init --shell zsh
+shugo shell-init           # Detectar shell automaticamente
+shugo shell-init --shell zsh
 ```
 
 ---
 
-## `shiten handbook`
+## `shugo handbook`
 
 Acesse o handbook do projeto no terminal.
 
 ```bash
-shiten handbook [options]
+shugo handbook [options]
 ```
 
 ### Opções
@@ -71,23 +71,23 @@ shiten handbook [options]
 ### Exemplos
 
 ```bash
-shiten handbook              # TUI interativo
-shiten handbook --level 1    # Apenas fundamentos
-shiten handbook --level 2    # Apenas comandos
-shiten handbook --level 3    # Apenas arquitetura
-shiten handbook --list       # Listar tópicos
-shiten handbook --print      # Imprimir no terminal
-shiten handbook --fill       # Preencher dados semânticos
+shugo handbook              # TUI interativo
+shugo handbook --level 1    # Apenas fundamentos
+shugo handbook --level 2    # Apenas comandos
+shugo handbook --level 3    # Apenas arquitetura
+shugo handbook --list       # Listar tópicos
+shugo handbook --print      # Imprimir no terminal
+shugo handbook --fill       # Preencher dados semânticos
 ```
 
 ---
 
-## `shiten hooks`
+## `shugo hooks`
 
-Instalar ou remover git hooks do Shiten.
+Instalar ou remover git hooks do Shugo.
 
 ```bash
-shiten hooks [--uninstall] [--dir <path>]
+shugo hooks [--uninstall] [--dir <path>]
 ```
 
 ### Opções
@@ -99,18 +99,18 @@ shiten hooks [--uninstall] [--dir <path>]
 ### Exemplos
 
 ```bash
-shiten hooks              # Instalar hooks
-shiten hooks --uninstall  # Remover hooks
+shugo hooks              # Instalar hooks
+shugo hooks --uninstall  # Remover hooks
 ```
 
 ---
 
-## `shiten daemon`
+## `shugo daemon`
 
 Gerir o daemon de automação em background.
 
 ```bash
-shiten daemon <start|stop|status|restart>
+shugo daemon <start|stop|status|restart>
 ```
 
 ### Subcomandos
@@ -132,20 +132,20 @@ shiten daemon <start|stop|status|restart>
 ### Exemplos
 
 ```bash
-shiten daemon start       # Iniciar daemon
-shiten daemon stop        # Parar daemon
-shiten daemon status      # Ver estado
-shiten daemon restart     # Reiniciar
+shugo daemon start       # Iniciar daemon
+shugo daemon stop        # Parar daemon
+shugo daemon status      # Ver estado
+shugo daemon restart     # Reiniciar
 ```
 
 ---
 
-## `shiten watch`
+## `shugo watch`
 
 Log de eventos em tempo real para monitorização de governança.
 
 ```bash
-shiten watch [--events <types>] [--dir <path>]
+shugo watch [--events <types>] [--dir <path>]
 ```
 
 ### Opções
@@ -157,18 +157,18 @@ shiten watch [--events <types>] [--dir <path>]
 ### Exemplos
 
 ```bash
-shiten watch                              # Todos os eventos
-shiten watch --events plan.*,daemon.*     # Filtrar eventos
+shugo watch                              # Todos os eventos
+shugo watch --events plan.*,daemon.*     # Filtrar eventos
 ```
 
 ---
 
-## `shiten events`
+## `shugo events`
 
 Mostrar trace de execução do motor de regras.
 
 ```bash
-shiten events [--last <n>] [--trigger <type>] [--json]
+shugo events [--last <n>] [--trigger <type>] [--json]
 ```
 
 ### Opções
@@ -182,19 +182,19 @@ shiten events [--last <n>] [--trigger <type>] [--json]
 ### Exemplos
 
 ```bash
-shiten events                    # Últimos 20 eventos
-shiten events --last 50          # Últimos 50
-shiten events --trigger session  # Filtrar por session
+shugo events                    # Últimos 20 eventos
+shugo events --last 50          # Últimos 50
+shugo events --trigger session  # Filtrar por session
 ```
 
 ---
 
-## `shiten context`
+## `shugo context`
 
 Contexto completo do projecto para agentes AI.
 
 ```bash
-shiten context [--json] [--for-agent <name>]
+shugo context [--json] [--for-agent <name>]
 ```
 
 ### Opções
@@ -207,18 +207,18 @@ shiten context [--json] [--for-agent <name>]
 ### Exemplos
 
 ```bash
-shiten context                    # Contexto completo
-shiten context --for-agent plan   # Contexto para agente plan
+shugo context                    # Contexto completo
+shugo context --for-agent plan   # Contexto para agente plan
 ```
 
 ---
 
-## `shiten history`
+## `shugo history`
 
 Ver histórico de estado de engenharia com diffs opcionais.
 
 ```bash
-shiten history [--from <date>] [--to <date>] [--diff] [--json]
+shugo history [--from <date>] [--to <date>] [--diff] [--json]
 ```
 
 ### Opções
@@ -233,19 +233,19 @@ shiten history [--from <date>] [--to <date>] [--diff] [--json]
 ### Exemplos
 
 ```bash
-shiten history                    # Listar snapshots
-shiten history --diff             # Com diffs
-shiten history --from 2026-07-01  # A partir de data
+shugo history                    # Listar snapshots
+shugo history --diff             # Com diffs
+shugo history --from 2026-07-01  # A partir de data
 ```
 
 ---
 
-## `shiten reminders`
+## `shugo reminders`
 
 Gerir lembretes de sessão com prioridade e categoria.
 
 ```bash
-shiten reminders [add|rm|clear] [options]
+shugo reminders [add|rm|clear] [options]
 ```
 
 ### Subcomandos
@@ -269,20 +269,20 @@ shiten reminders [add|rm|clear] [options]
 ### Exemplos
 
 ```bash
-shiten reminders add "Rodar audit" --priority high
-shiten reminders add "Fix auth bug" --category bug
-shiten reminders rm 1
-shiten reminders clear
+shugo reminders add "Rodar audit" --priority high
+shugo reminders add "Fix auth bug" --category bug
+shugo reminders rm 1
+shugo reminders clear
 ```
 
 ---
 
-## `shiten update`
+## `shugo update`
 
 Detectar mudanças em templates e aplicar actualizações.
 
 ```bash
-shiten update [--apply] [--dir <path>] [--json]
+shugo update [--apply] [--dir <path>] [--json]
 ```
 
 ### Opções
@@ -295,18 +295,18 @@ shiten update [--apply] [--dir <path>] [--json]
 ### Exemplos
 
 ```bash
-shiten update            # Ver mudanças pendentes
-shiten update --apply    # Aplicar actualizações
+shugo update            # Ver mudanças pendentes
+shugo update --apply    # Aplicar actualizações
 ```
 
 ---
 
-## `shiten docs-audit`
+## `shugo docs-audit`
 
 Auditar ciclo de vida da documentação e propor organização.
 
 ```bash
-shiten docs-audit [--apply] [--dir <path>] [--json]
+shugo docs-audit [--apply] [--dir <path>] [--json]
 ```
 
 ### Opções
@@ -319,6 +319,6 @@ shiten docs-audit [--apply] [--dir <path>] [--json]
 ### Exemplos
 
 ```bash
-shiten docs-audit            # Dry-run: ver movimentações
-shiten docs-audit --apply    # Aplicar movimentações
+shugo docs-audit            # Dry-run: ver movimentações
+shugo docs-audit --apply    # Aplicar movimentações
 ```

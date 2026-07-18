@@ -39,7 +39,7 @@ export const evolveCommand = new Command("evolve")
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║    shiten evolve — Recommendations    ║"));
+      output(chalk.bold.cyan("  ║    shugo evolve — Recommendations    ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
@@ -47,9 +47,9 @@ export const evolveCommand = new Command("evolve")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, isJson);
+    void printDaemonBanner(ctx.shitennoDir, isJson);
 
-    if (!checkLifecycleGate("evolve", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("evolve", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     // Handle accept/reject feedback
     if (options.accept || options.reject) {
@@ -65,7 +65,7 @@ export const evolveCommand = new Command("evolve")
         pathChoice = "challenging";
       }
 
-      const record = recordFeedback(ctx.shitenDir, {
+      const record = recordFeedback(ctx.shitennoDir, {
         recommendationId: recId,
         action,
         reason,
@@ -85,7 +85,7 @@ export const evolveCommand = new Command("evolve")
         automation: "sustainable_velocity",
       };
       const metric = recTypeToMetric[recId.split("-")[0]] || "decision_making";
-      recordDimensionFeedback(ctx.shitenDir, {
+      recordDimensionFeedback(ctx.shitennoDir, {
         recommendationId: recId,
         action,
         reason,
@@ -101,7 +101,7 @@ export const evolveCommand = new Command("evolve")
 
       // Record path choice in growth profile
       if (pathChoice) {
-        recordPathChoice(ctx.shitenDir, {
+        recordPathChoice(ctx.shitennoDir, {
           pathChosen: pathChoice,
           context: {
             command: "evolve",
@@ -129,12 +129,12 @@ export const evolveCommand = new Command("evolve")
     const spinner = isJson ? null : ora("Analyzing evolution recommendations...").start();
 
     try {
-      const report = analyzeEvolution(ctx.projectRoot, ctx.shitenDir);
-      writeEvolutionReport(ctx.shitenDir, report);
+      const report = analyzeEvolution(ctx.projectRoot, ctx.shitennoDir);
+      writeEvolutionReport(ctx.shitennoDir, report);
 
       // Load feedback patterns
-      const patterns = detectFeedbackPatterns(ctx.shitenDir);
-      const summaries = getAllFeedbackSummaries(ctx.shitenDir);
+      const patterns = detectFeedbackPatterns(ctx.shitennoDir);
+      const summaries = getAllFeedbackSummaries(ctx.shitennoDir);
       const totalFeedback = Object.values(summaries).reduce((acc, s) => acc + s.totalInteractions, 0);
 
       // Publish event
@@ -215,9 +215,9 @@ export const evolveCommand = new Command("evolve")
 
       // Usage hint
       output(chalk.gray("  Usage:"));
-      output(chalk.gray("    shiten evolve --accept EVO-001 --comfortable   # Choose comfortable path"));
-      output(chalk.gray("    shiten evolve --accept CHL-001 --challenging   # Choose challenging path"));
-      output(chalk.gray("    shiten evolve --reject EVO-001 --reason \"Not now\""));
+      output(chalk.gray("    shugo evolve --accept EVO-001 --comfortable   # Choose comfortable path"));
+      output(chalk.gray("    shugo evolve --accept CHL-001 --challenging   # Choose challenging path"));
+      output(chalk.gray("    shugo evolve --reject EVO-001 --reason \"Not now\""));
       outputBlank();
 
     } catch (error) {

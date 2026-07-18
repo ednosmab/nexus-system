@@ -29,7 +29,7 @@ function createItem(id: string, status: string, date?: string): string {
 | **Prioridade** | P0 |
 | **Owner** | executor |
 | **Data** | 2026-07-01 |
-| **Fonte** | shiten assess |
+| **Fonte** | shugo assess |
 | **Modulos** | src/ |
 | **Descricao** | Some description |
 | **Correcao** | Some correction |`;

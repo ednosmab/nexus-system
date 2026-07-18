@@ -8,7 +8,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── 22.1 Pipeline Gaps ──────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export function detectMissingRunbooks(projectRoot: string, _files: SourceFileInf
   const runbookPaths = [
     join(projectRoot, "runbooks"),
     join(projectRoot, "docs", "runbooks"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "runbooks"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "runbooks"),
     join(projectRoot, "docs", "RUNBOOKS.md"),
   ];
 
@@ -140,7 +140,7 @@ export function detectIncidentResponse(projectRoot: string, _files: SourceFileIn
   const incidentPaths = [
     join(projectRoot, "docs", "INCIDENT_RESPONSE.md"),
     join(projectRoot, "docs", "incident-response.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "INCIDENT_RESPONSE.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "INCIDENT_RESPONSE.md"),
     join(projectRoot, ".github", "ISSUE_TEMPLATE", "incident.md"),
   ];
 
@@ -167,7 +167,7 @@ export function detectDisasterRecovery(projectRoot: string, _files: SourceFileIn
   const drPaths = [
     join(projectRoot, "docs", "DISASTER_RECOVERY.md"),
     join(projectRoot, "docs", "disaster-recovery.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "DISASTER_RECOVERY.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "DISASTER_RECOVERY.md"),
     join(projectRoot, "DR.md"),
   ];
 
@@ -194,7 +194,7 @@ export function detectCapacityPlanning(projectRoot: string, _files: SourceFileIn
   const capacityPaths = [
     join(projectRoot, "docs", "CAPACITY_PLANNING.md"),
     join(projectRoot, "docs", "capacity-planning.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "CAPACITY_PLANNING.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "CAPACITY_PLANNING.md"),
   ];
 
   const hasCapacityPlan = capacityPaths.some((p) => existsSync(p));
@@ -220,8 +220,8 @@ export function detectChangeManagement(projectRoot: string, _files: SourceFileIn
   const changeMgmtPaths = [
     join(projectRoot, "docs", "CHANGE_MANAGEMENT.md"),
     join(projectRoot, "docs", "change-management.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "CHANGE_MANAGEMENT.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "governance", "policies", "CHANGE-POLICY.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "CHANGE_MANAGEMENT.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "governance", "policies", "CHANGE-POLICY.md"),
   ];
 
   const hasChangeMgmt = changeMgmtPaths.some((p) => existsSync(p));

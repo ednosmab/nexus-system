@@ -26,17 +26,17 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function createTmpDir(): string {
-  const dir = join(tmpdir(), `shiten-reactive-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(tmpdir(), `shitenno-reactive-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
 
-function createShitenDir(tmpDir: string): string {
-  const shitenDir = join(tmpDir, "shitenno-go");
-  mkdirSync(join(shitenDir, "governance", "rules"), { recursive: true });
-  mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
-  mkdirSync(join(shitenDir, "docs"), { recursive: true });
-  return shitenDir;
+function createShitennoDir(tmpDir: string): string {
+  const shitennoDir = join(tmpDir, "shitenno");
+  mkdirSync(join(shitennoDir, "governance", "rules"), { recursive: true });
+  mkdirSync(join(shitennoDir, "governance", "context"), { recursive: true });
+  mkdirSync(join(shitennoDir, "docs"), { recursive: true });
+  return shitennoDir;
 }
 
 function createRule(overrides: Partial<Rule> = {}): Rule {
@@ -62,11 +62,11 @@ function createRule(overrides: Partial<Rule> = {}): Rule {
 
 describe("reactive-pipeline", () => {
   let tmpDir: string;
-  let shitenDir: string;
+  let shitennoDir: string;
 
   beforeEach(() => {
     tmpDir = createTmpDir();
-    shitenDir = createShitenDir(tmpDir);
+    shitennoDir = createShitennoDir(tmpDir);
     resetEventBus();
   });
 
@@ -98,9 +98,9 @@ describe("reactive-pipeline", () => {
   describe("event-to-trigger mapping", () => {
     it("health.checked maps to health_check trigger", () => {
       const rule = createRule({ trigger: "health_check" });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(1);
       expect(rules[0]!.trigger).toBe("health_check");
     });
@@ -111,9 +111,9 @@ describe("reactive-pipeline", () => {
         trigger: "session_start",
         conditions: [],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules[0]!.trigger).toBe("session_start");
     });
   });
@@ -121,21 +121,21 @@ describe("reactive-pipeline", () => {
   // ── Layer 3: Rule loading from filesystem ────────────────────────────────
 
   describe("rule loading", () => {
-    it("loads rules from shiten governance directory", () => {
+    it("loads rules from shugo governance directory", () => {
       const rule = createRule();
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(1);
       expect(rules[0]!.id).toBe("RULE-REACTIVE-001");
     });
 
     it("loads all rules from directory", () => {
-      saveRule(shitenDir, createRule({ id: "R1", priority: 2 }));
-      saveRule(shitenDir, createRule({ id: "R2", priority: 1 }));
-      saveRule(shitenDir, createRule({ id: "R3", priority: 3 }));
+      saveRule(shitennoDir, createRule({ id: "R1", priority: 2 }));
+      saveRule(shitennoDir, createRule({ id: "R2", priority: 1 }));
+      saveRule(shitennoDir, createRule({ id: "R3", priority: 3 }));
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(3);
       expect(rules.map((r) => r.id)).toContain("R1");
       expect(rules.map((r) => r.id)).toContain("R2");
@@ -143,7 +143,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("returns empty array when no rules exist", () => {
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules).toEqual([]);
     });
   });
@@ -153,14 +153,14 @@ describe("reactive-pipeline", () => {
   describe("rule execution", () => {
     it("executes action when conditions are met", async () => {
       const rule = createRule();
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "critical" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -171,14 +171,14 @@ describe("reactive-pipeline", () => {
 
     it("skips action when conditions are NOT met", async () => {
       const rule = createRule();
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "ok" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -194,14 +194,14 @@ describe("reactive-pipeline", () => {
           { type: "log_event", params: { event: "action2", message: "Second" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "critical" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -214,7 +214,7 @@ describe("reactive-pipeline", () => {
 
   describe("full reactive chain", () => {
     it("eventBus.publish triggers rule engine via initializeRuleEngine", async () => {
-      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      const bufPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
       writeFileSync(bufPath, "current_task:\n  status: \"idle\"\n", "utf-8");
 
       const rule = createRule({
@@ -222,9 +222,9 @@ describe("reactive-pipeline", () => {
           { type: "update_context_buffer", params: { field: "current_task.status", value: "active" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      initializeRuleEngine(tmpDir, shitenDir);
+      initializeRuleEngine(tmpDir, shitennoDir);
 
       const bus = getEventBus();
       bus.publish("health.checked", { status: "critical" });
@@ -236,7 +236,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("non-matching event does not trigger rules", async () => {
-      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      const bufPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
       writeFileSync(bufPath, "current_task:\n  status: \"idle\"\n", "utf-8");
 
       const rule = createRule({
@@ -244,9 +244,9 @@ describe("reactive-pipeline", () => {
           { type: "update_context_buffer", params: { field: "current_task.status", value: "active" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      initializeRuleEngine(tmpDir, shitenDir);
+      initializeRuleEngine(tmpDir, shitennoDir);
 
       const bus = getEventBus();
       bus.publish("session.start", {});
@@ -259,7 +259,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("context_buffer.yaml is updated by update_context_buffer action", async () => {
-      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      const bufPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
       writeFileSync(bufPath, "current_task:\n  status: \"idle\"\n", "utf-8");
 
       const rule = createRule({
@@ -267,14 +267,14 @@ describe("reactive-pipeline", () => {
           { type: "update_context_buffer", params: { field: "current_task.status", value: "active" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "critical" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -285,7 +285,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("BACKLOG.md is updated by update_backlog action", async () => {
-      const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+      const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
       writeFileSync(backlogPath, "# BACKLOG\n\nExisting items\n", "utf-8");
 
       const rule = createRule({
@@ -293,14 +293,14 @@ describe("reactive-pipeline", () => {
           { type: "update_backlog", params: { item: "Reactive: critical health detected" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "critical" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -311,7 +311,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("task.completed event triggers RULE-016 (update_backlog_status)", async () => {
-      const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+      const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
       writeFileSync(
         backlogPath,
         "# BACKLOG\n\n| ID | Title | Priority | Status |\n|---|---|---|---|\n| TASK-001 | Test task | High | em implementação |\n",
@@ -334,16 +334,16 @@ describe("reactive-pipeline", () => {
         enabled: true,
         tags: ["backlog"],
       };
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       expect(rules).toHaveLength(1);
 
       const context: RuleContext = {
         trigger: "task_completed",
         eventData: { taskId: "TASK-001" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -355,7 +355,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("task.completed event triggers RULE-017 (update_context_buffer)", async () => {
-      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      const bufPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
       writeFileSync(bufPath, "current_task:\n  id: \"TASK-001\"\n  status: \"em implementação\"\n", "utf-8");
 
       const rule: Rule = {
@@ -371,9 +371,9 @@ describe("reactive-pipeline", () => {
         enabled: true,
         tags: ["buffer"],
       };
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      initializeRuleEngine(tmpDir, shitenDir);
+      initializeRuleEngine(tmpDir, shitennoDir);
 
       const bus = getEventBus();
       bus.publish("task.completed", { taskId: "TASK-001" });
@@ -389,13 +389,13 @@ describe("reactive-pipeline", () => {
 
   describe("event persistence", () => {
     it("persists events to JSONL file on disk", () => {
-      enableEventPersistence(shitenDir);
+      enableEventPersistence(shitennoDir);
 
       const bus = getEventBus();
       bus.publish("score.calculated", { score: 42 });
 
       const today = new Date().toISOString().slice(0, 10);
-      const events = readPersistedEvents(shitenDir, today);
+      const events = readPersistedEvents(shitennoDir, today);
 
       expect(events).toHaveLength(1);
       expect(events[0]!.type).toBe("score.calculated");
@@ -403,7 +403,7 @@ describe("reactive-pipeline", () => {
     });
 
     it("multiple publishes append to same daily file", () => {
-      enableEventPersistence(shitenDir);
+      enableEventPersistence(shitennoDir);
 
       const bus = getEventBus();
       bus.publish("score.calculated", { score: 10 });
@@ -411,7 +411,7 @@ describe("reactive-pipeline", () => {
       bus.publish("score.calculated", { score: 30 });
 
       const today = new Date().toISOString().slice(0, 10);
-      const events = readPersistedEvents(shitenDir, today);
+      const events = readPersistedEvents(shitennoDir, today);
 
       expect(events).toHaveLength(3);
     });
@@ -455,7 +455,7 @@ describe("reactive-pipeline", () => {
 
   describe("error isolation", () => {
     it("failing rule does not prevent other rules from executing", async () => {
-      const bufPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+      const bufPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
       writeFileSync(bufPath, "current_task:\n  status: \"idle\"\n", "utf-8");
 
       const failingRule: Rule = {
@@ -486,15 +486,15 @@ describe("reactive-pipeline", () => {
         tags: ["test"],
       };
 
-      saveRule(shitenDir, failingRule);
-      saveRule(shitenDir, successRule);
+      saveRule(shitennoDir, failingRule);
+      saveRule(shitennoDir, successRule);
 
-      const rules = loadRules(shitenDir);
+      const rules = loadRules(shitennoDir);
       const context: RuleContext = {
         trigger: "health_check",
         eventData: { status: "critical" },
         projectRoot: tmpDir,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
       };
 
@@ -513,9 +513,9 @@ describe("reactive-pipeline", () => {
           { type: "update_context_buffer", params: { field: "", value: "" } },
         ],
       });
-      saveRule(shitenDir, rule);
+      saveRule(shitennoDir, rule);
 
-      initializeRuleEngine(tmpDir, shitenDir);
+      initializeRuleEngine(tmpDir, shitennoDir);
 
       const bus = getEventBus();
       bus.publish("health.checked", { status: "critical" });

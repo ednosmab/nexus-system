@@ -25,7 +25,7 @@ export default function ESM() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Engineering State Method (ESM)</h1>
         <p className="text-text-secondary max-w-2xl">
-          Metodologia que define as 7 Leis Fundamentais e 6 Principios do Shiten.
+          Metodologia que define as 7 Leis Fundamentais e 6 Principios do Shugo.
         </p>
       </section>
 

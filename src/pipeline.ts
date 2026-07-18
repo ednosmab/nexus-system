@@ -25,7 +25,7 @@ import type { HealthAuditReport } from "./health-auditor.js";
 
 export interface PipelineContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
 
   // Stage outputs (populated incrementally through the pipeline)
   analysis?: ProjectAnalysis;
@@ -183,11 +183,11 @@ export class Pipeline {
 /** Create a new pipeline context. */
 export function createPipelineContext(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): PipelineContext {
   return {
     projectRoot,
-    shitenDir,
+    shitennoDir,
     errors: [],
     stageResults: [],
     startedAt: new Date().toISOString(),
@@ -237,7 +237,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
       if (!context.analysis) return context;
       const complexityReport = await calculateComplexityScore(
         context.projectRoot,
-        context.shitenDir,
+        context.shitennoDir,
         context.analysis
       );
       return { ...context, complexityReport };
@@ -249,7 +249,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
     name: "pattern_detection",
     description: "Detect recurring patterns in history and reports",
     execute: async (context) => {
-      const patternReport = detectPatterns(context.projectRoot, context.shitenDir);
+      const patternReport = detectPatterns(context.projectRoot, context.shitennoDir);
       return { ...context, patternReport };
     },
   });
@@ -261,7 +261,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
     execute: async (context) => {
       const knowledgeDebtReport = detectKnowledgeDebt(
         context.projectRoot,
-        context.shitenDir
+        context.shitennoDir
       );
       return { ...context, knowledgeDebtReport };
     },
@@ -275,11 +275,11 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
       // First consolidate partial state for capability evaluation
       const partialState = consolidateEngineeringState(
         context.projectRoot,
-        context.shitenDir
+        context.shitennoDir
       );
       const capabilityEngineResult = evaluateCapabilities(
         partialState,
-        context.shitenDir
+        context.shitennoDir
       );
       return { ...context, capabilityEngineResult };
     },
@@ -292,7 +292,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
     execute: async (context) => {
       const engineeringState = consolidateEngineeringState(
         context.projectRoot,
-        context.shitenDir
+        context.shitennoDir
       );
       return { ...context, engineeringState };
     },
@@ -309,7 +309,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
       const recommendationEngineResult = runRecommendationEngine(
         context.engineeringState,
         context.capabilityEngineResult,
-        context.shitenDir
+        context.shitennoDir
       );
       return { ...context, recommendationEngineResult };
     },
@@ -322,7 +322,7 @@ export async function createDefaultPipeline(): Promise<Pipeline> {
     execute: async (context) => {
       const evolutionReport = analyzeEvolution(
         context.projectRoot,
-        context.shitenDir
+        context.shitennoDir
       );
       return { ...context, evolutionReport };
     },

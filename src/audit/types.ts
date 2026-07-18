@@ -13,7 +13,7 @@ export interface SourceFileInfo {
   lineCount: number;
 }
 
-/** History entry read from shitenno-go/docs/history/*.md. */
+/** History entry read from shitenno/docs/history/*.md. */
 export interface HistoryEntry {
   filename: string;
   date: string;

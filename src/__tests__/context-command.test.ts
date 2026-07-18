@@ -1,5 +1,5 @@
 /**
- * context-command.test.ts — Tests for context command (shiten context --for-agent)
+ * context-command.test.ts — Tests for context command (shugo context --for-agent)
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
@@ -21,12 +21,12 @@ describe("context command", () => {
   });
 
   it("returns null when no engineering state exists", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     expect(result).toBeNull();
   });
 
   it("returns a valid ContextOutput structure when state exists", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     if (result === null) return;
 
     expect(result).toHaveProperty("version");
@@ -40,7 +40,7 @@ describe("context command", () => {
   });
 
   it("has deterministic project fields", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     if (result === null) return;
 
     expect(result.project).toHaveProperty("name");
@@ -50,7 +50,7 @@ describe("context command", () => {
   });
 
   it("has engineeringState with required fields", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     if (result === null) return;
 
     const es = result.engineeringState;
@@ -74,7 +74,7 @@ describe("context command", () => {
   });
 
   it("output is JSON-serializable", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     if (result === null) return;
 
     const serialized = JSON.stringify(result);
@@ -84,7 +84,7 @@ describe("context command", () => {
   });
 
   it("challenges is always an array", async () => {
-    const result = await generateContext("/tmp/nonexistent-shiten-dir");
+    const result = await generateContext("/tmp/nonexistent-shitenno-dir");
     if (result === null) return;
 
     expect(Array.isArray(result.challenges)).toBe(true);

@@ -1,12 +1,12 @@
-Plano de Evolução do Shiten CLI - Instalação Orientada por Maturidade
+Plano de Evolução do Shugo CLI - Instalação Orientada por Maturidade
 
 Contexto
 
-Durante a auditoria do Shiten CLI foi identificado que o mecanismo atual de instalação baseado em níveis (L1, L2 e L3) possui uma boa intenção: reduzir a complexidade inicial para novos usuários.
+Durante a auditoria do Shugo CLI foi identificado que o mecanismo atual de instalação baseado em níveis (L1, L2 e L3) possui uma boa intenção: reduzir a complexidade inicial para novos usuários.
 
 Entretanto, essa abordagem apresenta uma limitação conceitual.
 
-Os níveis acabam representando um estágio fixo de instalação, enquanto a filosofia do Shitenno-go estabelece que o framework deve evoluir junto com o projeto, adicionando novas capacidades conforme a maturidade do domínio, da equipe e da governança.
+Os níveis acabam representando um estágio fixo de instalação, enquanto a filosofia do Shitenno estabelece que o framework deve evoluir junto com o projeto, adicionando novas capacidades conforme a maturidade do domínio, da equipe e da governança.
 
 O objetivo deste plano é substituir a instalação baseada em níveis por uma instalação baseada em perfil de maturidade, mantendo a simplicidade para novos usuários e permitindo evolução contínua.
 
@@ -17,7 +17,7 @@ Objetivos
 - Eliminar a necessidade do usuário escolher entre L1, L2 e L3.
 - Tornar a instalação adaptativa.
 - Descobrir automaticamente o perfil do projeto.
-- Permitir que o Shiten evolua conforme o projeto amadurece.
+- Permitir que o Shugo evolua conforme o projeto amadurece.
 - Produzir métricas analíticas sobre a maturidade do projeto.
 - Transformar o CLI em um assistente de evolução e não apenas um instalador.
 
@@ -29,7 +29,7 @@ Princípios
 
 O usuário responde perguntas.
 
-O Shiten determina qual configuração é mais adequada.
+O Shugo determina qual configuração é mais adequada.
 
 ---
 
@@ -45,13 +45,13 @@ Evitar excesso de documentação, contratos ou processos em projetos pequenos.
 
 Nenhuma instalação é definitiva.
 
-O Shiten poderá sugerir novas capacidades durante todo o ciclo de vida do projeto.
+O Shugo poderá sugerir novas capacidades durante todo o ciclo de vida do projeto.
 
 ---
 
 4. O Core permanece mínimo
 
-Todo projeto recebe apenas o núcleo essencial do Shiten.
+Todo projeto recebe apenas o núcleo essencial do Shugo.
 
 As demais capacidades são adicionadas posteriormente.
 
@@ -59,7 +59,7 @@ As demais capacidades são adicionadas posteriormente.
 
 Fluxo proposto
 
-shiten init
+shugo init
 
 ↓
 
@@ -95,7 +95,7 @@ Exemplos de perguntas:
 
 Experiência
 
-- Já utilizou o Shiten anteriormente?
+- Já utilizou o Shugo anteriormente?
 - É seu primeiro projeto utilizando o framework?
 
 ---
@@ -168,7 +168,7 @@ Não representa um nível.
 
 Etapa 3 — Recomendação
 
-Ao invés de instalar L1/L2/L3, o Shiten recomenda um conjunto de capacidades.
+Ao invés de instalar L1/L2/L3, o Shugo recomenda um conjunto de capacidades.
 
 Exemplo:
 
@@ -226,7 +226,7 @@ Adicionar um novo comando ao CLI.
 
 Exemplo:
 
-shiten assess
+shugo assess
 
 Objetivo:
 
@@ -244,7 +244,7 @@ Novas capacidades recomendadas:
 
 ✓ Reviews
 
-Assim o Shiten cresce conforme o projeto cresce.
+Assim o Shugo cresce conforme o projeto cresce.
 
 ---
 
@@ -289,13 +289,13 @@ As capacidades aparecem conforme passam a fazer sentido.
 
 Melhor experiência
 
-O usuário não precisa entender toda a arquitetura do Shiten para começar.
+O usuário não precisa entender toda a arquitetura do Shugo para começar.
 
 ---
 
 Dados analíticos
 
-O Shiten passa a compreender o estágio de maturidade de cada projeto.
+O Shugo passa a compreender o estágio de maturidade de cada projeto.
 
 ---
 
@@ -318,9 +318,9 @@ Assim, o questionário torna-se cada vez menor e mais preciso.
 
 Observação arquitetural importante
 
-A substituição dos níveis (L1, L2 e L3) por um modelo baseado em capacidades torna o Shiten mais aderente à sua filosofia original.
+A substituição dos níveis (L1, L2 e L3) por um modelo baseado em capacidades torna o Shugo mais aderente à sua filosofia original.
 
-O Shiten deixa de ser um framework instalado em estágios fixos e passa a atuar como um sistema adaptativo, capaz de acompanhar continuamente a evolução técnica e organizacional do projeto.
+O Shugo deixa de ser um framework instalado em estágios fixos e passa a atuar como um sistema adaptativo, capaz de acompanhar continuamente a evolução técnica e organizacional do projeto.
 
 O framework não cresce por configuração manual.
 

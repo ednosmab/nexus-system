@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { InferenceEngine } from "../inference-engine.js";
 import { getEventBus } from "../event-bus.js";
 import { logger } from "../logger.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 
 // ── Proactive Startup Functions ──────────────────────────────────────────────
 
@@ -12,8 +12,8 @@ import { SHITEN_DIR_NAME } from "../constants.js";
  * Detect plans with inconsistent status (e.g. status="done" but checkboxes still open).
  * Uses InferenceEngine to analyse all plans.
  */
-export function checkInconsistencies(shitenDir: string): { checked: number; inconsistencies: number; planIds: string[] } {
-  const inferenceEngine = new InferenceEngine(shitenDir);
+export function checkInconsistencies(shitennoDir: string): { checked: number; inconsistencies: number; planIds: string[] } {
+  const inferenceEngine = new InferenceEngine(shitennoDir);
   const allInferences = inferenceEngine.inferAllPlans();
   const inconsistent = allInferences.filter((inf) => inf.inferredStatus === "inconsistent");
   const planIds = inconsistent.map((inf) => inf.id);
@@ -88,9 +88,9 @@ function isReminderStale(entry: string[], now: number, maxAgeMs: number): boolea
  * Removes stale reminders (> 7 days) and invalid ones.
  */
 export function validateReminders(
-  shitenDir: string
+  shitennoDir: string
 ): { validated: number; removed: number; kept: number } {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) {
     return { validated: 0, removed: 0, kept: 0 };
   }
@@ -147,24 +147,24 @@ export function validateReminders(
  * Move completed backlog items (checkboxes [x]) from BACKLOG.md to done/ directory.
  */
 export function moveCompletedBacklogToDone(
-  shitenDir: string,
+  shitennoDir: string,
   projectRoot: string
 ): { checked: number; moved: number; archivedPath: string | null } {
-  const backlogPath = join(projectRoot, SHITEN_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
   if (!existsSync(backlogPath)) {
     // Try alternative paths
     const altPath = join(projectRoot, "docs", "BACKLOG.md");
     if (!existsSync(altPath)) {
       return { checked: 0, moved: 0, archivedPath: null };
     }
-    return moveFromBacklog(altPath, shitenDir);
+    return moveFromBacklog(altPath, shitennoDir);
   }
-  return moveFromBacklog(backlogPath, shitenDir);
+  return moveFromBacklog(backlogPath, shitennoDir);
 }
 
 function moveFromBacklog(
   backlogPath: string,
-  shitenDir: string
+  shitennoDir: string
 ): { checked: number; moved: number; archivedPath: string | null } {
   const content = readFileSync(backlogPath, "utf-8");
   const lines = content.split("\n");
@@ -186,7 +186,7 @@ function moveFromBacklog(
   }
 
   // Create done directory if it doesn't exist
-  const doneDir = join(shitenDir, "governance", "plans", "done");
+  const doneDir = join(shitennoDir, "governance", "plans", "done");
   if (!existsSync(doneDir)) {
     mkdirSync(doneDir, { recursive: true });
   }

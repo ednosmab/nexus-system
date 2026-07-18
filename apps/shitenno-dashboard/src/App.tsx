@@ -6,8 +6,8 @@ import { BottomNav } from './components/layout/BottomNav'
 import { Skeleton } from './components/shared/Skeleton'
 import { routeTitles } from './data/navigation'
 
-const WhatIsShiten = lazy(() => import('./pages/discover/WhatIsShiten'))
-const WhyShiten = lazy(() => import('./pages/discover/WhyShiten'))
+const WhatIsShitenno = lazy(() => import('./pages/discover/WhatIsShitenno'))
+const WhyShitenno = lazy(() => import('./pages/discover/WhyShitenno'))
 const WhoIsItFor = lazy(() => import('./pages/discover/WhoIsItFor'))
 const GettingStarted = lazy(() => import('./pages/discover/GettingStarted'))
 
@@ -52,7 +52,7 @@ const Schemas = lazy(() => import('./pages/reference/Schemas'))
 export function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
-  const title = routeTitles[location.pathname] ?? 'Shiten'
+  const title = routeTitles[location.pathname] ?? 'Shugo'
 
   return (
     <div className="flex h-dvh bg-surface-0">
@@ -65,10 +65,10 @@ export function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <Suspense fallback={<div className="p-6"><Skeleton className="h-64" /></div>}>
               <Routes>
-                <Route path="/" element={<WhatIsShiten />} />
+                <Route path="/" element={<WhatIsShitenno />} />
 
-                <Route path="/discover" element={<WhatIsShiten />} />
-                <Route path="/discover/why" element={<WhyShiten />} />
+                <Route path="/discover" element={<WhatIsShitenno />} />
+                <Route path="/discover/why" element={<WhyShitenno />} />
                 <Route path="/discover/who" element={<WhoIsItFor />} />
                 <Route path="/discover/start" element={<GettingStarted />} />
 

@@ -1,7 +1,7 @@
 /**
  * plan.ts — Plan Engine CLI Command (thin router)
  *
- * The `shiten plan` command. Manage coordinated action sequences.
+ * The `shugo plan` command. Manage coordinated action sequences.
  *
  * Sub-commands are extracted to src/commands/plan/*.ts for maintainability.
  */
@@ -48,11 +48,11 @@ export interface PrepareResult {
  */
 export async function runPrepare(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   planId: string
 ): Promise<PrepareResult[]> {
   const results: PrepareResult[] = [];
-  const engine = new MarkdownPlanEngine(shitenDir);
+  const engine = new MarkdownPlanEngine(shitennoDir);
   const plan = engine.getById(planId);
   if (!plan) return [{ step: "prepare", status: "error", detail: `Plan not found: ${planId}` }];
 
@@ -80,7 +80,7 @@ export async function runPrepare(
     }
     // if hasYamlBlock === true, fields already live in the YAML block — nothing to insert.
 
-    if (updated) { writeFileSync(plan.filePath, content, "utf-8"); results.push({ step: "format_header", status: "done", detail: "Header formatted to shiten standard" }); }
+    if (updated) { writeFileSync(plan.filePath, content, "utf-8"); results.push({ step: "format_header", status: "done", detail: "Header formatted to shugo standard" }); }
     else { results.push({ step: "format_header", status: "skip", detail: hasYamlBlock ? "YAML frontmatter present" : "Header already conformant" }); }
   } catch (error) { results.push({ step: "format_header", status: "error", detail: String(error) }); }
 
@@ -94,7 +94,7 @@ export async function runPrepare(
       const bus = getEventBus();
       bus.publish("plan.format_warning", { planId, path: plan.filePath, errors: validation.errors, warnings: validation.warnings });
       if (validation.errors.length > 0) {
-        try { const { execFileSync } = await import("node:child_process"); execFileSync("notify-send", ["Shiten Plan", `Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 }); } catch { /* notify-send not available */ }
+        try { const { execFileSync } = await import("node:child_process"); execFileSync("notify-send", ["Shugo Plan", `Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 }); } catch { /* notify-send not available */ }
       }
     }
   } catch (error) { results.push({ step: "format_validation", status: "error", detail: String(error) }); }
@@ -124,7 +124,7 @@ export async function runPrepare(
 
   // Step 3: Sync to BACKLOG.md
   try {
-    const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+    const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
     if (existsSync(backlogPath)) {
       let backlog = readFileSync(backlogPath, "utf-8");
       const planIdUpper = `BACKLOG-${planId.toUpperCase().replace(/-/g, "_")}`;
@@ -168,7 +168,7 @@ export async function runPrepare(
         const insertBefore = p2Index !== -1 ? p2Index : p1Index !== -1 ? p1Index : backlog.length;
 
         if (insertBefore !== -1) {
-          const backlogItem = ["", `### ${planIdUpper} — ${plan.title}`, "", "| Campo | Valor |", "|---|---|", `| **Status** | ${backlogStatus} |`, `| **Severidade** | Medio |`, `| **Prioridade** | P1 |`, `| **Owner** | executor |`, `| **Data** | ${new Date().toISOString().slice(0, 10)} |`, `| **Fonte** | shiten plan md prepare |`, `| **Modulos** | governance/plans/ |`, `| **Descricao** | ${plan.title} |`, `| **Correcao** | Verificar checklist no plano \`governance/plans/${planId}.md\` |`];
+          const backlogItem = ["", `### ${planIdUpper} — ${plan.title}`, "", "| Campo | Valor |", "|---|---|", `| **Status** | ${backlogStatus} |`, `| **Severidade** | Medio |`, `| **Prioridade** | P1 |`, `| **Owner** | executor |`, `| **Data** | ${new Date().toISOString().slice(0, 10)} |`, `| **Fonte** | shugo plan md prepare |`, `| **Modulos** | governance/plans/ |`, `| **Descricao** | ${plan.title} |`, `| **Correcao** | Verificar checklist no plano \`governance/plans/${planId}.md\` |`];
           if (checklistItems.length > 0) {
             backlogItem.push("", "#### Passos do Plano");
             const seenNumbers = new Set<string>();
@@ -193,7 +193,7 @@ export async function runPrepare(
   // Step 4: Send desktop notification
   try {
     const { execFileSync } = await import("node:child_process");
-    execFileSync("notify-send", ["Shiten Plan", `Plan prepared: ${plan.title}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 });
+    execFileSync("notify-send", ["Shugo Plan", `Plan prepared: ${plan.title}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 });
     results.push({ step: "notify", status: "done", detail: "Desktop notification sent" });
   } catch { results.push({ step: "notify", status: "skip", detail: "notify-send not available or failed" }); }
 

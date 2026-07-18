@@ -89,7 +89,7 @@ export interface ActionExecutor {
   /** Execute the action. Returns output data. */
   execute(
     params: Record<string, unknown>,
-    context: { projectRoot: string; shitenDir: string }
+    context: { projectRoot: string; shitennoDir: string }
   ): Promise<Record<string, unknown>>;
   /** Rollback the action (optional). */
   rollback?(params: Record<string, unknown>, output: Record<string, unknown>): Promise<void>;
@@ -154,8 +154,8 @@ export interface ExecutionRepository {
 export class FileExecutionRepository implements ExecutionRepository {
   private dir: string;
 
-  constructor(shitenDir: string) {
-    this.dir = join(shitenDir, "governance", "executions");
+  constructor(shitennoDir: string) {
+    this.dir = join(shitennoDir, "governance", "executions");
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true });
     }
@@ -233,10 +233,10 @@ export class FileExecutionRepository implements ExecutionRepository {
 
 export class ActionEngine {
   private executors = new Map<string, ActionExecutor>();
-  private shitenDir: string;
+  private shitennoDir: string;
 
-  constructor(private repo: ExecutionRepository, shitenDir?: string) {
-    this.shitenDir = shitenDir ?? "";
+  constructor(private repo: ExecutionRepository, shitennoDir?: string) {
+    this.shitennoDir = shitennoDir ?? "";
     // Register built-in executors (real implementations from decision-core)
     this.registerExecutor(new LogEventExecutor());
     this.registerExecutor(new NotifyExecutor());
@@ -266,14 +266,14 @@ export class ActionEngine {
     }
 
     // Policy gate — check before execution (ADR-009)
-    if (this.shitenDir) {
-      const policyEngine = new PolicyEngine(new FilePolicyRepository(this.shitenDir));
+    if (this.shitennoDir) {
+      const policyEngine = new PolicyEngine(new FilePolicyRepository(this.shitennoDir));
       const action: RuleAction = { type: request.type as RuleAction["type"], params: request.params as RuleAction["params"] };
       const context: RuleContext = {
         trigger: "manual",
         eventData: {},
         projectRoot: "",
-        shitenDir: this.shitenDir,
+        shitennoDir: this.shitennoDir,
         timestamp: new Date().toISOString(),
       };
       const policyResult = checkPolicyGate(action, context, policyEngine);
@@ -335,7 +335,7 @@ export class ActionEngine {
       const startTime = Date.now();
       const output = await executor.execute(request.params, {
         projectRoot: "",
-        shitenDir: this.shitenDir,
+        shitennoDir: this.shitennoDir,
       });
       const duration = Date.now() - startTime;
 

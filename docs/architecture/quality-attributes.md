@@ -83,9 +83,9 @@
 - Invalid YAML/JSON handling
 
 ### Idempotency
-- `shiten init` detects existing initialization
-- `shiten upgrade` checks if capability already installed
-- `shiten assess` overwrites previous profile cleanly
+- `shugo init` detects existing initialization
+- `shugo upgrade` checks if capability already installed
+- `shugo assess` overwrites previous profile cleanly
 
 ### Backward Compatibility
 - New capabilities don't break existing installations

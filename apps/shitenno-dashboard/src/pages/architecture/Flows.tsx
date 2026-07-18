@@ -2,19 +2,19 @@ import { Link } from 'react-router-dom'
 
 const flows = [
   {
-    name: 'shiten init',
-    steps: ['Detectar stack do projeto', 'Gerar shiten-profile', 'Criar estrutura de governanca', 'Inicializar context_buffer', 'Gravar snapshot inicial'],
+    name: 'shugo init',
+    steps: ['Detectar stack do projeto', 'Gerar shitenno-profile', 'Criar estrutura de governanca', 'Inicializar context_buffer', 'Gravar snapshot inicial'],
   },
   {
-    name: 'shiten status',
+    name: 'shugo status',
     steps: ['Ler context_buffer', 'Ler maturity-profile', 'Calcular health score', 'Listar capabilities activas', 'Formatar output'],
   },
   {
-    name: 'shiten upgrade',
+    name: 'shugo upgrade',
     steps: ['Validar capabilities disponiveis', 'Verificar compatibilidade', 'Instalar capability seleccionada', 'Actualizar context_buffer', 'Gravar snapshot'],
   },
   {
-    name: 'shiten validate',
+    name: 'shugo validate',
     steps: ['Ler regras de governanca', 'Verificar conformidade de tipos', 'Validar estrutura de pastas', 'Verificar FORBIDDEN_OPERATIONS', 'Gerar relatorio'],
   },
 ]
@@ -25,7 +25,7 @@ export default function Flows() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Fluxos</h1>
         <p className="text-text-secondary max-w-2xl">
-          Fluxos principais do Shitenno-go e a sequencia de operacoes de cada um.
+          Fluxos principais do Shitenno e a sequencia de operacoes de cada um.
         </p>
       </section>
 

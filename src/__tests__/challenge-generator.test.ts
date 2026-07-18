@@ -11,14 +11,14 @@ import {
 } from "../challenge-generator.js";
 import { loadGrowthProfile, } from "../growth-profile.js";
 import type { EvolutionRecommendation } from "../auto-evolution.js";
-import type { ShitenState } from "../state-manager.js";
+import type { ShitennoState } from "../state-manager.js";
 
 let tempDir: string;
-let shitenDir: string;
+let shitennoDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-challenge-"));
-  shitenDir = join(tempDir, "shitenno-go");
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-challenge-"));
+  shitennoDir = join(tempDir, "shitenno");
 });
 
 afterEach(() => {
@@ -34,16 +34,16 @@ describe("Challenge Generator", () => {
     title: "Install Governance",
     description: "Add governance capability to your project",
     expectedImpact: "Adds governance to your project",
-    action: "Run 'shiten upgrade --capability governance'",
-    command: "shiten upgrade --capability governance",
-    affectedArtifacts: ["shitenno-go/governance"],
+    action: "Run 'shugo upgrade --capability governance'",
+    command: "shugo upgrade --capability governance",
+    affectedArtifacts: ["shitenno/governance"],
     dependencies: [],
     confidence: 0.8,
     evidence: ["Maturity profile recommends this capability"],
     feedbackAdjusted: false,
   };
 
-  const mockState: ShitenState = {
+  const mockState: ShitennoState = {
     knowledge: {
       adrs: [],
       skills: [],
@@ -85,7 +85,7 @@ describe("Challenge Generator", () => {
 
   describe("generateChallengingAlternative", () => {
     it("generates a challenging alternative for a comfortable recommendation", () => {
-      const profile = loadGrowthProfile(shitenDir);
+      const profile = loadGrowthProfile(shitennoDir);
       const challenging = generateChallengingAlternative(mockRecommendation, profile);
 
       expect(challenging).toBeDefined();
@@ -95,14 +95,14 @@ describe("Challenge Generator", () => {
     });
 
     it("preserves the recommendation type", () => {
-      const profile = loadGrowthProfile(shitenDir);
+      const profile = loadGrowthProfile(shitennoDir);
       const challenging = generateChallengingAlternative(mockRecommendation, profile);
 
       expect(challenging.type).toBe(mockRecommendation.type);
     });
 
     it("adjusts confidence based on growth capacity", () => {
-      const profile = loadGrowthProfile(shitenDir);
+      const profile = loadGrowthProfile(shitennoDir);
       profile.growthCapacity = 0.8;
 
       const challenging = generateChallengingAlternative(mockRecommendation, profile);
@@ -110,7 +110,7 @@ describe("Challenge Generator", () => {
     });
 
     it("includes paradigm shift in evidence", () => {
-      const profile = loadGrowthProfile(shitenDir);
+      const profile = loadGrowthProfile(shitennoDir);
       const challenging = generateChallengingAlternative(mockRecommendation, profile);
 
       const hasParadigmShift = challenging.evidence.some((e) =>
@@ -120,7 +120,7 @@ describe("Challenge Generator", () => {
     });
 
     it("includes knowledge gap when state is provided", () => {
-      const profile = loadGrowthProfile(shitenDir);
+      const profile = loadGrowthProfile(shitennoDir);
       const challenging = generateChallengingAlternative(mockRecommendation, profile, mockState);
 
       const hasKnowledgeGap = challenging.evidence.some((e) =>
@@ -140,7 +140,7 @@ describe("Challenge Generator", () => {
     });
 
     it("identifies existing knowledge", () => {
-      const stateWithKnowledge: ShitenState = {
+      const stateWithKnowledge: ShitennoState = {
         ...mockState,
         knowledge: {
           ...mockState.knowledge,

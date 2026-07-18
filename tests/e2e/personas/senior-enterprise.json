@@ -5,7 +5,7 @@
   "database": "PostgreSQL",
   "styling": "Tailwind CSS",
   "maturity": {
-    "usedShitenBefore": true,
+    "usedShitennoBefore": true,
     "isFirstProject": false,
     "projectAge": "mature",
     "teamSize": "medium",

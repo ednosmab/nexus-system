@@ -7,7 +7,7 @@
  * - Scale (packages, apps, files)
  * - Tooling (TypeScript, tests, CI)
  *
- * PRINCIPLE: To help the project, Shiten must first understand it.
+ * PRINCIPLE: To help the project, Shugo must first understand it.
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -145,8 +145,8 @@ export function generateProjectFingerprint(
 
 // ── Persistence ────────────────────────────────────────────────────────────
 
-export function saveFingerprint(shitenDir: string, fingerprint: ProjectFingerprint): void {
-  const dir = join(shitenDir);
+export function saveFingerprint(shitennoDir: string, fingerprint: ProjectFingerprint): void {
+  const dir = join(shitennoDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -154,8 +154,8 @@ export function saveFingerprint(shitenDir: string, fingerprint: ProjectFingerpri
   writeFileSync(filePath, JSON.stringify(fingerprint, null, 2), "utf-8");
 }
 
-export function loadFingerprint(shitenDir: string): ProjectFingerprint | null {
-  const filePath = join(shitenDir, "fingerprint.json");
+export function loadFingerprint(shitennoDir: string): ProjectFingerprint | null {
+  const filePath = join(shitennoDir, "fingerprint.json");
   if (!existsSync(filePath)) return null;
   try {
     return JSON.parse(readFileSync(filePath, "utf-8"));
@@ -164,8 +164,8 @@ export function loadFingerprint(shitenDir: string): ProjectFingerprint | null {
   }
 }
 
-export function isFingerprintStale(shitenDir: string, maxAgeDays = 7): boolean {
-  const fingerprint = loadFingerprint(shitenDir);
+export function isFingerprintStale(shitennoDir: string, maxAgeDays = 7): boolean {
+  const fingerprint = loadFingerprint(shitennoDir);
   if (!fingerprint) return true;
   const age = Date.now() - new Date(fingerprint.detectedAt).getTime();
   return age > maxAgeDays * 24 * 60 * 60 * 1000;

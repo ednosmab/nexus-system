@@ -4,12 +4,12 @@ Comandos para integração com agentes AI e workflows.
 
 ---
 
-## `shiten briefing`
+## `shugo briefing`
 
 Gere um briefing pré-sessão para agentes AI.
 
 ```bash
-shiten briefing [options]
+shugo briefing [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ shiten briefing [options]
 ### Exemplos
 
 ```bash
-shiten briefing             # Briefing completo
-shiten briefing --json      # Saída JSON
+shugo briefing             # Briefing completo
+shugo briefing --json      # Saída JSON
 ```
 
 ### Dicas
@@ -32,12 +32,12 @@ shiten briefing --json      # Saída JSON
 
 ---
 
-## `shiten feedback`
+## `shugo feedback`
 
 Registre feedback de sessão para melhoria contínua.
 
 ```bash
-shiten feedback [options]
+shugo feedback [options]
 ```
 
 ### Opções
@@ -51,19 +51,19 @@ shiten feedback [options]
 ### Exemplos
 
 ```bash
-shiten feedback --outcome success
-shiten feedback --outcome failure --notes "Build failed"
-shiten feedback --outcome partial --areas "auth,dashboard"
+shugo feedback --outcome success
+shugo feedback --outcome failure --notes "Build failed"
+shugo feedback --outcome partial --areas "auth,dashboard"
 ```
 
 ---
 
-## `shiten profile`
+## `shugo profile`
 
 Gerencie o perfil do usuário para calibrar respostas.
 
 ```bash
-shiten profile [options]
+shugo profile [options]
 ```
 
 ### Opções
@@ -75,18 +75,18 @@ shiten profile [options]
 ### Exemplos
 
 ```bash
-shiten profile              # Ver perfil atual
-shiten profile --json       # Saída JSON
+shugo profile              # Ver perfil atual
+shugo profile --json       # Saída JSON
 ```
 
 ---
 
-## `shiten dashboard`
+## `shugo dashboard`
 
 Dashboard interativo com visão geral do projeto.
 
 ```bash
-shiten dashboard [options]
+shugo dashboard [options]
 ```
 
 ### Opções
@@ -98,32 +98,32 @@ shiten dashboard [options]
 ### Exemplos
 
 ```bash
-shiten dashboard            # Dashboard completo
-shiten dashboard --json     # Saída JSON
+shugo dashboard            # Dashboard completo
+shugo dashboard --json     # Saída JSON
 ```
 
 ---
 
-## `shiten reminders`
+## `shugo reminders`
 
 Gerencie lembretes para o usuário.
 
 ```bash
-shiten reminders [options]
+shugo reminders [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten reminders list` | Listar lembretes |
-| `shiten reminders add` | Adicionar lembrete |
-| `shiten reminders remove <id>` | Remover lembrete |
+| `shugo reminders list` | Listar lembretes |
+| `shugo reminders add` | Adicionar lembrete |
+| `shugo reminders remove <id>` | Remover lembrete |
 
 ### Exemplos
 
 ```bash
-shiten reminders list       # Listar lembretes
-shiten reminders add "Revisar handbook" --priority medium
-shiten reminders remove reminder-001
+shugo reminders list       # Listar lembretes
+shugo reminders add "Revisar handbook" --priority medium
+shugo reminders remove reminder-001
 ```

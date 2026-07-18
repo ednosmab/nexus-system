@@ -1,18 +1,18 @@
 /**
  * briefing.ts — Context Pipeline: CLI Command
  *
- * The `shiten briefing` command. Orchestrates the full pipeline:
+ * The `shugo briefing` command. Orchestrates the full pipeline:
  * Collect → Cache → Generate → Output → Feedback
  *
  * Usage:
- *   shiten briefing                  # Cached briefing (standard depth)
- *   shiten briefing basic            # Quick briefing (~200 tokens)
- *   shiten briefing full             # Full briefing (~1000 tokens)
- *   shiten briefing --json           # JSON output
- *   shiten briefing --write          # Write shitenno-go/BRIEFING.md
- *   shiten briefing --diff           # Show diff since last briefing
- *   shiten briefing --invalidate     # Force cache invalidation
- *   shiten briefing --summary        # One-line summary
+ *   shugo briefing                  # Cached briefing (standard depth)
+ *   shugo briefing basic            # Quick briefing (~200 tokens)
+ *   shugo briefing full             # Full briefing (~1000 tokens)
+ *   shugo briefing --json           # JSON output
+ *   shugo briefing --write          # Write shitenno/BRIEFING.md
+ *   shugo briefing --diff           # Show diff since last briefing
+ *   shugo briefing --invalidate     # Force cache invalidation
+ *   shugo briefing --summary        # One-line summary
  */
 
 import { Command } from "commander";
@@ -22,7 +22,7 @@ import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { collectContext } from "../context-collector.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { computeInputHash, setCachedBriefing, invalidateBriefingCache, readCache } from "../briefing-cache.js";
 import { briefingToMarkdown, briefingToJson, generateDiff, type Briefing } from "../briefing.js";
 import { compressedSummary, differentialBriefing, generateOptimizationHints, suggestDepth, type BriefingDepth } from "../token-optimizer.js";
@@ -36,12 +36,12 @@ import { queryDaemon, isDaemonRunning } from "../daemon-client.js";
 // ── Output Helpers ─────────────────────────────────────────────────────────
 
 function writeBriefingMarkdown(projectRoot: string, briefing: Briefing): string {
-  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
-  if (!existsSync(shitenDir)) {
-    mkdirSync(shitenDir, { recursive: true });
+  const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
+  if (!existsSync(shitennoDir)) {
+    mkdirSync(shitennoDir, { recursive: true });
   }
 
-  const filePath = join(shitenDir, "BRIEFING.md");
+  const filePath = join(shitennoDir, "BRIEFING.md");
   const content = briefingToMarkdown(briefing);
   writeFileSync(filePath, content, "utf-8");
   return filePath;
@@ -49,7 +49,7 @@ function writeBriefingMarkdown(projectRoot: string, briefing: Briefing): string 
 
 function displayBriefingByDepth(briefing: Briefing, cacheHit: boolean, depth: BriefingDepth): void {
   outputBlank();
-  banner("shiten briefing", "Context Pipeline");
+  banner("shugo briefing", "Context Pipeline");
   outputBlank();
   const tokenLabel = depth === "minimal" ? "~200" : depth === "standard" ? "~500" : "~1000";
   output(chalk.gray(`  Depth: ${depth} (${tokenLabel} tokens)`));
@@ -196,14 +196,14 @@ async function runBriefing(
 
   if (!isJson) {
     output("");
-    outputSection("shiten briefing — Context Pipeline");
+    outputSection("shugo briefing — Context Pipeline");
     outputBlank();
   }
 
   const ctx = guardNotInitialized(options, isJson);
   if (!ctx) return;
 
-  if (!checkLifecycleGate("briefing", ctx.projectRoot, ctx.shitenDir, isJson)) {
+  if (!checkLifecycleGate("briefing", ctx.projectRoot, ctx.shitennoDir, isJson)) {
     return;
   }
 
@@ -214,19 +214,19 @@ async function runBriefing(
     let briefing: Briefing;
     let snapshot;
 
-    if (isDaemonRunning(ctx.shitenDir)) {
-      const daemonResult = await queryDaemon<{ type: string; data: Briefing }>(ctx.shitenDir, {
+    if (isDaemonRunning(ctx.shitennoDir)) {
+      const daemonResult = await queryDaemon<{ type: string; data: Briefing }>(ctx.shitennoDir, {
         type: "query_briefing",
       });
       if (daemonResult?.data) {
         briefing = daemonResult.data;
         snapshot = { briefing, contextRules: [], dynamicRules: [], fingerprint: { hash: "" }, riskMap: { generatedAt: "" } };
       } else {
-        snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+        snapshot = collectContext(ctx.projectRoot, ctx.shitennoDir);
         briefing = snapshot.briefing;
       }
     } else {
-      snapshot = collectContext(ctx.projectRoot, ctx.shitenDir);
+      snapshot = collectContext(ctx.projectRoot, ctx.shitennoDir);
       briefing = snapshot.briefing;
     }
 
@@ -239,11 +239,11 @@ async function runBriefing(
       maturityScore: snapshot.maturityProfile?.overallScore ?? null,
     });
 
-    const oldCache = readCache(ctx.shitenDir);
+    const oldCache = readCache(ctx.shitennoDir);
     const previousBriefing = oldCache?.entry?.briefing ?? null;
 
     if (options.invalidate) {
-      invalidateBriefingCache(ctx.shitenDir);
+      invalidateBriefingCache(ctx.shitennoDir);
       spinner.text = "Cache invalidated, using fresh briefing...";
     }
 
@@ -255,7 +255,7 @@ async function runBriefing(
     }
 
     if (!cacheHit) {
-      setCachedBriefing(ctx.shitenDir, briefing, newInputHash);
+      setCachedBriefing(ctx.shitennoDir, briefing, newInputHash);
     }
 
     // ── Stage 3: Output ──────────────────────────────────────────
@@ -383,7 +383,7 @@ export function briefingCommand(): Command {
     .description("Pre-session briefing for AI agents (Context Pipeline)")
     .option("-d, --dir <path>", "Project directory")
     .option("--json", "Output as JSON")
-    .option("--write", "Write shitenno-go/BRIEFING.md")
+    .option("--write", "Write shitenno/BRIEFING.md")
     .option("--diff", "Show diff since last briefing")
     .option("--compact", "Use compact diff format (fewer tokens)")
     .option("--invalidate", "Force cache invalidation")
@@ -400,7 +400,7 @@ export function briefingCommand(): Command {
     .description("Quick briefing (~200 tokens): project, risk, 1 recommendation")
     .option("-d, --dir <path>", "Project directory")
     .option("--json", "Output as JSON")
-    .option("--write", "Write shitenno-go/BRIEFING.md")
+    .option("--write", "Write shitenno/BRIEFING.md")
     .action((options: Record<string, unknown>) => {
       return runBriefing(options as BriefingOptions, "minimal");
     });
@@ -411,7 +411,7 @@ export function briefingCommand(): Command {
     .description("Full briefing (~1000 tokens): everything including recent activity")
     .option("-d, --dir <path>", "Project directory")
     .option("--json", "Output as JSON")
-    .option("--write", "Write shitenno-go/BRIEFING.md")
+    .option("--write", "Write shitenno/BRIEFING.md")
     .option("--diff", "Show diff since last briefing")
     .option("--invalidate", "Force cache invalidation")
     .action((options: Record<string, unknown>) => {

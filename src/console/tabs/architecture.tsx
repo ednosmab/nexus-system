@@ -114,7 +114,7 @@ export function ArchitectureTab({ data }: ArchitectureTabProps): React.ReactElem
 }
 
 function buildGraphTree(graph: ConsoleData["graph"]): TreeItem[] {
-  const rootNames = ["core", "governance", "docs", "scripts", "shitenno-go"];
+  const rootNames = ["core", "governance", "docs", "scripts", "shitenno"];
   const items: TreeItem[] = [];
 
   for (const root of rootNames) {

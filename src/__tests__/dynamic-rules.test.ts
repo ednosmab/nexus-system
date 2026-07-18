@@ -29,7 +29,7 @@ describe("generateDynamicRules", () => {
     mockExecSync.mockImplementation(() => { throw new Error("no git"); });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     expect(rules).toEqual([]);
   });
 
@@ -42,7 +42,7 @@ describe("generateDynamicRules", () => {
     });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     const forcePushRule = rules.find((r) => r.id === "git-force-push");
     expect(forcePushRule).toBeDefined();
     expect(forcePushRule!.incidentCount).toBe(5);
@@ -58,7 +58,7 @@ describe("generateDynamicRules", () => {
     });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     const revertRule = rules.find((r) => r.id === "git-reverts");
     expect(revertRule).toBeDefined();
     expect(revertRule!.incidentCount).toBe(4);
@@ -72,7 +72,7 @@ describe("generateDynamicRules", () => {
     });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     expect(rules.find((r) => r.id === "git-reverts")).toBeUndefined();
   });
 
@@ -85,7 +85,7 @@ describe("generateDynamicRules", () => {
     });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     const hotfixRule = rules.find((r) => r.id === "git-hotfixes");
     expect(hotfixRule).toBeDefined();
     expect(hotfixRule!.incidentCount).toBe(5);
@@ -100,7 +100,7 @@ describe("generateDynamicRules", () => {
     });
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     const severities = rules.map((r) => r.severity);
     const order = { critical: 0, high: 1, medium: 2, low: 3 };
     for (let i = 1; i < severities.length; i++) {
@@ -112,7 +112,7 @@ describe("generateDynamicRules", () => {
     mockExecSync.mockImplementation(() => "5\n");
     mockExistsSync.mockReturnValue(false);
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     const ids = rules.map((r) => r.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -123,7 +123,7 @@ describe("generateDynamicRules", () => {
     mockReaddirSync.mockReturnValue(["session1.md", "session2.md"] as any);
     mockReadFileSync.mockReturnValue("src/auth.ts has erro and bug and falhou");
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     expect(rules.some((r) => r.source === "history-analysis")).toBe(true);
   });
 
@@ -133,7 +133,7 @@ describe("generateDynamicRules", () => {
     mockReaddirSync.mockReturnValue(["session1.md"] as any);
     mockReadFileSync.mockReturnValue("everything is fine");
 
-    const rules = generateDynamicRules("/project", "/shiten");
+    const rules = generateDynamicRules("/project", "/shugo");
     expect(rules).toEqual([]);
   });
 });

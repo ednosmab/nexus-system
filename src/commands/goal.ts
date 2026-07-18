@@ -1,18 +1,18 @@
 /**
  * goal.ts — Goal Management CLI Command
  *
- * The `shiten goal` command. CRUD operations for governance goals.
+ * The `shugo goal` command. CRUD operations for governance goals.
  *
  * Usage:
- *   shiten goal create "Achieve 80% test coverage" --priority high --target quality
- *   shiten goal list
- *   shiten goal list --status active
- *   shiten goal show GOAL-abc123
- *   shiten goal update GOAL-abc123 --progress 50
- *   shiten goal complete GOAL-abc123
- *   shiten goal abandon GOAL-abc123
- *   shiten goal stats
- *   shiten goal delete GOAL-abc123
+ *   shugo goal create "Achieve 80% test coverage" --priority high --target quality
+ *   shugo goal list
+ *   shugo goal list --status active
+ *   shugo goal show GOAL-abc123
+ *   shugo goal update GOAL-abc123 --progress 50
+ *   shugo goal complete GOAL-abc123
+ *   shugo goal abandon GOAL-abc123
+ *   shugo goal stats
+ *   shugo goal delete GOAL-abc123
  */
 
 import { Command } from "commander";
@@ -22,14 +22,14 @@ import { guardNotInitialized } from "../shared.js";
 import { GoalEngine, type GoalStatus, type GoalPriority, FileGoalRepository } from "../goal-engine.js";
 import { printDaemonBanner } from "../daemon-context-banner.js";
 import { outputJson } from "../formatting.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputSection, outputSuccess, outputError, outputWarning } from "../output.js";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function getEngine(dir: string): GoalEngine {
-  const shitenDir = join(dir, SHITEN_DIR_NAME);
-  return new GoalEngine(new FileGoalRepository(shitenDir));
+  const shitennoDir = join(dir, SHITENNO_DIR_NAME);
+  return new GoalEngine(new FileGoalRepository(shitennoDir));
 }
 
 function join(...paths: string[]): string {
@@ -91,7 +91,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goal = engine.create({
@@ -128,7 +128,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goals = engine.list({
@@ -145,7 +145,7 @@ export function goalCommand(): Command {
 
       outputBlank();
       if (goals.length === 0) {
-        output(chalk.dim("  No goals found. Create one with: shiten goal create \"<title>\""));
+        output(chalk.dim("  No goals found. Create one with: shugo goal create \"<title>\""));
       } else {
         outputSection(`Goals (${goals.length})`);
         output(chalk.dim("  " + "─".repeat(70)));
@@ -167,7 +167,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goal = engine.get(id);
@@ -219,7 +219,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       let goal = engine.get(id);
@@ -246,7 +246,7 @@ export function goalCommand(): Command {
         goal!.title = opts.title as string;
         goal!.updatedAt = new Date().toISOString();
         // Re-save via repo
-        const repo = new FileGoalRepository(join(ctx.projectRoot, SHITEN_DIR_NAME));
+        const repo = new FileGoalRepository(join(ctx.projectRoot, SHITENNO_DIR_NAME));
         repo.save(goal!);
       }
 
@@ -269,7 +269,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goal = engine.activate(id);
@@ -301,7 +301,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goal = engine.complete(id);
@@ -333,7 +333,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const goal = engine.abandon(id);
@@ -364,7 +364,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const stats = engine.stats();
@@ -403,7 +403,7 @@ export function goalCommand(): Command {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
       const engine = getEngine(ctx.projectRoot);
       const deleted = engine.delete(id);

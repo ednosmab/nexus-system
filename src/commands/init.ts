@@ -18,7 +18,7 @@ import fse from "fs-extra";
 const { copySync } = fse;
 import { analyseProject } from "../analyser.js";
 import { askQuestions, type UserAnswers } from "../prompts.js";
-import { scaffoldShitennoGo } from "../scaffolder.js";
+import { scaffoldShitenno } from "../scaffolder.js";
 import { invalidateCache } from "../cache.js";
 import { loadPlugins, getHookBus } from "../plugin-system.js";
 import { guardInteractive } from "../shared.js";
@@ -38,7 +38,7 @@ import { createManifest, writeManifest } from "../manifest.js";
 import { getEventBus } from "../event-bus.js";
 import type { ProjectAnalysis } from "../analyser.js";
 import { logger } from "../logger.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { installReactiveHooks } from "../git-hooks-installer.js";
 import { output, outputBlank, outputError } from "../output.js";
 
@@ -124,7 +124,7 @@ export function shouldBlockInit(targetDir: string, force: boolean): boolean {
 }
 
 export const initCommand = new Command("init")
-  .description("Initialize Shitenno-go ecosystem with maturity-based discovery")
+  .description("Initialize Shitenno ecosystem with maturity-based discovery")
   .option("-d, --dir <path>", "Project root directory (default: current)")
   .option("--answers-file <path>", "JSON file with pre-defined answers (skips interactive prompts)")
   .option("--force", "Force creation inside shitenno-cli (not recommended)")
@@ -132,7 +132,7 @@ export const initCommand = new Command("init")
   .action(async (options) => {
     const isDryRun = options.dryRun === true;
     outputBlank();
-    banner("shiten init", isDryRun ? "Dry Run — No files will be written" : "Maturity-Based Discovery");
+    banner("shugo init", isDryRun ? "Dry Run — No files will be written" : "Maturity-Based Discovery");
     outputBlank();
 
     // Determine project root
@@ -142,16 +142,16 @@ export const initCommand = new Command("init")
 
     // Safety guard
     if (shouldBlockInit(targetDir, options.force === true)) {
-      output(chalk.yellow("  ⚠ shitenno-go should be created in your project, not inside shitenno-cli."));
-      output(chalk.gray("  Run from your project root: shiten init"));
-      output(chalk.gray("  Or:  shiten init --force (to create inside shitenno-cli)"));
+      output(chalk.yellow("  ⚠ shitenno should be created in your project, not inside shitenno-cli."));
+      output(chalk.gray("  Run from your project root: shugo init"));
+      output(chalk.gray("  Or:  shugo init --force (to create inside shitenno-cli)"));
       outputBlank();
       return;
     }
 
     // Check if already initialized
-    if (existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
-      output(chalk.yellow("  ⚠ Shiten is already initialized in this directory."));
+    if (existsSync(resolve(targetDir, SHITENNO_DIR_NAME))) {
+      output(chalk.yellow("  ⚠ Shugo is already initialized in this directory."));
       outputBlank();
       output(chalk.bold("  Your project has grown — let me re-analyze your maturity:"));
       outputBlank();
@@ -175,8 +175,8 @@ export const initCommand = new Command("init")
       outputBlank();
 
       // Load previous maturity profile
-      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
-      const previousProfile = loadMaturityProfile(shitenDir);
+      const shitennoDir = resolve(targetDir, SHITENNO_DIR_NAME);
+      const previousProfile = loadMaturityProfile(shitennoDir);
 
       if (previousProfile) {
         output(chalk.bold("  Previous maturity score:"));
@@ -184,7 +184,7 @@ export const initCommand = new Command("init")
         outputBlank();
       }
 
-      output(chalk.gray("  Or:  shiten init --accept-recommended"));
+      output(chalk.gray("  Or:  shugo init --accept-recommended"));
       outputBlank();
 
       return;
@@ -230,8 +230,8 @@ export const initCommand = new Command("init")
     }
 
     // Step 3: Calculate maturity profile
-    const profileSpinner = ora("Calculating maturity profile...").start();      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
-    const profile = calculateMaturityProfile(answers.maturity, analysis, shitenDir);
+    const profileSpinner = ora("Calculating maturity profile...").start();      const shitennoDir = resolve(targetDir, SHITENNO_DIR_NAME);
+    const profile = calculateMaturityProfile(answers.maturity, analysis, shitennoDir);
     profileSpinner.succeed("Maturity profile calculated");
 
     // Step 4: Display maturity profile
@@ -255,7 +255,7 @@ export const initCommand = new Command("init")
       outputBlank();
       output(chalk.bold("  Files that would be created:"));
       output(chalk.gray("    opencode.json"));
-      output(chalk.gray("    shitenno-go/ (governance ecosystem)"));
+      output(chalk.gray("    shitenno/ (governance ecosystem)"));
       for (const dir of ["governance", "docs", "skills", "scripts", "telemetry"] as string[]) {
         output(chalk.gray(`      ${dir}/`));
       }
@@ -267,22 +267,22 @@ export const initCommand = new Command("init")
 
     // Step 5: Scaffold by capabilities
     const scaffoldSpinner = ora("Installing governance ecosystem...").start();
-    const shitenDirForEvents = resolve(targetDir, SHITEN_DIR_NAME);
-    const previousProfile = existsSync(shitenDirForEvents) ? loadMaturityProfile(shitenDirForEvents) : null;
+    const shitennoDirForEvents = resolve(targetDir, SHITENNO_DIR_NAME);
+    const previousProfile = existsSync(shitennoDirForEvents) ? loadMaturityProfile(shitennoDirForEvents) : null;
     try {
       // Determine which capabilities to install (recommended + selected)
       const capsToInstall: Capability[] = ["core", ...profile.recommendedCapabilities];
 
       // Allow user to customize if they want more
-      const result = scaffoldShitennoGo(targetDir, answers, capsToInstall);
+      const result = scaffoldShitenno(targetDir, answers, capsToInstall);
       scaffoldSpinner.succeed("Framework installed!");
 
       // Initialize default rules if governance/rules is empty
-      initializeRules(shitenDir);
+      initializeRules(shitennoDir);
 
       // Save maturity profile
-      saveMaturityProfile(shitenDir, profile);
-      recordMaturitySnapshot(shitenDir, profile);
+      saveMaturityProfile(shitennoDir, profile);
+      recordMaturitySnapshot(shitennoDir, profile);
 
       // Create installation manifest for change detection
       const { readFileSync: readFS } = await import("node:fs");
@@ -295,12 +295,12 @@ export const initCommand = new Command("init")
       } catch (error) {
         logger.debug("init", "Suppressed error", { error });
       }
-      const manifest = createManifest(cliVersion, shitenDir, capsToInstall, profile.overallScore);
-      writeManifest(shitenDir, manifest);
+      const manifest = createManifest(cliVersion, shitennoDir, capsToInstall, profile.overallScore);
+      writeManifest(shitennoDir, manifest);
 
       // Save user profile for personalized feedback
       if (answers.userProfile) {
-        saveUserProfile(shitenDir, {
+        saveUserProfile(shitennoDir, {
           name: answers.userProfile.name,
           role: answers.userProfile.role,
           architecture: answers.userProfile.architecture,
@@ -316,15 +316,15 @@ export const initCommand = new Command("init")
       // Generate project fingerprint
       const { generateProjectFingerprint, saveFingerprint } = await import("../project-fingerprint.js");
       const fingerprint = generateProjectFingerprint(targetDir, analysis, profile.overallScore);
-      saveFingerprint(shitenDir, fingerprint);
+      saveFingerprint(shitennoDir, fingerprint);
 
       // Generate initial BRIEFING.md
       try {
         const { generateRiskMap } = await import("../risk-map.js");
         const { generateBriefing, briefingToMarkdown } = await import("../briefing.js");
-        const riskMap = generateRiskMap(targetDir, shitenDir);
+        const riskMap = generateRiskMap(targetDir, shitennoDir);
         const briefing = generateBriefing(fingerprint, riskMap, [], [], profile);
-        const briefingPath = join(shitenDir, "BRIEFING.md");
+        const briefingPath = join(shitennoDir, "BRIEFING.md");
         writeFileSync(briefingPath, briefingToMarkdown(briefing), "utf-8");
       } catch (error) {
         logger.debug("init", "Suppressed error", { error });
@@ -332,14 +332,14 @@ export const initCommand = new Command("init")
 
       // Display results
       outputBlank();
-      output(chalk.bold.green("  ✓ Shitenno-go Framework installed!"));
+      output(chalk.bold.green("  ✓ Shitenno Framework installed!"));
       outputBlank();
       output(chalk.bold("  Structure created:"));
       output(chalk.gray("    opencode.json          ← configuration (project root)"));
-      output(chalk.gray("    shitenno-go/          ← governance ecosystem"));
+      output(chalk.gray("    shitenno/          ← governance ecosystem"));
       for (const dir of result.directoriesCreated) {
-        if (dir === SHITEN_DIR_NAME) continue;
-        output(chalk.gray(`      ${dir.replace("shitenno-go/", "")}/`));
+        if (dir === SHITENNO_DIR_NAME) continue;
+        output(chalk.gray(`      ${dir.replace("shitenno/", "")}/`));
       }
       outputBlank();
       output(chalk.bold("  Files created:"));
@@ -348,10 +348,10 @@ export const initCommand = new Command("init")
       }
       outputBlank();
       output(chalk.bold("  Next steps:"));
-      output(chalk.gray("    1. Edit shitenno-go/docs/AGENTS.md to customise rules"));
+      output(chalk.gray("    1. Edit shitenno/docs/AGENTS.md to customise rules"));
       output(chalk.gray("    2. Edit opencode.json to set your AI models"));
-      output(chalk.gray("    3. Run 'shiten status' to check governance health"));
-      output(chalk.gray("    4. Run 'shiten assess' to re-evaluate maturity later"));
+      output(chalk.gray("    3. Run 'shugo status' to check governance health"));
+      output(chalk.gray("    4. Run 'shugo assess' to re-evaluate maturity later"));
       outputBlank();
 
       // Invalidate cache
@@ -362,22 +362,22 @@ export const initCommand = new Command("init")
         const mcpJsonPath = join(targetDir, ".mcp.json");
         const currentDir = dirname(fileURLToPath(import.meta.url));
         const mcpTemplatePath = join(currentDir, "..", "templates", "base", ".mcp.json");
-        const shitenMcpEntry = { "shiten-mcp": { command: "shiten", args: ["mcp"] } };
+        const shitennoMcpEntry = { "shitenno-mcp": { command: "shugo", args: ["mcp"] } };
 
         if (existsSync(mcpJsonPath)) {
           try {
             const existing = JSON.parse(readFileSync(mcpJsonPath, "utf-8"));
             if (!existing.mcpServers) existing.mcpServers = {};
-            existing.mcpServers["shiten-mcp"] = shitenMcpEntry["shiten-mcp"];
+            existing.mcpServers["shitenno-mcp"] = shitennoMcpEntry["shitenno-mcp"];
             writeFileSync(mcpJsonPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
           } catch {
-            const merged = { mcpServers: { ...shitenMcpEntry } };
+            const merged = { mcpServers: { ...shitennoMcpEntry } };
             writeFileSync(mcpJsonPath, JSON.stringify(merged, null, 2) + "\n", "utf-8");
           }
         } else if (existsSync(mcpTemplatePath)) {
           copySync(mcpTemplatePath, mcpJsonPath);
         } else {
-          const content = { mcpServers: shitenMcpEntry };
+          const content = { mcpServers: shitennoMcpEntry };
           writeFileSync(mcpJsonPath, JSON.stringify(content, null, 2) + "\n", "utf-8");
         }
         result.filesCreated.push(".mcp.json");
@@ -385,9 +385,9 @@ export const initCommand = new Command("init")
 
       // Install reactive git hooks (append-safe, husky-aware)
       try {
-        const hooksResult = installReactiveHooks(targetDir, "shiten");
+        const hooksResult = installReactiveHooks(targetDir, "shugo");
         if (hooksResult.installed.length > 0) {
-          output(chalk.gray(`  ✓ Shiten git hooks installed: ${hooksResult.installed.join(", ")}`));
+          output(chalk.gray(`  ✓ Shugo git hooks installed: ${hooksResult.installed.join(", ")}`));
         } else if (hooksResult.skipped.length > 0 && hooksResult.skipped[0] !== "not-a-git-repo") {
           output(chalk.gray(`  • Git hooks already configured`));
         }
@@ -407,7 +407,7 @@ export const initCommand = new Command("init")
 
       // Suggest future capabilities
       if (profile.futureCapabilities.length > 0) {
-        output(chalk.gray("  As your project grows, run 'shiten assess' to discover new capabilities."));
+        output(chalk.gray("  As your project grows, run 'shugo assess' to discover new capabilities."));
       }
       outputBlank();
 
@@ -445,14 +445,14 @@ export const initCommand = new Command("init")
       scaffoldSpinner.fail("Failed to install ecosystem");
       outputError(chalk.red(`  Error: ${error}`));
 
-      // Rollback: remove partial shitenno-go directory
-      const shitenDir = resolve(targetDir, SHITEN_DIR_NAME);
-      if (existsSync(shitenDir)) {
+      // Rollback: remove partial shitenno directory
+      const shitennoDir = resolve(targetDir, SHITENNO_DIR_NAME);
+      if (existsSync(shitennoDir)) {
         try {
-          fse.removeSync(shitenDir);
-          output(chalk.gray("  Cleaned up partial shitenno-go/ directory."));
+          fse.removeSync(shitennoDir);
+          output(chalk.gray("  Cleaned up partial shitenno/ directory."));
         } catch {
-          output(chalk.yellow("  ⚠ Could not clean up shitenno-go/ — remove manually."));
+          output(chalk.yellow("  ⚠ Could not clean up shitenno/ — remove manually."));
         }
       }
 

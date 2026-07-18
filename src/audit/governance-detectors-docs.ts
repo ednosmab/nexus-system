@@ -77,11 +77,11 @@ export function detectViolationHotspots(history: HistoryEntry[]): HealthIssue[] 
 }
 
 /**
- * Detect missing documentation files in the shiten directory.
- * @param shitenDir - Path to the shiten system directory
+ * Detect missing documentation files in the shugo directory.
+ * @param shitennoDir - Path to the shugo system directory
  * @returns Array of health issues for missing documentation
  */
-export function detectMissingDocs(shitenDir: string): HealthIssue[] {
+export function detectMissingDocs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const expectedDocs = [
     { path: "docs/AGENTS.md", critical: true },
@@ -93,12 +93,12 @@ export function detectMissingDocs(shitenDir: string): HealthIssue[] {
   ];
 
   for (const doc of expectedDocs) {
-    if (!existsSync(join(shitenDir, doc.path))) {
+    if (!existsSync(join(shitennoDir, doc.path))) {
       issues.push({
         type: "missing_docs",
         severity: doc.critical ? 3 : 1,
         description: `Documento "${doc.path}" não encontrado`,
-        location: `shitenno-go/${doc.path}`,
+        location: `shitenno/${doc.path}`,
         recommendation: `Criar "${doc.path}" — ${doc.critical ? "crítico" : "recomendado"}`,
         confidence: 0.95,
       });
@@ -110,16 +110,16 @@ export function detectMissingDocs(shitenDir: string): HealthIssue[] {
 
 /**
  * Detect orphan directories that exist but are not referenced anywhere.
- * @param shitenDir - Path to the shiten system directory
+ * @param shitennoDir - Path to the shugo system directory
  * @returns Array of health issues for orphan directories
  */
-export function detectOrphanDirs(shitenDir: string): HealthIssue[] {
+export function detectOrphanDirs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
   try {
-    const dirs = readdirSync(shitenDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+    const dirs = readdirSync(shitennoDir, { withFileTypes: true }).filter((d) => d.isDirectory());
     for (const dir of dirs) {
-      const dirPath = join(shitenDir, dir.name);
+      const dirPath = join(shitennoDir, dir.name);
     let files: string[];
     try {
       files = readdirSync(dirPath);
@@ -134,7 +134,7 @@ export function detectOrphanDirs(shitenDir: string): HealthIssue[] {
           type: "orphan_dir",
           severity: 1,
           description: `Directório "${dir.name}" contém apenas README — possivelmente órfão`,
-          location: `shitenno-go/${dir.name}/`,
+          location: `shitenno/${dir.name}/`,
           recommendation: `Adicionar conteúdo a "${dir.name}" ou removê-lo se desnecessário`,
           confidence: 0.95,
         });
@@ -149,12 +149,12 @@ export function detectOrphanDirs(shitenDir: string): HealthIssue[] {
 
 /**
  * Detect stale context buffer that hasn't been updated recently.
- * @param shitenDir - Path to the shiten system directory
+ * @param shitennoDir - Path to the shugo system directory
  * @returns Array of health issues for stale buffers
  */
-export function detectStaleBuffer(shitenDir: string): HealthIssue[] {
+export function detectStaleBuffer(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return issues;
 
   try {
@@ -189,7 +189,7 @@ export function detectStaleBuffer(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectDatePlaceholders(shitenDir: string): HealthIssue[] {
+export function detectDatePlaceholders(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const docsToCheck = [
     "docs/FORBIDDEN_OPERATIONS.md",
@@ -200,7 +200,7 @@ export function detectDatePlaceholders(shitenDir: string): HealthIssue[] {
   ];
 
   for (const doc of docsToCheck) {
-    const path = join(shitenDir, doc);
+    const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
 
     try {
@@ -210,7 +210,7 @@ export function detectDatePlaceholders(shitenDir: string): HealthIssue[] {
           type: "date_placeholder",
           severity: 2,
           description: `"${doc}" contém datas placeholder (YYYY-MM-DD ou [DATE])`,
-          location: `shitenno-go/${doc}`,
+          location: `shitenno/${doc}`,
           recommendation: `Actualizar datas placeholder em "${doc}" para data real`,
           confidence: 0.7,
         });
@@ -251,19 +251,19 @@ function collectEmptyDirsSync(
   }
 }
 
-export function detectEmptyDirs(shitenDir: string): HealthIssue[] {
+export function detectEmptyDirs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const skipDirs = new Set(["scripts", "reports", "node_modules", ".git"]);
   const emptyDirs: string[] = [];
 
   try {
-    collectEmptyDirsSync(shitenDir, "", skipDirs, emptyDirs);
+    collectEmptyDirsSync(shitennoDir, "", skipDirs, emptyDirs);
     for (const relative of emptyDirs) {
       issues.push({
         type: "empty_dir",
         severity: 1,
         description: `Directório "${relative}" existe mas está vazio ou contém apenas templates`,
-        location: `shitenno-go/${relative}`,
+        location: `shitenno/${relative}`,
         recommendation: `Adicionar conteúdo a "${relative}" ou remover se desnecessário`,
         confidence: 0.95,
       });
@@ -275,9 +275,9 @@ export function detectEmptyDirs(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBrokenRefs(shitenDir: string): HealthIssue[] {
+export function detectBrokenRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const projectRoot = join(shitenDir, "..");
+  const projectRoot = join(shitennoDir, "..");
   const docsWithRefs = [
     "governance/WORKFLOW.md",
     "governance/SYSTEM_MAP.md",
@@ -287,7 +287,7 @@ export function detectBrokenRefs(shitenDir: string): HealthIssue[] {
   ];
 
   for (const doc of docsWithRefs) {
-    const path = join(shitenDir, doc);
+    const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
 
     try {
@@ -304,14 +304,14 @@ export function detectBrokenRefs(shitenDir: string): HealthIssue[] {
           ref.includes("YYYY") ||
           ref.includes("MM-DD")
         ) continue;
-        const refPathShiten = join(shitenDir, ref);
+        const refPathShitenno = join(shitennoDir, ref);
         const refPathRoot = join(projectRoot, ref);
-        if (!existsSync(refPathShiten) && !existsSync(refPathRoot)) {
+        if (!existsSync(refPathShitenno) && !existsSync(refPathRoot)) {
           issues.push({
             type: "broken_ref",
             severity: 2,
             description: `Referência quebrada em "${doc}": "${ref}" não existe`,
-            location: `shitenno-go/${doc}`,
+            location: `shitenno/${doc}`,
             recommendation: `Corrigir referência "${ref}" em "${doc}" ou criar o ficheiro`,
             confidence: 0.75,
           });
@@ -325,9 +325,9 @@ export function detectBrokenRefs(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBrokenDirRefs(shitenDir: string): HealthIssue[] {
+export function detectBrokenDirRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const projectRoot = join(shitenDir, "..");
+  const projectRoot = join(shitennoDir, "..");
   const docsWithRefs = [
     "governance/WORKFLOW.md",
     "governance/SYSTEM_MAP.md",
@@ -340,7 +340,7 @@ export function detectBrokenDirRefs(shitenDir: string): HealthIssue[] {
   const dirRefRegex = /`([a-zA-Z0-9_/.-]+\/)`/g;
 
   for (const doc of docsWithRefs) {
-    const path = join(shitenDir, doc);
+    const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
 
     try {
@@ -354,14 +354,14 @@ export function detectBrokenDirRefs(shitenDir: string): HealthIssue[] {
           ref.includes("<") ||
           ref.includes("YYYY")
         ) continue;
-        const refPathShiten = join(shitenDir, ref);
+        const refPathShitenno = join(shitennoDir, ref);
         const refPathRoot = join(projectRoot, ref);
-        if (!existsSync(refPathShiten) && !existsSync(refPathRoot)) {
+        if (!existsSync(refPathShitenno) && !existsSync(refPathRoot)) {
           issues.push({
             type: "broken_ref",
             severity: 2,
             description: `Referência quebrada em "${doc}": directório "${ref}" não existe`,
-            location: `shitenno-go/${doc}`,
+            location: `shitenno/${doc}`,
             recommendation: `Criar directório "${ref}" ou corrigir referência em "${doc}"`,
             confidence: 0.75,
           });
@@ -375,9 +375,9 @@ export function detectBrokenDirRefs(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectNonBacktickFileRefs(shitenDir: string): HealthIssue[] {
+export function detectNonBacktickFileRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const projectRoot = join(shitenDir, "..");
+  const projectRoot = join(shitennoDir, "..");
   const docsWithRefs = [
     "docs/AGENTS.md",
     "docs/DESDO.md",
@@ -387,7 +387,7 @@ export function detectNonBacktickFileRefs(shitenDir: string): HealthIssue[] {
   const fileRefRegex = /(?:^|[\s,:(])([a-zA-Z0-9_/.-]+\.(?:md|ts|js|yaml|json))(?=[\s,.)]|$)/gm;
 
   for (const doc of docsWithRefs) {
-    const path = join(shitenDir, doc);
+    const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
 
     const docDir = dirname(path);
@@ -414,14 +414,14 @@ export function detectNonBacktickFileRefs(shitenDir: string): HealthIssue[] {
           backtickRefs.has(ref)
         ) continue;
         const refPathRelative = join(docDir, ref);
-        const refPathAbsolute = join(shitenDir, ref);
+        const refPathAbsolute = join(shitennoDir, ref);
         const refPathRoot = join(projectRoot, ref);
         if (!existsSync(refPathRelative) && !existsSync(refPathAbsolute) && !existsSync(refPathRoot)) {
           issues.push({
             type: "broken_ref",
             severity: 2,
             description: `Referência quebrada em "${doc}": "${ref}" não existe`,
-            location: `shitenno-go/${doc}`,
+            location: `shitenno/${doc}`,
             recommendation: `Corrigir referência "${ref}" em "${doc}" ou criar o ficheiro`,
             confidence: 0.75,
           });
@@ -435,17 +435,17 @@ export function detectNonBacktickFileRefs(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectMissingGitignore(shitenDir: string): HealthIssue[] {
+export function detectMissingGitignore(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const gitignorePath = join(shitenDir, ".gitignore");
+  const gitignorePath = join(shitennoDir, ".gitignore");
 
   if (!existsSync(gitignorePath)) {
     issues.push({
       type: "missing_gitignore",
       severity: 2,
-      description: ".gitignore não existe em shitenno-go/ — arquivos privados podem ser versionados",
-      location: "shitenno-go/.gitignore",
-      recommendation: "Criar shitenno-go/.gitignore para excluir ficheiros privados (feedback/, session-feedback/)",
+      description: ".gitignore não existe em shitenno/ — arquivos privados podem ser versionados",
+      location: "shitenno/.gitignore",
+      recommendation: "Criar shitenno/.gitignore para excluir ficheiros privados (feedback/, session-feedback/)",
       confidence: 0.95,
     });
   }
@@ -453,12 +453,12 @@ export function detectMissingGitignore(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectMissingPackageJson(shitenDir: string): HealthIssue[] {
+export function detectMissingPackageJson(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const packagePath = join(shitenDir, "package.json");
+  const packagePath = join(shitennoDir, "package.json");
 
   if (!existsSync(packagePath)) {
-    const scriptsDir = join(shitenDir, "scripts");
+    const scriptsDir = join(shitennoDir, "scripts");
     if (existsSync(scriptsDir)) {
       try {
         const scripts = readdirSync(scriptsDir).filter(
@@ -468,10 +468,10 @@ export function detectMissingPackageJson(shitenDir: string): HealthIssue[] {
           issues.push({
             type: "missing_package_json",
             severity: 2,
-            description: `package.json não existe em shitenno-go/ — ${scripts.length} scripts não são executáveis via pnpm`,
-            location: "shitenno-go/package.json",
+            description: `package.json não existe em shitenno/ — ${scripts.length} scripts não são executáveis via pnpm`,
+            location: "shitenno/package.json",
             recommendation:
-              "Criar shitenno-go/package.json com scripts para executar os TypeScript files",
+              "Criar shitenno/package.json com scripts para executar os TypeScript files",
             confidence: 0.75,
           });
         }
@@ -484,12 +484,12 @@ export function detectMissingPackageJson(shitenDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectMaturityInconsistency(shitenDir: string): HealthIssue[] {
+export function detectMaturityInconsistency(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const fingerprintPath = join(shitenDir, "fingerprint.json");
-  const maturityPath = join(shitenDir, "maturity-profile.json");
-  const briefingPath = join(shitenDir, "BRIEFING.md");
+  const fingerprintPath = join(shitennoDir, "fingerprint.json");
+  const maturityPath = join(shitennoDir, "maturity-profile.json");
+  const briefingPath = join(shitennoDir, "BRIEFING.md");
 
   const scores: { source: string; score: number }[] = [];
 
@@ -529,7 +529,7 @@ export function detectMaturityInconsistency(shitenDir: string): HealthIssue[] {
         type: "maturity_inconsistency",
         severity: 2,
         description: `Scores de maturidade inconsistentes: ${scoreList}`,
-        location: "shitenno-go/",
+        location: "shitenno/",
         recommendation: "Reconciliar scores — todos os ficheiros devem reflectir o mesmo valor",
         confidence: 0.9,
       });

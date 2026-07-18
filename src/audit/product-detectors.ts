@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── 1.1 Vision Alignment ────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ export function detectVisionAlignment(projectRoot: string): HealthIssue[] {
 
   const briefingPath = join(projectRoot, "BRIEFING.md");
   const readmePath = join(projectRoot, "README.md");
-  const backlogPath = join(projectRoot, SHITEN_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
 
   const briefing = existsSync(briefingPath) ? readFileSync(briefingPath, "utf-8") : "";
   const readme = existsSync(readmePath) ? readFileSync(readmePath, "utf-8") : "";
@@ -57,7 +57,7 @@ export function detectVisionAlignment(projectRoot: string): HealthIssue[] {
         type: "vision_roadmap_gap",
         severity: 1,
         description: "BACKLOG.md não tem itens P0/P1 — roadmap pode estar desalinhado com visão",
-        location: "shitenno-go/docs/BACKLOG.md",
+        location: "shitenno/docs/BACKLOG.md",
         recommendation: "Adicionar itens P0/P1 ao BACKLOG alinhados com a visão do produto.",
         confidence: 0.7,
       });
@@ -75,7 +75,7 @@ export function detectRoadmapConsistency(projectRoot: string): HealthIssue[] {
   const roadmapPaths = [
     join(projectRoot, "docs", "roadmap.md"),
     join(projectRoot, "ROADMAP.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "ROADMAP.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "ROADMAP.md"),
   ];
 
   const roadmapPath = roadmapPaths.find((p) => existsSync(p));
@@ -84,7 +84,7 @@ export function detectRoadmapConsistency(projectRoot: string): HealthIssue[] {
       type: "roadmap_stale",
       severity: 1,
       description: "Nenhum roadmap.md encontrado — planeamento de produto não documentado",
-      location: "docs/ ou shitenno-go/docs/",
+      location: "docs/ ou shitenno/docs/",
       recommendation: "Criar roadmap.md com milestones e timeline.",
       confidence: 0.95,
     });
@@ -125,7 +125,7 @@ export function detectRoadmapConsistency(projectRoot: string): HealthIssue[] {
 export function detectKPICoverage(projectRoot: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const docsDir = join(projectRoot, SHITEN_DIR_NAME, "docs");
+  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
   if (!existsSync(docsDir)) return issues;
 
   const kpiPatterns = [/kpi/i, /metric/i, /indicator/i, /measure/i, /dashboard/i];
@@ -162,7 +162,7 @@ export function detectOrphanRequirements(projectRoot: string, files: SourceFileI
   const issues: HealthIssue[] = [];
   const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
 
-  const docsDir = join(projectRoot, SHITEN_DIR_NAME, "docs");
+  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
   if (!existsSync(docsDir)) return issues;
 
   const featurePatterns = [
@@ -224,7 +224,7 @@ export function detectOrphanRequirements(projectRoot: string, files: SourceFileI
 export function detectRequirementTraceability(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
 
-  const backlogPath = join(projectRoot, SHITEN_DIR_NAME, "docs", "BACKLOG.md");
+  const backlogPath = join(projectRoot, SHITENNO_DIR_NAME, "docs", "BACKLOG.md");
   if (!existsSync(backlogPath)) return issues;
 
   const backlog = readFileSync(backlogPath, "utf-8");
@@ -235,7 +235,7 @@ export function detectRequirementTraceability(projectRoot: string, _files: Sourc
       type: "broken_traceability",
       severity: 1,
       description: "BACKLOG.md não contém links de rastreabilidade para código ou tickets",
-      location: "shitenno-go/docs/BACKLOG.md",
+      location: "shitenno/docs/BACKLOG.md",
       recommendation: "Adicionar links para commits, PRs ou tickets em cada item do backlog.",
       confidence: 0.75,
     });
@@ -248,7 +248,7 @@ export function detectRequirementTraceability(projectRoot: string, _files: Sourc
 
 export function detectAmbiguityPatterns(projectRoot: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const docsDir = join(projectRoot, SHITEN_DIR_NAME, "docs");
+  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
   if (!existsSync(docsDir)) return issues;
 
   const ambiguityPatterns = [

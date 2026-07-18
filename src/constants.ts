@@ -1,15 +1,15 @@
 /**
- * constants.ts — Shared Constants for Shiten
+ * constants.ts — Shared Constants for Shugo
  *
  * Eliminates duplication of VIOLATION_KEYWORDS and COMMAND_GATES.
  */
 
 /**
  * Single source of truth for the metadata directory name.
- * NEVER hardcode "shitenno-go" in other files — use this constant.
+ * NEVER hardcode "shitenno" in other files — use this constant.
  * This is the ONLY place where the string literal should appear.
  */
-export const SHITEN_DIR_NAME = "shitenno-go";
+export const SHITENNO_DIR_NAME = ".shitenno";
 
 /** Keywords indicating violations in commits/logs. Unified from src/constants.ts + src/audit/constants.ts. */
 export const VIOLATION_KEYWORDS = [

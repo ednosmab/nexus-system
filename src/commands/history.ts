@@ -3,7 +3,7 @@
  *
  * Shows historical snapshots of Engineering State.
  *
- * Usage: shiten history [--from <date>] [--to <date>] [--diff]
+ * Usage: shugo history [--from <date>] [--to <date>] [--diff]
  */
 
 import { Command } from "commander";
@@ -13,7 +13,7 @@ import { outputJson } from "../formatting.js";
 import { listSnapshots, getSnapshotAt, diffSnapshots } from "../engineering-state-history.js";
 import { output, outputBlank } from "../output.js";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 
 export const historyCommand = new Command("history")
   .description("Show engineering state history")
@@ -26,13 +26,13 @@ export const historyCommand = new Command("history")
     if (result) return;
 
     const projectRoot = process.cwd();
-    const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+    const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
 
     const range = options.from || options.to
       ? { from: options.from || "2000-01-01", to: options.to || new Date().toISOString() }
       : undefined;
 
-    const snapshots = listSnapshots(shitenDir, range);
+    const snapshots = listSnapshots(shitennoDir, range);
 
     if (snapshots.length === 0) {
       output(chalk.yellow("No snapshots found."));
@@ -64,8 +64,8 @@ export const historyCommand = new Command("history")
         const currMeta = snapshots[i];
         if (!prevMeta || !currMeta) continue;
 
-        const prev = getSnapshotAt(shitenDir, prevMeta.timestamp);
-        const curr = getSnapshotAt(shitenDir, currMeta.timestamp);
+        const prev = getSnapshotAt(shitennoDir, prevMeta.timestamp);
+        const curr = getSnapshotAt(shitennoDir, currMeta.timestamp);
 
         if (prev && curr) {
           const delta = diffSnapshots(prev, curr);

@@ -3,7 +3,7 @@
  *
  * Shows rule engine execution trace from telemetry/rule-trace.jsonl.
  *
- * Usage: shiten events [--last <n>] [--trigger <type>] [--json]
+ * Usage: shugo events [--last <n>] [--trigger <type>] [--json]
  */
 
 import { Command } from "commander";
@@ -23,8 +23,8 @@ export const eventsCommand = new Command("events")
     if (result) return;
 
     const projectRoot = process.cwd();
-    const shitenDir = `${projectRoot}/shitenno-go`;
-    const entries = loadTrace(shitenDir);
+    const shitennoDir = `${projectRoot}/shitenno`;
+    const entries = loadTrace(shitennoDir);
 
     let filtered = entries;
     if (options.trigger) {

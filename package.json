@@ -1,21 +1,21 @@
 {
-  "name": "shitenno-go",
+  "name": "shitenno",
   "version": "1.0.0",
   "description": "AI governance framework that grows with your project — scoring, pattern detection, health auditing",
   "type": "module",
   "bin": {
-    "shiten": "./dist/bin/shiten.js"
+    "shugo": "./dist/bin/shugo.js"
   },
-  "main": "./dist/shiten.js",
+  "main": "./dist/shugo.js",
   "files": [
     "dist"
   ],
   "exports": {
-    ".": "./dist/shiten.js"
+    ".": "./dist/shugo.js"
   },
   "scripts": {
     "build": "tsup && rm -rf dist/templates && cp -r src/templates dist/templates && rm -rf dist/bin/templates && cp -r src/templates dist/bin/templates && cp package.json dist/package.json",
-    "dev": "tsx bin/shiten.ts",
+    "dev": "tsx bin/shugo.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
@@ -28,13 +28,13 @@
     "lint": "eslint 'src/**/*.ts' --max-warnings=300",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "prepare": "husky",
-    "sync:docs": "tsx shitenno-go/scripts/sync-docs.ts",
-    "sync:docs:fix": "tsx shitenno-go/scripts/sync-docs.ts --fix",
-    "sync:docs:dry": "tsx shitenno-go/scripts/sync-docs.ts --dry-run",
-    "validate:docs": "tsx shitenno-go/scripts/sync-docs.ts",
+    "sync:docs": "tsx shitenno/scripts/sync-docs.ts",
+    "sync:docs:fix": "tsx shitenno/scripts/sync-docs.ts --fix",
+    "sync:docs:dry": "tsx shitenno/scripts/sync-docs.ts --dry-run",
+    "validate:docs": "tsx shitenno/scripts/sync-docs.ts",
     "validate:architecture": "tsx scripts/validate-architecture.ts",
-    "backlog": "tsx shitenno-go/scripts/backlog.ts",
-    "shiten": "node ./dist/bin/shiten.js"
+    "backlog": "tsx shitenno/scripts/backlog.ts",
+    "shugo": "node ./dist/bin/shugo.js"
   },
   "keywords": [
     "ai",
@@ -53,7 +53,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ednosmab/shitenno-go.git"
+    "url": "https://github.com/ednosmab/shitenno.git"
   },
   "engines": {
     "node": ">=18.0.0"

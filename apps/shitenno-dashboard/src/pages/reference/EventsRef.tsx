@@ -18,7 +18,7 @@ export default function EventsRef() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Eventos — Referencia</h1>
         <p className="text-text-secondary max-w-2xl">
-          Schema dos eventos emitidos pelo Shitenno-go.
+          Schema dos eventos emitidos pelo Shitenno.
         </p>
       </section>
 

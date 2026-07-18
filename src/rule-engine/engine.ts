@@ -22,8 +22,8 @@ import { invokeAction } from "../decision-core/invoke.js";
 const RULES_DIR = "governance/rules";
 
 /** Lê todas as regras de um directório. */
-export function loadRules(shitenDir: string): Rule[] {
-  const rulesPath = join(shitenDir, RULES_DIR);
+export function loadRules(shitennoDir: string): Rule[] {
+  const rulesPath = join(shitennoDir, RULES_DIR);
   if (!existsSync(rulesPath)) return [];
 
   const files = readdirSync(rulesPath).filter(
@@ -52,12 +52,12 @@ export function loadRules(shitenDir: string): Rule[] {
 }
 
 /** Grava uma regra no directório. */
-export function saveRule(shitenDir: string, rule: Rule): void {
+export function saveRule(shitennoDir: string, rule: Rule): void {
   if (!isValidRuleId(rule.id)) {
     throw new InvalidRuleError(`Rule ID: "${rule.id}". Only alphanumeric, hyphens and underscores allowed.`);
   }
 
-  const rulesPath = join(shitenDir, RULES_DIR);
+  const rulesPath = join(shitennoDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
@@ -167,7 +167,7 @@ export async function executeRules(
   const total = rules.filter((r) => r.enabled && r.trigger === context.trigger).length;
 
   try {
-    const telemetryDir = join(context.shitenDir, "telemetry");
+    const telemetryDir = join(context.shitennoDir, "telemetry");
     if (!existsSync(telemetryDir)) {
       mkdirSync(telemetryDir, { recursive: true });
     }
@@ -204,27 +204,27 @@ export async function executeRules(
 // ── Engine Initialization ────────────────────────────────────────────────────
 
 /** Inicializa o directório de regras com regras padrão se vazio. */
-export function initializeRules(shitenDir: string): void {
-  const rulesPath = join(shitenDir, RULES_DIR);
+export function initializeRules(shitennoDir: string): void {
+  const rulesPath = join(shitennoDir, RULES_DIR);
   if (!existsSync(rulesPath)) {
     mkdirSync(rulesPath, { recursive: true });
   }
 
-  const existingRules = loadRules(shitenDir);
+  const existingRules = loadRules(shitennoDir);
   if (existingRules.length > 0) return;
 
   const defaultRules = getDefaultRules();
   for (const rule of defaultRules) {
-    saveRule(shitenDir, rule);
+    saveRule(shitennoDir, rule);
   }
 }
 
 // ── Event Bus Integration ───────────────────────────────────────────────────
 
-import { getEventBus, type ShitenEventType } from "../event-bus.js";
+import { getEventBus, type ShitennoEventType } from "../event-bus.js";
 
 /** Map event bus events to rule engine triggers. */
-const EVENT_TO_TRIGGER: Partial<Record<ShitenEventType, TriggerType>> = {
+const EVENT_TO_TRIGGER: Partial<Record<ShitennoEventType, TriggerType>> = {
   "session.start": "session_start",
   "session.end": "session_end",
   "analysis.complete": "file_change",
@@ -272,14 +272,14 @@ const EVENT_TO_TRIGGER: Partial<Record<ShitenEventType, TriggerType>> = {
 /** Subscribe to event bus events and execute matching rules. */
 export function initializeRuleEngine(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   resourceClaimChecker?: (resourceId: string) => boolean
 ): void {
   const bus = getEventBus();
 
   for (const [eventType, trigger] of Object.entries(EVENT_TO_TRIGGER)) {
-    bus.subscribe(eventType as ShitenEventType, async (payload: unknown) => {
-      const rules = loadRules(shitenDir);
+    bus.subscribe(eventType as ShitennoEventType, async (payload: unknown) => {
+      const rules = loadRules(shitennoDir);
       if (rules.length === 0) {
         logger.debug(
           "rule-engine",
@@ -298,9 +298,9 @@ export function initializeRuleEngine(
         trigger: actualTrigger,
         eventData: payload as Record<string, unknown>,
         projectRoot,
-        shitenDir,
+        shitennoDir,
         timestamp: new Date().toISOString(),
-        installedCapabilities: loadMaturityProfile(shitenDir)?.installedCapabilities ?? ["core"],
+        installedCapabilities: loadMaturityProfile(shitennoDir)?.installedCapabilities ?? ["core"],
         isResourceClaimed: resourceClaimChecker,
       };
 

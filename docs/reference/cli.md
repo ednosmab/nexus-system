@@ -1,6 +1,6 @@
 # CLI Reference
 
-> Complete reference for all Shiten CLI commands.
+> Complete reference for all Shugo CLI commands.
 
 ## Global Options
 
@@ -13,12 +13,12 @@
 
 ## Commands
 
-### shiten init
+### shugo init
 
-Initialize Shiten in a project.
+Initialize Shugo in a project.
 
 ```bash
-shiten init [--dir <path>] [--answers-file <path>] [--force]
+shugo init [--dir <path>] [--answers-file <path>] [--force]
 ```
 
 **Options:**
@@ -32,19 +32,19 @@ shiten init [--dir <path>] [--answers-file <path>] [--force]
 - Analyzes project structure (stack, packages, apps, TypeScript, tests, CI)
 - Runs interactive questionnaire to assess maturity (or loads from `--answers-file`)
 - Calculates maturity profile across 7 dimensions
-- Scaffolds governance structure: `shitenno-go/`, `opencode.json`, `shitenno-go/profile/`
+- Scaffolds governance structure: `shitenno/`, `opencode.json`, `shitenno/profile/`
 - Installs core capability + recommended capabilities based on maturity
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### shiten status
+### shugo status
 
 Health check, complexity scoring, and maturity overview.
 
 ```bash
-shiten status [--dir <path>] [--json] [--no-cache]
+shugo status [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -64,12 +64,12 @@ shiten status [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### shiten detect
+### shugo detect
 
 Detect patterns from project history and session logs.
 
 ```bash
-shiten detect [--dir <path>] [--json] [--no-cache]
+shugo detect [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -88,12 +88,12 @@ shiten detect [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### shiten audit
+### shugo audit
 
 Audit governance health and knowledge graph.
 
 ```bash
-shiten audit [--dir <path>] [--json] [--no-cache]
+shugo audit [--dir <path>] [--json] [--no-cache]
 ```
 
 **Options:**
@@ -112,12 +112,12 @@ shiten audit [--dir <path>] [--json] [--no-cache]
 
 ---
 
-### shiten evolve
+### shugo evolve
 
 Show evolution recommendations with dual paths.
 
 ```bash
-shiten evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason <text>] [--comfortable] [--challenging]
+shugo evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason <text>] [--comfortable] [--challenging]
 ```
 
 **Options:**
@@ -141,12 +141,12 @@ shiten evolve [--dir <path>] [--json] [--accept <id>] [--reject <id>] [--reason 
 
 ---
 
-### shiten run
+### shugo run
 
 Execute the full 5-stage analysis pipeline.
 
 ```bash
-shiten run [--dir <path>] [--json]
+shugo run [--dir <path>] [--json]
 ```
 
 **Stages:**
@@ -163,12 +163,12 @@ shiten run [--dir <path>] [--json]
 
 ---
 
-### shiten upgrade
+### shugo upgrade
 
 Install or upgrade governance capabilities.
 
 ```bash
-shiten upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommended] [--json]
+shugo upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommended] [--json]
 ```
 
 **Options:**
@@ -190,12 +190,12 @@ shiten upgrade [--dir <path>] [--capability <name>] [--list] [--accept-recommend
 
 ---
 
-### shiten validate
+### shugo validate
 
 Validate configuration files and session state.
 
 ```bash
-shiten validate [--dir <path>] [--json] [--fix]
+shugo validate [--dir <path>] [--json] [--fix]
 ```
 
 **Options:**
@@ -214,38 +214,38 @@ shiten validate [--dir <path>] [--json] [--fix]
 
 ---
 
-### shiten sync
+### shugo sync
 
-Synchronize files from a local shitenno-go directory.
+Synchronize files from a local shitenno directory.
 
 ```bash
-shiten sync [--dir <path>] --shiten-path <path> [--dry-run] [--force] [--json]
+shugo sync [--dir <path>] --shitenno-path <path> [--dry-run] [--force] [--json]
 ```
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--shiten-path <path>` | Path to source shitenno-go directory (or `SHITENNO_GO_PATH` env) |
+| `--shitenno-path <path>` | Path to source shitenno directory (or `SHITENNO_GO_PATH` env) |
 | `--dry-run` | Show what would be changed without making changes |
 | `--force` | Overwrite all files without asking |
 
 **What it does:**
-- Copies files from source shitenno-go to target project
+- Copies files from source shitenno to target project
 - Preserves project-specific customizations during merge
 - Supports JSON merge for opencode.json (preserves agent models/permissions)
-- Supports Markdown section merge for AGENTS.md, opencode-context.md, Shitenno-go_GUIDE.md
+- Supports Markdown section merge for AGENTS.md, opencode-context.md, Shitenno_GUIDE.md
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### shiten assess
+### shugo assess
 
 Re-evaluate maturity profile and show deltas.
 
 ```bash
-shiten assess [--dir <path>] [--json]
+shugo assess [--dir <path>] [--json]
 ```
 
 **What it does:**
@@ -259,16 +259,16 @@ shiten assess [--dir <path>] [--json]
 
 ---
 
-### shiten clean
+### shugo clean
 
 Clean cache and temporary files.
 
 ```bash
-shiten clean [--dir <path>] [--json]
+shugo clean [--dir <path>] [--json]
 ```
 
 **What it does:**
-- Removes `.shiten-cache.json` from project root
+- Removes `.shitenno-cache.json` from project root
 - Removes `*.tsbuildinfo` files
 - Invalidates internal cache
 
@@ -276,12 +276,12 @@ shiten clean [--dir <path>] [--json]
 
 ---
 
-### shiten doctor
+### shugo doctor
 
 System diagnostics with risks, improvements, and teaching moments.
 
 ```bash
-shiten doctor [--dir <path>] [--json]
+shugo doctor [--dir <path>] [--json]
 ```
 
 **What it does:**
@@ -296,12 +296,12 @@ shiten doctor [--dir <path>] [--json]
 
 ---
 
-### shiten report
+### shugo report
 
 Generate user performance report with dimensions, trends, and insights.
 
 ```bash
-shiten report [--dir <path>] [--json] [--period <days>] [--save]
+shugo report [--dir <path>] [--json] [--period <days>] [--save]
 ```
 
 **Options:**
@@ -322,12 +322,12 @@ shiten report [--dir <path>] [--json] [--period <days>] [--save]
 
 ---
 
-### shiten daemon
+### shugo daemon
 
 Manage the background automation daemon.
 
 ```bash
-shiten daemon <start|stop|status|restart>
+shugo daemon <start|stop|status|restart>
 ```
 
 **Subcommands:**
@@ -349,12 +349,12 @@ shiten daemon <start|stop|status|restart>
 
 ---
 
-### shiten watch
+### shugo watch
 
 Real-time event log for governance monitoring.
 
 ```bash
-shiten watch [--events <types>] [--dir <path>]
+shugo watch [--events <types>] [--dir <path>]
 ```
 
 **Options:**
@@ -373,34 +373,34 @@ shiten watch [--events <types>] [--dir <path>]
 
 ---
 
-### shiten hooks
+### shugo hooks
 
-Install or uninstall Shiten git hooks.
+Install or uninstall Shugo git hooks.
 
 ```bash
-shiten hooks [--uninstall] [--dir <path>]
+shugo hooks [--uninstall] [--dir <path>]
 ```
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
-| `--uninstall` | Remove Shiten hooks from git hooks |
+| `--uninstall` | Remove Shugo hooks from git hooks |
 
 **What it does:**
-- Installs `shiten detect --auto` in `.husky/post-commit` and `.husky/post-merge`
+- Installs `shugo detect --auto` in `.husky/post-commit` and `.husky/post-merge`
 - Idempotent: detects if already installed
 
 **Exit codes:** 0 (success), 1 (error)
 
 ---
 
-### shiten events
+### shugo events
 
 Show rule engine execution trace.
 
 ```bash
-shiten events [--last <n>] [--trigger <type>] [--json]
+shugo events [--last <n>] [--trigger <type>] [--json]
 ```
 
 **Options:**
@@ -419,12 +419,12 @@ shiten events [--last <n>] [--trigger <type>] [--json]
 
 ---
 
-### shiten context
+### shugo context
 
 Full project context for AI agents.
 
 ```bash
-shiten context [--json] [--for-agent <name>]
+shugo context [--json] [--for-agent <name>]
 ```
 
 **Options:**
@@ -441,12 +441,12 @@ shiten context [--json] [--for-agent <name>]
 
 ---
 
-### shiten history
+### shugo history
 
 View engineering state history with optional diffs.
 
 ```bash
-shiten history [--from <date>] [--to <date>] [--diff] [--json]
+shugo history [--from <date>] [--to <date>] [--diff] [--json]
 ```
 
 **Options:**
@@ -466,12 +466,12 @@ shiten history [--from <date>] [--to <date>] [--diff] [--json]
 
 ---
 
-### shiten handbook
+### shugo handbook
 
 Browse the project handbook in the terminal.
 
 ```bash
-shiten handbook [--print] [--level <1|2|3>] [--list]
+shugo handbook [--print] [--level <1|2|3>] [--list]
 ```
 
 **Options:**
@@ -491,13 +491,13 @@ shiten handbook [--print] [--level <1|2|3>] [--list]
 
 ---
 
-### shiten mcp
+### shugo mcp
 
 MCP server management for AI integration.
 
 ```bash
-shiten mcp [--dir <path>]
-shiten mcp install [--check] [--upgrade] [--json]
+shugo mcp [--dir <path>]
+shugo mcp install [--check] [--upgrade] [--json]
 ```
 
 **Subcommands:**
@@ -519,12 +519,12 @@ shiten mcp install [--check] [--upgrade] [--json]
 
 ---
 
-### shiten briefing
+### shugo briefing
 
 Pre-session briefing for AI agents (Context Pipeline).
 
 ```bash
-shiten briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
+shugo briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 ```
 
 **Options:**
@@ -532,7 +532,7 @@ shiten briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 | Option | Description |
 |--------|-------------|
 | `--summary` | One-line summary only |
-| `--write` | Write briefing to `.shiten/BRIEFING.md` |
+| `--write` | Write briefing to `.shugo/BRIEFING.md` |
 | `--depth <level>` | Briefing depth: `minimal`, `standard`, or `full` |
 
 **What it does:**
@@ -545,12 +545,12 @@ shiten briefing [--summary] [--write] [--json] [--depth <minimal|standard|full>]
 
 ---
 
-### shiten feedback
+### shugo feedback
 
 Report session outcome for the Context Pipeline feedback loop.
 
 ```bash
-shiten feedback --outcome <success|failure|partial> [--areas <list>] [--notes <text>] [--json] [--summary] [--list] [--personalized]
+shugo feedback --outcome <success|failure|partial> [--areas <list>] [--notes <text>] [--json] [--summary] [--list] [--personalized]
 ```
 
 **Options:**
@@ -571,12 +571,12 @@ shiten feedback --outcome <success|failure|partial> [--areas <list>] [--notes <t
 
 ---
 
-### shiten digest
+### shugo digest
 
 Daily digest of project health and recent changes.
 
 ```bash
-shiten digest [--json]
+shugo digest [--json]
 ```
 
 **What it does:**
@@ -589,12 +589,12 @@ shiten digest [--json]
 
 ---
 
-### shiten bench
+### shugo bench
 
 Benchmark token economy and Context Pipeline performance.
 
 ```bash
-shiten bench [--json] [--iterations <n>] [--compare]
+shugo bench [--json] [--iterations <n>] [--compare]
 ```
 
 **Options:**
@@ -614,12 +614,12 @@ shiten bench [--json] [--iterations <n>] [--compare]
 
 ---
 
-### shiten console
+### shugo console
 
 Token economy console with session metrics.
 
 ```bash
-shiten console [--json] [--period <days>]
+shugo console [--json] [--period <days>]
 ```
 
 **Options:**
@@ -639,12 +639,12 @@ shiten console [--json] [--period <days>]
 
 ---
 
-### shiten dashboard
+### shugo dashboard
 
 Interactive engineering dashboard with tabs, mouse, and accessibility.
 
 ```bash
-shiten dashboard [--json] [--live <seconds>] [--screen-reader]
+shugo dashboard [--json] [--live <seconds>] [--screen-reader]
 ```
 
 **Options:**
@@ -665,12 +665,12 @@ shiten dashboard [--json] [--live <seconds>] [--screen-reader]
 
 ---
 
-### shiten profile
+### shugo profile
 
 View and update your user profile for personalized feedback.
 
 ```bash
-shiten profile [--set] [--name <name>] [--role <role>] [--architecture <level>] [--coding <level>] [--json]
+shugo profile [--set] [--name <name>] [--role <role>] [--architecture <level>] [--coding <level>] [--json]
 ```
 
 **Options:**
@@ -692,12 +692,12 @@ shiten profile [--set] [--name <name>] [--role <role>] [--architecture <level>] 
 
 ---
 
-### shiten goal
+### shugo goal
 
 Manage governance goals.
 
 ```bash
-shiten goal <subcommand> [options]
+shugo goal <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -718,15 +718,15 @@ shiten goal <subcommand> [options]
 
 ---
 
-### shiten decide
+### shugo decide
 
 Evaluate proposed actions using specialized evaluators.
 
 ```bash
-shiten decide "<action>" [--category <cat>] [--risk <level>] [--impact <level>] [--json]
-shiten decide list [--category <cat>] [--json]
-shiten decide show <id> [--json]
-shiten decide stats [--json]
+shugo decide "<action>" [--category <cat>] [--risk <level>] [--impact <level>] [--json]
+shugo decide list [--category <cat>] [--json]
+shugo decide show <id> [--json]
+shugo decide stats [--json]
 ```
 
 **Options:**
@@ -748,12 +748,12 @@ shiten decide stats [--json]
 
 ---
 
-### shiten policy
+### shugo policy
 
 Manage and evaluate declarative governance policies.
 
 ```bash
-shiten policy <subcommand> [options]
+shugo policy <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -776,12 +776,12 @@ shiten policy <subcommand> [options]
 
 ---
 
-### shiten act
+### shugo act
 
 Execute actions with idempotency guarantees.
 
 ```bash
-shiten act <subcommand> [options]
+shugo act <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -801,12 +801,12 @@ shiten act <subcommand> [options]
 
 ---
 
-### shiten plan
+### shugo plan
 
 Manage coordinated action sequences (plans).
 
 ```bash
-shiten plan <subcommand> [options]
+shugo plan <subcommand> [options]
 ```
 
 **Subcommands:**
@@ -833,12 +833,12 @@ shiten plan <subcommand> [options]
 
 ---
 
-### shiten reminders
+### shugo reminders
 
 List, add, remove, and manage session reminders.
 
 ```bash
-shiten reminders [add|rm|clear] [options]
+shugo reminders [add|rm|clear] [options]
 ```
 
 **Subcommands:**
@@ -863,12 +863,12 @@ shiten reminders [add|rm|clear] [options]
 
 ---
 
-### shiten update
+### shugo update
 
 Detect changes in templates and apply updates.
 
 ```bash
-shiten update [--apply] [--json]
+shugo update [--apply] [--json]
 ```
 
 **Options:**
@@ -886,12 +886,12 @@ shiten update [--apply] [--json]
 
 ---
 
-### shiten docs-audit
+### shugo docs-audit
 
 Audit documentation lifecycle and propose organization.
 
 ```bash
-shiten docs-audit [--apply] [--json]
+shugo docs-audit [--apply] [--json]
 ```
 
 **Options:**
@@ -909,12 +909,12 @@ shiten docs-audit [--apply] [--json]
 
 ---
 
-### shiten shell-init
+### shugo shell-init
 
 Output shell hooks for session tracking.
 
 ```bash
-shiten shell-init [--shell <type>]
+shugo shell-init [--shell <type>]
 ```
 
 **Options:**
@@ -925,7 +925,7 @@ shiten shell-init [--shell <type>]
 
 **What it does:**
 - Outputs shell integration code for session tracking
-- Add to `.bashrc`/`.zshrc`: `eval $(shiten shell-init)`
+- Add to `.bashrc`/`.zshrc`: `eval $(shugo shell-init)`
 
 **Exit codes:** 0 (success), 1 (error)
 

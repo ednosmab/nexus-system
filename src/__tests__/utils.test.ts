@@ -6,13 +6,13 @@ import {
   walkSourceFiles,
   countSourceFilesInDir,
   FileContentCache,
-  detectShitenProject,
+  detectShitennoProject,
 } from "../utils.js";
 
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-test-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-test-"));
 });
 
 afterEach(() => {
@@ -116,22 +116,22 @@ describe("FileContentCache", () => {
   });
 });
 
-// ── detectShitenProject ───────────────────────────────────────────────────────
+// ── detectShitennoProject ───────────────────────────────────────────────────────
 
-describe("detectShitenProject", () => {
+describe("detectShitennoProject", () => {
   it("detects project with opencode.json", () => {
     writeFileSync(join(tempDir, "opencode.json"), "{}");
 
-    const result = detectShitenProject(tempDir);
+    const result = detectShitennoProject(tempDir);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
-    expect(result!.shitenDir).toBe(join(tempDir, "shitenno-go"));
+    expect(result!.shitennoDir).toBe(join(tempDir, ".shitenno"));
   });
 
-  it("detects project with shitenno-go/ directory", () => {
-    mkdirSync(join(tempDir, "shitenno-go"), { recursive: true });
+  it("detects project with .shitenno/ directory", () => {
+    mkdirSync(join(tempDir, ".shitenno"), { recursive: true });
 
-    const result = detectShitenProject(tempDir);
+    const result = detectShitennoProject(tempDir);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
   });
@@ -141,13 +141,13 @@ describe("detectShitenProject", () => {
     const child = join(tempDir, "sub", "deep");
     mkdirSync(child, { recursive: true });
 
-    const result = detectShitenProject(child);
+    const result = detectShitennoProject(child);
     expect(result).not.toBeNull();
     expect(result!.root).toBe(tempDir);
   });
 
-  it("returns null for non-shiten directory", () => {
-    const result = detectShitenProject("/tmp");
+  it("returns null for non-shitenno directory", () => {
+    const result = detectShitennoProject("/tmp");
     expect(result).toBeNull();
   });
 });

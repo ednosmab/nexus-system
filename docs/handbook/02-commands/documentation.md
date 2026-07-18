@@ -4,12 +4,12 @@ Comandos para auditoria e manutenção da documentação.
 
 ---
 
-## `shiten docs-audit`
+## `shugo docs-audit`
 
 Audite a documentação do projeto para inconsistências e problemas.
 
 ```bash
-shiten docs-audit [options]
+shugo docs-audit [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ shiten docs-audit [options]
 ### Exemplos
 
 ```bash
-shiten docs-audit           # Auditoria completa
-shiten docs-audit --json    # Saída JSON
+shugo docs-audit           # Auditoria completa
+shugo docs-audit --json    # Saída JSON
 ```
 
 ### Dicas

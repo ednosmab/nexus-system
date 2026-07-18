@@ -2,18 +2,18 @@
  * cli-global-flags.test.ts — Tests for --quiet and --no-color global CLI flags
  *
  * Tests:
- * 1. Logger respects SHITEN_QUIET env var
+ * 1. Logger respects SHITENNO_QUIET env var
  * 2. Logger still outputs errors in quiet mode
- * 3. Logger works normally without SHITEN_QUIET
+ * 3. Logger works normally without SHITENNO_QUIET
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { logger, setLogLevel, muteLogs } from "../logger.js";
 
-// ── Logger SHITEN_QUIET tests ────────────────────────────────────────────────
+// ── Logger SHITENNO_QUIET tests ────────────────────────────────────────────────
 
-describe("logger — SHITEN_QUIET env var", () => {
-  const originalEnv = process.env.SHITEN_QUIET;
+describe("logger — SHITENNO_QUIET env var", () => {
+  const originalEnv = process.env.SHITENNO_QUIET;
 
   beforeEach(() => {
     setLogLevel("info"); // Reset log level
@@ -22,15 +22,15 @@ describe("logger — SHITEN_QUIET env var", () => {
   afterEach(() => {
     // Restore env
     if (originalEnv === undefined) {
-      delete process.env.SHITEN_QUIET;
+      delete process.env.SHITENNO_QUIET;
     } else {
-      process.env.SHITEN_QUIET = originalEnv;
+      process.env.SHITENNO_QUIET = originalEnv;
     }
     vi.restoreAllMocks();
   });
 
-  it("outputs debug/info/warn when SHITEN_QUIET is not set", () => {
-    delete process.env.SHITEN_QUIET;
+  it("outputs debug/info/warn when SHITENNO_QUIET is not set", () => {
+    delete process.env.SHITENNO_QUIET;
     setLogLevel("debug"); // Enable all levels
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
@@ -47,8 +47,8 @@ describe("logger — SHITEN_QUIET env var", () => {
     expect(errorSpy).toHaveBeenCalledOnce();
   });
 
-  it("suppresses debug/info/warn when SHITEN_QUIET=1", () => {
-    process.env.SHITEN_QUIET = "1";
+  it("suppresses debug/info/warn when SHITENNO_QUIET=1", () => {
+    process.env.SHITENNO_QUIET = "1";
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -64,8 +64,8 @@ describe("logger — SHITEN_QUIET env var", () => {
     expect(errorSpy).toHaveBeenCalledOnce();
   });
 
-  it("still outputs error level when SHITEN_QUIET=1", () => {
-    process.env.SHITEN_QUIET = "1";
+  it("still outputs error level when SHITENNO_QUIET=1", () => {
+    process.env.SHITENNO_QUIET = "1";
 
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -73,8 +73,8 @@ describe("logger — SHITEN_QUIET env var", () => {
     expect(errorSpy).toHaveBeenCalledOnce();
   });
 
-  it("respects both SHITEN_QUIET and log level together", () => {
-    process.env.SHITEN_QUIET = "1";
+  it("respects both SHITENNO_QUIET and log level together", () => {
+    process.env.SHITENNO_QUIET = "1";
     setLogLevel("debug"); // Would normally show debug
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);

@@ -19,11 +19,11 @@ export { runDaemon, getPaths, daemonLog } from "./daemon/index.js";
 import { runDaemon } from "./daemon/index.js";
 import { outputError } from "./output.js";
 
-// When run directly as a script (shiten.ts spawns this via startDaemon)
-const shitenDirArg = process.argv[2];
+// When run directly as a script (shugo.ts spawns this via startDaemon)
+const shitennoDirArg = process.argv[2];
 const projectRootArg = process.argv[3];
-if (shitenDirArg) {
-  runDaemon(shitenDirArg, projectRootArg).catch((err) => {
+if (shitennoDirArg) {
+  runDaemon(shitennoDirArg, projectRootArg).catch((err) => {
     outputError(`[daemon] Fatal error: ${err}`);
     process.exit(1);
   });

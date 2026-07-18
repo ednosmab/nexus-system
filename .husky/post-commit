@@ -2,4 +2,4 @@
 # post-commit hook — triggers knowledge graph rebuild and pattern detection
 # Runs after every commit to keep the governance system in sync.
 
-shiten detect --auto 2>/dev/null &
+shugo detect --auto 2>/dev/null &

@@ -38,13 +38,13 @@ import { loadSuppressions, applySuppressions } from "./audit/suppression.js";
 
 export function auditHealth(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   level: AuditLevel = "standard",
   changedFiles?: string[]
 ): HealthAuditReport {
   const startTime = Date.now();
-  const history = readHistory(shitenDir);
-  const rules = readRules(shitenDir);
+  const history = readHistory(shitennoDir);
+  const rules = readRules(shitennoDir);
   const activeDetectors = new Set(DETECTORS_BY_LEVEL[level]);
   const allSourceFiles = collectSourceFiles(projectRoot);
 
@@ -53,7 +53,7 @@ export function auditHealth(
     ? allSourceFiles.filter((f) => changedFiles.includes(f.relPath))
     : allSourceFiles;
 
-  const detectorMap = buildDetectorMap(projectRoot, shitenDir, sourceFiles, rules, history);
+  const detectorMap = buildDetectorMap(projectRoot, shitennoDir, sourceFiles, rules, history);
 
   const issues: HealthIssue[] = [];
   const detectorErrors: Array<{ name: string; error: string }> = [];
@@ -85,7 +85,7 @@ export function auditHealth(
   }
 
   const deduped = deduplicateIssues(issues);
-  const suppressions = loadSuppressions(shitenDir);
+  const suppressions = loadSuppressions(shitennoDir);
   const { visible, suppressed } = applySuppressions(deduped, suppressions);
   const healthScore = calculateHealthScore(visible, sourceFiles.length);
   const dimensionScores = calculateDimensionScores(visible, sourceFiles.length);
@@ -127,8 +127,8 @@ export function auditHealth(
   };
 }
 
-export function writeHealthReport(shitenDir: string, report: HealthAuditReport): string | null {
-  const reportsDir = join(shitenDir, "reports");
+export function writeHealthReport(shitennoDir: string, report: HealthAuditReport): string | null {
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

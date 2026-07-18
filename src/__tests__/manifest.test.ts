@@ -57,24 +57,24 @@ describe("readManifest", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify(manifest));
 
-    expect(readManifest("/shiten")).toEqual(manifest);
+    expect(readManifest("/shugo")).toEqual(manifest);
   });
 
   it("returns null when file does not exist", () => {
     mockExistsSync.mockReturnValue(false);
-    expect(readManifest("/shiten")).toBeNull();
+    expect(readManifest("/shugo")).toBeNull();
   });
 
   it("returns null for invalid JSON", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue("not json");
-    expect(readManifest("/shiten")).toBeNull();
+    expect(readManifest("/shugo")).toBeNull();
   });
 
   it("returns null when required fields are missing", () => {
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockReturnValue(JSON.stringify({ cliVersion: "1.0.0" }));
-    expect(readManifest("/shiten")).toBeNull();
+    expect(readManifest("/shugo")).toBeNull();
   });
 });
 
@@ -90,10 +90,10 @@ describe("writeManifest", () => {
       maturityScore: 0,
     };
 
-    writeManifest("/shiten", manifest);
+    writeManifest("/shugo", manifest);
 
     expect(mockWriteFileSync).toHaveBeenCalledWith(
-      "/shiten/manifest.json",
+      "/shugo/manifest.json",
       JSON.stringify(manifest, null, 2),
       "utf-8"
     );
@@ -158,12 +158,12 @@ describe("diffManifests", () => {
 describe("scanTemplateHashes", () => {
   it("returns empty object for empty directory", () => {
     mockReaddirSync.mockReturnValue([]);
-    expect(scanTemplateHashes("/shiten")).toEqual({});
+    expect(scanTemplateHashes("/shugo")).toEqual({});
   });
 
   it("skips node_modules and .git", () => {
     mockReaddirSync.mockImplementation((dir: any) => {
-      if (dir === "/shiten") {
+      if (dir === "/shugo") {
         return [
           { name: "node_modules", isDirectory: () => true, isFile: () => false } as any,
           { name: ".git", isDirectory: () => true, isFile: () => false } as any,
@@ -174,7 +174,7 @@ describe("scanTemplateHashes", () => {
     });
     mockReadFileSync.mockReturnValue("content");
 
-    const hashes = scanTemplateHashes("/shiten");
+    const hashes = scanTemplateHashes("/shugo");
     expect(hashes).toHaveProperty("file.txt");
     expect(Object.keys(hashes)).toHaveLength(1);
   });
@@ -185,7 +185,7 @@ describe("scanTemplateHashes", () => {
 describe("createManifest", () => {
   it("creates manifest with correct fields", () => {
     mockReaddirSync.mockReturnValue([]);
-    const manifest = createManifest("1.2.3", "/shiten", ["core", "ai"], 80);
+    const manifest = createManifest("1.2.3", "/shugo", ["core", "ai"], 80);
 
     expect(manifest.cliVersion).toBe("1.2.3");
     expect(manifest.capabilities).toEqual(["core", "ai"]);
@@ -200,7 +200,7 @@ describe("createManifest", () => {
 describe("updateManifest", () => {
   it("creates new manifest when no current exists", () => {
     mockReaddirSync.mockReturnValue([]);
-    const manifest = updateManifest(null, "2.0.0", "/shiten", ["core"], 70);
+    const manifest = updateManifest(null, "2.0.0", "/shugo", ["core"], 70);
     expect(manifest.cliVersion).toBe("2.0.0");
   });
 
@@ -218,7 +218,7 @@ describe("updateManifest", () => {
     ]);
     mockReadFileSync.mockReturnValue("new content");
 
-    const updated = updateManifest(current, "2.0.0", "/shiten", ["core", "ai"], 75);
+    const updated = updateManifest(current, "2.0.0", "/shugo", ["core", "ai"], 75);
 
     expect(updated.cliVersion).toBe("2.0.0");
     expect(updated.templateHashes).toHaveProperty("old.txt", "hash1");

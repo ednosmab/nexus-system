@@ -3,7 +3,7 @@
 
 Objetivo
 
-Transformar Shiten em plataforma.
+Transformar Shugo em plataforma.
 
 ---
 

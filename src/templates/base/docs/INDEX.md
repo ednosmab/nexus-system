@@ -1,6 +1,6 @@
-# Shitenno-go — Documentacao
+# Shitenno — Documentacao
 
-> Este e o indice dos documentos do Shitenno-go. Organizados por nivel hierarquico.
+> Este e o indice dos documentos do Shitenno. Organizados por nivel hierarquico.
 
 ## Estrutura
 
@@ -27,7 +27,7 @@
 | Documento | Proposito |
 |---|---|
 | `capabilities.md` | Lista de capabilities disponiveis |
-| `Shitenno-go_GUIDE.md` | Guia completo do sistema |
+| `Shitenno_GUIDE.md` | Guia completo do sistema |
 
 ### Nivel 3: Regras Modulares (carregadas por capability)
 
@@ -62,7 +62,7 @@
 
 | Tarefa | Ler |
 |---|---|
-| Entender por que o Shiten existe | CONCEPTUAL_MODEL.md |
+| Entender por que o Shugo existe | CONCEPTUAL_MODEL.md |
 | Aprender o modelo de dominio | KNOWLEDGE_LIFECYCLE.md |
 | Verificar regras | AGENTS.md + FORBIDDEN_OPERATIONS.md |
 | Configurar projecto | opencode-context.md |

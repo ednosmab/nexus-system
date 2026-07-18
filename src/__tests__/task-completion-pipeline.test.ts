@@ -69,7 +69,7 @@ describe("PipelineOptions type", () => {
   it("can be constructed with required fields only", () => {
     const opts: PipelineOptions = {
       projectRoot: "/project",
-      shitenDir: "/project/shitenno-go",
+      shitennoDir: "/project/shitenno",
       taskId: "TASK-001",
     };
     expect(opts.projectRoot).toBe("/project");
@@ -78,7 +78,7 @@ describe("PipelineOptions type", () => {
   it("can include optional fields", () => {
     const opts: PipelineOptions = {
       projectRoot: "/project",
-      shitenDir: "/project/shitenno-go",
+      shitennoDir: "/project/shitenno",
       taskId: "TASK-001",
       affectedFiles: ["src/a.ts"],
       skipArchive: true,
@@ -98,7 +98,7 @@ describe("plan detection via fs mocks", () => {
     ]);
     mockReadFileSync.mockReturnValue("**Status:** active\n");
 
-    const plansDir = "/shiten/governance/plans";
+    const plansDir = "/shugo/governance/plans";
     const files = mockReaddirSync(plansDir).filter((f: any) => f.name.endsWith(".md") && !f.name.startsWith("TEMPLATE"));
     const match = files.find((f: any) => f.name.toLowerCase().includes("my-task")) as any;
 
@@ -112,7 +112,7 @@ describe("plan detection via fs mocks", () => {
     ]);
     mockReadFileSync.mockReturnValue("**Status:** done\n");
 
-    const content = mockReadFileSync("/shiten/governance/plans/plan-done.md", "utf-8") as string;
+    const content = mockReadFileSync("/shugo/governance/plans/plan-done.md", "utf-8") as string;
     const statusMatch = content.match(/\*\*Status:\*\*\s*(.+)/i);
     const status = statusMatch?.[1]?.trim().toLowerCase();
 
@@ -121,6 +121,6 @@ describe("plan detection via fs mocks", () => {
 
   it("returns null when plans dir does not exist", () => {
     mockExistsSync.mockReturnValue(false);
-    expect(mockExistsSync("/shiten/governance/plans")).toBe(false);
+    expect(mockExistsSync("/shugo/governance/plans")).toBe(false);
   });
 });

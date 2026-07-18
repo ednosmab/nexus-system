@@ -13,7 +13,7 @@ export default function ArchitectureConcept() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Arquitetura</h1>
         <p className="text-text-secondary max-w-2xl">
-          Visao geral da arquitetura do Shitenno-go e seus componentes principais.
+          Visao geral da arquitetura do Shitenno e seus componentes principais.
         </p>
       </section>
 

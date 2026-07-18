@@ -11,7 +11,7 @@
 
 ## Context
 
-The Shiten event bus (`src/event-bus.ts`) declares 33 event types in `ShitenEventType`. Of these:
+The Shugo event bus (`src/event-bus.ts`) declares 33 event types in `ShitennoEventType`. Of these:
 
 - **3 have real subscribers** that produce visible side effects:
   - `adr.created` — rule engine logs a suggestion
@@ -49,7 +49,7 @@ The cost of orphaned events is real but low: each publish serializes a payload, 
 | `capability.unlocked` | Useful for progress notifications |
 | `system.updated` | Useful for change tracking |
 
-### Remove (never needed, remove from ShitenEventType + all publish calls)
+### Remove (never needed, remove from ShitennoEventType + all publish calls)
 
 | Event | Rationale |
 |-------|-----------|

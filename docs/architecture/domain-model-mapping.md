@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Every module in the Shitenno-go should map clearly to one of the [Meta Model](../domain/meta-model.md) concepts. This document validates that mapping.
+Every module in the Shitenno should map clearly to one of the [Meta Model](../domain/meta-model.md) concepts. This document validates that mapping.
 
 If a module cannot be associated with a Meta Model concept, its responsibility should be re-evaluated.
 
@@ -222,12 +222,12 @@ If a module cannot be associated with a Meta Model concept, its responsibility s
 
 ---
 
-### shiten-state-machine.ts
+### shitenno-state-machine.ts
 
 | Question | Answer |
 |----------|--------|
 | **Meta Model Concept** | Infrastructure (lifecycle gates) |
-| **Responsability** | Govern Shiten's own lifecycle: uninitialized → discovered → assessed → governed → evolved |
+| **Responsability** | Govern Shugo's own lifecycle: uninitialized → discovered → assessed → governed → evolved |
 | **Knowledge Produced** | Current lifecycle state |
 | **Knowledge Consumed** | State transitions, validation results |
 | **Modifies State?** | Yes (transitions state) |

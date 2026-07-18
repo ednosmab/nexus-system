@@ -1,12 +1,12 @@
 # Custom Rules
 
-Guia para criar regras customizadas no Shiten.
+Guia para criar regras customizadas no Shugo.
 
 ---
 
 ## Visão Geral
 
-O Shiten permite criar regras customizadas para automatizar fluxos de trabalho específicos do seu projeto.
+O Shugo permite criar regras customizadas para automatizar fluxos de trabalho específicos do seu projeto.
 
 ---
 
@@ -57,7 +57,7 @@ Defina o que acontece quando a regra é ativada:
 
 ### 4. Crie o Arquivo JSON
 
-Crie o arquivo em `shitenno-go/governance/rules/`:
+Crie o arquivo em `shitenno/governance/rules/`:
 
 ```json
 {
@@ -81,8 +81,8 @@ Crie o arquivo em `shitenno-go/governance/rules/`:
 ### 5. Valide e Teste
 
 ```bash
-shiten validate --rule RULE-CUSTOM-001
-shiten rule test RULE-CUSTOM-001
+shugo validate --rule RULE-CUSTOM-001
+shugo rule test RULE-CUSTOM-001
 ```
 
 ---
@@ -100,7 +100,7 @@ shiten rule test RULE-CUSTOM-001
     {
       "type": "send_notification",
       "params": {
-        "message": "👋 Bem-vindo! Use 'shiten status' para verificar a saúde do projeto."
+        "message": "👋 Bem-vindo! Use 'shugo status' para verificar a saúde do projeto."
       }
     }
   ]

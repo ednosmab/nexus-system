@@ -1,5 +1,5 @@
 /**
- * benchmarks.test.ts — Performance benchmarks for the shiten scoring engines
+ * benchmarks.test.ts — Performance benchmarks for the shugo scoring engines
  *
  * Creates synthetic fixtures of varying sizes (small/medium/large)
  * and benchmarks: calculateComplexityScore, detectPatterns, auditHealth.
@@ -11,7 +11,7 @@ import { describe, bench, beforeAll, afterAll } from "vitest";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldShitennoGo } from "../scaffolder.js";
+import { scaffoldShitenno } from "../scaffolder.js";
 import { calculateComplexityScore } from "../scorer.js";
 import { detectPatterns } from "../pattern-detector.js";
 import { auditHealth } from "../health-auditor.js";
@@ -24,7 +24,7 @@ import type { Capability } from "../maturity-profile.js";
 
 interface Fixture {
   dir: string;
-  shitenDir: string;
+  shitennoDir: string;
   label: string;
 }
 
@@ -35,7 +35,7 @@ const BASE_ANSWERS: UserAnswers = {
   database: "PostgreSQL",
   styling: "Tailwind CSS",
   maturity: {
-    usedShitenBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium",
+    usedShitennoBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium",
     hasDedicatedTeam: true, hasArchitectureDocs: true, hasADRs: true, hasTechnicalReviews: true,
     hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: true,
     intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true,
@@ -58,7 +58,7 @@ function createFixture(
     areas: number;
   }
 ): Fixture {
-  const dir = join(tmpdir(), `shiten-bench-${label}-${Date.now()}`);
+  const dir = join(tmpdir(), `shitenno-bench-${label}-${Date.now()}`);
   mkdirSync(dir, { recursive: true });
 
   // Create package.json
@@ -98,13 +98,13 @@ function createFixture(
     }
   }
 
-  // Scaffold shitenno-go
-  scaffoldShitennoGo(dir, BASE_ANSWERS, SENIOR_CAPS);
-  const shitenDir = join(dir, "shitenno-go");
+  // Scaffold shitenno
+  scaffoldShitenno(dir, BASE_ANSWERS, SENIOR_CAPS);
+  const shitennoDir = join(dir, "shitenno");
 
   // Create history entries
   if (opts.historyEntries > 0) {
-    const historyDir = join(shitenDir, "docs", "history");
+    const historyDir = join(shitennoDir, "docs", "history");
     mkdirSync(historyDir, { recursive: true });
     for (let i = 0; i < opts.historyEntries; i++) {
       const date = new Date(2026, 0, 1 + i);
@@ -136,7 +136,7 @@ function createFixture(
 
   // Create reports
   if (opts.reportCount > 0) {
-    const reportsDir = join(shitenDir, "reports");
+    const reportsDir = join(shitennoDir, "reports");
     mkdirSync(reportsDir, { recursive: true });
     for (let i = 0; i < opts.reportCount; i++) {
       const areaScores = Array.from({ length: opts.areas }, (_, j) => ({
@@ -157,7 +157,7 @@ function createFixture(
     }
   }
 
-  return { dir, shitenDir, label };
+  return { dir, shitennoDir, label };
 }
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
@@ -204,17 +204,17 @@ afterAll(() => {
 describe("calculateComplexityScore", () => {
   bench("small project (20 files, 3 areas)", async () => {
     const analysis = analyseProject(small.dir);
-    await calculateComplexityScore(small.dir, small.shitenDir, analysis);
+    await calculateComplexityScore(small.dir, small.shitennoDir, analysis);
   });
 
   bench("medium project (100 files, 8 areas)", async () => {
     const analysis = analyseProject(medium.dir);
-    await calculateComplexityScore(medium.dir, medium.shitenDir, analysis);
+    await calculateComplexityScore(medium.dir, medium.shitennoDir, analysis);
   });
 
   bench("large project (500 files, 20 areas)", async () => {
     const analysis = analyseProject(large.dir);
-    await calculateComplexityScore(large.dir, large.shitenDir, analysis);
+    await calculateComplexityScore(large.dir, large.shitennoDir, analysis);
   });
 
   bench("analyseProject alone (small)", () => {
@@ -230,15 +230,15 @@ describe("calculateComplexityScore", () => {
 
 describe("detectPatterns", () => {
   bench("small (5 history, 3 reports)", () => {
-    detectPatterns(small.dir, small.shitenDir);
+    detectPatterns(small.dir, small.shitennoDir);
   });
 
   bench("medium (30 history, 10 reports)", () => {
-    detectPatterns(medium.dir, medium.shitenDir);
+    detectPatterns(medium.dir, medium.shitennoDir);
   });
 
   bench("large (100 history, 50 reports)", () => {
-    detectPatterns(large.dir, large.shitenDir);
+    detectPatterns(large.dir, large.shitennoDir);
   });
 });
 
@@ -246,15 +246,15 @@ describe("detectPatterns", () => {
 
 describe("auditHealth", () => {
   bench("small (5 history, 38 rules)", () => {
-    auditHealth(small.dir, small.shitenDir);
+    auditHealth(small.dir, small.shitennoDir);
   });
 
   bench("medium (30 history, 38 rules)", () => {
-    auditHealth(medium.dir, medium.shitenDir);
+    auditHealth(medium.dir, medium.shitennoDir);
   });
 
   bench("large (100 history, 38 rules)", () => {
-    auditHealth(large.dir, large.shitenDir);
+    auditHealth(large.dir, large.shitennoDir);
   });
 });
 
@@ -263,19 +263,19 @@ describe("auditHealth", () => {
 describe("Full Pipeline (status command)", () => {
   bench("small — analyse + score + write report", async () => {
     const analysis = analyseProject(small.dir);
-    const report = await calculateComplexityScore(small.dir, small.shitenDir, analysis);
+    const report = await calculateComplexityScore(small.dir, small.shitennoDir, analysis);
     JSON.stringify(report);
   });
 
   bench("medium — analyse + score + write report", async () => {
     const analysis = analyseProject(medium.dir);
-    const report = await calculateComplexityScore(medium.dir, medium.shitenDir, analysis);
+    const report = await calculateComplexityScore(medium.dir, medium.shitennoDir, analysis);
     JSON.stringify(report);
   });
 
   bench("large — analyse + score + write report", async () => {
     const analysis = analyseProject(large.dir);
-    const report = await calculateComplexityScore(large.dir, large.shitenDir, analysis);
+    const report = await calculateComplexityScore(large.dir, large.shitennoDir, analysis);
     JSON.stringify(report);
   });
 });
@@ -285,23 +285,23 @@ describe("Full Pipeline (status command)", () => {
 describe("All Engines (audit command simulation)", () => {
   bench("small — score + detect + audit", async () => {
     const analysis = analyseProject(small.dir);
-    await calculateComplexityScore(small.dir, small.shitenDir, analysis);
-    detectPatterns(small.dir, small.shitenDir);
-    auditHealth(small.dir, small.shitenDir);
+    await calculateComplexityScore(small.dir, small.shitennoDir, analysis);
+    detectPatterns(small.dir, small.shitennoDir);
+    auditHealth(small.dir, small.shitennoDir);
   });
 
   bench("medium — score + detect + audit", async () => {
     const analysis = analyseProject(medium.dir);
-    await calculateComplexityScore(medium.dir, medium.shitenDir, analysis);
-    detectPatterns(medium.dir, medium.shitenDir);
-    auditHealth(medium.dir, medium.shitenDir);
+    await calculateComplexityScore(medium.dir, medium.shitennoDir, analysis);
+    detectPatterns(medium.dir, medium.shitennoDir);
+    auditHealth(medium.dir, medium.shitennoDir);
   });
 
   bench("large — score + detect + audit", async () => {
     const analysis = analyseProject(large.dir);
-    await calculateComplexityScore(large.dir, large.shitenDir, analysis);
-    detectPatterns(large.dir, large.shitenDir);
-    auditHealth(large.dir, large.shitenDir);
+    await calculateComplexityScore(large.dir, large.shitennoDir, analysis);
+    detectPatterns(large.dir, large.shitennoDir);
+    auditHealth(large.dir, large.shitennoDir);
   });
 });
 
@@ -335,7 +335,7 @@ describe("Scaling: source files (fixed 5 history, 3 areas)", () => {
   for (const { label, fixture } of scalingFixtures) {
     bench(`score with ${label}`, async () => {
       const analysis = analyseProject(fixture.dir);
-      await calculateComplexityScore(fixture.dir, fixture.shitenDir, analysis);
+      await calculateComplexityScore(fixture.dir, fixture.shitennoDir, analysis);
     });
   }
 });
@@ -367,11 +367,11 @@ describe("Scaling: history entries (fixed 100 files, 3 areas)", () => {
 
   for (const { label, fixture } of scalingFixtures) {
     bench(`detect with ${label}`, () => {
-      detectPatterns(fixture.dir, fixture.shitenDir);
+      detectPatterns(fixture.dir, fixture.shitennoDir);
     });
 
     bench(`audit with ${label}`, () => {
-      auditHealth(fixture.dir, fixture.shitenDir);
+      auditHealth(fixture.dir, fixture.shitennoDir);
     });
   }
 });
@@ -406,7 +406,7 @@ describe("Cross-process cache (cold consolidation vs disk cache fresh)", () => {
     // Pre-populate disk cache for each fixture
     for (const f of [cacheSmall, cacheMedium, cacheLarge]) {
       clearEngineeringStateCache();
-      getEngineeringState(f.dir, f.shitenDir, true);
+      getEngineeringState(f.dir, f.shitennoDir, true);
     }
   });
 
@@ -420,31 +420,31 @@ describe("Cross-process cache (cold consolidation vs disk cache fresh)", () => {
 
   bench("small — cold consolidation (forceRefresh=true)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheSmall.dir, cacheSmall.shitenDir, true);
+    getEngineeringState(cacheSmall.dir, cacheSmall.shitennoDir, true);
   });
 
   bench("small — disk cache hit (governance/ unchanged)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheSmall.dir, cacheSmall.shitenDir, false);
+    getEngineeringState(cacheSmall.dir, cacheSmall.shitennoDir, false);
   });
 
   bench("medium — cold consolidation (forceRefresh=true)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheMedium.dir, cacheMedium.shitenDir, true);
+    getEngineeringState(cacheMedium.dir, cacheMedium.shitennoDir, true);
   });
 
   bench("medium — disk cache hit (governance/ unchanged)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheMedium.dir, cacheMedium.shitenDir, false);
+    getEngineeringState(cacheMedium.dir, cacheMedium.shitennoDir, false);
   });
 
   bench("large — cold consolidation (forceRefresh=true)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheLarge.dir, cacheLarge.shitenDir, true);
+    getEngineeringState(cacheLarge.dir, cacheLarge.shitennoDir, true);
   });
 
   bench("large — disk cache hit (governance/ unchanged)", () => {
     clearEngineeringStateCache();
-    getEngineeringState(cacheLarge.dir, cacheLarge.shitenDir, false);
+    getEngineeringState(cacheLarge.dir, cacheLarge.shitennoDir, false);
   });
 });

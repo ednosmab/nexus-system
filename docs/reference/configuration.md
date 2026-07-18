@@ -1,10 +1,10 @@
 # Configuration Reference
 
-> How Shiten CLI reads and writes configuration.
+> How Shugo CLI reads and writes configuration.
 
 ## opencode.json
 
-The AI agent configuration file, created by `shiten init` at the project root.
+The AI agent configuration file, created by `shugo init` at the project root.
 
 ```json
 {
@@ -67,7 +67,7 @@ Each agent under `agent` supports:
 ```json
 {
   "skills": {
-    "paths": ["shitenno-go/docs/skills"]
+    "paths": ["shitenno/docs/skills"]
   }
 }
 ```
@@ -88,12 +88,12 @@ Each agent under `agent` supports:
 
 ---
 
-## shitenno-go/ Directory
+## shitenno/ Directory
 
-Created by `shiten init`. Structure:
+Created by `shugo init`. Structure:
 
 ```
-shitenno-go/
+shitenno/
 ├── docs/              # Documentation, skills, ADRs, plans
 │   ├── skills/        # Engineering skills (21+)
 │   ├── plans/         # Execution plans (archived)
@@ -114,9 +114,9 @@ shitenno-go/
 
 ---
 
-## shitenno-go/profile/ ProjectProfile
+## shitenno/profile/ ProjectProfile
 
-Defines how Shiten adapts to your project type.
+Defines how Shugo adapts to your project type.
 
 ```json
 {
@@ -158,11 +158,11 @@ Override with `loading_profile` field in `opencode.json`.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SHITEN_HOME` | Shiten home directory | `~/.shiten` |
-| `SHITEN_PLUGINS` | Plugin directory | `shitenno-go/plugins/` |
-| `SHITEN_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
-| `SHITEN_NO_DAEMON` | Set to `1` to disable daemon auto-start | unset |
-| `SHITEN_DAEMON` | Force daemon mode | unset |
+| `SHITENNO_HOME` | Shugo home directory | `~/.shugo` |
+| `SHITENNO_PLUGINS` | Plugin directory | `shitenno/plugins/` |
+| `SHITENNO_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
+| `SHITENNO_NO_DAEMON` | Set to `1` to disable daemon auto-start | unset |
+| `SHITENNO_DAEMON` | Force daemon mode | unset |
 | `CI` | Disables daemon in CI environments | unset |
 
 ---
@@ -172,7 +172,7 @@ Override with `loading_profile` field in `opencode.json`.
 1. CLI flags (`--dir`, `--json`, `--force`)
 2. Environment variables
 3. `opencode.json`
-4. `shitenno-go/profile/<project>.config.ts`
+4. `shitenno/profile/<project>.config.ts`
 5. Defaults
 
 ---

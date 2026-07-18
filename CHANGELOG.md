@@ -8,7 +8,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- **Rebranding completo:** nexus-system → shitenno-go (package name, binary, docs, templates, all references)
+- **Rebranding completo:** nexus-system → shitenno (package name, binary, docs, templates, all references)
 - **Structural refactoring:** Split 10+ god modules into domain modules (rule-engine, knowledge-debt, maturity-profile, capability-engine, health-auditor, mcp-server, knowledge-graph, doc-lifecycle-auditor, feedback-engine, engineering-state)
 - **Domain layer:** New `src/domain/` with entities, rules, and scoring modules (Clean Architecture)
 - **Semantic drift detector:** Keywords + AST-based documentation drift detection with golden tests
@@ -24,13 +24,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Test suite:** Expanded to 2000+ tests across 80+ files with full coverage
 - **Audit detectors:** Expanded to 180+ enterprise-level security, supply chain, and configuration analysis
 - **CLI commands:** 38 total commands with centralized output helpers
-- **Documentation:** Massive rename across all docs, updated all references to shitenno-go
+- **Documentation:** Massive rename across all docs, updated all references to shitenno
 - **CI/CD:** Updated to Node.js 22, fixed corepack enable ordering for pnpm
 - **Governance:** Moved plans to `governance/plans/`, new pipeline templates, agent contracts
 
 ### Fixed
 
-- Rebrand nexus-system → shitenno-go across entire codebase
+- Rebrand nexus-system → shitenno across entire codebase
 - Semantic drift detector — FP filter, scanner fix, golden set tests
 - Handbook TUI path resolution + text wrap + docs sync
 - Daemon script path resolution via relative path
@@ -69,8 +69,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- `shiten watch` command not found — corrected bin path in package.json
-- `shiten daemon start` — daemon script path resolution via relative path
+- `shugo watch` command not found — corrected bin path in package.json
+- `shugo daemon start` — daemon script path resolution via relative path
 - Version read path in bundled output — uses package root discovery
 - CI failures — Node.js 20 deprecated, pnpm not found in PATH
 - Watch infinite loop — excluded reports/ from watcher, added plan-backlog cooldown
@@ -85,7 +85,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **33 audit detectors:** Expanded from basic checks to comprehensive governance analysis
 - **Taint analysis:** Track data flow through governance rules and detect contamination
 - **13 new CLI commands:** `act`, `plan`, `goal`, `decide`, `policy`, `console`, `digest`, `bench`, `briefing`, `feedback`, `profile`, `dashboard`, `shell-init`
-- **`shiten docs-audit`:** Validate documentation synchronization with codebase
+- **`shugo docs-audit`:** Validate documentation synchronization with codebase
 - **Dashboard command:** Visual governance overview with real-time metrics
 - **Shell integration:** Auto-completion setup for bash/zsh/fish
 
@@ -110,7 +110,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Static metrics: packages, apps, files, dependencies, monorepo
   - Behavioral metrics: validate failures, ADRs, branches, commits/week, sessions, bug fixes, agents, skills
   - Per-area scoring with churn, violations, sensitive surface, dependency depth, incident-free age, context pressure
-  - Report writer: JSON reports saved to `shitenno-go/reports/`
+  - Report writer: JSON reports saved to `shitenno/reports/`
 - **Pattern detector** (`pattern-detector.ts`):
   - Recurring error detection (3+ occurrences in same area)
   - Reverted decision detection (rollback patterns)
@@ -135,7 +135,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Template customization with project-specific placeholders
   - Area auto-detection
 - **Disk cache** (`cache.ts`):
-  - SHA256 checksums for key files (.git/HEAD, package.json, opencode.json, shiten-profile/, shitenno-go/)
+  - SHA256 checksums for key files (.git/HEAD, package.json, opencode.json, shitenno-profile/, shitenno/)
   - Cache invalidation on init/upgrade/sync
   - `--no-cache` flag on status/detect/audit commands
   - Cache hit: <1ms vs 15-106ms without cache
@@ -151,7 +151,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Performance benchmarks** (`benchmarks.bench.ts`): Scaling tests for all engines
 - **`--json` flag** on all commands (`status`, `detect`, `audit`, `validate`, `sync`, `upgrade --list`, `clean`): Structured JSON output for CI/scripting
 - **Health bar visualization** (`formatting.ts`): ASCII progress bars for complexity scores and health scores
-- **`shiten clean` command**: Explicitly clear cache and temporary files
+- **`shugo clean` command**: Explicitly clear cache and temporary files
 - **GitHub Actions CI** (`.github/workflows/ci.yml`): Typecheck + build + test on Node 18/20/22
 - **GitHub Actions Release** (`.github/workflows/release.yml`): Automated npm publish on git tags
 - **Formatting utilities** (`formatting.ts`): `healthBar`, `miniBar`, `outputJson`, `statusIcon` — shared across all commands

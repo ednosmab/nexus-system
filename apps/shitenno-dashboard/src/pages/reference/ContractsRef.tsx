@@ -21,7 +21,7 @@ export default function ContractsRef() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Contratos — Referencia</h1>
         <p className="text-text-secondary max-w-2xl">
-          Schema dos contratos de agentes IA do Shitenno-go.
+          Schema dos contratos de agentes IA do Shitenno.
         </p>
       </section>
 

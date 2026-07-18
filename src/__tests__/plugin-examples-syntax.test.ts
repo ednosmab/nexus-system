@@ -3,7 +3,7 @@ import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 describe("bundled example plugins", () => {
-  const pluginsDir = join(process.cwd(), "shitenno-go", "plugins");
+  const pluginsDir = join(process.cwd(), "shitenno", "plugins");
 
   const pluginDirs = readdirSync(pluginsDir).filter((name) => {
     return statSync(join(pluginsDir, name)).isDirectory();

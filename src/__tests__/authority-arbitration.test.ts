@@ -22,7 +22,7 @@ const ALL_ACTION_TYPES: ActionType[] = [
   "update_context_buffer", "create_reminder", "remove_reminder", "update_quick_board",
   "create_adr", "create_skill", "log_event", "send_notification",
   "trigger_assessment", "trigger_health_check", "update_backlog", "run_local_script",
-  "run_script", "run_shiten_command", "update_file", "create_file", "remove_file",
+  "run_script", "run_shugo_command", "update_file", "create_file", "remove_file",
   "update_backlog_status", "archive_plan", "auto_populate_next_p0", "apply_autofix",
 ];
 
@@ -36,7 +36,7 @@ describe("Fase 1 — Action Tier classification", () => {
 
   it("places irreversible mutations in Tier 3 and cheap read-only in Tier 1", () => {
     expect(ACTION_TIER["remove_file"]).toBe(3);
-    expect(ACTION_TIER["run_shiten_command"]).toBe(3);
+    expect(ACTION_TIER["run_shugo_command"]).toBe(3);
     expect(ACTION_TIER["apply_autofix"]).toBe(3);
     expect(ACTION_TIER["log_event"]).toBe(1);
     expect(ACTION_TIER["send_notification"]).toBe(1);
@@ -86,7 +86,7 @@ describe("Fase 3 — Tier 3 human confirmation", () => {
     const challenges: unknown[] = [];
     getEventBus().subscribe("challenge.generated", (p) => { challenges.push(p); });
 
-    const result = checkPrecedence("run_shiten_command", "autonomous", {
+    const result = checkPrecedence("run_shugo_command", "autonomous", {
       ruleAutonomousFlag: false,
     });
 
@@ -96,14 +96,14 @@ describe("Fase 3 — Tier 3 human confirmation", () => {
   });
 
   it("executes a Tier 3 action when the rule opts in with autonomous:true", () => {
-    const result = checkPrecedence("run_shiten_command", "autonomous", {
+    const result = checkPrecedence("run_shugo_command", "autonomous", {
       ruleAutonomousFlag: true,
     });
     expect(result.allowed).toBe(true);
   });
 
   it("allows everything in deliberate (human-initiated) mode", () => {
-    expect(checkPrecedence("run_shiten_command", "deliberate").allowed).toBe(true);
+    expect(checkPrecedence("run_shugo_command", "deliberate").allowed).toBe(true);
   });
 });
 

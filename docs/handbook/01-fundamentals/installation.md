@@ -1,6 +1,6 @@
 # Instalação
 
-> Como instalar o Shiten no seu ambiente.
+> Como instalar o Shugo no seu ambiente.
 
 ---
 
@@ -22,16 +22,16 @@ git --version    # Opcional
 
 ## Método 1: Instalação Global (recomendado)
 
-Instala o `shiten` como comando global no sistema:
+Instala o `shugo` como comando global no sistema:
 
 ```bash
-npm install -g shitenno-go
+npm install -g shitenno
 ```
 
 Após instalar, execute:
 
 ```bash
-shiten --version
+shugo --version
 ```
 
 Se mostrar a versão, está tudo certo.
@@ -40,17 +40,17 @@ Se mostrar a versão, está tudo certo.
 
 ## Método 2: Instalação Local (por projeto)
 
-Instala o `shiten` como dependência do projeto:
+Instala o `shugo` como dependência do projeto:
 
 ```bash
 cd seu-projeto
-npm install shitenno-go
+npm install shitenno
 ```
 
 Para usar:
 
 ```bash
-npx shiten --version
+npx shugo --version
 ```
 
 ---
@@ -61,8 +61,8 @@ Para contribuir ou usar a versão mais recente:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/ednosmab/shitenno-go.git
-cd shitenno-go
+git clone https://github.com/ednosmab/shitenno.git
+cd shitenno
 
 # Instale dependências
 pnpm install
@@ -71,7 +71,7 @@ pnpm install
 pnpm build
 
 # Teste
-npx shiten --version
+npx shugo --version
 ```
 
 ---
@@ -81,7 +81,7 @@ npx shiten --version
 Após a instalação, verifique se tudo funciona:
 
 ```bash
-shiten --version
+shugo --version
 ```
 
 Saída esperada:
@@ -98,16 +98,16 @@ Navegue até seu projeto e execute:
 
 ```bash
 cd seu-projeto
-shiten init
+shugo init
 ```
 
-O Shiten irá:
+O Shugo irá:
 
 1. Analisar seu projeto (stack, packages, estrutura)
 2. Fazer perguntas sobre maturidade
 3. Calcular seu perfil de maturidade
 4. Instalar capabilities recomendadas
-5. Criar a pasta `shitenno-go/`
+5. Criar a pasta `shitenno/`
 
 → Veja [Primeiros Passos](quick-start.md) para detalhes.
 
@@ -115,7 +115,7 @@ O Shiten irá:
 
 ## Solução de problemas
 
-### "shiten: command not found"
+### "shugo: command not found"
 
 Se instalou globalmente, verifique o PATH:
 
@@ -130,7 +130,7 @@ Adicione o resultado ao seu PATH se necessário.
 Use `sudo` (Linux/Mac):
 
 ```bash
-sudo npm install -g shitenno-go
+sudo npm install -g shitenno
 ```
 
 Ou configure npm para não precisar de sudo:

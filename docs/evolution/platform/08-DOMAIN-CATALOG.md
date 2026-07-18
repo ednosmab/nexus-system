@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Formalizar o domínio do Shitenno-go.
+Formalizar o domínio do Shitenno.
 
 Este documento representa a fonte oficial da linguagem ubíqua utilizada pelo projeto.
 

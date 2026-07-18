@@ -6,9 +6,9 @@
 
 | Historical File | Canonical Replacement | Knowledge Preserved |
 |-----------------|----------------------|---------------------|
-| SHITEN_EVOLUTION_PLAN.md | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md | Strategic objectives, roadmap |
+| SHITENNO_EVOLUTION_PLAN.md | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md | Strategic objectives, roadmap |
 | Plano-de-Evolucao-do-Shitenno-cli.md | docs/evolution/ | CLI evolution strategy |
-| Plano-Estrategico-Proximo-Estagio-do-Shitenno-go.md | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md | Strategic direction |
+| Plano-Estrategico-Proximo-Estagio-do-Shitenno.md | docs/evolution/ai/MASTER_EVOLUTION_PLAN.md | Strategic direction |
 | adaptive-dual-path.md | docs/evolution/roadmap/ | Dual-path execution |
 | auditoria-completa-plano.md | docs/evolution/quality/ | Audit findings |
 | auditoria-correcao-completa.md | docs/evolution/quality/ | Audit corrections |

@@ -71,7 +71,7 @@ export function checkPrecedence(
   if (tier === 3 && !opts.ruleAutonomousFlag) {
     getEventBus().publish("challenge.generated", {
       severity: "medium",
-      message: `Proposed "${actionType}" — confirm via shiten act`,
+      message: `Proposed "${actionType}" — confirm via shugo act`,
       actionType,
       tier,
       timestamp: new Date().toISOString(),

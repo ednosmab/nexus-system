@@ -1,7 +1,7 @@
 # Target Architecture
 
 ## Objetivo
-Transformar o Shiten em um núcleo de engenharia independente de interfaces.
+Transformar o Shugo em um núcleo de engenharia independente de interfaces.
 
 ## Camadas
 - Adapters (CLI, API, MCP, VSCode)

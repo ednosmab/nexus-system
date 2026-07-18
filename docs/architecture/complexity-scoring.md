@@ -4,7 +4,7 @@
 
 ## The Scoring Model
 
-Shiten computes complexity from two categories of metrics:
+Shugo computes complexity from two categories of metrics:
 
 ### Static Metrics (project structure)
 
@@ -82,7 +82,7 @@ The scoring engine is optimized for large projects:
 
 ## Report Output
 
-Reports are written to `shitenno-go/reports/` as JSON:
+Reports are written to `shitenno/reports/` as JSON:
 
 ```json
 {

@@ -15,7 +15,7 @@ let tempDir: string;
 let stdoutSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-action-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-action-"));
   stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
 });
 
@@ -24,19 +24,19 @@ afterEach(() => {
   stdoutSpy.mockRestore();
 });
 
-function setupShitenDir(dir: string) {
-  const shitenDir = join(dir, "shitenno-go");
-  mkdirSync(join(shitenDir, "governance"), { recursive: true });
-  mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
+function setupShitennoDir(dir: string) {
+  const shitennoDir = join(dir, ".shitenno");
+  mkdirSync(join(shitennoDir, "governance"), { recursive: true });
+  mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
   writeFileSync(join(dir, "opencode.json"), JSON.stringify({ agent: {} }));
-  return shitenDir;
+  return shitennoDir;
 }
 
-function setupShitenDirGoverned(dir: string) {
-  const shitenDir = setupShitenDir(dir);
-  writeFileSync(join(shitenDir, "maturity-profile.json"), JSON.stringify({ overallScore: 50, dimensions: {}, installedCapabilities: [], recommendedCapabilities: [], futureCapabilities: [] }));
-  writeFileSync(join(shitenDir, "governance", "WORKFLOW.md"), "# Workflow");
-  return shitenDir;
+function setupShitennoDirGoverned(dir: string) {
+  const shitennoDir = setupShitennoDir(dir);
+  writeFileSync(join(shitennoDir, "maturity-profile.json"), JSON.stringify({ overallScore: 50, dimensions: {}, installedCapabilities: [], recommendedCapabilities: [], futureCapabilities: [] }));
+  writeFileSync(join(shitennoDir, "governance", "WORKFLOW.md"), "# Workflow");
+  return shitennoDir;
 }
 
 function getJsonOutput(): Record<string, unknown> {
@@ -66,17 +66,17 @@ function getJsonOutput(): Record<string, unknown> {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("clean command action handler", () => {
-  it("removes .shiten-cache.json", () => {
-    setupShitenDirGoverned(tempDir);
-    writeFileSync(join(tempDir, ".shiten-cache.json"), "{}");
+  it("removes .shitenno-cache.json", () => {
+    setupShitennoDirGoverned(tempDir);
+    writeFileSync(join(tempDir, ".shitenno-cache.json"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
-    expect(existsSync(join(tempDir, ".shiten-cache.json"))).toBe(false);
+    expect(existsSync(join(tempDir, ".shitenno-cache.json"))).toBe(false);
   });
 
   it("removes *.tsbuildinfo files", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
     writeFileSync(join(tempDir, "tsconfig.tsbuildinfo"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -85,8 +85,8 @@ describe("clean command action handler", () => {
   });
 
   it("outputs JSON with itemsRemoved array", () => {
-    setupShitenDirGoverned(tempDir);
-    writeFileSync(join(tempDir, ".shiten-cache.json"), "{}");
+    setupShitennoDirGoverned(tempDir);
+    writeFileSync(join(tempDir, ".shitenno-cache.json"), "{}");
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -98,7 +98,7 @@ describe("clean command action handler", () => {
   });
 
   it("outputs empty itemsRemoved when nothing to clean", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     cleanCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -114,7 +114,7 @@ describe("clean command action handler", () => {
 
 describe("doctor command action handler", () => {
   it("outputs JSON with health report structure", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     doctorCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -129,7 +129,7 @@ describe("doctor command action handler", () => {
   });
 
   it("returns valid health score range", () => {
-    setupShitenDir(tempDir);
+    setupShitennoDir(tempDir);
 
     doctorCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -145,7 +145,7 @@ describe("doctor command action handler", () => {
 
 describe("report command action handler", () => {
   it("outputs JSON with report structure", () => {
-    setupShitenDir(tempDir);
+    setupShitennoDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -158,7 +158,7 @@ describe("report command action handler", () => {
   });
 
   it("uses default period of 30 days", () => {
-    setupShitenDir(tempDir);
+    setupShitennoDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
@@ -169,7 +169,7 @@ describe("report command action handler", () => {
   });
 
   it("respects --period flag", () => {
-    setupShitenDir(tempDir);
+    setupShitennoDir(tempDir);
 
     const cmd = reportCommand();
     cmd.parse(["node", "test", "--dir", tempDir, "--json", "--period", "7"], { from: "user" });
@@ -186,7 +186,7 @@ describe("report command action handler", () => {
 
 describe("assess command action handler", () => {
   it("outputs JSON with assessment structure", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -197,7 +197,7 @@ describe("assess command action handler", () => {
   });
 
   it("newProfile has dimensions and scores", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -211,12 +211,12 @@ describe("assess command action handler", () => {
   });
 
   it("records maturity snapshot in telemetry dir", () => {
-    const shitenDir = setupShitenDir(tempDir);
+    const shitennoDir = setupShitennoDir(tempDir);
 
     assessCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
-    expect(existsSync(join(shitenDir, "maturity-profile.json"))).toBe(true);
-    const telemetryDir = join(shitenDir, "telemetry");
+    expect(existsSync(join(shitennoDir, "maturity-profile.json"))).toBe(true);
+    const telemetryDir = join(shitennoDir, "telemetry");
     expect(existsSync(telemetryDir)).toBe(true);
   });
 });
@@ -227,7 +227,7 @@ describe("assess command action handler", () => {
 
 describe("evolve command action handler", () => {
   it("outputs JSON with evolution report", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     evolveCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -240,7 +240,7 @@ describe("evolve command action handler", () => {
   });
 
   it("accept records feedback", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--accept", "EVO-001", "--comfortable"],
@@ -252,7 +252,7 @@ describe("evolve command action handler", () => {
   });
 
   it("reject records feedback with reason", () => {
-    setupShitenDirGoverned(tempDir);
+    setupShitennoDirGoverned(tempDir);
 
     evolveCommand.parse(
       ["node", "test", "--dir", tempDir, "--json", "--reject", "EVO-002", "--reason", "Not now"],
@@ -269,8 +269,8 @@ describe("evolve command action handler", () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe("sync command action handler", () => {
-  it("errors when shiten-path not specified", () => {
-    setupShitenDir(tempDir);
+  it("errors when shitenno-path not specified", () => {
+    setupShitennoDir(tempDir);
 
     syncCommand.parse(["node", "test", "--dir", tempDir, "--json"], { from: "user" });
 
@@ -278,11 +278,11 @@ describe("sync command action handler", () => {
     expect(output.error).toBe("lifecycle_gate");
   });
 
-  it("errors when shitenno-go directory not found", () => {
-    setupShitenDir(tempDir);
+  it("errors when shitenno directory not found", () => {
+    setupShitennoDir(tempDir);
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", "/nonexistent"],
+      ["node", "test", "--dir", tempDir, "--json", "--shitenno-path", "/nonexistent"],
       { from: "user" }
     );
 
@@ -291,13 +291,13 @@ describe("sync command action handler", () => {
   });
 
   it("errors when project not initialized (lifecycle gate blocks first)", () => {
-    // After decoupling from opencode.json, shitenno-go/ alone = initialized.
+    // After decoupling from opencode.json, shitenno/ alone = initialized.
     // sync requires governed state; discovered state triggers lifecycle_gate first.
-    const shitenDir = setupShitenDir(tempDir);
+    const shitennoDir = setupShitennoDir(tempDir);
     rmSync(join(tempDir, "opencode.json"));
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", shitenDir],
+      ["node", "test", "--dir", tempDir, "--json", "--shitenno-path", shitennoDir],
       { from: "user" }
     );
 
@@ -305,23 +305,23 @@ describe("sync command action handler", () => {
     expect(output.error).toBe("lifecycle_gate");
   });
 
-  it("errors when shitenno-go/ missing (truly uninitialized)", () => {
+  it("errors when shitenno/ missing (truly uninitialized)", () => {
     syncCommand.parse(
       ["node", "test", "--dir", tempDir, "--json"],
       { from: "user" }
     );
 
     const output = getJsonOutput();
-    // sync checks shiten-dir existence first, returns missing_shiten_dir
-    expect(output.error).toBe("missing_shiten_dir");
+    // sync checks shitenno-dir existence first, returns missing_shitenno_dir
+    expect(output.error).toBe("missing_shitenno_dir");
   });
 
   it("--dry-run does not modify files", () => {
-    const shitenDir = setupShitenDirGoverned(tempDir);
-    writeFileSync(join(shitenDir, "docs", "AGENTS.md"), "# Agents");
+    const shitennoDir = setupShitennoDirGoverned(tempDir);
+    writeFileSync(join(shitennoDir, "docs", "AGENTS.md"), "# Agents");
 
     syncCommand.parse(
-      ["node", "test", "--dir", tempDir, "--json", "--shiten-path", shitenDir, "--dry-run"],
+      ["node", "test", "--dir", tempDir, "--json", "--shitenno-path", shitennoDir, "--dry-run"],
       { from: "user" }
     );
 

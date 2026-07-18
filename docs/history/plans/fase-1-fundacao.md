@@ -1,7 +1,7 @@
 # Fase 1 — Fundação
 
 ## Objetivo
-Documentar o "porquê" do Shiten e corrigir bases legadas.
+Documentar o "porquê" do Shugo e corrigir bases legadas.
 
 ## Etapas
 
@@ -11,8 +11,8 @@ Documentar o "porquê" do Shiten e corrigir bases legadas.
 
 ### 1.2 Escrever 00-VISION.md
 - **Status:** Pendente
-- **Descrição:** Manifesto fundador do Shiten. O documento mais importante do repositório.
-- **Critério:** Qualquer pessoa lê e explica o Shiten em 5 minutos.
+- **Descrição:** Manifesto fundador do Shugo. O documento mais importante do repositório.
+- **Critério:** Qualquer pessoa lê e explica o Shugo em 5 minutos.
 
 ### 1.3 Escrever 01-PROBLEM-STATEMENT.md
 - **Status:** Pendente

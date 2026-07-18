@@ -59,15 +59,15 @@ function extractDate(filename: string): string {
 /**
  * Build P4 compressed index from history and feedback directories.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns P4IndexResult with entries and metadata
  */
-export function buildP4Index(shitenDir: string): P4IndexResult {
+export function buildP4Index(shitennoDir: string): P4IndexResult {
   const entries: IndexEntry[] = [];
   const generatedAt = new Date().toISOString();
 
   // 1. Scan history/*.md
-  const historyDir = join(shitenDir, "docs", "history");
+  const historyDir = join(shitennoDir, "docs", "history");
   if (existsSync(historyDir)) {
     try {
       const files = readdirSync(historyDir).filter((f) => f.endsWith(".md"));
@@ -85,7 +85,7 @@ export function buildP4Index(shitenDir: string): P4IndexResult {
   }
 
   // 2. Scan feedback/records/*.json
-  const feedbackDir = join(shitenDir, "feedback", "records");
+  const feedbackDir = join(shitennoDir, "feedback", "records");
   if (existsSync(feedbackDir)) {
     try {
       const files = readdirSync(feedbackDir).filter((f) => f.endsWith(".json"));
@@ -111,8 +111,8 @@ export function buildP4Index(shitenDir: string): P4IndexResult {
   }
 
   // 3. Write index file
-  const indexPath = join(shitenDir, "governance", "context", "p4_index.yaml");
-  const indexDir = join(shitenDir, "governance", "context");
+  const indexPath = join(shitennoDir, "governance", "context", "p4_index.yaml");
+  const indexDir = join(shitennoDir, "governance", "context");
 
   if (!existsSync(indexDir)) {
     try {
@@ -142,11 +142,11 @@ export function buildP4Index(shitenDir: string): P4IndexResult {
 /**
  * Load existing P4 index if available.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns Array of IndexEntry or empty array if no index exists
  */
-export function loadP4Index(shitenDir: string): IndexEntry[] {
-  const indexPath = join(shitenDir, "governance", "context", "p4_index.yaml");
+export function loadP4Index(shitennoDir: string): IndexEntry[] {
+  const indexPath = join(shitennoDir, "governance", "context", "p4_index.yaml");
 
   if (!existsSync(indexPath)) {
     return [];

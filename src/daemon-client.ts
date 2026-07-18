@@ -1,8 +1,8 @@
 /**
  * daemon-client.ts — Daemon Lifecycle Client
  *
- * Provides functions to start, stop, ping, and query the Shiten daemon.
- * Respects SHITEN_NO_DAEMON and CI environment variables.
+ * Provides functions to start, stop, ping, and query the Shugo daemon.
+ * Respects SHITENNO_NO_DAEMON and CI environment variables.
  *
  * PRINCIPLE: The daemon is opt-in. The CLI always works without it.
  */
@@ -31,34 +31,34 @@ const DAEMON_SCRIPT = join(__dirname, "..", "src", "daemon.js");
 
 /**
  * Returns true if the daemon should be bypassed.
- * Conditions: SHITEN_NO_DAEMON=1, CI=true, or running as a child process.
+ * Conditions: SHITENNO_NO_DAEMON=1, CI=true, or running as a child process.
  */
 export function shouldSkipDaemon(): boolean {
   return (
-    process.env["SHITEN_NO_DAEMON"] === "1" ||
+    process.env["SHITENNO_NO_DAEMON"] === "1" ||
     process.env["CI"] === "true" ||
-    process.env["SHITEN_CHILD"] === "1"
+    process.env["SHITENNO_CHILD"] === "1"
   );
 }
 
 // ── PID / Socket Paths ───────────────────────────────────────────────────────
 
-export function getPidPath(shitenDir: string): string {
-  return join(shitenDir, "daemon", "daemon.pid");
+export function getPidPath(shitennoDir: string): string {
+  return join(shitennoDir, "daemon", "daemon.pid");
 }
 
-export function getSocketPath(shitenDir: string): string {
-  return join(shitenDir, "daemon", "daemon.sock");
+export function getSocketPath(shitennoDir: string): string {
+  return join(shitennoDir, "daemon", "daemon.sock");
 }
 
-export function getApprovedPath(shitenDir: string): string {
-  return join(shitenDir, "daemon", "daemon.approved");
+export function getApprovedPath(shitennoDir: string): string {
+  return join(shitennoDir, "daemon", "daemon.approved");
 }
 
 // ── Running Check ─────────────────────────────────────────────────────────────
 
-export function getDaemonPid(shitenDir: string): string | null {
-  const pidPath = getPidPath(shitenDir);
+export function getDaemonPid(shitennoDir: string): string | null {
+  const pidPath = getPidPath(shitennoDir);
   if (!existsSync(pidPath)) return null;
   try {
     return readFileSync(pidPath, "utf-8").trim();
@@ -67,15 +67,15 @@ export function getDaemonPid(shitenDir: string): string | null {
   }
 }
 
-export function isDaemonApproved(shitenDir: string): boolean {
-  return existsSync(getApprovedPath(shitenDir));
+export function isDaemonApproved(shitennoDir: string): boolean {
+  return existsSync(getApprovedPath(shitennoDir));
 }
 
 /**
  * Returns true if a daemon process with a valid PID is running.
  */
-export function isDaemonRunning(shitenDir: string): boolean {
-  const pidPath = getPidPath(shitenDir);
+export function isDaemonRunning(shitennoDir: string): boolean {
+  const pidPath = getPidPath(shitennoDir);
   if (!existsSync(pidPath)) return false;
 
   try {
@@ -98,36 +98,36 @@ export function isDaemonRunning(shitenDir: string): boolean {
  * Waits up to SOCKET_WAIT_MS for the socket to become available.
  * Rejects if the daemon script does not exist or socket never appears.
  */
-export async function startDaemon(shitenDir: string, projectRoot?: string): Promise<void> {
+export async function startDaemon(shitennoDir: string, projectRoot?: string): Promise<void> {
   if (!existsSync(DAEMON_SCRIPT)) {
     throw new Error(
       `Daemon script not found: ${DAEMON_SCRIPT}. Run 'pnpm build' first.`
     );
   }
 
-  const daemonDir = join(shitenDir, "daemon");
+  const daemonDir = join(shitennoDir, "daemon");
   if (!existsSync(daemonDir)) {
     mkdirSync(daemonDir, { recursive: true });
   }
 
   const logPath = join(daemonDir, "daemon.log");
-  const resolvedProjectRoot = projectRoot ?? join(shitenDir, "..");
+  const resolvedProjectRoot = projectRoot ?? join(shitennoDir, "..");
 
   // Spawn detached — process group leader, stdio to log file
-  const child = spawn(process.execPath, [DAEMON_SCRIPT, shitenDir, resolvedProjectRoot], {
+  const child = spawn(process.execPath, [DAEMON_SCRIPT, shitennoDir, resolvedProjectRoot], {
     detached: true,
     stdio: ["ignore", "ignore", "ignore"],
     env: {
       ...process.env,
-      SHITEN_DAEMON_LOG: logPath,
-      SHITEN_CHILD: "1",
+      SHITENNO_DAEMON_LOG: logPath,
+      SHITENNO_CHILD: "1",
     },
   });
 
   child.unref(); // Allow parent CLI to exit immediately
 
   // Wait for socket to appear (daemon writes it on ready)
-  const socketPath = getSocketPath(shitenDir);
+  const socketPath = getSocketPath(shitennoDir);
   const deadline = Date.now() + SOCKET_WAIT_MS;
 
   while (Date.now() < deadline) {
@@ -146,8 +146,8 @@ export async function startDaemon(shitenDir: string, projectRoot?: string): Prom
 /**
  * Stop the daemon by sending SIGTERM to the recorded PID.
  */
-export function stopDaemon(shitenDir: string): boolean {
-  const pidPath = getPidPath(shitenDir);
+export function stopDaemon(shitennoDir: string): boolean {
+  const pidPath = getPidPath(shitennoDir);
   if (!existsSync(pidPath)) return false;
 
   try {
@@ -168,8 +168,8 @@ export function stopDaemon(shitenDir: string): boolean {
  * Send a ping to the daemon via its IPC socket.
  * Returns true if the daemon responds with a pong.
  */
-export async function pingDaemon(shitenDir: string): Promise<boolean> {
-  const result = await queryDaemon<{ type: string }>(shitenDir, { type: "ping" }, 2_000);
+export async function pingDaemon(shitennoDir: string): Promise<boolean> {
+  const result = await queryDaemon<{ type: string }>(shitennoDir, { type: "ping" }, 2_000);
   return result?.type === "pong";
 }
 
@@ -179,7 +179,7 @@ export interface DaemonStatusResponse {
   type: string;
   pid: number;
   version: string;
-  shitenDir: string;
+  shitennoDir: string;
   socketPath: string;
   uptimeSeconds: number;
   eventsRecorded: number;
@@ -195,8 +195,8 @@ export interface DaemonStatusResponse {
  * Query the daemon for its full status via IPC.
  * Returns the expanded status response or null on failure.
  */
-export async function queryDaemonStatus(shitenDir: string): Promise<DaemonStatusResponse | null> {
-  return queryDaemon<DaemonStatusResponse>(shitenDir, { type: "status" }, 2_000);
+export async function queryDaemonStatus(shitennoDir: string): Promise<DaemonStatusResponse | null> {
+  return queryDaemon<DaemonStatusResponse>(shitennoDir, { type: "status" }, 2_000);
 }
 
 // ── Query: Health ────────────────────────────────────────────────────────────
@@ -212,8 +212,8 @@ export interface DaemonHealthResponse {
  * Query the daemon for health status via IPC.
  * Lightweight alternative to queryDaemonStatus when only health is needed.
  */
-export async function queryDaemonHealth(shitenDir: string): Promise<DaemonHealthResponse | null> {
-  return queryDaemon<DaemonHealthResponse>(shitenDir, { type: "query_health" }, 2_000);
+export async function queryDaemonHealth(shitennoDir: string): Promise<DaemonHealthResponse | null> {
+  return queryDaemon<DaemonHealthResponse>(shitennoDir, { type: "query_health" }, 2_000);
 }
 
 // ── Generic IPC Query ────────────────────────────────────────────────────────
@@ -226,12 +226,12 @@ const DEFAULT_QUERY_TIMEOUT_MS = 1_500;
  * callers must always have a disk-based fallback, never throw here.
  */
 export function queryDaemon<T extends { type: string }>(
-  shitenDir: string,
+  shitennoDir: string,
   message: Record<string, unknown> & { type: string },
   timeoutMs = DEFAULT_QUERY_TIMEOUT_MS,
 ): Promise<T | null> {
   return new Promise((resolve) => {
-    const socketPath = getSocketPath(shitenDir);
+    const socketPath = getSocketPath(shitennoDir);
     if (!existsSync(socketPath)) {
       resolve(null);
       return;
@@ -272,13 +272,13 @@ export function queryDaemon<T extends { type: string }>(
  * Never throws — callers always get a valid value.
  */
 export async function queryDaemonWithFallback<T extends { type: string }>(
-  shitenDir: string,
+  shitennoDir: string,
   message: Record<string, unknown> & { type: string },
   fallback: () => T | Promise<T>,
 ): Promise<T> {
   try {
-    if (!isDaemonRunning(shitenDir)) return await fallback();
-    const response = await queryDaemon<T>(shitenDir, message);
+    if (!isDaemonRunning(shitennoDir)) return await fallback();
+    const response = await queryDaemon<T>(shitennoDir, message);
     return (response as T) ?? await fallback();
   } catch {
     return await fallback();

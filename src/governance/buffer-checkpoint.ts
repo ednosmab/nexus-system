@@ -37,12 +37,12 @@ export interface CheckpointResult {
  * Copies the current buffer to a timestamped file in the checkpoints directory.
  * Also cleans up old checkpoints beyond MAX_CHECKPOINTS.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns CheckpointResult with operation status
  */
-export function checkpointBuffer(shitenDir: string): CheckpointResult {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
-  const checkpointDir = join(shitenDir, "governance", "context", CHECKPOINT_DIR);
+export function checkpointBuffer(shitennoDir: string): CheckpointResult {
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
+  const checkpointDir = join(shitennoDir, "governance", "context", CHECKPOINT_DIR);
 
   // Ensure checkpoint directory exists
   if (!existsSync(checkpointDir)) {
@@ -112,11 +112,11 @@ export function checkpointBuffer(shitenDir: string): CheckpointResult {
 /**
  * List all available checkpoints.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns Array of checkpoint file names sorted by date (newest first)
  */
-export function listCheckpoints(shitenDir: string): string[] {
-  const checkpointDir = join(shitenDir, "governance", "context", CHECKPOINT_DIR);
+export function listCheckpoints(shitennoDir: string): string[] {
+  const checkpointDir = join(shitennoDir, "governance", "context", CHECKPOINT_DIR);
 
   if (!existsSync(checkpointDir)) {
     return [];
@@ -135,11 +135,11 @@ export function listCheckpoints(shitenDir: string): string[] {
 /**
  * Get the most recent checkpoint.
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @returns Checkpoint file name or null if no checkpoints exist
  */
-export function getLatestCheckpoint(shitenDir: string): string | null {
-  const checkpoints = listCheckpoints(shitenDir);
+export function getLatestCheckpoint(shitennoDir: string): string | null {
+  const checkpoints = listCheckpoints(shitennoDir);
   return checkpoints[0] ?? null;
 }
 
@@ -148,14 +148,14 @@ export function getLatestCheckpoint(shitenDir: string): string | null {
  *
  * WARNING: This overwrites the current buffer!
  *
- * @param shitenDir - Path to shitenno-go/ directory
+ * @param shitennoDir - Path to shitenno/ directory
  * @param checkpointName - Name of checkpoint file to restore
  * @returns CheckpointResult with operation status
  */
-export function restoreCheckpoint(shitenDir: string, checkpointName: string): CheckpointResult {
-  const checkpointDir = join(shitenDir, "governance", "context", CHECKPOINT_DIR);
+export function restoreCheckpoint(shitennoDir: string, checkpointName: string): CheckpointResult {
+  const checkpointDir = join(shitennoDir, "governance", "context", CHECKPOINT_DIR);
   const checkpointPath = join(checkpointDir, checkpointName);
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
 
   if (!existsSync(checkpointPath)) {
     return {
@@ -167,7 +167,7 @@ export function restoreCheckpoint(shitenDir: string, checkpointName: string): Ch
   try {
     // First, checkpoint current buffer before restore
     if (existsSync(bufferPath)) {
-      const preRestoreResult = checkpointBuffer(shitenDir);
+      const preRestoreResult = checkpointBuffer(shitennoDir);
       if (!preRestoreResult.success) {
         logger.warn("buffer-checkpoint", "Failed to checkpoint before restore:", preRestoreResult.message);
       }

@@ -61,13 +61,13 @@ function pruneOldSnapshots(snapshotsDir: string): void {
 }
 
 export function saveEngineeringState(
-  shitenDir: string,
+  shitennoDir: string,
   state: EngineeringState
 ): void {
-  const filePath = join(shitenDir, "engineering-state.json");
+  const filePath = join(shitennoDir, "engineering-state.json");
   writeFileSync(filePath, JSON.stringify(state, null, 2), "utf-8");
 
-  const snapshotsDir = join(shitenDir, "history", "snapshots");
+  const snapshotsDir = join(shitennoDir, "history", "snapshots");
   mkdirSync(snapshotsDir, { recursive: true });
 
   const snapshotId = state.consolidatedAt.replace(/[:.]/g, "-");
@@ -78,9 +78,9 @@ export function saveEngineeringState(
 }
 
 export function loadEngineeringState(
-  shitenDir: string
+  shitennoDir: string
 ): EngineeringState | null {
-  const filePath = join(shitenDir, "engineering-state.json");
+  const filePath = join(shitennoDir, "engineering-state.json");
   if (!existsSync(filePath)) return null;
 
   try {

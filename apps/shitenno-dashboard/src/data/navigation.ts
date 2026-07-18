@@ -16,7 +16,7 @@ export const layers: Layer[] = [
     icon: '◈',
     label: 'Descubra',
     items: [
-      { to: '/discover', label: 'O que e o Shiten' },
+      { to: '/discover', label: 'O que e o Shugo' },
       { to: '/discover/who', label: 'Para quem' },
       { to: '/discover/start', label: 'Comecar' },
       { to: '/discover/why', label: 'Por que existe' },
@@ -106,7 +106,7 @@ export const subPageMap: Record<string, string> = Object.fromEntries(
 )
 
 export const routeTitles: Record<string, string> = {
-  '/': 'Shitenno-go Dashboard',
+  '/': 'Shitenno Dashboard',
   ...Object.fromEntries(
     layers.flatMap(l =>
       l.items.map(item => [item.to, item.label])

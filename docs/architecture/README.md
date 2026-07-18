@@ -83,7 +83,7 @@ recommendation-engine.ts →  recommendation-engine.md
 pipeline.ts             →   pipeline-engine.md
 rule-engine.ts          →   adaptive-governance.md
 event-bus.ts            →   event-bus.md
-shiten-state-machine.ts  →   state-machine.md
+shitenno-state-machine.ts  →   state-machine.md
 plugin-system.ts        →   plugin-system.md
 feedback-loops.ts       →   feedback-loops.md
 state-manager.ts        →   engineering-state-architecture.md

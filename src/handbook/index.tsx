@@ -10,8 +10,8 @@
  * - Content mode: ↑↓ navigate sidebar, Enter select topic, Esc go back
  *
  * Usage:
- *   shiten handbook          # Interactive mode
- *   shiten handbook --print  # Print mode (non-interactive)
+ *   shugo handbook          # Interactive mode
+ *   shugo handbook --print  # Print mode (non-interactive)
  */
 
 import { useState } from "react";

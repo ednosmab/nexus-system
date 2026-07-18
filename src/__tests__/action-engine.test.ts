@@ -67,7 +67,7 @@ describe("FileExecutionRepository", () => {
   let repo: FileExecutionRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-exec-repo-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-exec-repo-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     repo = new FileExecutionRepository(tmpDir);
   });

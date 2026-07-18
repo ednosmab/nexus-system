@@ -24,7 +24,7 @@ describe("DeadLetterQueue", () => {
   let queue: DeadLetterQueue;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-dlq-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-dlq-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     queue = new DeadLetterQueue(tmpDir);
   });
@@ -113,7 +113,7 @@ describe("EventReplayer", () => {
 
   beforeEach(() => {
     resetEventBus();
-    tmpDir = join(tmpdir(), `shiten-replay-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-replay-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     queue = new DeadLetterQueue(tmpDir);
     replayer = new EventReplayer(getEventBus(), queue);

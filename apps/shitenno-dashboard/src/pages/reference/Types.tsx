@@ -33,7 +33,7 @@ export default function Types() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Tipos</h1>
         <p className="text-text-secondary max-w-2xl">
-          Definicoes de tipos TypeScript usados no Shitenno-go.
+          Definicoes de tipos TypeScript usados no Shitenno.
         </p>
       </section>
 

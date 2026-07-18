@@ -61,7 +61,7 @@ describe("FilePolicyRepository", () => {
   let repo: FilePolicyRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-policy-repo-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-policy-repo-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     repo = new FilePolicyRepository(tmpDir);
   });

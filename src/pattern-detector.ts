@@ -36,8 +36,8 @@ interface HistoryEntry {
   areas: string[];
 }
 
-function readHistoryEntries(shitenDir: string): HistoryEntry[] {
-  const historyDir = join(shitenDir, "docs", "history");
+function readHistoryEntries(shitennoDir: string): HistoryEntry[] {
+  const historyDir = join(shitennoDir, "docs", "history");
   if (!existsSync(historyDir)) return [];
 
   const files = readdirSync(historyDir).filter(
@@ -84,8 +84,8 @@ interface ReportSummary {
   }>;
 }
 
-function readRecentReports(shitenDir: string): ReportSummary[] {
-  const reportsDir = join(shitenDir, "reports");
+function readRecentReports(shitennoDir: string): ReportSummary[] {
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return [];
 
   const files = readdirSync(reportsDir)
@@ -251,18 +251,18 @@ function proposeRules(patterns: DetectedPattern[]): CandidateRule[] {
  * SÓ PROPÕE — nunca aplica regras.
  *
  * @param projectRoot - Raiz do projecto
- * @param shitenDir - Caminho para shitenno-go/
+ * @param shitennoDir - Caminho para shitenno/
  * @returns Relatório de detecção com padrões e regras candidatas
  */
 export function detectPatterns(
   _projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): PatternDetectionReport {
   // 1. Read history entries
-  const historyEntries = readHistoryEntries(shitenDir);
+  const historyEntries = readHistoryEntries(shitennoDir);
 
   // 2. Read recent reports
-  const reports = readRecentReports(shitenDir);
+  const reports = readRecentReports(shitennoDir);
 
   // 3. Detect patterns
   const patterns: DetectedPattern[] = [
@@ -319,10 +319,10 @@ function generateSummary(
  * Grava o relatório de detecção de padrões em reports/.
  */
 export function writePatternReport(
-  shitenDir: string,
+  shitennoDir: string,
   report: PatternDetectionReport
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

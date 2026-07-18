@@ -8,7 +8,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { scaffoldShitennoGo } from "../scaffolder.js";
+import { scaffoldShitenno } from "../scaffolder.js";
 import { getEngineeringState, clearEngineeringStateCache } from "../engineering-state-access.js";
 import type { UserAnswers } from "../prompts.js";
 import type { Capability } from "../maturity-profile.js";
@@ -20,7 +20,7 @@ const BASE_ANSWERS: UserAnswers = {
   database: "PostgreSQL",
   styling: "Tailwind CSS",
   maturity: {
-    usedShitenBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium",
+    usedShitennoBefore: true, isFirstProject: false, projectAge: "mature", teamSize: "medium",
     hasDedicatedTeam: true, hasArchitectureDocs: true, hasADRs: true, hasTechnicalReviews: true,
     hasCICD: true, hasAutomatedTests: true, hasValidationPipeline: true,
     intendsToUseAI: true, aiWillImplement: true, requiresHumanReview: true,
@@ -30,7 +30,7 @@ const BASE_ANSWERS: UserAnswers = {
 const SENIOR_CAPS: Capability[] = ["core", "knowledge", "architecture", "governance", "ai", "quality", "metrics", "operations", "compliance"];
 
 function createFixture(label: string, opts: { sourceFileCount: number; historyEntries: number; reportCount: number; areas: number }) {
-  const dir = join(tmpdir(), `shiten-bench-${label}-${Date.now()}`);
+  const dir = join(tmpdir(), `shitenno-bench-${label}-${Date.now()}`);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "package.json"), JSON.stringify({ name: `bench-${label}`, version: "1.0.0", dependencies: { react: "^18.0.0" } }, null, 2));
 
@@ -45,8 +45,8 @@ function createFixture(label: string, opts: { sourceFileCount: number; historyEn
     }
   }
 
-  scaffoldShitennoGo(dir, BASE_ANSWERS, SENIOR_CAPS);
-  return { dir, shitenDir: join(dir, "shitenno-go") };
+  scaffoldShitenno(dir, BASE_ANSWERS, SENIOR_CAPS);
+  return { dir, shitennoDir: join(dir, "shitenno") };
 }
 
 function benchTime(fn: () => void, iterations = 50): { avg: number; min: number; max: number; p75: number } {
@@ -80,18 +80,18 @@ for (const [label, opts] of [
 
   // Pre-populate disk cache (simulate process A writing)
   clearEngineeringStateCache();
-  getEngineeringState(fixture.dir, fixture.shitenDir, true);
+  getEngineeringState(fixture.dir, fixture.shitennoDir, true);
 
   // Benchmark cold consolidation (forceRefresh=true — no cache at all)
   const cold = benchTime(() => {
     clearEngineeringStateCache();
-    getEngineeringState(fixture.dir, fixture.shitenDir, true);
+    getEngineeringState(fixture.dir, fixture.shitennoDir, true);
   });
 
   // Benchmark disk cache hit (forceRefresh=false — reads from disk)
   const cached = benchTime(() => {
     clearEngineeringStateCache();
-    getEngineeringState(fixture.dir, fixture.shitenDir, false);
+    getEngineeringState(fixture.dir, fixture.shitennoDir, false);
   });
 
   const speedup = cold.avg / cached.avg;

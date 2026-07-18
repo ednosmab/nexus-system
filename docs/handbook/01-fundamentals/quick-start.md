@@ -1,12 +1,12 @@
 # Primeiros Passos
 
-> Guia rápido para começar a usar o Shiten em 5 minutos.
+> Guia rápido para começar a usar o Shugo em 5 minutos.
 
 ---
 
 ## Visão geral
 
-O fluxo básico do Shiten é:
+O fluxo básico do Shugo é:
 
 ```
 init → status → detect → briefing → daemon → watch → trabalhar → feedback
@@ -19,16 +19,16 @@ Vamos passar por cada etapa.
 ## Passo 1: Inicializar o projeto
 
 ```bash
-shiten init
+shugo init
 ```
 
 O que acontece:
 
-1. **Análise do projeto** — Shiten detecta stack, packages, estrutura
+1. **Análise do projeto** — Shugo detecta stack, packages, estrutura
 2. **Questionário de maturidade** — Perguntas sobre práticas de engenharia
 3. **Cálculo do perfil** — Score de 0-100 em 7 dimensões
 4. **Instalação de capabilities** — Módulos recomendados para seu projeto
-5. **Criação de estrutura** — Pasta `shitenno-go/` com arquivos de governança
+5. **Criação de estrutura** — Pasta `shitenno/` com arquivos de governança
 
 Saída esperada:
 
@@ -49,7 +49,7 @@ Saída esperada:
 
   Overall: 50/100
 
-✅ Shiten inicializado com sucesso!
+✅ Shugo inicializado com sucesso!
 ```
 
 ---
@@ -57,7 +57,7 @@ Saída esperada:
 ## Passo 2: Verificar saúde do projeto
 
 ```bash
-shiten status
+shugo status
 ```
 
 Mostra:
@@ -88,7 +88,7 @@ Saída esperada:
 ## Passo 3: Detectar padrões
 
 ```bash
-shiten detect
+shugo detect
 ```
 
 Analisa o histórico do projeto e encontra:
@@ -119,7 +119,7 @@ Saída esperada:
 ## Passo 4: Gerar briefing (para AI)
 
 ```bash
-shiten briefing
+shugo briefing
 ```
 
 Gera um briefing pré-sessão para agentes AI:
@@ -150,7 +150,7 @@ Recomendações
 ## Passo 5: Iniciar o daemon (automatização)
 
 ```bash
-shiten daemon start
+shugo daemon start
 ```
 
 O daemon corre em background e:
@@ -163,7 +163,7 @@ O daemon corre em background e:
 Verificar estado:
 
 ```bash
-shiten daemon status
+shugo daemon status
 ```
 
 ---
@@ -171,7 +171,7 @@ shiten daemon status
 ## Passo 6: Monitorizar eventos (watch)
 
 ```bash
-shiten watch
+shugo watch
 ```
 
 Mostra eventos em tempo real — mudanças de plano, sessões, daemon, etc.
@@ -179,7 +179,7 @@ Mostra eventos em tempo real — mudanças de plano, sessões, daemon, etc.
 Filtrar por tipo:
 
 ```bash
-shiten watch --events plan.*,daemon.*
+shugo watch --events plan.*,daemon.*
 ```
 
 Parar com `Ctrl+C`.
@@ -188,7 +188,7 @@ Parar com `Ctrl+C`.
 
 ## Passo 7: Trabalhar no projeto
 
-Agora trabalhe normalmente. O Shiten observa em segundo plano:
+Agora trabalhe normalmente. O Shugo observa em segundo plano:
 
 - **Daemon** — Automatiza tarefas de governança
 - **File watcher** — Detecta mudanças em arquivos
@@ -203,13 +203,13 @@ Ao terminar uma sessão de trabalho:
 
 ```bash
 # Se deu tudo certo
-shiten feedback --outcome success
+shugo feedback --outcome success
 
 # Se teve problemas
-shiten feedback --outcome failure --notes "erro de tipagem em auth.ts"
+shugo feedback --outcome failure --notes "erro de tipagem em auth.ts"
 
 # Se ficou parcial
-shiten feedback --outcome partial --areas "auth,dashboard"
+shugo feedback --outcome partial --areas "auth,dashboard"
 ```
 
 Isso alimenta o **Context Pipeline** e melhora recomendações futuras.
@@ -220,16 +220,16 @@ Isso alimenta o **Context Pipeline** e melhora recomendações futuras.
 
 ```bash
 # Início do dia
-shiten briefing          # Ver contexto do projeto
-shiten status            # Ver saúde
-shiten daemon start      # Iniciar automação
+shugo briefing          # Ver contexto do projeto
+shugo status            # Ver saúde
+shugo daemon start      # Iniciar automação
 
 # Durante o trabalho
-shiten detect            # Ver padrões (opcional)
-shiten watch --events plan.*  # Monitorizar planos (opcional)
+shugo detect            # Ver padrões (opcional)
+shugo watch --events plan.*  # Monitorizar planos (opcional)
 
 # Fim do dia
-shiten feedback --outcome success  # Fechar sessão
+shugo feedback --outcome success  # Fechar sessão
 ```
 
 ---
@@ -238,15 +238,15 @@ shiten feedback --outcome success  # Fechar sessão
 
 | Comando | O que faz | Quando usar |
 |---|---|---|
-| `shiten init` | Inicializa governança | Primeira vez no projeto |
-| `shiten status` | Mostra saúde do projeto | Diariamente |
-| `shiten detect` | Detecta padrões | Semanalmente |
-| `shiten briefing` | Gera briefing para AI | Início de sessão AI |
-| `shiten daemon start` | Inicia automação | Início do dia |
-| `shiten watch` | Monitoriza eventos | Quando precisar de visibilidade |
-| `shiten feedback` | Fecha loop de feedback | Fim de sessão |
-| `shiten audit` | Auditoria completa | Mensalmente |
-| `shiten doctor` | Diagnóstico de riscos | Quando há dúvidas |
+| `shugo init` | Inicializa governança | Primeira vez no projeto |
+| `shugo status` | Mostra saúde do projeto | Diariamente |
+| `shugo detect` | Detecta padrões | Semanalmente |
+| `shugo briefing` | Gera briefing para AI | Início de sessão AI |
+| `shugo daemon start` | Inicia automação | Início do dia |
+| `shugo watch` | Monitoriza eventos | Quando precisar de visibilidade |
+| `shugo feedback` | Fecha loop de feedback | Fim de sessão |
+| `shugo audit` | Auditoria completa | Mensalmente |
+| `shugo doctor` | Diagnóstico de riscos | Quando há dúvidas |
 
 ---
 

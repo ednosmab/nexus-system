@@ -1,13 +1,13 @@
 /**
  * mcp.ts — MCP Server CLI Command
  *
- * The `shiten mcp` command. Starts an MCP server over stdio
+ * The `shugo mcp` command. Starts an MCP server over stdio
  * for AI agents to consume project context.
  *
  * Usage:
- *   shiten mcp                    # Start MCP server
- *   shiten mcp install            # Install MCP Filesystem server globally
- *   shiten mcp install --check    # Check installation status
+ *   shugo mcp                    # Start MCP server
+ *   shugo mcp install            # Install MCP Filesystem server globally
+ *   shugo mcp install --check    # Check installation status
  */
 
 import { Command } from "commander";
@@ -18,7 +18,7 @@ import { installMcpServer, updateOpenCodeJsonTimeout } from "../mcp-install.js";
 import { guardNotInitialized } from "../shared.js";
 import { outputJson } from "../formatting.js";
 import { consolidateEngineeringState } from "../engineering-state.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputError } from "../output.js";
 
 export function mcpCommand(): Command {
@@ -29,14 +29,14 @@ export function mcpCommand(): Command {
     .option("-d, --dir <path>", "Project root directory")
     .action(async (options: Record<string, unknown>) => {
       const projectRoot = (options.dir as string) ?? process.cwd();
-      const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+      const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
 
       try {
-        consolidateEngineeringState(projectRoot, shitenDir);
+        consolidateEngineeringState(projectRoot, shitennoDir);
       } catch {
         outputError(
           chalk.red(
-            `  Error: Shiten not initialized in ${projectRoot}. Run 'shiten init' first.`
+            `  Error: Shugo not initialized in ${projectRoot}. Run 'shugo init' first.`
           )
         );
         process.exitCode = 1;
@@ -44,7 +44,7 @@ export function mcpCommand(): Command {
       }
 
       outputError(
-        chalk.gray("  shiten-mcp: Starting MCP server over stdio...")
+        chalk.gray("  shitenno-mcp: Starting MCP server over stdio...")
       );
       outputError(
         chalk.gray(
@@ -54,7 +54,7 @@ export function mcpCommand(): Command {
       outputBlank();
 
       try {
-        await startMcpServer(projectRoot, shitenDir);
+        await startMcpServer(projectRoot, shitennoDir);
       } catch (error) {
         outputError(
           chalk.red(
@@ -82,7 +82,7 @@ export function mcpCommand(): Command {
           chalk.bold.cyan("  ╔════════════════════════════════════════════╗")
         );
         output(
-          chalk.bold.cyan("  ║  shiten mcp install — MCP Filesystem Server ║")
+          chalk.bold.cyan("  ║  shugo mcp install — MCP Filesystem Server ║")
         );
         output(
           chalk.bold.cyan("  ╚════════════════════════════════════════════╝")
@@ -117,7 +117,7 @@ export function mcpCommand(): Command {
           }
           if (result.upgrade) {
             output(
-              chalk.yellow("    ⚠ New version available. Run 'shiten mcp install --upgrade'")
+              chalk.yellow("    ⚠ New version available. Run 'shugo mcp install --upgrade'")
             );
           }
           if (result.latestVersionCheckFailed) {
@@ -133,7 +133,7 @@ export function mcpCommand(): Command {
             output(chalk.gray(`    ${result.error}`));
           }
           output(
-            chalk.gray("    Run 'shiten mcp install' to install it.")
+            chalk.gray("    Run 'shugo mcp install' to install it.")
           );
         }
         outputBlank();

@@ -72,9 +72,9 @@ describe("Command Definitions", () => {
     }
   });
 
-  it("should have shiten as the command for all definitions", () => {
+  it("should have shugo as the command for all definitions", () => {
     for (const cmd of COMMAND_DEFINITIONS) {
-      expect(cmd.command).toBe("shiten");
+      expect(cmd.command).toBe("shugo");
     }
   });
 

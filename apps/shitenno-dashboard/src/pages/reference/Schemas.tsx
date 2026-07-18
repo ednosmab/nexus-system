@@ -39,7 +39,7 @@ export default function Schemas() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Esquemas</h1>
         <p className="text-text-secondary max-w-2xl">
-          Esquemas dos principais ficheiros de dados do Shitenno-go.
+          Esquemas dos principais ficheiros de dados do Shitenno.
         </p>
       </section>
 

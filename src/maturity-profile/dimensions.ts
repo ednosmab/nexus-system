@@ -4,7 +4,7 @@ import { logger } from "../logger.js";
 import type { MaturityDimensions } from "../domain/entities/engineering-state.js";
 
 export interface MaturityAnswers {
-  usedShitenBefore: boolean;
+  usedShitennoBefore: boolean;
   isFirstProject: boolean;
   projectAge: "new" | "few_months" | "established" | "mature";
   teamSize: "solo" | "small" | "medium" | "large";
@@ -35,7 +35,7 @@ export interface ProjectAnalysis {
 export function calculateDimensions(
   answers: MaturityAnswers,
   analysis: ProjectAnalysis,
-  shitenDir?: string
+  shitennoDir?: string
 ): MaturityDimensions {
   let architecture = 0;
   if (answers.hasArchitectureDocs) architecture += 30;
@@ -45,13 +45,13 @@ export function calculateDimensions(
   if (analysis.packageCount >= 3) architecture += 10;
 
   let governance = 0;
-  if (shitenDir) {
-    governance += detectGovernanceArtifactsScore(shitenDir);
+  if (shitennoDir) {
+    governance += detectGovernanceArtifactsScore(shitennoDir);
   }
   if (answers.hasDefinedPatterns) governance += 25;
   if (answers.hasReviewProcess) governance += 25;
   if (answers.hasDecisionControl) governance += 25;
-  if (answers.usedShitenBefore) governance += 15;
+  if (answers.usedShitennoBefore) governance += 15;
   if (answers.teamSize === "medium" || answers.teamSize === "large") governance += 10;
 
   let quality = 0;
@@ -77,7 +77,7 @@ export function calculateDimensions(
   if (answers.hasArchitectureDocs) documentation += 30;
   if (answers.hasADRs) documentation += 25;
   if (answers.hasDefinedPatterns) documentation += 20;
-  if (answers.usedShitenBefore) documentation += 15;
+  if (answers.usedShitennoBefore) documentation += 15;
   if (analysis.sourceFileCount >= 100) documentation += 10;
 
   let observability = 0;
@@ -98,19 +98,19 @@ export function calculateDimensions(
   };
 }
 
-export function detectGovernanceArtifactsScore(shitenDir: string): number {
-  if (!existsSync(shitenDir)) return 0;
+export function detectGovernanceArtifactsScore(shitennoDir: string): number {
+  if (!existsSync(shitennoDir)) return 0;
 
   let score = 0;
 
-  if (existsSync(join(shitenDir, "governance", "WORKFLOW.md"))) score += 10;
-  if (existsSync(join(shitenDir, "governance", "SYSTEM_MAP.md"))) score += 5;
-  if (existsSync(join(shitenDir, "governance", "context", "context_buffer.yaml"))) score += 5;
-  if (existsSync(join(shitenDir, "docs", "FORBIDDEN_OPERATIONS.md"))) score += 5;
-  if (existsSync(join(shitenDir, "docs", "DESDO.md"))) score += 5;
-  if (existsSync(join(shitenDir, "docs", "adrs"))) score += 5;
+  if (existsSync(join(shitennoDir, "governance", "WORKFLOW.md"))) score += 10;
+  if (existsSync(join(shitennoDir, "governance", "SYSTEM_MAP.md"))) score += 5;
+  if (existsSync(join(shitennoDir, "governance", "context", "context_buffer.yaml"))) score += 5;
+  if (existsSync(join(shitennoDir, "docs", "FORBIDDEN_OPERATIONS.md"))) score += 5;
+  if (existsSync(join(shitennoDir, "docs", "DESDO.md"))) score += 5;
+  if (existsSync(join(shitennoDir, "docs", "adrs"))) score += 5;
 
-  const agentsDir = join(shitenDir, "governance", "agents");
+  const agentsDir = join(shitennoDir, "governance", "agents");
   if (existsSync(agentsDir)) {
     try {
       const agentFiles = readdirSync(agentsDir).filter(f => f.endsWith(".yaml"));
@@ -121,7 +121,7 @@ export function detectGovernanceArtifactsScore(shitenDir: string): number {
     }
   }
 
-  const rulesDir = join(shitenDir, "governance", "rules");
+  const rulesDir = join(shitennoDir, "governance", "rules");
   if (existsSync(rulesDir)) {
     try {
       const ruleFiles = readdirSync(rulesDir).filter(f => f.endsWith(".json"));
@@ -132,7 +132,7 @@ export function detectGovernanceArtifactsScore(shitenDir: string): number {
     }
   }
 
-  const policiesDir = join(shitenDir, "governance", "policies");
+  const policiesDir = join(shitennoDir, "governance", "policies");
   if (existsSync(policiesDir)) {
     try {
       const policyFiles = readdirSync(policiesDir).filter(f => f.endsWith(".md") && f !== "POLICY-TEMPLATE.md");

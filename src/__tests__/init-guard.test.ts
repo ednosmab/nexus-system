@@ -23,6 +23,6 @@ describe("shouldBlockInit", () => {
   });
 
   it("does not block path without shitenno-cli", () => {
-    expect(shouldBlockInit("/home/runner/work/shitenno-go/shitenno-go", false)).toBe(false);
+    expect(shouldBlockInit("/home/runner/work/shitenno/shitenno", false)).toBe(false);
   });
 });

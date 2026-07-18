@@ -76,7 +76,7 @@ describe("FilePlanRepository", () => {
   let repo: FilePlanRepository;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-plan-repo-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-plan-repo-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     repo = new FilePlanRepository(tmpDir);
   });

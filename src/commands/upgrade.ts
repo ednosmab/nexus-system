@@ -37,15 +37,15 @@ export const upgradeCommand = new Command("upgrade")
     const isDryRun = options.dryRun === true;
     const targetDir = resolve(options.dir || ".");
 
-    if (!isJson) { output(""); outputSection(isDryRun ? "shiten upgrade — Dry Run" : "shiten upgrade — Add Capabilities"); outputBlank(); }
+    if (!isJson) { output(""); outputSection(isDryRun ? "shugo upgrade — Dry Run" : "shugo upgrade — Add Capabilities"); outputBlank(); }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
-    if (!checkLifecycleGate("upgrade", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("upgrade", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
-    const installed = detectCapabilitySignalsFromFilesystem(ctx.shitenDir);
+    const installed = detectCapabilitySignalsFromFilesystem(ctx.shitennoDir);
 
-    if (isDryRun) return handleDryRun(ctx.shitenDir, installed, isJson);
+    if (isDryRun) return handleDryRun(ctx.shitennoDir, installed, isJson);
     if (options.list) return handleList(ctx.projectRoot, installed, isJson);
     if (options.acceptRecommended) return handleAcceptRecommended(ctx, targetDir, installed, isJson);
     return handleInstallCapability(ctx, targetDir, options.capability, installed, isJson);
@@ -53,8 +53,8 @@ export const upgradeCommand = new Command("upgrade")
 
 // ── Handlers ───────────────────────────────────────────────────────────────
 
-async function handleDryRun(shitenDir: string, installed: string[], isJson: boolean) {
-  const profile = loadMaturityProfile(shitenDir);
+async function handleDryRun(shitennoDir: string, installed: string[], isJson: boolean) {
+  const profile = loadMaturityProfile(shitennoDir);
   const toInstall = (profile?.recommendedCapabilities ?? []).filter((cap) => !installed.includes(cap));
   const allCaps = CAPABILITIES.map((cap) => ({ id: cap.id, name: cap.name, status: installed.includes(cap.id) ? "installed" : toInstall.includes(cap.id) ? "would install" : "available" }));
 
@@ -84,17 +84,17 @@ function handleList(projectRoot: string, installed: string[], isJson: boolean) {
       output(`    ${icon} ${name} — ${chalk.gray(cap.description)} [${status}]`);
     }
     outputBlank();
-    output(chalk.gray("  Use 'shiten upgrade --capability <name>' to add a capability."));
-    output(chalk.gray("  Use 'shiten upgrade --accept-recommended' to install all recommended."));
+    output(chalk.gray("  Use 'shugo upgrade --capability <name>' to add a capability."));
+    output(chalk.gray("  Use 'shugo upgrade --accept-recommended' to install all recommended."));
     outputBlank();
   }
 }
 
-async function handleAcceptRecommended(ctx: { shitenDir: string; projectRoot: string }, targetDir: string, installed: string[], isJson: boolean) {
-  const profile = loadMaturityProfile(ctx.shitenDir);
+async function handleAcceptRecommended(ctx: { shitennoDir: string; projectRoot: string }, targetDir: string, installed: string[], isJson: boolean) {
+  const profile = loadMaturityProfile(ctx.shitennoDir);
   if (!profile) {
-    if (isJson) outputJson({ error: "no_profile", message: "No maturity profile found. Run 'shiten init' first." });
-    else { outputWarning("  ⚠ No maturity profile found."); output(chalk.gray("  Run 'shiten init' first.")); outputBlank(); }
+    if (isJson) outputJson({ error: "no_profile", message: "No maturity profile found. Run 'shugo init' first." });
+    else { outputWarning("  ⚠ No maturity profile found."); output(chalk.gray("  Run 'shugo init' first.")); outputBlank(); }
     return;
   }
 
@@ -113,27 +113,27 @@ async function handleAcceptRecommended(ctx: { shitenDir: string; projectRoot: st
   updateAgentsMdWithCapabilities(targetDir, allInstalled);
   updateSystemMapStatus(targetDir, allInstalled);
 
-  const currentManifest = readManifest(ctx.shitenDir);
+  const currentManifest = readManifest(ctx.shitennoDir);
   const { readFileSync: readFS } = await import("node:fs");
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   let cliVersion = "unknown";
   try { const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8")); cliVersion = pkg.version || "unknown"; } catch { /* fallback */ }
-  const updatedManifest = updateManifest(currentManifest, cliVersion, ctx.shitenDir, [...installed, ...toInstall] as Capability[], profile?.overallScore ?? 0);
-  writeManifest(ctx.shitenDir, updatedManifest);
+  const updatedManifest = updateManifest(currentManifest, cliVersion, ctx.shitennoDir, [...installed, ...toInstall] as Capability[], profile?.overallScore ?? 0);
+  writeManifest(ctx.shitennoDir, updatedManifest);
   invalidateCache(targetDir);
 
   for (const cap of toInstall) {
     const capInfo = CAPABILITIES.find((c) => c.id === cap);
     getEventBus().publish("capability.installed", { capabilityId: cap, capabilityName: capInfo?.name ?? cap, version: cliVersion });
-    recordFeedback(ctx.shitenDir, { recommendationId: `cap-${cap}`, action: "accepted", context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 } });
+    recordFeedback(ctx.shitennoDir, { recommendationId: `cap-${cap}`, action: "accepted", context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 } });
   }
 
   if (isJson) outputJson({ installed: toInstall, filesInstalled: result.filesInstalled, directoriesCreated: result.directoriesCreated });
   else { outputBlank(); outputSuccess("  ✔ Capabilities installed!"); outputBlank(); for (const cap of toInstall) { const info = CAPABILITIES.find((c) => c.id === cap); output(chalk.cyan(`    ✓ ${info?.name || cap}`)); } outputBlank(); }
 }
 
-async function handleInstallCapability(ctx: { shitenDir: string; projectRoot: string }, targetDir: string, targetCapability: string | undefined, installed: string[], isJson: boolean) {
+async function handleInstallCapability(ctx: { shitennoDir: string; projectRoot: string }, targetDir: string, targetCapability: string | undefined, installed: string[], isJson: boolean) {
   if (!targetCapability) {
     const available = CAPABILITIES.filter((cap) => !cap.alwaysInstalled && !installed.includes(cap.id));
     if (available.length === 0) {
@@ -174,18 +174,18 @@ async function handleInstallCapability(ctx: { shitenDir: string; projectRoot: st
     updateAgentsMdWithCapabilities(targetDir, [...installed, targetCapability] as Capability[]);
     updateSystemMapStatus(targetDir, [...installed, targetCapability] as Capability[]);
 
-    const currentManifest = readManifest(ctx.shitenDir);
+    const currentManifest = readManifest(ctx.shitennoDir);
     const { readFileSync: readFS } = await import("node:fs");
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     let cliVersion = "unknown";
     try { const pkg = JSON.parse(readFS(join(__dirname, "..", "..", "package.json"), "utf-8")); cliVersion = pkg.version || "unknown"; } catch { /* fallback */ }
-    const updatedManifest = updateManifest(currentManifest, cliVersion, ctx.shitenDir, [...installed, targetCapability as Capability], 0);
-    writeManifest(ctx.shitenDir, updatedManifest);
+    const updatedManifest = updateManifest(currentManifest, cliVersion, ctx.shitennoDir, [...installed, targetCapability as Capability], 0);
+    writeManifest(ctx.shitennoDir, updatedManifest);
     invalidateCache(targetDir);
 
     getEventBus().publish("capability.installed", { capabilityId: targetCapability, capabilityName: capInfo.name, version: cliVersion });
-    recordFeedback(ctx.shitenDir, { recommendationId: `cap-${targetCapability}`, action: "accepted", context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 } });
+    recordFeedback(ctx.shitennoDir, { recommendationId: `cap-${targetCapability}`, action: "accepted", context: { maturityScore: 0, installedCapabilities: installed, knowledgeDebt: 0 } });
 
     if (isJson) outputJson({ capability: targetCapability, filesInstalled: result.filesInstalled, directoriesCreated: result.directoriesCreated });
     else { outputBlank(); outputSuccess("  ✔ Capability installed!"); outputBlank(); outputSection("Changes:"); output(chalk.gray(`    Directories created: ${result.directoriesCreated}`)); output(chalk.gray(`    Files installed: ${result.filesInstalled}`)); outputBlank(); }
@@ -195,9 +195,9 @@ async function handleInstallCapability(ctx: { shitenDir: string; projectRoot: st
       const { generateRiskMap } = await import("../risk-map.js");
       const { generateContextRules } = await import("../context-rules.js");
       const analysis = (await import("../analyser.js")).analyseProject(targetDir);
-      let fingerprint = loadFingerprint(ctx.shitenDir);
-      if (!fingerprint) { const { saveFingerprint } = await import("../project-fingerprint.js"); fingerprint = generateProjectFingerprint(targetDir, analysis); saveFingerprint(ctx.shitenDir, fingerprint); }
-      const riskMap = generateRiskMap(targetDir, ctx.shitenDir);
+      let fingerprint = loadFingerprint(ctx.shitennoDir);
+      if (!fingerprint) { const { saveFingerprint } = await import("../project-fingerprint.js"); fingerprint = generateProjectFingerprint(targetDir, analysis); saveFingerprint(ctx.shitennoDir, fingerprint); }
+      const riskMap = generateRiskMap(targetDir, ctx.shitennoDir);
       const contextRules = generateContextRules(fingerprint, riskMap);
       if (contextRules.length > 0 && !isJson) { outputSection("Context-Aware Rules Generated:"); for (const rule of contextRules.slice(0, 3)) output(chalk.gray(`    • ${rule.rule}`)); outputBlank(); }
     } catch { /* non-critical */ }

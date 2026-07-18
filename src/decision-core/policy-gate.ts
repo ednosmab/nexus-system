@@ -30,7 +30,7 @@ export function checkPolicyGate(
   const evaluation = policyEngine.evaluate({
     actionType: action.type,
     ...action.params,
-    shitenDir: context.shitenDir,
+    shitennoDir: context.shitennoDir,
   });
 
   const enforced = evaluation.results.find((r) => r.violated && r.mode === "enforce");

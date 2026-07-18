@@ -11,14 +11,14 @@ import { existsSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import chalk from "chalk";
 import { outputJson } from "./formatting.js";
-import { SHITEN_DIR_NAME } from "./constants.js";
+import { SHITENNO_DIR_NAME } from "./constants.js";
 import { output, outputBlank } from "./output.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface ProjectContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   isInitialized: boolean;
   hasMaturityProfile: boolean;
 }
@@ -28,18 +28,18 @@ export interface ProjectContext {
 /** Resolve project context from CLI options. Replaces duplicated init guards. */
 export function resolveProjectContext(options: { dir?: string }): ProjectContext {
   const projectRoot = options.dir || process.cwd();
-  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
+  const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
 
-  const isInitialized = existsSync(shitenDir);
+  const isInitialized = existsSync(shitennoDir);
 
-  const hasMaturityProfile = existsSync(join(shitenDir, "maturity-profile.json"));
+  const hasMaturityProfile = existsSync(join(shitennoDir, "maturity-profile.json"));
 
-  return { projectRoot, shitenDir, isInitialized, hasMaturityProfile };
+  return { projectRoot, shitennoDir, isInitialized, hasMaturityProfile };
 }
 
 // ── Lifecycle Gate ─────────────────────────────────────────────────────────
 
-import { detectLifecycleState, canRunCommand, type ShitenLifecycleState } from "./shiten-state-machine.js";
+import { detectLifecycleState, canRunCommand, type ShitennoLifecycleState } from "./shitenno-state-machine.js";
 import { COMMAND_GATES } from "./constants.js";
 
 /**
@@ -49,10 +49,10 @@ import { COMMAND_GATES } from "./constants.js";
 export function checkLifecycleGate(
   command: string,
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   isJson: boolean
 ): boolean {
-  const state = detectLifecycleState(projectRoot, shitenDir);
+  const state = detectLifecycleState(projectRoot, shitennoDir);
 
   if (!canRunCommand(command, state)) {
     if (isJson) {
@@ -73,19 +73,19 @@ export function checkLifecycleGate(
   return true;
 }
 
-function getRequiredState(command: string): ShitenLifecycleState {
-  return (COMMAND_GATES[command] || "discovered") as ShitenLifecycleState;
+function getRequiredState(command: string): ShitennoLifecycleState {
+  return (COMMAND_GATES[command] || "discovered") as ShitennoLifecycleState;
 }
 
 // ── Report Writer ────────────────────────────────────────────────────────────
 
-/** Write a report to shitenno-go/reports/. Returns filename or null. */
+/** Write a report to shitenno/reports/. Returns filename or null. */
 export function writeReport(
-  shitenDir: string,
+  shitennoDir: string,
   prefix: string,
   report: Record<string, unknown>
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().split("T")[0];
@@ -116,22 +116,22 @@ export function guardNotInitialized(
 
   if (!ctx.isInitialized) {
     if (isJson) {
-      outputJson({ error: "not_initialized", message: "Run 'shiten init' to initialize governance." });
+      outputJson({ error: "not_initialized", message: "Run 'shugo init' to initialize governance." });
     } else {
-      output(chalk.yellow("  ⚠ This project is not initialized with shiten."));
-      output(chalk.gray("  Run 'shiten init' to initialize governance."));
+      output(chalk.yellow("  ⚠ This project is not initialized with shugo."));
+      output(chalk.gray("  Run 'shugo init' to initialize governance."));
       outputBlank();
     }
     return null;
   }
 
-  // Validate shitenDir exists
-  if (!existsSync(ctx.shitenDir)) {
+  // Validate shitennoDir exists
+  if (!existsSync(ctx.shitennoDir)) {
     if (isJson) {
-      outputJson({ error: "shiten_dir_missing", message: "shitenno-go/ directory not found. Run 'shiten init' to recreate." });
+      outputJson({ error: "shitenno_dir_missing", message: "shitenno/ directory not found. Run 'shugo init' to recreate." });
     } else {
-      output(chalk.yellow("  ⚠ shitenno-go/ directory not found."));
-      output(chalk.gray("  Run 'shiten init' to recreate it."));
+      output(chalk.yellow("  ⚠ shitenno/ directory not found."));
+      output(chalk.gray("  Run 'shugo init' to recreate it."));
       outputBlank();
     }
     return null;
@@ -145,7 +145,7 @@ export function guardNotInitialized(
 /** Wrap cache read/write pattern. Returns data and whether cache was hit. */
 export async function withCache<T>(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   key: string,
   compute: () => T | Promise<T>,
   options?: { force?: boolean }
@@ -154,16 +154,16 @@ export async function withCache<T>(
   const { getCached, setCache, computeKeyChecksums } = await import("./cache.js");
 
   if (!options?.force) {
-    const cached = getCached(projectRoot, shitenDir, key as "complexity" | "patterns" | "health",
-      () => computeKeyChecksums(projectRoot, shitenDir));
+    const cached = getCached(projectRoot, shitennoDir, key as "complexity" | "patterns" | "health",
+      () => computeKeyChecksums(projectRoot, shitennoDir));
     if (cached) {
       return { data: cached as T, cacheHit: true };
     }
   }
 
   const data = await compute();
-  setCache(projectRoot, shitenDir, key as "complexity" | "patterns" | "health",
-    data as Record<string, unknown>, computeKeyChecksums(projectRoot, shitenDir));
+  setCache(projectRoot, shitennoDir, key as "complexity" | "patterns" | "health",
+    data as Record<string, unknown>, computeKeyChecksums(projectRoot, shitennoDir));
   return { data, cacheHit: false };
 }
 

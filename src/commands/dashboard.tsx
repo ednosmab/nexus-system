@@ -1,5 +1,5 @@
 /**
- * dashboard.ts — shiten dashboard command
+ * dashboard.ts — shugo dashboard command
  *
  * Launches the interactive terminal dashboard.
  * Supports --json for machine-readable output,
@@ -36,13 +36,13 @@ export function dashboardCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("dashboard", ctx.projectRoot, ctx.shitenDir, isJson)) {
+      if (!checkLifecycleGate("dashboard", ctx.projectRoot, ctx.shitennoDir, isJson)) {
         return;
       }
 
       // JSON mode — output data and exit
       if (isJson) {
-        const data = collectConsoleData(ctx.projectRoot, ctx.shitenDir);
+        const data = collectConsoleData(ctx.projectRoot, ctx.shitennoDir);
         outputJson(data as unknown as Record<string, unknown>);
         return;
       }
@@ -51,12 +51,12 @@ export function dashboardCommand(): Command {
       try {
         // Dynamic import to avoid loading React/Ink when using --json
         const { render } = await import("ink");
-        const { ShitenConsole } = await import("../console/index.js");
+        const { ShitennoConsole } = await import("../console/index.js");
 
         const { waitUntilExit } = render(
-          <ShitenConsole
+          <ShitennoConsole
             projectRoot={ctx.projectRoot}
-            shitenDir={ctx.shitenDir}
+            shitennoDir={ctx.shitennoDir}
             refreshInterval={refreshInterval}
             isScreenReaderEnabled={isScreenReader}
           />
@@ -70,7 +70,7 @@ export function dashboardCommand(): Command {
         console.log("");
 
         // Fallback: static output
-        const data = collectConsoleData(ctx.projectRoot, ctx.shitenDir);
+        const data = collectConsoleData(ctx.projectRoot, ctx.shitennoDir);
         displayStaticDashboard(data);
       }
     });

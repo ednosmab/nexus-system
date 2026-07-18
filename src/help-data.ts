@@ -1,8 +1,8 @@
 /**
- * help-data.ts — Command help metadata for shiten help system
+ * help-data.ts — Command help metadata for shugo help system
  *
  * Categories, descriptions, usage examples, and tips for each command.
- * Used by the custom help formatter in bin/shiten.ts.
+ * Used by the custom help formatter in bin/shugo.ts.
  */
 
 export interface CommandHelp {
@@ -22,16 +22,16 @@ export interface CommandCategory {
 export const COMMAND_CATEGORIES: CommandCategory[] = [
   {
     name: "Setup & Configuration",
-    description: "Initialize and configure your Shiten project",
+    description: "Initialize and configure your Shugo project",
     commands: [
       {
         name: "init",
-        description: "Initialize Shiten ecosystem with maturity-based discovery",
-        usage: "shiten init [options]",
+        description: "Initialize Shugo ecosystem with maturity-based discovery",
+        usage: "shugo init [options]",
         examples: [
-          "shiten init                          # Interactive setup",
-          "shiten init --dir ./my-project        # Initialize specific directory",
-          "shiten init --answers-file config.json # Non-interactive mode",
+          "shugo init                          # Interactive setup",
+          "shugo init --dir ./my-project        # Initialize specific directory",
+          "shugo init --answers-file config.json # Non-interactive mode",
         ],
         tips: [
           "Run this first to set up governance in your project",
@@ -41,36 +41,36 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "mcp",
         description: "MCP server for AI agents — start server or install globally",
-        usage: "shiten mcp [options] [command]",
+        usage: "shugo mcp [options] [command]",
         examples: [
-          "shiten mcp                    # Start MCP server",
-          "shiten mcp --project-root .   # Specify project root",
-          "shiten mcp install            # Install MCP Filesystem server",
-          "shiten mcp install --check    # Check installation status",
-          "shiten mcp install --upgrade  # Upgrade to latest version",
+          "shugo mcp                    # Start MCP server",
+          "shugo mcp --project-root .   # Specify project root",
+          "shugo mcp install            # Install MCP Filesystem server",
+          "shugo mcp install --check    # Check installation status",
+          "shugo mcp install --upgrade  # Upgrade to latest version",
         ],
         tips: [
           "Connect your AI agent to this server for live project context",
-          "Run 'shiten mcp install' once to fix MCP timeout issues",
+          "Run 'shugo mcp install' once to fix MCP timeout issues",
         ],
       },
       {
         name: "upgrade",
         description: "Add capabilities to your governance ecosystem",
-        usage: "shiten upgrade [options]",
+        usage: "shugo upgrade [options]",
         examples: [
-          "shiten upgrade                          # Show available capabilities",
-          "shiten upgrade --capability architecture # Install specific capability",
-          "shiten upgrade --accept-recommended     # Install all recommended",
+          "shugo upgrade                          # Show available capabilities",
+          "shugo upgrade --capability architecture # Install specific capability",
+          "shugo upgrade --accept-recommended     # Install all recommended",
         ],
       },
       {
         name: "clean",
-        description: "Clear shiten cache and temporary files",
-        usage: "shiten clean [options]",
+        description: "Clear shugo cache and temporary files",
+        usage: "shugo clean [options]",
         examples: [
-          "shiten clean              # Clear all cache",
-          "shiten clean --dry-run    # Preview what would be deleted",
+          "shugo clean              # Clear all cache",
+          "shugo clean --dry-run    # Preview what would be deleted",
         ],
       },
     ],
@@ -82,20 +82,20 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "status",
         description: "Check governance health status with maturity score",
-        usage: "shiten status [options]",
+        usage: "shugo status [options]",
         examples: [
-          "shiten status              # Full health report",
-          "shiten status --json       # JSON output",
-          "shiten status --no-cache   # Skip cache, recalculate",
+          "shugo status              # Full health report",
+          "shugo status --json       # JSON output",
+          "shugo status --no-cache   # Skip cache, recalculate",
         ],
       },
       {
         name: "audit",
         description: "Audit governance health, knowledge graph, and issues",
-        usage: "shiten audit [options]",
+        usage: "shugo audit [options]",
         examples: [
-          "shiten audit               # Full audit with health score",
-          "shiten audit --json        # JSON output for CI/CD",
+          "shugo audit               # Full audit with health score",
+          "shugo audit --json        # JSON output for CI/CD",
         ],
         tips: [
           "Shows health score (0-100), issues, and knowledge graph status",
@@ -105,19 +105,19 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "doctor",
         description: "Engineering mentor — identify risks and suggest improvements",
-        usage: "shiten doctor [options]",
+        usage: "shugo doctor [options]",
         examples: [
-          "shiten doctor              # Full diagnostic report",
-          "shiten doctor --json       # JSON output",
+          "shugo doctor              # Full diagnostic report",
+          "shugo doctor --json       # JSON output",
         ],
       },
       {
         name: "assess",
         description: "Re-evaluate project maturity and recommend new capabilities",
-        usage: "shiten assess [options]",
+        usage: "shugo assess [options]",
         examples: [
-          "shiten assess              # Interactive re-assessment",
-          "shiten assess --json       # JSON output",
+          "shugo assess              # Interactive re-assessment",
+          "shugo assess --json       # JSON output",
         ],
         tips: [
           "Run when your project has grown to discover new capabilities",
@@ -126,10 +126,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "detect",
         description: "Detect patterns in history and propose candidate rules",
-        usage: "shiten detect [options]",
+        usage: "shugo detect [options]",
         examples: [
-          "shiten detect              # Analyze history for patterns",
-          "shiten detect --json       # JSON output",
+          "shugo detect              # Analyze history for patterns",
+          "shugo detect --json       # JSON output",
         ],
       },
     ],
@@ -141,10 +141,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "run",
         description: "Run the full analysis pipeline (analyze → score → detect → audit → evolve)",
-        usage: "shiten run [options]",
+        usage: "shugo run [options]",
         examples: [
-          "shiten run                 # Run full pipeline",
-          "shiten run --json          # JSON output",
+          "shugo run                 # Run full pipeline",
+          "shugo run --json          # JSON output",
         ],
         tips: [
           "Combines all analysis stages in one command",
@@ -154,30 +154,30 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "evolve",
         description: "Show evolution recommendations and manage feedback",
-        usage: "shiten evolve [options]",
+        usage: "shugo evolve [options]",
         examples: [
-          "shiten evolve              # Show recommendations",
-          "shiten evolve --json       # JSON output",
+          "shugo evolve              # Show recommendations",
+          "shugo evolve --json       # JSON output",
         ],
       },
       {
         name: "act",
         description: "Execute actions with idempotency guarantees",
-        usage: "shiten act [options]",
+        usage: "shugo act [options]",
         examples: [
-          "shiten act create --title 'Fix auth' --action-type bugfix",
-          "shiten act list            # List all actions",
+          "shugo act create --title 'Fix auth' --action-type bugfix",
+          "shugo act list            # List all actions",
         ],
       },
       {
         name: "plan",
         description: "Manage coordinated action sequences (plans)",
-        usage: "shiten plan <subcommand> [options]",
+        usage: "shugo plan <subcommand> [options]",
         examples: [
-          "shiten plan create my-plan           # Create a plan",
-          "shiten plan execute <plan-id>        # Execute a plan",
-          "shiten plan list                     # List all plans",
-          "shiten plan show <plan-id>           # Show plan details",
+          "shugo plan create my-plan           # Create a plan",
+          "shugo plan execute <plan-id>        # Execute a plan",
+          "shugo plan list                     # List all plans",
+          "shugo plan show <plan-id>           # Show plan details",
         ],
       },
     ],
@@ -189,21 +189,21 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "goal",
         description: "Manage governance goals",
-        usage: "shiten goal <subcommand> [options]",
+        usage: "shugo goal <subcommand> [options]",
         examples: [
-          "shiten goal create --title 'Improve tests' --priority high",
-          "shiten goal list            # List all goals",
-          "shiten goal show <id>       # Show goal details",
+          "shugo goal create --title 'Improve tests' --priority high",
+          "shugo goal list            # List all goals",
+          "shugo goal show <id>       # Show goal details",
         ],
       },
       {
         name: "decide",
         description: "Evaluate proposed actions using specialized evaluators",
-        usage: "shiten decide <action> [options]",
+        usage: "shugo decide <action> [options]",
         examples: [
-          'shiten decide "upgrade auth to OAuth2"',
-          'shiten decide "add rate limiting" --category security',
-          "shiten decide list          # List all decisions",
+          'shugo decide "upgrade auth to OAuth2"',
+          'shugo decide "add rate limiting" --category security',
+          "shugo decide list          # List all decisions",
         ],
         tips: [
           "Evaluates risk, impact, confidence, and goal alignment",
@@ -212,10 +212,10 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "policy",
         description: "Manage and evaluate declarative governance policies",
-        usage: "shiten policy <subcommand> [options]",
+        usage: "shugo policy <subcommand> [options]",
         examples: [
-          "shiten policy list          # List all policies",
-          "shiten policy evaluate      # Evaluate current state against policies",
+          "shugo policy list          # List all policies",
+          "shugo policy evaluate      # Evaluate current state against policies",
         ],
       },
     ],
@@ -227,36 +227,36 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "console",
         description: "Token economy console with session metrics",
-        usage: "shiten console [options]",
+        usage: "shugo console [options]",
         examples: [
-          "shiten console              # Full console",
-          "shiten console --days 30    # Last 30 days",
+          "shugo console              # Full console",
+          "shugo console --days 30    # Last 30 days",
         ],
       },
       {
         name: "report",
         description: "Generate performance report for the user",
-        usage: "shiten report [options]",
+        usage: "shugo report [options]",
         examples: [
-          "shiten report               # Full report",
-          "shiten report --json        # JSON output",
+          "shugo report               # Full report",
+          "shugo report --json        # JSON output",
         ],
       },
       {
         name: "digest",
         description: "Daily digest of project health and recent changes",
-        usage: "shiten digest [options]",
+        usage: "shugo digest [options]",
         examples: [
-          "shiten digest               # Today's digest",
-          "shiten digest --json        # JSON output",
+          "shugo digest               # Today's digest",
+          "shugo digest --json        # JSON output",
         ],
       },
       {
         name: "bench",
         description: "Benchmark token economy and Context Pipeline performance",
-        usage: "shiten bench [options]",
+        usage: "shugo bench [options]",
         examples: [
-          "shiten bench                # Run benchmark",
+          "shugo bench                # Run benchmark",
         ],
       },
     ],
@@ -268,12 +268,12 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "briefing",
         description: "Pre-session briefing for AI agents (Context Pipeline)",
-        usage: "shiten briefing [options]",
+        usage: "shugo briefing [options]",
         examples: [
-          "shiten briefing             # Full briefing",
-          "shiten briefing --summary   # One-line summary",
-          "shiten briefing --write     # Write to .shiten/BRIEFING.md",
-          "shiten briefing --json      # JSON output",
+          "shugo briefing             # Full briefing",
+          "shugo briefing --summary   # One-line summary",
+          "shugo briefing --write     # Write to .shugo/BRIEFING.md",
+          "shugo briefing --json      # JSON output",
         ],
         tips: [
           "Run at the start of each AI session for context",
@@ -282,29 +282,29 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "feedback",
         description: "Report session outcome for the Context Pipeline feedback loop",
-        usage: "shiten feedback [options]",
+        usage: "shugo feedback [options]",
         examples: [
-          'shiten feedback --outcome success',
-          'shiten feedback --outcome failure --notes "type error in auth"',
+          'shugo feedback --outcome success',
+          'shugo feedback --outcome failure --notes "type error in auth"',
         ],
       },
       {
         name: "profile",
         description: "View and update your user profile for personalized feedback",
-        usage: "shiten profile [options]",
+        usage: "shugo profile [options]",
         examples: [
-          "shiten profile              # Show current profile",
-          "shiten profile --update     # Update profile interactively",
+          "shugo profile              # Show current profile",
+          "shugo profile --update     # Update profile interactively",
         ],
       },
       {
         name: "dashboard",
         description: "Interactive engineering dashboard with tabs, mouse, and accessibility",
-        usage: "shiten dashboard [options]",
+        usage: "shugo dashboard [options]",
         examples: [
-          "shiten dashboard            # Open interactive dashboard",
-          "shiten dashboard --json     # JSON snapshot",
-          "shiten dashboard --live 5   # Auto-refresh every 5s",
+          "shugo dashboard            # Open interactive dashboard",
+          "shugo dashboard --json     # JSON snapshot",
+          "shugo dashboard --live 5   # Auto-refresh every 5s",
         ],
         tips: [
           "Navigate with arrow keys, Tab, numbers, or mouse",
@@ -314,16 +314,16 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "reminders",
         description: "List, add, remove, and manage session reminders with priority and category",
-        usage: "shiten reminders [options] [command]",
+        usage: "shugo reminders [options] [command]",
         examples: [
-          "shiten reminders                                              # List all active reminders",
-          'shiten reminders add "Run audit"                              # Add reminder (default: medium, feature)',
-          'shiten reminders add "Fix auth bug" --priority high --category bug  # Add with priority and category',
-          'shiten reminders add "Security review" --notify               # Add with desktop notification',
-          "shiten reminders rm 1                                         # Remove reminder by index",
-          'shiten reminders rm --message "audit"                         # Remove by partial match',
-          "shiten reminders clear                                        # Remove all reminders",
-          "shiten reminders --json                                       # Output as JSON",
+          "shugo reminders                                              # List all active reminders",
+          'shugo reminders add "Run audit"                              # Add reminder (default: medium, feature)',
+          'shugo reminders add "Fix auth bug" --priority high --category bug  # Add with priority and category',
+          'shugo reminders add "Security review" --notify               # Add with desktop notification',
+          "shugo reminders rm 1                                         # Remove reminder by index",
+          'shugo reminders rm --message "audit"                         # Remove by partial match',
+          "shugo reminders clear                                        # Remove all reminders",
+          "shugo reminders --json                                       # Output as JSON",
         ],
         tips: [
           "Priorities: high (🔴), medium (🟡), low (🟢) — default is medium",
@@ -341,32 +341,32 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "validate",
         description: "Validate session integrity and governance rules",
-        usage: "shiten validate [options]",
+        usage: "shugo validate [options]",
         examples: [
-          "shiten validate             # Validate current session",
-          "shiten validate --json      # JSON output",
+          "shugo validate             # Validate current session",
+          "shugo validate --json      # JSON output",
         ],
       },
       {
         name: "shell-init",
         description: "Output shell hooks for session tracking",
-        usage: "shiten shell-init [options]",
+        usage: "shugo shell-init [options]",
         examples: [
-          "shiten shell-init           # Show shell hooks",
-          "Add to .bashrc/.zshrc: eval $(shiten shell-init)",
+          "shugo shell-init           # Show shell hooks",
+          "Add to .bashrc/.zshrc: eval $(shugo shell-init)",
         ],
       },
       {
         name: "handbook",
-        description: "Exibe o handbook de referência do Shiten",
-        usage: "shiten handbook [options]",
+        description: "Exibe o handbook de referência do Shugo",
+        usage: "shugo handbook [options]",
         examples: [
-          "shiten handbook              # Show full handbook index",
-          "shiten handbook --level 1    # Apenas fundamentos",
-          "shiten handbook --level 2    # Apenas comandos",
-          "shiten handbook --level 3    # Apenas arquitetura",
-          "shiten handbook --topic init # Buscar por tópico",
-          "shiten handbook --list       # Listar todos os tópicos",
+          "shugo handbook              # Show full handbook index",
+          "shugo handbook --level 1    # Apenas fundamentos",
+          "shugo handbook --level 2    # Apenas comandos",
+          "shugo handbook --level 3    # Apenas arquitetura",
+          "shugo handbook --topic init # Buscar por tópico",
+          "shugo handbook --list       # Listar todos os tópicos",
         ],
         tips: [
           "Nível 1: Para qualquer pessoa (o que é, instalação, primeiros passos)",
@@ -376,17 +376,17 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       },
       {
         name: "daemon",
-        description: "Manage the Shiten background daemon (start/stop/status)",
-        usage: "shiten daemon [options] [command]",
+        description: "Manage the Shugo background daemon (start/stop/status)",
+        usage: "shugo daemon [options] [command]",
         examples: [
-          "shiten daemon start          # Start the daemon in the background",
-          "shiten daemon stop           # Stop the daemon gracefully",
-          "shiten daemon status         # Show daemon status and uptime",
-          "shiten daemon restart        # Restart the daemon",
+          "shugo daemon start          # Start the daemon in the background",
+          "shugo daemon stop           # Stop the daemon gracefully",
+          "shugo daemon status         # Show daemon status and uptime",
+          "shugo daemon restart        # Restart the daemon",
         ],
         tips: [
           "O daemon é opcional — todos os comandos funcionam sem ele",
-          "Use 'shiten daemon status' para verificar se está a correr",
+          "Use 'shugo daemon status' para verificar se está a correr",
           "Monitoriza ficheiros, sessões, saúde e desafios em tempo real",
         ],
       },
@@ -399,11 +399,11 @@ export const COMMAND_CATEGORIES: CommandCategory[] = [
       {
         name: "docs-audit",
         description: "Audit documentation lifecycle status and propose organization",
-        usage: "shiten docs-audit [options]",
+        usage: "shugo docs-audit [options]",
         examples: [
-          "shiten docs-audit              # Dry-run: show proposed moves",
-          "shiten docs-audit --apply      # Apply moves with confirmation",
-          "shiten docs-audit --json       # Output as JSON",
+          "shugo docs-audit              # Dry-run: show proposed moves",
+          "shugo docs-audit --apply      # Apply moves with confirmation",
+          "shugo docs-audit --json       # Output as JSON",
         ],
         tips: [
           "Run this periodically to keep documentation organized",

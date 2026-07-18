@@ -1,7 +1,7 @@
 /**
  * doc-sync-significance.ts — Change Significance Calculator
  *
- * Determines whether a file change in shitenno-go/ is significant enough
+ * Determines whether a file change in shitenno/ is significant enough
  * to trigger documentation sync. Uses 4 weighted criteria:
  * - Artifact type (40%)
  * - Directory affected (30%)
@@ -95,8 +95,8 @@ const DIRECTORY_SCORES: Record<string, number> = {
 
 // ── Detect Artifact Type ─────────────────────────────────────────────────────
 
-export function detectArtifactType(filePath: string, shitenDir: string): ArtifactType {
-  const relative = filePath.slice(shitenDir.length + 1);
+export function detectArtifactType(filePath: string, shitennoDir: string): ArtifactType {
+  const relative = filePath.slice(shitennoDir.length + 1);
 
   if (relative.startsWith("docs/generated/")) return "generated";
   if (relative.startsWith("docs/skills/")) return "skill";
@@ -123,8 +123,8 @@ export function detectArtifactType(filePath: string, shitenDir: string): Artifac
 
 // ── Detect Directory Score ───────────────────────────────────────────────────
 
-export function detectDirectoryScore(filePath: string, shitenDir: string): number {
-  const relative = filePath.slice(shitenDir.length + 1);
+export function detectDirectoryScore(filePath: string, shitennoDir: string): number {
+  const relative = filePath.slice(shitennoDir.length + 1);
 
   // Check longest prefix first (most specific match)
   const sortedPrefixes = Object.keys(DIRECTORY_SCORES).sort(
@@ -186,7 +186,7 @@ export function calculateSizeScore(
 
 export function calculateSignificance(
   filePath: string,
-  shitenDir: string,
+  shitennoDir: string,
   oldContent: string | null,
   newContent: string,
   frequency: ChangeFrequency
@@ -194,16 +194,16 @@ export function calculateSignificance(
   const reasons: string[] = [];
 
   // 1. Artifact type score
-  const artifactType = detectArtifactType(filePath, shitenDir);
+  const artifactType = detectArtifactType(filePath, shitennoDir);
   const artifactScore = ARTIFACT_SCORES[artifactType];
   if (artifactScore >= 0.7) {
     reasons.push(`artifact:${artifactType}(${artifactScore})`);
   }
 
   // 2. Directory score
-  const directoryScore = detectDirectoryScore(filePath, shitenDir);
+  const directoryScore = detectDirectoryScore(filePath, shitennoDir);
   if (directoryScore >= 0.6) {
-    const relative = filePath.slice(shitenDir.length + 1);
+    const relative = filePath.slice(shitennoDir.length + 1);
     const matchedDir = Object.keys(DIRECTORY_SCORES).find((d) =>
       relative.startsWith(d)
     );

@@ -4,12 +4,12 @@ Comandos para visualizar relatórios, dashboards e resumos.
 
 ---
 
-## `shiten console`
+## `shugo console`
 
 Console de economia de tokens com métricas de sessão.
 
 ```bash
-shiten console [options]
+shugo console [options]
 ```
 
 ### Opções
@@ -21,18 +21,18 @@ shiten console [options]
 ### Exemplos
 
 ```bash
-shiten console              # Console completo
-shiten console --days 30    # Últimos 30 dias
+shugo console              # Console completo
+shugo console --days 30    # Últimos 30 dias
 ```
 
 ---
 
-## `shiten report`
+## `shugo report`
 
 Gere um relatório de desempenho para o usuário.
 
 ```bash
-shiten report [options]
+shugo report [options]
 ```
 
 ### Opções
@@ -44,18 +44,18 @@ shiten report [options]
 ### Exemplos
 
 ```bash
-shiten report               # Relatório completo
-shiten report --json        # Saída JSON
+shugo report               # Relatório completo
+shugo report --json        # Saída JSON
 ```
 
 ---
 
-## `shiten digest`
+## `shugo digest`
 
 Resumo diário da saúde do projeto e mudanças recentes.
 
 ```bash
-shiten digest [options]
+shugo digest [options]
 ```
 
 ### Opções
@@ -67,18 +67,18 @@ shiten digest [options]
 ### Exemplos
 
 ```bash
-shiten digest               # Digest de hoje
-shiten digest --json        # Saída JSON
+shugo digest               # Digest de hoje
+shugo digest --json        # Saída JSON
 ```
 
 ---
 
-## `shiten bench`
+## `shugo bench`
 
 Execute benchmarks de performance do sistema.
 
 ```bash
-shiten bench [options]
+shugo bench [options]
 ```
 
 ### Opções
@@ -90,6 +90,6 @@ shiten bench [options]
 ### Exemplos
 
 ```bash
-shiten bench                # Benchmark completo
-shiten bench --json         # Saída JSON
+shugo bench                # Benchmark completo
+shugo bench --json         # Saída JSON
 ```

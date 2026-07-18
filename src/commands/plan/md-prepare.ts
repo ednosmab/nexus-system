@@ -5,7 +5,7 @@
 import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../../shared.js";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 import { MarkdownPlanEngine } from "../../markdown-plan-engine.js";
 import { outputJson, banner } from "../../formatting.js";
 import { output, outputBlank } from "../../output.js";
@@ -22,8 +22,8 @@ export function registerMdPrepare(cmd: import("commander").Command) {
       const ctx = guardNotInitialized(opts, isJson);
       if (!ctx) return;
 
-      const shitenDir = join(ctx.projectRoot, SHITEN_DIR_NAME);
-      const engine = new MarkdownPlanEngine(shitenDir);
+      const shitennoDir = join(ctx.projectRoot, SHITENNO_DIR_NAME);
+      const engine = new MarkdownPlanEngine(shitennoDir);
       const plan = engine.getById(id);
 
       if (!plan) {
@@ -34,14 +34,14 @@ export function registerMdPrepare(cmd: import("commander").Command) {
 
       if (!isJson) {
         outputBlank();
-        banner("shiten plan prepare", "Plan Preparation");
+        banner("shugo plan prepare", "Plan Preparation");
         outputBlank();
         output(chalk.gray(`  Plan: ${plan.title}`));
         output(chalk.gray(`  Path: ${plan.relativePath}`));
         outputBlank();
       }
 
-      const results = await runPrepare(ctx.projectRoot, shitenDir, id);
+      const results = await runPrepare(ctx.projectRoot, shitennoDir, id);
 
       if (isJson) {
         outputJson({ planId: id, title: plan.title, results });

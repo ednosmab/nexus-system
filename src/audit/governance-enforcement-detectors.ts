@@ -13,9 +13,9 @@ import type { HealthIssue } from "./types.js";
 
 // ── 2.1 Incomplete Session Close ────────────────────────────────────────────
 
-export function detectIncompleteSessionClose(shitenDir: string): HealthIssue[] {
+export function detectIncompleteSessionClose(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return issues;
 
   try {
@@ -27,7 +27,7 @@ export function detectIncompleteSessionClose(shitenDir: string): HealthIssue[] {
 
     // Create checkpoint before reporting any issues
     if (hasInProgress || hasStaleBuffer) {
-      const checkpointResult = checkpointBuffer(shitenDir);
+      const checkpointResult = checkpointBuffer(shitennoDir);
       if (checkpointResult.success) {
         logger.debug("governance-enforcement", `Checkpoint created before buffer report: ${checkpointResult.checkpointPath}`);
       }
@@ -63,16 +63,16 @@ export function detectIncompleteSessionClose(shitenDir: string): HealthIssue[] {
 
 // ── 2.2 Missing Feedback ────────────────────────────────────────────────────
 
-export function detectMissingFeedback(shitenDir: string): HealthIssue[] {
+export function detectMissingFeedback(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const feedbackDir = join(shitenDir, "feedback", "records");
+  const feedbackDir = join(shitennoDir, "feedback", "records");
   if (!existsSync(feedbackDir)) {
     issues.push({
       type: "missing_feedback_dir",
       severity: 1,
       description: "Directório feedback/records/ não existe — feedback de sessão não está a ser registado",
-      location: "shitenno-go/feedback/records/",
-      recommendation: "Criar directório e executar 'shiten feedback --outcome success' após cada sessão.",
+      location: "shitenno/feedback/records/",
+      recommendation: "Criar directório e executar 'shugo feedback --outcome success' após cada sessão.",
       confidence: 0.95,
     });
     return issues;
@@ -85,8 +85,8 @@ export function detectMissingFeedback(shitenDir: string): HealthIssue[] {
         type: "no_feedback_records",
         severity: 1,
         description: "Directório feedback/records/ está vazio — nenhum registo de feedback encontrado",
-        location: "shitenno-go/feedback/records/",
-        recommendation: "Executar 'shiten feedback --outcome success' ou 'shiten feedback --outcome failure' após sessões.",
+        location: "shitenno/feedback/records/",
+        recommendation: "Executar 'shugo feedback --outcome success' ou 'shugo feedback --outcome failure' após sessões.",
         confidence: 0.95,
       });
     }
@@ -105,9 +105,9 @@ const VALID_BACKLOG_STATES = new Set([
   "concluído", "encerrado", "pausado", "adiado",
 ]);
 
-export function detectInvalidBacklogStates(shitenDir: string): HealthIssue[] {
+export function detectInvalidBacklogStates(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const backlogPath = join(shitenDir, "docs", "BACKLOG.md");
+  const backlogPath = join(shitennoDir, "docs", "BACKLOG.md");
   if (!existsSync(backlogPath)) return issues;
 
   try {
@@ -128,7 +128,7 @@ export function detectInvalidBacklogStates(shitenDir: string): HealthIssue[] {
         type: "invalid_backlog_state",
         severity: 2,
         description: `${invalidStates.length} estado(s) inválido(s) no BACKLOG.md: ${[...new Set(invalidStates)].join(", ")}`,
-        location: "shitenno-go/docs/BACKLOG.md",
+        location: "shitenno/docs/BACKLOG.md",
         recommendation: `Estados válidos: ${[...VALID_BACKLOG_STATES].join(", ")}. Actualizar para um dos estados permitidos.`,
         confidence: 0.65,
       });
@@ -142,9 +142,9 @@ export function detectInvalidBacklogStates(shitenDir: string): HealthIssue[] {
 
 // ── 2.4 Plan Format (Status field vs checkboxes) ───────────────────────────
 
-export function detectPlanFormat(shitenDir: string): HealthIssue[] {
+export function detectPlanFormat(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const plansDir = join(shitenDir, "governance", "plans");
+  const plansDir = join(shitennoDir, "governance", "plans");
   if (!existsSync(plansDir)) return issues;
 
   try {
@@ -160,7 +160,7 @@ export function detectPlanFormat(shitenDir: string): HealthIssue[] {
           type: "plan_format_violation",
           severity: 1,
           description: `Plano "${file}" usa checkboxes em vez de campo "Status:" —.Workflow.md requer campo Status`,
-          location: `shitenno-go/governance/plans/${file}`,
+          location: `shitenno/governance/plans/${file}`,
           recommendation: "Substituir checkboxes por '**Status:** [em execução|concluído|pendente]'.",
           confidence: 0.65,
         });
@@ -175,9 +175,9 @@ export function detectPlanFormat(shitenDir: string): HealthIssue[] {
 
 // ── 2.5 Rule Execution Compliance ───────────────────────────────────────────
 
-export function detectRuleExecutionCompliance(shitenDir: string): HealthIssue[] {
+export function detectRuleExecutionCompliance(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const rulesDir = join(shitenDir, "governance", "rules");
+  const rulesDir = join(shitennoDir, "governance", "rules");
   if (!existsSync(rulesDir)) return issues;
 
   try {
@@ -193,7 +193,7 @@ export function detectRuleExecutionCompliance(shitenDir: string): HealthIssue[] 
             type: "invalid_rule_structure",
             severity: 2,
             description: `Regra "${file}" tem estrutura inválida — campos obrigatórios em falta (id, trigger, action/actions)`,
-            location: `shitenno-go/governance/rules/${file}`,
+            location: `shitenno/governance/rules/${file}`,
             recommendation: "Cada regra JSON deve ter: id, trigger, action (ou actions), requiredCapability.",
             confidence: 0.9,
           });
@@ -203,7 +203,7 @@ export function detectRuleExecutionCompliance(shitenDir: string): HealthIssue[] 
           type: "malformed_rule_json",
           severity: 2,
           description: `Regra "${file}" não é JSON válido`,
-          location: `shitenno-go/governance/rules/${file}`,
+          location: `shitenno/governance/rules/${file}`,
           recommendation: "Corrigir sintaxe JSON da regra.",
           confidence: 0.9,
         });
@@ -218,15 +218,15 @@ export function detectRuleExecutionCompliance(shitenDir: string): HealthIssue[] 
 
 // ── 2.6 Policy Structure ────────────────────────────────────────────────────
 
-export function detectPolicyStructure(shitenDir: string): HealthIssue[] {
+export function detectPolicyStructure(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const policiesDir = join(shitenDir, "governance", "policies");
+  const policiesDir = join(shitennoDir, "governance", "policies");
   if (!existsSync(policiesDir)) {
     issues.push({
       type: "missing_policies_dir",
       severity: 2,
       description: "Directório governance/policies/ não existe — políticas de commit/branch/review não documentadas",
-      location: "shitenno-go/governance/policies/",
+      location: "shitenno/governance/policies/",
       recommendation: "Criar directório com COMMIT-POLICY.md, BRANCH-POLICY.md, REVIEW-POLICY.md.",
       confidence: 0.95,
     });
@@ -242,7 +242,7 @@ export function detectPolicyStructure(shitenDir: string): HealthIssue[] {
           type: "missing_policy",
           severity: 2,
           description: `Política "${policy}" não encontrada em governance/policies/`,
-          location: `shitenno-go/governance/policies/${policy}`,
+          location: `shitenno/governance/policies/${policy}`,
           recommendation: `Criar "${policy}" com regras de governança.`,
           confidence: 0.95,
         });
@@ -257,9 +257,9 @@ export function detectPolicyStructure(shitenDir: string): HealthIssue[] {
 
 // ── 2.7 Missing Premortem ───────────────────────────────────────────────────
 
-export function detectMissingPremortem(shitenDir: string): HealthIssue[] {
+export function detectMissingPremortem(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) return issues;
 
   try {
@@ -267,13 +267,13 @@ export function detectMissingPremortem(shitenDir: string): HealthIssue[] {
     const hasComplexTask = content.includes("complexity: high") || content.includes("complexity: critical");
 
     if (hasComplexTask) {
-      const premortemDir = join(shitenDir, "docs", "premortems");
+      const premortemDir = join(shitennoDir, "docs", "premortems");
       if (!existsSync(premortemDir) || readdirSync(premortemDir).length === 0) {
         issues.push({
           type: "missing_premortem",
           severity: 2,
           description: "Tarefa complexa detectada mas nenhum premortem encontrado — WORKFLOW.md requer premortem antes de features complexas",
-          location: "shitenno-go/docs/premortems/",
+          location: "shitenno/docs/premortems/",
           recommendation: "Executar 'pnpm run premortem:check' antes de iniciar tarefa complexa.",
           confidence: 0.7,
         });
@@ -288,9 +288,9 @@ export function detectMissingPremortem(shitenDir: string): HealthIssue[] {
 
 // ── 2.8 Missing ADR for Architectural Changes ───────────────────────────────
 
-export function detectMissingAdrForChanges(shitenDir: string): HealthIssue[] {
+export function detectMissingAdrForChanges(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const adrDir = join(shitenDir, "docs", "adrs");
+  const adrDir = join(shitennoDir, "docs", "adrs");
   if (!existsSync(adrDir)) return issues;
 
   try {
@@ -300,7 +300,7 @@ export function detectMissingAdrForChanges(shitenDir: string): HealthIssue[] {
         type: "no_adrs_created",
         severity: 1,
         description: "Nenhum ADR encontrado em docs/adrs/ — decisões arquiteturais não rastreadas",
-        location: "shitenno-go/docs/adrs/",
+        location: "shitenno/docs/adrs/",
         recommendation: "Criar ADRs para decisões arquiteturais significativas (DESDO §4).",
         confidence: 0.95,
       });

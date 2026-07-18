@@ -7,7 +7,7 @@
 
 // ── Asset Types ─────────────────────────────────────────────────────────────
 
-/** Engineering Asset types — the fundamental units Shiten organizes. */
+/** Engineering Asset types — the fundamental units Shugo organizes. */
 export type AssetType =
   | "adr"
   | "skill"
@@ -47,7 +47,7 @@ export interface EngineeringAsset {
 
 // ── Lifecycle State ─────────────────────────────────────────────────────────
 
-export type ShitenLifecycleState =
+export type ShitennoLifecycleState =
   | "uninitialized"
   | "discovered"
   | "assessed"
@@ -55,8 +55,8 @@ export type ShitenLifecycleState =
   | "evolved";
 
 export interface StateTransition {
-  from: ShitenLifecycleState;
-  to: ShitenLifecycleState;
+  from: ShitennoLifecycleState;
+  to: ShitennoLifecycleState;
   trigger: string;
   timestamp: string;
 }
@@ -74,7 +74,7 @@ export interface MaturityDimensions {
   observability: number;
 }
 
-/** Capacidades que o Shiten pode instalar. */
+/** Capacidades que o Shugo pode instalar. */
 export type Capability =
   | "core"
   | "knowledge"
@@ -198,7 +198,7 @@ export interface DynamicRule {
 
 export interface EngineeringState {
   consolidatedAt: string;
-  lifecycle: ShitenLifecycleState;
+  lifecycle: ShitennoLifecycleState;
   project: {
     name: string;
     root: string;

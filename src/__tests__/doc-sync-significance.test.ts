@@ -9,85 +9,85 @@ import {
   type ChangeFrequency,
 } from "../doc-sync-significance.js";
 
-const SHITEN = "/project/shitenno-go";
+const SHUGO = "/project/shitenno";
 
 // ── detectArtifactType ─────────────────────────────────────────────────────
 
 describe("detectArtifactType", () => {
   it("detects skill files", () => {
-    expect(detectArtifactType(`${SHITEN}/docs/skills/tdd.md`, SHITEN)).toBe("skill");
+    expect(detectArtifactType(`${SHUGO}/docs/skills/tdd.md`, SHUGO)).toBe("skill");
   });
 
   it("detects ADR files", () => {
-    expect(detectArtifactType(`${SHITEN}/docs/adrs/ADR-001.md`, SHITEN)).toBe("adr");
+    expect(detectArtifactType(`${SHUGO}/docs/adrs/ADR-001.md`, SHUGO)).toBe("adr");
   });
 
   it("detects workflow files", () => {
-    expect(detectArtifactType(`${SHITEN}/governance/WORKFLOW.md`, SHITEN)).toBe("workflow");
+    expect(detectArtifactType(`${SHUGO}/governance/WORKFLOW.md`, SHUGO)).toBe("workflow");
   });
 
   it("detects rule files", () => {
-    expect(detectArtifactType(`${SHITEN}/governance/rules/RULE-001.json`, SHITEN)).toBe("rule");
+    expect(detectArtifactType(`${SHUGO}/governance/rules/RULE-001.json`, SHUGO)).toBe("rule");
   });
 
   it("detects agent config files", () => {
-    expect(detectArtifactType(`${SHITEN}/governance/agents/planner.yaml`, SHITEN)).toBe("config");
+    expect(detectArtifactType(`${SHUGO}/governance/agents/planner.yaml`, SHUGO)).toBe("config");
   });
 
   it("detects generic governance docs", () => {
-    expect(detectArtifactType(`${SHITEN}/governance/policies/BRANCH.md`, SHITEN)).toBe("doc");
+    expect(detectArtifactType(`${SHUGO}/governance/policies/BRANCH.md`, SHUGO)).toBe("doc");
   });
 
   it("detects generic docs", () => {
-    expect(detectArtifactType(`${SHITEN}/docs/README.md`, SHITEN)).toBe("doc");
+    expect(detectArtifactType(`${SHUGO}/docs/README.md`, SHUGO)).toBe("doc");
   });
 
   it("detects script files", () => {
-    expect(detectArtifactType(`${SHITEN}/scripts/close-session.ts`, SHITEN)).toBe("script");
+    expect(detectArtifactType(`${SHUGO}/scripts/close-session.ts`, SHUGO)).toBe("script");
   });
 
   it("detects telemetry files", () => {
-    expect(detectArtifactType(`${SHITEN}/telemetry/log.json`, SHITEN)).toBe("telemetry");
+    expect(detectArtifactType(`${SHUGO}/telemetry/log.json`, SHUGO)).toBe("telemetry");
   });
 
   it("detects report files", () => {
-    expect(detectArtifactType(`${SHITEN}/reports/weekly.md`, SHITEN)).toBe("report");
+    expect(detectArtifactType(`${SHUGO}/reports/weekly.md`, SHUGO)).toBe("report");
   });
 
   it("detects feedback files", () => {
-    expect(detectArtifactType(`${SHITEN}/feedback/2026-07-08.md`, SHITEN)).toBe("feedback");
+    expect(detectArtifactType(`${SHUGO}/feedback/2026-07-08.md`, SHUGO)).toBe("feedback");
   });
 
   it("detects session-feedback files", () => {
-    expect(detectArtifactType(`${SHITEN}/session-feedback/notes.md`, SHITEN)).toBe("feedback");
+    expect(detectArtifactType(`${SHUGO}/session-feedback/notes.md`, SHUGO)).toBe("feedback");
   });
 
   it("detects core config files", () => {
-    expect(detectArtifactType(`${SHITEN}/core/complexity/types.ts`, SHITEN)).toBe("config");
+    expect(detectArtifactType(`${SHUGO}/core/complexity/types.ts`, SHUGO)).toBe("config");
   });
 
   it("detects cognition docs", () => {
-    expect(detectArtifactType(`${SHITEN}/cognition/context/HIERARCHY.md`, SHITEN)).toBe("doc");
+    expect(detectArtifactType(`${SHUGO}/cognition/context/HIERARCHY.md`, SHUGO)).toBe("doc");
   });
 
   it("detects JSON files as config", () => {
-    expect(detectArtifactType(`${SHITEN}/some/path.json`, SHITEN)).toBe("config");
+    expect(detectArtifactType(`${SHUGO}/some/path.json`, SHUGO)).toBe("config");
   });
 
   it("detects YAML files as config", () => {
-    expect(detectArtifactType(`${SHITEN}/some/path.yaml`, SHITEN)).toBe("config");
+    expect(detectArtifactType(`${SHUGO}/some/path.yaml`, SHUGO)).toBe("config");
   });
 
   it("detects .md files as doc", () => {
-    expect(detectArtifactType(`${SHITEN}/some/file.md`, SHITEN)).toBe("doc");
+    expect(detectArtifactType(`${SHUGO}/some/file.md`, SHUGO)).toBe("doc");
   });
 
   it("detects .ts files as script", () => {
-    expect(detectArtifactType(`${SHITEN}/some/file.ts`, SHITEN)).toBe("script");
+    expect(detectArtifactType(`${SHUGO}/some/file.ts`, SHUGO)).toBe("script");
   });
 
   it("returns unknown for unrecognized files", () => {
-    expect(detectArtifactType(`${SHITEN}/some/file.xyz`, SHITEN)).toBe("unknown");
+    expect(detectArtifactType(`${SHUGO}/some/file.xyz`, SHUGO)).toBe("unknown");
   });
 });
 
@@ -95,49 +95,49 @@ describe("detectArtifactType", () => {
 
 describe("detectDirectoryScore", () => {
   it("returns 1.0 for docs/skills/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/docs/skills/tdd.md`, SHITEN)).toBe(1.0);
+    expect(detectDirectoryScore(`${SHUGO}/docs/skills/tdd.md`, SHUGO)).toBe(1.0);
   });
 
   it("returns 0.9 for docs/adrs/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/docs/adrs/ADR-001.md`, SHITEN)).toBe(0.9);
+    expect(detectDirectoryScore(`${SHUGO}/docs/adrs/ADR-001.md`, SHUGO)).toBe(0.9);
   });
 
   it("returns 0.9 for governance/agents/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/governance/agents/planner.yaml`, SHITEN)).toBe(0.9);
+    expect(detectDirectoryScore(`${SHUGO}/governance/agents/planner.yaml`, SHUGO)).toBe(0.9);
   });
 
   it("returns 1.0 for governance/WORKFLOW", () => {
-    expect(detectDirectoryScore(`${SHITEN}/governance/WORKFLOW.md`, SHITEN)).toBe(1.0);
+    expect(detectDirectoryScore(`${SHUGO}/governance/WORKFLOW.md`, SHUGO)).toBe(1.0);
   });
 
   it("returns 0.7 for governance/rules/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/governance/rules/RULE-001.json`, SHITEN)).toBe(0.7);
+    expect(detectDirectoryScore(`${SHUGO}/governance/rules/RULE-001.json`, SHUGO)).toBe(0.7);
   });
 
   it("returns 0.0 for telemetry/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/telemetry/log.json`, SHITEN)).toBe(0.0);
+    expect(detectDirectoryScore(`${SHUGO}/telemetry/log.json`, SHUGO)).toBe(0.0);
   });
 
   it("returns 0.0 for reports/", () => {
-    expect(detectDirectoryScore(`${SHITEN}/reports/weekly.md`, SHITEN)).toBe(0.0);
+    expect(detectDirectoryScore(`${SHUGO}/reports/weekly.md`, SHUGO)).toBe(0.0);
   });
 
   it("returns 0.1 for unmatched paths", () => {
-    expect(detectDirectoryScore(`${SHITEN}/unknown/file.txt`, SHITEN)).toBe(0.1);
+    expect(detectDirectoryScore(`${SHUGO}/unknown/file.txt`, SHUGO)).toBe(0.1);
   });
 
   it("scores files inside docs/generated/ as zero significance (BUG-002)", () => {
-    expect(detectDirectoryScore(`${SHITEN}/docs/generated/ARCHITECTURE.md`, SHITEN)).toBe(0.0);
+    expect(detectDirectoryScore(`${SHUGO}/docs/generated/ARCHITECTURE.md`, SHUGO)).toBe(0.0);
   });
 
   it("docs/generated/ takes priority over the generic docs/ prefix", () => {
-    const generatedScore = detectDirectoryScore(`${SHITEN}/docs/generated/ANYTHING.md`, SHITEN);
-    const genericDocsScore = detectDirectoryScore(`${SHITEN}/docs/some-other-file.md`, SHITEN);
+    const generatedScore = detectDirectoryScore(`${SHUGO}/docs/generated/ANYTHING.md`, SHUGO);
+    const genericDocsScore = detectDirectoryScore(`${SHUGO}/docs/some-other-file.md`, SHUGO);
     expect(generatedScore).toBeLessThan(genericDocsScore);
   });
 
   it("matches longest prefix first", () => {
-    expect(detectDirectoryScore(`${SHITEN}/governance/context/state.yaml`, SHITEN)).toBe(0.6);
+    expect(detectDirectoryScore(`${SHUGO}/governance/context/state.yaml`, SHUGO)).toBe(0.6);
   });
 });
 
@@ -239,7 +239,7 @@ describe("calculateSignificance", () => {
   it("returns high significance for skill file with frequent changes", () => {
     const highFreq: ChangeFrequency = { count: 12, windowStart: Date.now(), lastChange: Date.now() };
     const result = calculateSignificance(
-      `${SHITEN}/docs/skills/tdd.md`, SHITEN, null,
+      `${SHUGO}/docs/skills/tdd.md`, SHUGO, null,
       Array.from({ length: 200 }, (_, i) => `line ${i}`).join("\n"),
       highFreq
     );
@@ -251,7 +251,7 @@ describe("calculateSignificance", () => {
 
   it("returns ignore for telemetry file with no changes", () => {
     const result = calculateSignificance(
-      `${SHITEN}/telemetry/log.json`, SHITEN, "old", "old",
+      `${SHUGO}/telemetry/log.json`, SHUGO, "old", "old",
       { count: 1, windowStart: Date.now() - 120_000, lastChange: Date.now() - 120_000 }
     );
     expect(result.level).toBe("ignore");
@@ -261,7 +261,7 @@ describe("calculateSignificance", () => {
 
   it("returns low/medium for moderate changes", () => {
     const result = calculateSignificance(
-      `${SHITEN}/docs/README.md`, SHITEN, "old\n".repeat(10), "new\n".repeat(15),
+      `${SHUGO}/docs/README.md`, SHUGO, "old\n".repeat(10), "new\n".repeat(15),
       { count: 3, windowStart: Date.now(), lastChange: Date.now() }
     );
     expect(["low", "medium"]).toContain(result.level);
@@ -271,7 +271,7 @@ describe("calculateSignificance", () => {
   it("populates reasons array for significant factors", () => {
     const highFreq: ChangeFrequency = { count: 8, windowStart: Date.now(), lastChange: Date.now() };
     const result = calculateSignificance(
-      `${SHITEN}/docs/skills/test.md`, SHITEN, null,
+      `${SHUGO}/docs/skills/test.md`, SHUGO, null,
       Array.from({ length: 100 }, (_, i) => `line ${i}`).join("\n"),
       highFreq
     );
@@ -280,7 +280,7 @@ describe("calculateSignificance", () => {
 
   it("score is between 0 and 1", () => {
     const result = calculateSignificance(
-      `${SHITEN}/governance/rules/RULE-001.json`, SHITEN, "a\n".repeat(5), "b\n".repeat(25),
+      `${SHUGO}/governance/rules/RULE-001.json`, SHUGO, "a\n".repeat(5), "b\n".repeat(25),
       { count: 6, windowStart: Date.now(), lastChange: Date.now() }
     );
     expect(result.score).toBeGreaterThanOrEqual(0);
@@ -289,11 +289,11 @@ describe("calculateSignificance", () => {
 
   it("does not trigger sync for files inside docs/generated/ (BUG-002, full pipeline)", () => {
     const tracker = new ChangeHistoryTracker();
-    const filePath = `${SHITEN}/docs/generated/ARCHITECTURE.md`;
+    const filePath = `${SHUGO}/docs/generated/ARCHITECTURE.md`;
 
     const result = calculateSignificance(
       filePath,
-      SHITEN,
+      SHUGO,
       null,
       "# Conteúdo gerado\n".repeat(50),
       tracker.recordChange(filePath)

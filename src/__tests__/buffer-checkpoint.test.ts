@@ -10,14 +10,14 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 let tempDir: string;
-let shitenDir: string;
+let shitennoDir: string;
 
 beforeEach(() => {
   tempDir = mkdtempSync(join(tmpdir(), "buffer-checkpoint-test-"));
-  shitenDir = join(tempDir, "shitenno-go");
-  mkdirSync(join(shitenDir, "governance", "context"), { recursive: true });
+  shitennoDir = join(tempDir, "shitenno");
+  mkdirSync(join(shitennoDir, "governance", "context"), { recursive: true });
   writeFileSync(
-    join(shitenDir, "governance", "context", "context_buffer.yaml"),
+    join(shitennoDir, "governance", "context", "context_buffer.yaml"),
     "session:\n  status: active\ncurrent_task:\n  id: test\n"
   );
 });
@@ -44,7 +44,7 @@ import {
 
 describe("checkpointBuffer", () => {
   it("creates a checkpoint successfully", () => {
-    const result = checkpointBuffer(shitenDir);
+    const result = checkpointBuffer(shitennoDir);
 
     expect(result.success).toBe(true);
     expect(result.checkpointPath).toBeDefined();
@@ -53,16 +53,16 @@ describe("checkpointBuffer", () => {
   });
 
   it("creates checkpoint directory if it does not exist", () => {
-    const newShitenDir = join(tempDir, "new-shiten");
-    mkdirSync(join(newShitenDir, "governance", "context"), { recursive: true });
+    const newShitennoDir = join(tempDir, "new-shitenno");
+    mkdirSync(join(newShitennoDir, "governance", "context"), { recursive: true });
     writeFileSync(
-      join(newShitenDir, "governance", "context", "context_buffer.yaml"),
+      join(newShitennoDir, "governance", "context", "context_buffer.yaml"),
       "test: data"
     );
 
-    const result = checkpointBuffer(newShitenDir);
+    const result = checkpointBuffer(newShitennoDir);
     expect(result.success).toBe(true);
-    expect(existsSync(join(newShitenDir, "governance", "context", "checkpoints"))).toBe(true);
+    expect(existsSync(join(newShitennoDir, "governance", "context", "checkpoints"))).toBe(true);
   });
 
   it("returns error when context_buffer.yaml does not exist", () => {
@@ -75,7 +75,7 @@ describe("checkpointBuffer", () => {
   });
 
   it("checkpoint file contains the buffer content", () => {
-    const result = checkpointBuffer(shitenDir);
+    const result = checkpointBuffer(shitennoDir);
     expect(result.success).toBe(true);
 
     const checkpointContent = readFileSync(result.checkpointPath!, "utf-8");
@@ -84,7 +84,7 @@ describe("checkpointBuffer", () => {
   });
 
   it("cleans up old checkpoints beyond MAX_CHECKPOINTS (50)", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
 
     // Create 52 existing checkpoints
@@ -92,7 +92,7 @@ describe("checkpointBuffer", () => {
       writeFileSync(join(checkpointsDir, `2026-07-${String(i + 1).padStart(2, "0")}T00-00-00.yaml`), "old data");
     }
 
-    const result = checkpointBuffer(shitenDir);
+    const result = checkpointBuffer(shitennoDir);
     expect(result.success).toBe(true);
     expect(result.removedCount).toBeGreaterThan(0);
 
@@ -103,19 +103,19 @@ describe("checkpointBuffer", () => {
 
 describe("listCheckpoints", () => {
   it("returns empty array when no checkpoints exist", () => {
-    const checkpoints = listCheckpoints(shitenDir);
+    const checkpoints = listCheckpoints(shitennoDir);
     expect(checkpoints).toEqual([]);
   });
 
   it("returns checkpoints sorted newest first", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
 
     writeFileSync(join(checkpointsDir, "2026-07-01.yaml"), "data1");
     writeFileSync(join(checkpointsDir, "2026-07-03.yaml"), "data3");
     writeFileSync(join(checkpointsDir, "2026-07-02.yaml"), "data2");
 
-    const checkpoints = listCheckpoints(shitenDir);
+    const checkpoints = listCheckpoints(shitennoDir);
     expect(checkpoints.length).toBe(3);
     expect(checkpoints[0]).toBe("2026-07-03.yaml");
     expect(checkpoints[1]).toBe("2026-07-02.yaml");
@@ -123,13 +123,13 @@ describe("listCheckpoints", () => {
   });
 
   it("ignores non-yaml files", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
 
     writeFileSync(join(checkpointsDir, "2026-07-01.yaml"), "data");
     writeFileSync(join(checkpointsDir, "readme.txt"), "not a checkpoint");
 
-    const checkpoints = listCheckpoints(shitenDir);
+    const checkpoints = listCheckpoints(shitennoDir);
     expect(checkpoints.length).toBe(1);
   });
 
@@ -141,52 +141,52 @@ describe("listCheckpoints", () => {
 
 describe("getLatestCheckpoint", () => {
   it("returns null when no checkpoints exist", () => {
-    expect(getLatestCheckpoint(shitenDir)).toBeNull();
+    expect(getLatestCheckpoint(shitennoDir)).toBeNull();
   });
 
   it("returns the most recent checkpoint", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
 
     writeFileSync(join(checkpointsDir, "2026-07-01.yaml"), "data1");
     writeFileSync(join(checkpointsDir, "2026-07-03.yaml"), "data3");
 
-    expect(getLatestCheckpoint(shitenDir)).toBe("2026-07-03.yaml");
+    expect(getLatestCheckpoint(shitennoDir)).toBe("2026-07-03.yaml");
   });
 });
 
 describe("restoreCheckpoint", () => {
   it("restores a checkpoint to context_buffer.yaml", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
     writeFileSync(join(checkpointsDir, "old-state.yaml"), "session:\n  status: completed\n");
 
-    const result = restoreCheckpoint(shitenDir, "old-state.yaml");
+    const result = restoreCheckpoint(shitennoDir, "old-state.yaml");
     expect(result.success).toBe(true);
     expect(result.message).toContain("Restored");
 
     const restored = readFileSync(
-      join(shitenDir, "governance", "context", "context_buffer.yaml"),
+      join(shitennoDir, "governance", "context", "context_buffer.yaml"),
       "utf-8"
     );
     expect(restored).toContain("status: completed");
   });
 
   it("returns error when checkpoint does not exist", () => {
-    const result = restoreCheckpoint(shitenDir, "nonexistent.yaml");
+    const result = restoreCheckpoint(shitennoDir, "nonexistent.yaml");
     expect(result.success).toBe(false);
     expect(result.message).toContain("not found");
   });
 
   it("creates a pre-restore checkpoint before overwriting", () => {
-    const checkpointsDir = join(shitenDir, "governance", "context", "checkpoints");
+    const checkpointsDir = join(shitennoDir, "governance", "context", "checkpoints");
     mkdirSync(checkpointsDir, { recursive: true });
     writeFileSync(join(checkpointsDir, "backup.yaml"), "session:\n  status: done\n");
 
     // Count checkpoints before restore
     const before = readdirSync(checkpointsDir).filter((f) => f.endsWith(".yaml")).length;
 
-    restoreCheckpoint(shitenDir, "backup.yaml");
+    restoreCheckpoint(shitennoDir, "backup.yaml");
 
     // Should have 1 more checkpoint (the pre-restore backup)
     const after = readdirSync(checkpointsDir).filter((f) => f.endsWith(".yaml")).length;

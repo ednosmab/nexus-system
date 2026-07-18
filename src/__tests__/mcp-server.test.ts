@@ -153,7 +153,7 @@ beforeEach(() => {
 
 describe("handleGetBriefing", () => {
   it("returns valid JSON structure with all required fields", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {});
+    const result = await handleGetBriefing("/project", "/project/shitenno", {});
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0]!.type).toBe("text");
@@ -167,7 +167,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns minimal depth with project, risks, and 1 recommendation", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
+    const result = await handleGetBriefing("/project", "/project/shitenno", {
       depth: "minimal",
     });
 
@@ -182,7 +182,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns full depth with quickBoard and tokenEconomy", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
+    const result = await handleGetBriefing("/project", "/project/shitenno", {
       depth: "full",
     });
 
@@ -193,7 +193,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns standard depth by default", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {});
+    const result = await handleGetBriefing("/project", "/project/shitenno", {});
 
     const json = JSON.parse(result.content[0]!.text);
     // Standard includes all main sections but not extended fields
@@ -202,7 +202,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns markdown format", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
+    const result = await handleGetBriefing("/project", "/project/shitenno", {
       format: "markdown",
     });
 
@@ -212,7 +212,7 @@ describe("handleGetBriefing", () => {
   });
 
   it("returns summary format", async () => {
-    const result = await handleGetBriefing("/project", "/project/shitenno-go", {
+    const result = await handleGetBriefing("/project", "/project/shitenno", {
       format: "summary",
     });
 
@@ -222,11 +222,11 @@ describe("handleGetBriefing", () => {
   });
 
   it("calls collectContext with correct arguments", async () => {
-    await handleGetBriefing("/my/project", "/my/project/shitenno-go", {});
+    await handleGetBriefing("/my/project", "/my/project/shitenno", {});
 
     expect(mockCollectContext).toHaveBeenCalledWith(
       "/my/project",
-      "/my/project/shitenno-go"
+      "/my/project/shitenno"
     );
   });
 });
@@ -235,7 +235,7 @@ describe("handleGetBriefing", () => {
 
 describe("handleGetRiskMap", () => {
   it("returns valid JSON structure with overallRisk and areas", async () => {
-    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {});
+    const result = await handleGetRiskMap("/project", "/project/shitenno", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("overallRisk");
@@ -245,7 +245,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("each area has required fields", async () => {
-    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {});
+    const result = await handleGetRiskMap("/project", "/project/shitenno", {});
 
     const json = JSON.parse(result.content[0]!.text);
     for (const area of json.areas) {
@@ -258,7 +258,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("returns summary format with human-readable output", async () => {
-    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
+    const result = await handleGetRiskMap("/project", "/project/shitenno", {
       format: "summary",
     });
 
@@ -267,7 +267,7 @@ describe("handleGetRiskMap", () => {
   });
 
   it("summary includes high/critical areas", async () => {
-    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
+    const result = await handleGetRiskMap("/project", "/project/shitenno", {
       format: "summary",
     });
 
@@ -284,7 +284,7 @@ describe("handleGetRiskMap", () => {
       ],
     } as any);
 
-    const result = await handleGetRiskMap("/project", "/project/shitenno-go", {
+    const result = await handleGetRiskMap("/project", "/project/shitenno", {
       format: "summary",
     });
 
@@ -294,11 +294,11 @@ describe("handleGetRiskMap", () => {
   });
 
   it("calls generateRiskMap with correct arguments", async () => {
-    await handleGetRiskMap("/my/project", "/my/project/shitenno-go", {});
+    await handleGetRiskMap("/my/project", "/my/project/shitenno", {});
 
     expect(mockGenerateRiskMap).toHaveBeenCalledWith(
       "/my/project",
-      "/my/project/shitenno-go"
+      "/my/project/shitenno"
     );
   });
 });
@@ -307,7 +307,7 @@ describe("handleGetRiskMap", () => {
 
 describe("handleGetRules", () => {
   it("returns all rule types by default", async () => {
-    const result = await handleGetRules("/project", "/project/shitenno-go", {});
+    const result = await handleGetRules("/project", "/project/shitenno", {});
 
     const json = JSON.parse(result.content[0]!.text);
     expect(json).toHaveProperty("contextRules");
@@ -316,7 +316,7 @@ describe("handleGetRules", () => {
   });
 
   it("contextRules have required fields", async () => {
-    const result = await handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno", {
       type: "context",
     });
 
@@ -345,7 +345,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = await handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno", {
       type: "dynamic",
     });
 
@@ -370,7 +370,7 @@ describe("handleGetRules", () => {
       },
     ]);
 
-    const result = await handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno", {
       type: "engine",
     });
 
@@ -381,7 +381,7 @@ describe("handleGetRules", () => {
   });
 
   it("returns markdown format with headers", async () => {
-    const result = await handleGetRules("/project", "/project/shitenno-go", {
+    const result = await handleGetRules("/project", "/project/shitenno", {
       format: "markdown",
     });
 
@@ -389,17 +389,17 @@ describe("handleGetRules", () => {
   });
 
   it("calls loadRules for engine rules", async () => {
-    await handleGetRules("/project", "/project/shitenno-go", { type: "engine" });
+    await handleGetRules("/project", "/project/shitenno", { type: "engine" });
 
-    expect(mockLoadRules).toHaveBeenCalledWith("/project/shitenno-go");
+    expect(mockLoadRules).toHaveBeenCalledWith("/project/shitenno");
   });
 
   it("calls generateDynamicRules for dynamic rules", async () => {
-    await handleGetRules("/project", "/project/shitenno-go", { type: "dynamic" });
+    await handleGetRules("/project", "/project/shitenno", { type: "dynamic" });
 
     expect(mockGenerateDynamicRules).toHaveBeenCalledWith(
       "/project",
-      "/project/shitenno-go"
+      "/project/shitenno"
     );
   });
 });
@@ -414,7 +414,7 @@ describe("Error Handling", () => {
 
     // The handler itself will throw, which is caught by the MCP server's try/catch
     await expect(
-      handleGetBriefing("/nonexistent", "/nonexistent/shitenno-go", {})
+      handleGetBriefing("/nonexistent", "/nonexistent/shitenno", {})
     ).rejects.toThrow("ENOENT");
   });
 
@@ -424,16 +424,16 @@ describe("Error Handling", () => {
     });
 
     await expect(
-      handleGetRiskMap("/nonexistent", "/nonexistent/shitenno-go", {})
+      handleGetRiskMap("/nonexistent", "/nonexistent/shitenno", {})
     ).rejects.toThrow("Cannot read property of undefined");
   });
 
-  it("getRules handles loadRules returning empty for missing shiten dir", async () => {
+  it("getRules handles loadRules returning empty for missing shugo dir", async () => {
     mockLoadRules.mockReturnValue([]);
 
     const result = await handleGetRules(
       "/nonexistent",
-      "/nonexistent/shitenno-go",
+      "/nonexistent/shitenno",
       { type: "engine" }
     );
 
@@ -446,7 +446,7 @@ describe("Error Handling", () => {
 
     const result = await handleGetRules(
       "/fresh-project",
-      "/fresh-project/shitenno-go",
+      "/fresh-project/shitenno",
       { type: "dynamic" }
     );
 
@@ -460,7 +460,7 @@ describe("Error Handling", () => {
 describe("createMcpServer", () => {
   it("creates a server with correct name and version", async () => {
     const { createMcpServer } = await import("../mcp-server.js");
-    const server = createMcpServer("/project", "/project/shitenno-go");
+    const server = createMcpServer("/project", "/project/shitenno");
     expect(server).toBeDefined();
   });
 
@@ -469,10 +469,10 @@ describe("createMcpServer", () => {
     expect(() => createMcpServer("/project")).not.toThrow();
   });
 
-  it("handles missing shiten directory gracefully", async () => {
+  it("handles missing shugo directory gracefully", async () => {
     const { createMcpServer } = await import("../mcp-server.js");
     expect(() =>
-      createMcpServer("/project", "/nonexistent/shitenno-go")
+      createMcpServer("/project", "/nonexistent/shitenno")
     ).not.toThrow();
   });
 });

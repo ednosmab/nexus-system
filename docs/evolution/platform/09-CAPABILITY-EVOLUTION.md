@@ -2,7 +2,7 @@
 
 ## Problema Atual
 
-As capabilities representam um dos principais conceitos do Shiten.
+As capabilities representam um dos principais conceitos do Shugo.
 
 Entretanto ainda são tratadas como módulos.
 

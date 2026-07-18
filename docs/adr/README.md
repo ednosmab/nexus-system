@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-> Tracking architectural decisions for the Shitenno-go.
+> Tracking architectural decisions for the Shitenno.
 
 ## What is an ADR?
 

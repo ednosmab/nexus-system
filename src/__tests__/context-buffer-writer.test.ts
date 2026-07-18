@@ -38,8 +38,8 @@ completed_tasks:
     completed_at: "2026-07-01T00:00:00Z"
 `;
 
-function createTmpShiten(): string {
-  const dir = join(tmpdir(), `shiten-test-${Date.now()}`);
+function createTmpShitenno(): string {
+  const dir = join(tmpdir(), `shitenno-test-${Date.now()}`);
   const governanceDir = join(dir, "governance", "context");
   mkdirSync(governanceDir, { recursive: true });
   writeFileSync(join(governanceDir, "context_buffer.yaml"), SAMPLE_BUFFER, "utf-8");
@@ -73,7 +73,7 @@ describe("updateSession", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -98,7 +98,7 @@ describe("updateCurrentTask", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -119,7 +119,7 @@ describe("updateNextP0", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -138,7 +138,7 @@ describe("addCompletedTask", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -162,7 +162,7 @@ describe("updateSessionLifecycle", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -187,7 +187,7 @@ describe("addReminder", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {
@@ -262,7 +262,7 @@ describe("clearRemindersByCategory", () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = createTmpShiten();
+    tmpDir = createTmpShitenno();
   });
 
   afterEach(() => {

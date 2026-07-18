@@ -7,10 +7,10 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..", "..");
-const SYNC_SCRIPT = join(ROOT, "shitenno-go", "scripts", "sync-docs.ts");
+const SYNC_SCRIPT = join(ROOT, "shitenno", "scripts", "sync-docs.ts");
 const README = join(ROOT, "README.md");
-const SYSTEM_MAP = join(ROOT, "shitenno-go", "governance", "SYSTEM_MAP.md");
-const REPORTS_DIR = join(ROOT, "shitenno-go", "reports");
+const SYSTEM_MAP = join(ROOT, "shitenno", "governance", "SYSTEM_MAP.md");
+const REPORTS_DIR = join(ROOT, "shitenno", "reports");
 
 function runSync(flags = ""): { stdout: string; exitCode: number } {
   try {

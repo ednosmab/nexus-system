@@ -1,5 +1,5 @@
 /**
- * console.ts — shiten console command
+ * console.ts — shugo console command
  *
  * Visualizes token economy metrics over time:
  * - Total tokens saved
@@ -8,9 +8,9 @@
  * - Monthly projections
  *
  * Usage:
- *   shiten console                # Full console
- *   shiten console --json         # JSON output
- *   shiten console --period <d>   # Period in days (default: 30)
+ *   shugo console                # Full console
+ *   shugo console --json         # JSON output
+ *   shugo console --period <d>   # Period in days (default: 30)
  */
 
 import { Command } from "commander";
@@ -39,7 +39,7 @@ function displayConsole(
   periodDays: number
 ): void {
   outputBlank();
-  outputSection("shiten console — Token Economy");
+  outputSection("shugo console — Token Economy");
   outputBlank();
 
   // ── Session Overview ────────────────────────────────────────────
@@ -111,7 +111,7 @@ function displayConsole(
   // ── Recommendations ────────────────────────────────────────────
   outputSection("Recommendations");
   if (summary.tokenEconomy.cacheHitRate < 0.5) {
-    output(chalk.cyan("     → Use `shiten briefing` more often to improve cache hit rate"));
+    output(chalk.cyan("     → Use `shugo briefing` more often to improve cache hit rate"));
   }
   if (summary.byOutcome.failure > summary.byOutcome.success) {
     output(chalk.cyan("     → Review failure hotspots and add test coverage"));
@@ -139,22 +139,22 @@ export function consoleCommand(): Command {
 
       if (!isJson) {
         output("");
-        outputSection("shiten console — Token Economy");
+        outputSection("shugo console — Token Economy");
         outputBlank();
       }
 
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("console", ctx.projectRoot, ctx.shitenDir, isJson)) {
+      if (!checkLifecycleGate("console", ctx.projectRoot, ctx.shitennoDir, isJson)) {
         return;
       }
 
-      const records = getFeedbackRecords(ctx.shitenDir);
+      const records = getFeedbackRecords(ctx.shitennoDir);
       const since = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000).toISOString();
       const filteredRecords = records.filter((r) => r.timestamp >= since);
       const summary = computeFeedbackSummary(filteredRecords);
-      const sessionMetrics = getSessionMetrics(ctx.shitenDir, periodDays);
+      const sessionMetrics = getSessionMetrics(ctx.shitennoDir, periodDays);
 
       if (isJson) {
         outputJson({

@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "shiten-mcp": {
-      "command": "shiten",
+    "shitenno-mcp": {
+      "command": "shugo",
       "args": ["mcp"]
     }
   }

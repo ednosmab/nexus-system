@@ -1,14 +1,14 @@
 /**
- * handbook.ts — Shiten Handbook CLI Command
+ * handbook.ts — Shugo Handbook CLI Command
  *
- * The `shiten handbook` command. By default, launches an interactive TUI.
+ * The `shugo handbook` command. By default, launches an interactive TUI.
  * Use --print for non-interactive mode.
  *
  * Usage:
- *   shiten handbook                  # Interactive TUI (default)
- *   shiten handbook --print          # Print content and exit
- *   shiten handbook --print --level 1  # Print only fundamentals
- *   shiten handbook --list           # List all available topics
+ *   shugo handbook                  # Interactive TUI (default)
+ *   shugo handbook --print          # Print content and exit
+ *   shugo handbook --print --level 1  # Print only fundamentals
+ *   shugo handbook --list           # List all available topics
  */
 
 import { Command } from "commander";
@@ -49,7 +49,7 @@ interface HandbookTopic {
 
 const TOPICS: HandbookTopic[] = [
   // Level 1 — Fundamentals
-  { level: 1, levelName: "Fundamentos", file: "01-fundamentals/what-is-shiten.md", title: "O que é Shiten", description: "Definição, problema que resolve, para quem serve" },
+  { level: 1, levelName: "Fundamentos", file: "01-fundamentals/what-is-shitenno.md", title: "O que é Shugo", description: "Definição, problema que resolve, para quem serve" },
   { level: 1, levelName: "Fundamentos", file: "01-fundamentals/installation.md", title: "Instalação", description: "Pré-requisitos, métodos de instalação, verificação" },
   { level: 1, levelName: "Fundamentos", file: "01-fundamentals/quick-start.md", title: "Primeiros Passos", description: "Init, status, detect, briefing, feedback" },
   { level: 1, levelName: "Fundamentos", file: "01-fundamentals/concepts.md", title: "Conceitos", description: "Maturity, capabilities, governance, knowledge debt" },
@@ -104,7 +104,7 @@ function printLevel(level: number): void {
   const levelName = topics[0]!.levelName;
 
   outputBlank();
-  banner(`shiten handbook --print --level ${level}`, levelName);
+  banner(`shugo handbook --print --level ${level}`, levelName);
   outputBlank();
 
   for (const topic of topics) {
@@ -117,7 +117,7 @@ function printLevel(level: number): void {
 
 function printAllLevels(): void {
   outputBlank();
-  banner("shiten handbook --print", "Handbook Completo");
+  banner("shugo handbook --print", "Handbook Completo");
   outputBlank();
 
   for (const topic of TOPICS) {
@@ -130,7 +130,7 @@ function printAllLevels(): void {
 
 function listTopics(): void {
   outputBlank();
-  banner("shiten handbook", "Todos os Tópicos");
+  banner("shugo handbook", "Todos os Tópicos");
   outputBlank();
 
   let currentLevel = 0;
@@ -154,7 +154,7 @@ function listTopics(): void {
 // ── Command Export ─────────────────────────────────────────────────────────
 
 export const handbookCommand = new Command("handbook")
-  .description("Exibe o handbook de referência do Shiten (TUI interativo por padrão). Acessibilidade: use --print para saida em texto plano compativel com screen readers.")
+  .description("Exibe o handbook de referência do Shugo (TUI interativo por padrão). Acessibilidade: use --print para saida em texto plano compativel com screen readers.")
   .option("--print", "Modo nao-interativo: imprime conteudo em texto plano e sai (recomendado para screen readers)")
   .option("--level <number>", "Mostrar apenas um nivel (1, 2 ou 3) — funciona com --print")
   .option("--list", "Listar todos os topicos disponiveis")

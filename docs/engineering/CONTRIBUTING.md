@@ -1,6 +1,6 @@
-# Contributing to Shiten CLI
+# Contributing to Shugo CLI
 
-> How to contribute to the Shitenno-go.
+> How to contribute to the Shitenno.
 
 ## Prerequisites
 

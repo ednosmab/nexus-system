@@ -64,7 +64,7 @@ describe("DocEngine", () => {
   let engine: DocEngine;
 
   beforeEach(() => {
-    tmpDir = join(tmpdir(), `shiten-doc-test-${Date.now()}`);
+    tmpDir = join(tmpdir(), `shitenno-doc-test-${Date.now()}`);
     mkdirSync(tmpDir, { recursive: true });
     engine = new DocEngine(tmpDir);
   });

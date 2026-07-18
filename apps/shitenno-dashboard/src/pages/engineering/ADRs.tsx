@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const adrs = [
   { id: 'ADR-001', title: 'Uso de context_buffer como RAM', status: 'aceite', date: '2026-06-30' },
-  { id: 'ADR-002', title: 'Estrutura de pastas .shiten/', status: 'aceite', date: '2026-06-30' },
+  { id: 'ADR-002', title: 'Estrutura de pastas .shugo/', status: 'aceite', date: '2026-06-30' },
   { id: 'ADR-003', title: 'Formato YAML para context_buffer', status: 'aceite', date: '2026-06-30' },
   { id: 'ADR-004', title: '4 comandos essenciais (init, status, upgrade, validate)', status: 'aceite', date: '2026-07-01' },
   { id: 'ADR-005', title: 'Contratos de agentes IA', status: 'aceite', date: '2026-07-01' },

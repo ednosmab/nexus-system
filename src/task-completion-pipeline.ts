@@ -31,7 +31,7 @@ export interface PipelineResult {
 
 export interface PipelineOptions {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   taskId: string;
   affectedFiles?: string[];
   /** Skip plan archival (useful for testing) */
@@ -46,8 +46,8 @@ export interface PipelineOptions {
  * Find the active plan file for a given task.
  * Returns the plan filename (without extension) or null.
  */
-function findActivePlanForTask(shitenDir: string, taskId: string): string | null {
-  const plansDir = join(shitenDir, "governance", "plans");
+function findActivePlanForTask(shitennoDir: string, taskId: string): string | null {
+  const plansDir = join(shitennoDir, "governance", "plans");
   if (!existsSync(plansDir)) return null;
 
   try {
@@ -81,16 +81,16 @@ function findActivePlanForTask(shitenDir: string, taskId: string): string | null
 }
 
 /**
- * Archive a plan by running `shiten plan md done`.
+ * Archive a plan by running `shugo plan md done`.
  */
 function archivePlan(projectRoot: string, planId: string): boolean {
   try {
-    execFileSync("node", ["dist/shiten.js", "plan", "md", "done", planId], {
+    execFileSync("node", ["dist/shugo.js", "plan", "md", "done", planId], {
       cwd: projectRoot,
       timeout: 30000,
       encoding: "utf-8",
       stdio: "pipe",
-      env: { ...process.env, SHITEN_CHILD: "1" },
+      env: { ...process.env, SHITENNO_CHILD: "1" },
     });
     logger.info("task-completion-pipeline", `Plan archived: ${planId}`);
     return true;
@@ -114,14 +114,14 @@ function archivePlan(projectRoot: string, planId: string): boolean {
  * will not cause errors (backlog transition will fail gracefully if already done).
  */
 export function runCompletionPipeline(options: PipelineOptions): PipelineResult {
-  const { projectRoot, shitenDir, taskId, affectedFiles } = options;
+  const { projectRoot, shitennoDir, taskId, affectedFiles } = options;
 
   logger.info("task-completion-pipeline", `Running completion pipeline for task: ${taskId}`);
 
   // Step 1: Validate all 5 completion gates
   const gates = validateCompletionGate({
     projectRoot,
-    shitenDir,
+    shitennoDir,
     taskId,
     affectedFiles,
   });
@@ -169,7 +169,7 @@ export function runCompletionPipeline(options: PipelineOptions): PipelineResult 
   let backlogUpdated = false;
   if (!options.skipBacklog) {
     try {
-      const result = completeTask(shitenDir, taskId);
+      const result = completeTask(shitennoDir, taskId);
       backlogUpdated = result.success;
       if (result.success) {
         logger.info("task-completion-pipeline", `Backlog updated: ${result.message}`);
@@ -186,7 +186,7 @@ export function runCompletionPipeline(options: PipelineOptions): PipelineResult 
   // Step 4: Archive active plan
   let planArchived = false;
   if (!options.skipArchive) {
-    const planId = findActivePlanForTask(shitenDir, taskId);
+    const planId = findActivePlanForTask(shitennoDir, taskId);
     if (planId) {
       planArchived = archivePlan(projectRoot, planId);
       if (planArchived) {
@@ -220,9 +220,9 @@ export function runCompletionPipeline(options: PipelineOptions): PipelineResult 
  */
 export function runCurrentTaskPipeline(
   projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): PipelineResult | null {
-  const bufferPath = join(shitenDir, "governance", "context", "context_buffer.yaml");
+  const bufferPath = join(shitennoDir, "governance", "context", "context_buffer.yaml");
   if (!existsSync(bufferPath)) {
     logger.warn("task-completion-pipeline", "No context_buffer.yaml found");
     return null;
@@ -237,7 +237,7 @@ export function runCurrentTaskPipeline(
     }
 
     const taskId = taskIdMatch[1]!;
-    return runCompletionPipeline({ projectRoot, shitenDir, taskId });
+    return runCompletionPipeline({ projectRoot, shitennoDir, taskId });
   } catch (error) {
     logger.warn("task-completion-pipeline", `Failed to read task ID: ${error instanceof Error ? error.message : String(error)}`);
     return null;

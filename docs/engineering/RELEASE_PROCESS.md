@@ -1,6 +1,6 @@
 # Release Process
 
-> How releases are managed for the Shiten CLI.
+> How releases are managed for the Shugo CLI.
 
 ## Version Numbering
 

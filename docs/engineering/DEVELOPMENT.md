@@ -1,6 +1,6 @@
 # Development Guide
 
-> Setting up and working on the Shiten CLI development environment.
+> Setting up and working on the Shugo CLI development environment.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ shitenno-cli/
 │   ├── __tests__/         # Test suite (484 tests)
 │   └── templates/         # Scaffold templates
 ├── docs/                  # Documentation
-├── shitenno-go/          # Shiten system (governance, plugins, profile)
+├── shitenno/          # Shugo system (governance, plugins, profile)
 └── package.json
 ```
 

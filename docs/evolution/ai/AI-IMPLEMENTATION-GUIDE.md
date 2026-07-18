@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir como agentes de IA devem evoluir o Shitenno-go preservando sua arquitetura.
+Definir como agentes de IA devem evoluir o Shitenno preservando sua arquitetura.
 
 ---
 

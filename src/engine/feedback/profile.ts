@@ -62,8 +62,8 @@ const DEFAULT_PROFILE: UserProfile = {
   focusAreas: [],
 };
 
-export function loadUserProfile(shitenDir: string): UserProfile {
-  const profilePath = join(shitenDir, "user-profile.json");
+export function loadUserProfile(shitennoDir: string): UserProfile {
+  const profilePath = join(shitennoDir, "user-profile.json");
   if (!existsSync(profilePath)) {
     return DEFAULT_PROFILE;
   }
@@ -76,9 +76,9 @@ export function loadUserProfile(shitenDir: string): UserProfile {
   }
 }
 
-export function saveUserProfile(shitenDir: string, profile: UserProfile): void {
-  const profilePath = join(shitenDir, "user-profile.json");
-  const dir = join(shitenDir);
+export function saveUserProfile(shitennoDir: string, profile: UserProfile): void {
+  const profilePath = join(shitennoDir, "user-profile.json");
+  const dir = join(shitennoDir);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -97,10 +97,10 @@ export interface SessionBehaviorData {
 }
 
 export function inferProfile(
-  shitenDir: string,
+  shitennoDir: string,
   behaviorData: SessionBehaviorData
 ): UserProfile {
-  const currentProfile = loadUserProfile(shitenDir);
+  const currentProfile = loadUserProfile(shitennoDir);
 
   let architecture: SkillLevel = currentProfile.architecture;
   if (behaviorData.totalSessions >= 10) {
@@ -160,7 +160,7 @@ export function inferProfile(
 }
 
 export function updateProfileFromSession(
-  shitenDir: string,
+  shitennoDir: string,
   outcome: SessionOutcome,
   followedRecommendations: boolean,
   durationMinutes: number | undefined
@@ -176,7 +176,7 @@ export function updateProfileFromSession(
     asksForExplanations: false,
   };
 
-  return inferProfile(shitenDir, behaviorData);
+  return inferProfile(shitennoDir, behaviorData);
 }
 
 export function calibrateTone(

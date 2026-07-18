@@ -48,4 +48,4 @@ Self Evolution
 
 Objetivo Final
 
-Transformar o Shiten em uma plataforma de engenharia orientada por conhecimento.
+Transformar o Shugo em uma plataforma de engenharia orientada por conhecimento.

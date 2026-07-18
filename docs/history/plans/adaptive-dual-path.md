@@ -2,7 +2,7 @@
 
 ## Visão
 
-O sistema Shiten mostra **sempre dois caminhos** ao utilizador:
+O sistema Shugo mostra **sempre dois caminhos** ao utilizador:
 - **Caminho A (Confortável)**: Dentro de como o utilizador actualmente pensa
 - **Caminho B (Desafiador)**: Além de como o utilizador pensa — exige crescimento
 
@@ -90,9 +90,9 @@ interface GrowthPattern {
 ```
 
 **Funções Principais:**
-- `loadGrowthProfile(shitenDir: string): GrowthProfile`
-- `saveGrowthProfile(shitenDir: string, profile: GrowthProfile): void`
-- `recordPathChoice(shitenDir: string, choice: PathChoice): GrowthProfile`
+- `loadGrowthProfile(shitennoDir: string): GrowthProfile`
+- `saveGrowthProfile(shitennoDir: string, profile: GrowthProfile): void`
+- `recordPathChoice(shitennoDir: string, choice: PathChoice): GrowthProfile`
 - `calculateGrowthCapacity(profile: GrowthProfile): number`
 - `calculateChallengeLevel(profile: GrowthProfile): number`
 - `detectGrowthPatterns(profile: GrowthProfile): GrowthPattern[]`
@@ -107,7 +107,7 @@ Responsável por:
 
 **Funções Principais:**
 - `generateChallengingAlternative(comfortable: Recommendation, profile: GrowthProfile): Recommendation`
-- `calculateKnowledgeGap(recommendation: Recommendation, state: ShitenState): KnowledgeGap`
+- `calculateKnowledgeGap(recommendation: Recommendation, state: ShitennoState): KnowledgeGap`
 - `detectParadigmShift(recommendation: Recommendation): ParadigmShift | null`
 - `ensureFlowState(challenge: number, capacity: number): number`
 

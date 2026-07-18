@@ -11,7 +11,7 @@ import { getEngineeringState } from "../engineering-state-access.js";
 import { generateForecast } from "../trend-engine.js";
 import { logger } from "../logger.js";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank } from "../output.js";
 import { Command } from "commander";
 import { queryDaemon, isDaemonRunning } from "../daemon-client.js";
@@ -66,12 +66,12 @@ export interface ContextOutput {
 /**
  * Generate context output for AI agents.
  */
-export async function generateContext(shitenDir: string): Promise<ContextOutput | null> {
+export async function generateContext(shitennoDir: string): Promise<ContextOutput | null> {
   const projectRoot = process.cwd();
 
   // Daemon-first: try to get engineering state from daemon cache
-  if (isDaemonRunning(shitenDir)) {
-    const result = await queryDaemon<{ type: string; data: ContextOutput }>(shitenDir, {
+  if (isDaemonRunning(shitennoDir)) {
+    const result = await queryDaemon<{ type: string; data: ContextOutput }>(shitennoDir, {
       type: "query_briefing",
     });
     if (result?.data) {
@@ -82,13 +82,13 @@ export async function generateContext(shitenDir: string): Promise<ContextOutput 
   // Fallback: compute from disk
   let state;
   try {
-    state = getEngineeringState(projectRoot, shitenDir);
+    state = getEngineeringState(projectRoot, shitennoDir);
   } catch {
     logger.debug("context", "No engineering state found");
     return null;
   }
 
-  const trend = generateForecast(loadHistoricalStates(shitenDir));
+  const trend = generateForecast(loadHistoricalStates(shitennoDir));
   const challenges = loadChallenges(state);
 
   const trendDirection = trend?.trends.find((t) => t.metric === "health")?.direction ?? "unknown";
@@ -130,10 +130,10 @@ export async function generateContext(shitenDir: string): Promise<ContextOutput 
 /**
  * Load historical states for trend analysis.
  */
-function loadHistoricalStates(shitenDir: string) {
+function loadHistoricalStates(shitennoDir: string) {
   const projectRoot = process.cwd();
   try {
-    const state = getEngineeringState(projectRoot, shitenDir);
+    const state = getEngineeringState(projectRoot, shitennoDir);
     return [state];
   } catch {
     return [];
@@ -180,11 +180,11 @@ function loadChallenges(state: ReturnType<typeof getEngineeringState>): ContextO
  */
 export async function executeContextCommand(options: { json?: boolean; forAgent?: string }): Promise<void> {
   const projectRoot = process.cwd();
-  const shitenDir = join(projectRoot, SHITEN_DIR_NAME);
-  let context = await generateContext(shitenDir);
+  const shitennoDir = join(projectRoot, SHITENNO_DIR_NAME);
+  let context = await generateContext(shitennoDir);
 
   if (!context) {
-    output("No engineering state found. Run 'shiten init' first.");
+    output("No engineering state found. Run 'shugo init' first.");
     return;
   }
 

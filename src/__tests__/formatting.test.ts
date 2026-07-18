@@ -140,18 +140,18 @@ describe("statusIcon", () => {
 describe("banner", () => {
   it("prints a 3-line box containing the title and subtitle", () => {
     const spy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    banner("shiten status", "Health Check");
+    banner("shugo status", "Health Check");
     const output = spy.mock.calls.map((c) => c[0]).join("");
-    expect(output).toContain("shiten status — Health Check");
+    expect(output).toContain("shugo status — Health Check");
     expect(spy).toHaveBeenCalledTimes(3);
     spy.mockRestore();
   });
 
   it("box width adapts to content length", () => {
     const spy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
-    banner("shiten init", "Setup");
+    banner("shugo init", "Setup");
     const lines = spy.mock.calls.map((c) => (c[0] as string).replace(/\n$/, ""));
-    const label = "shiten init — Setup";
+    const label = "shugo init — Setup";
     const expectedWidth = label.length + 4;
     expect(lines[0]).toContain("═".repeat(expectedWidth));
     spy.mockRestore();

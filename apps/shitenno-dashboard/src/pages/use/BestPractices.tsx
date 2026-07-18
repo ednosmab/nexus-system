@@ -2,16 +2,16 @@ import { Link } from 'react-router-dom'
 
 const practices = [
   {
-    title: 'Execute shiten init uma vez',
-    description: 'Inicialize o Shiten apenas uma vez por projeto. O framework detecta mudancas automaticamente.',
+    title: 'Execute shugo init uma vez',
+    description: 'Inicialize o Shugo apenas uma vez por projeto. O framework detecta mudancas automaticamente.',
   },
   {
     title: 'Verifique status regularmente',
-    description: 'Execute shiten status durante o desenvolvimento para manter visibilidade sobre a saude da governanca.',
+    description: 'Execute shugo status durante o desenvolvimento para manter visibilidade sobre a saude da governanca.',
   },
   {
     title: 'Valide antes de commits',
-    description: 'Execute shiten validate antes de commits importantes para garantir conformidade.',
+    description: 'Execute shugo validate antes de commits importantes para garantir conformidade.',
   },
   {
     title: 'Adicione capabilities sob demanda',
@@ -33,7 +33,7 @@ export default function BestPractices() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Boas praticas</h1>
         <p className="text-text-secondary max-w-2xl">
-          Siga estas praticas para tirar o maximo proveito do Shiten.
+          Siga estas praticas para tirar o maximo proveito do Shugo.
         </p>
       </section>
 

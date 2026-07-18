@@ -4,7 +4,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../../constants.js";
+import { SHITENNO_DIR_NAME } from "../../constants.js";
 import { getTemplatesDir } from "./helpers.js";
 import type { Capability } from "../../maturity-profile.js";
 
@@ -12,7 +12,7 @@ export function updateAgentsMdWithCapabilities(
   targetDir: string,
   installedCapabilities: Capability[]
 ): void {
-  const agentsMdPath = join(targetDir, SHITEN_DIR_NAME, "docs", "AGENTS.md");
+  const agentsMdPath = join(targetDir, SHITENNO_DIR_NAME, "docs", "AGENTS.md");
   if (!existsSync(agentsMdPath)) return;
 
   const templatesDir = getTemplatesDir();

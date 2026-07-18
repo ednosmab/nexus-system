@@ -4,11 +4,11 @@
 
 ## Core Concepts
 
-### Shitenno-go
+### Shitenno
 The complete governance framework consisting of CLI commands, core modules, templates, and documentation. The system that governs engineering knowledge.
 
-### Shiten CLI
-The command-line interface to the Shitenno-go. Provides 13 commands: `init`, `status`, `detect`, `audit`, `evolve`, `run`, `upgrade`, `validate`, `sync`, `assess`, `clean`, `doctor`, `report`.
+### Shugo CLI
+The command-line interface to the Shitenno. Provides 13 commands: `init`, `status`, `detect`, `audit`, `evolve`, `run`, `upgrade`, `validate`, `sync`, `assess`, `clean`, `doctor`, `report`.
 
 ### Governance
 The practice of making engineering decisions explicit, traceable, and enforceable. Not bureaucracy — clarity.
@@ -51,7 +51,7 @@ A modular unit of governance functionality. 9 capabilities: `core`, `knowledge`,
 The single source of truth for which files and directories each capability creates. Defined in `capability-mapping.ts`.
 
 ### Capability Installation
-The process of adding a capability to a project via `shiten upgrade --capability <name>`.
+The process of adding a capability to a project via `shugo upgrade --capability <name>`.
 
 ### Capability Dependency
 A prerequisite capability that must be installed before another. Example: `ai` requires `governance`.
@@ -96,13 +96,13 @@ A pub/sub system that enables communication between modules. Events: `session.st
 An orchestration engine that chains analysis stages: analyze → score → detect → audit → evolve → recommend.
 
 ### State Machine
-A finite state machine governing Shiten's own lifecycle: `uninitialized → discovered → assessed → governed → evolved → mature`.
+A finite state machine governing Shugo's own lifecycle: `uninitialized → discovered → assessed → governed → evolved → mature`.
 
 ### Feedback Loop
 A cycle where recommendation acceptance/rejection influences future recommendations. The system learns from human decisions.
 
 ### Plugin System
-An extensibility mechanism allowing projects to add custom checks, recommendations, and capabilities without modifying Shiten core.
+An extensibility mechanism allowing projects to add custom checks, recommendations, and capabilities without modifying Shugo core.
 
 ## Knowledge Debt
 
@@ -130,4 +130,4 @@ A predicate evaluated against the current context. All conditions must be true (
 A side effect executed when a rule fires: `create_reminder`, `log_event`, `update_backlog`, etc.
 
 ### SÓ PROPÕE, nunca aplica
-The absolute principle: Shiten proposes changes, never auto-applies them. Humans maintain final authority.
+The absolute principle: Shugo proposes changes, never auto-applies them. Humans maintain final authority.

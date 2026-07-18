@@ -4,12 +4,12 @@ Comandos para executar pipelines de análise e ações de governança.
 
 ---
 
-## `shiten run`
+## `shugo run`
 
 Execute o pipeline de análise completo (analisar → pontuar → detectar → auditar → evoluir).
 
 ```bash
-shiten run [options]
+shugo run [options]
 ```
 
 ### Opções
@@ -21,8 +21,8 @@ shiten run [options]
 ### Exemplos
 
 ```bash
-shiten run                 # Pipeline completo
-shiten run --json          # Saída JSON
+shugo run                 # Pipeline completo
+shugo run --json          # Saída JSON
 ```
 
 ### Dicas
@@ -32,12 +32,12 @@ shiten run --json          # Saída JSON
 
 ---
 
-## `shiten evolve`
+## `shugo evolve`
 
 Mostre recomendações de evolução e gerencie feedback.
 
 ```bash
-shiten evolve [options]
+shugo evolve [options]
 ```
 
 ### Opções
@@ -49,26 +49,26 @@ shiten evolve [options]
 ### Exemplos
 
 ```bash
-shiten evolve              # Mostrar recomendações
-shiten evolve --json       # Saída JSON
+shugo evolve              # Mostrar recomendações
+shugo evolve --json       # Saída JSON
 ```
 
 ---
 
-## `shiten act`
+## `shugo act`
 
 Execute ações com garantias de idempotência.
 
 ```bash
-shiten act [options]
+shugo act [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten act create` | Criar nova ação |
-| `shiten act list` | Listar todas as ações |
+| `shugo act create` | Criar nova ação |
+| `shugo act list` | Listar todas as ações |
 
 ### Opções
 
@@ -80,36 +80,36 @@ shiten act [options]
 ### Exemplos
 
 ```bash
-shiten act create --title 'Fix auth' --action-type bugfix
-shiten act list            # Listar todas as ações
+shugo act create --title 'Fix auth' --action-type bugfix
+shugo act list            # Listar todas as ações
 ```
 
 ---
 
-## `shiten plan`
+## `shugo plan`
 
 Gerencie sequências de ações coordenadas (planos).
 
 ```bash
-shiten plan <subcommand> [options]
+shugo plan <subcommand> [options]
 ```
 
 ### Subcomandos
 
 | Comando | Descrição |
 |---|---|
-| `shiten plan create <name>` | Criar um plano |
-| `shiten plan execute <plan-id>` | Executar um plano |
-| `shiten plan list` | Listar todos os planos |
-| `shiten plan show <plan-id>` | Mostrar detalhes do plano |
-| `shiten plan md prepare <id>` | Preparar pipeline de validação |
+| `shugo plan create <name>` | Criar um plano |
+| `shugo plan execute <plan-id>` | Executar um plano |
+| `shugo plan list` | Listar todos os planos |
+| `shugo plan show <plan-id>` | Mostrar detalhes do plano |
+| `shugo plan md prepare <id>` | Preparar pipeline de validação |
 
 ### Exemplos
 
 ```bash
-shiten plan create my-plan           # Criar plano
-shiten plan execute plan-001         # Executar plano
-shiten plan list                     # Listar planos
-shiten plan show plan-001            # Detalhes do plano
-shiten plan md prepare plan-001      # Preparar pipeline
+shugo plan create my-plan           # Criar plano
+shugo plan execute plan-001         # Executar plano
+shugo plan list                     # Listar planos
+shugo plan show plan-001            # Detalhes do plano
+shugo plan md prepare plan-001      # Preparar pipeline
 ```

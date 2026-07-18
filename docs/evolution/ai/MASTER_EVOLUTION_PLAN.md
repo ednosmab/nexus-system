@@ -12,7 +12,7 @@ Architecture Board
 
 # Missão
 
-Transformar o Shiten de uma ferramenta CLI para uma plataforma de engenharia orientada por conhecimento.
+Transformar o Shugo de uma ferramenta CLI para uma plataforma de engenharia orientada por conhecimento.
 
 ---
 
@@ -148,8 +148,8 @@ IA implementando tarefas sem degradar arquitetura.
 
 # Visão 2030
 
-O Shiten deixa de ser um framework.
+O Shugo deixa de ser um framework.
 
-O Shiten deixa de ser uma CLI.
+O Shugo deixa de ser uma CLI.
 
-O Shiten torna-se uma Plataforma de Engenharia de Software baseada em Conhecimento, capaz de analisar, governar, evoluir e automatizar produtos digitais através de uma arquitetura orientada por domínio, capacidades e inteligência artificial.
+O Shugo torna-se uma Plataforma de Engenharia de Software baseada em Conhecimento, capaz de analisar, governar, evoluir e automatizar produtos digitais através de uma arquitetura orientada por domínio, capacidades e inteligência artificial.

@@ -1,10 +1,10 @@
 # Executive Summary
 
-> High-level priorities for the Shitenno-go evolution.
+> High-level priorities for the Shitenno evolution.
 
 ## Strategic Vision
 
-Transform Shiten from a CLI tool into a knowledge-driven engineering governance platform.
+Transform Shugo from a CLI tool into a knowledge-driven engineering governance platform.
 
 ## Current Priorities
 

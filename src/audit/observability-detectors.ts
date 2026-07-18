@@ -8,7 +8,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import type { HealthIssue, SourceFileInfo } from "./types.js";
 
 // ── 21.1 Missing Tracing ────────────────────────────────────────────────────
@@ -227,8 +227,8 @@ export function detectDistributedLogging(_projectRoot: string, files: SourceFile
 export function detectSLODefinitions(projectRoot: string, _files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const sloPaths = [
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "SLO.md"),
-    join(projectRoot, SHITEN_DIR_NAME, "docs", "SLI.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "SLO.md"),
+    join(projectRoot, SHITENNO_DIR_NAME, "docs", "SLI.md"),
     join(projectRoot, "docs", "SLO.md"),
     join(projectRoot, "docs", "SLI.md"),
     join(projectRoot, "slo.yml"),

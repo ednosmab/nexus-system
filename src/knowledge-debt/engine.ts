@@ -16,19 +16,19 @@ import { calculateDebtHealth, generateRecommendations } from "./scoring.js";
 
 export function detectKnowledgeDebt(
   _projectRoot: string,
-  shitenDir: string
+  shitennoDir: string
 ): KnowledgeDebtReport {
   const gaps: KnowledgeGap[] = [];
   const now = new Date().toISOString();
 
-  gaps.push(...detectMissingAdrs(shitenDir, now));
-  gaps.push(...detectMissingRunbooks(shitenDir, now));
-  gaps.push(...detectMissingSkills(shitenDir, now));
-  gaps.push(...detectMissingDocs(shitenDir, now));
-  gaps.push(...detectMissingAutomation(shitenDir, now));
-  gaps.push(...detectMissingContracts(shitenDir, now));
-  gaps.push(...detectMissingWorkflows(shitenDir, now));
-  gaps.push(...detectStaleAdrs(shitenDir, now));
+  gaps.push(...detectMissingAdrs(shitennoDir, now));
+  gaps.push(...detectMissingRunbooks(shitennoDir, now));
+  gaps.push(...detectMissingSkills(shitennoDir, now));
+  gaps.push(...detectMissingDocs(shitennoDir, now));
+  gaps.push(...detectMissingAutomation(shitennoDir, now));
+  gaps.push(...detectMissingContracts(shitennoDir, now));
+  gaps.push(...detectMissingWorkflows(shitennoDir, now));
+  gaps.push(...detectStaleAdrs(shitennoDir, now));
 
   const gapsBySeverity: Record<DebtSeverity, number> = {
     critical: 0,
@@ -83,10 +83,10 @@ export function detectKnowledgeDebt(
 }
 
 export function writeDebtReport(
-  shitenDir: string,
+  shitennoDir: string,
   report: KnowledgeDebtReport
 ): string | null {
-  const reportsDir = join(shitenDir, "reports");
+  const reportsDir = join(shitennoDir, "reports");
   if (!existsSync(reportsDir)) return null;
 
   const date = new Date().toISOString().slice(0, 10);

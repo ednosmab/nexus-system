@@ -7,7 +7,7 @@
 
 export interface ExecutorContext {
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
 }
 
 export interface ActionExecutor {

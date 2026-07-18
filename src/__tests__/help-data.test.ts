@@ -57,7 +57,7 @@ describe("findCommand", () => {
     const cmd = findCommand("init");
     expect(cmd).toBeDefined();
     expect(cmd!.name).toBe("init");
-    expect(cmd!.usage).toContain("shiten init");
+    expect(cmd!.usage).toContain("shugo init");
   });
 
   it("finds command in nested category", () => {
@@ -79,7 +79,7 @@ describe("findCommand", () => {
   it("finds validate command", () => {
     const cmd = findCommand("validate");
     expect(cmd).toBeDefined();
-    expect(cmd!.usage).toContain("shiten validate");
+    expect(cmd!.usage).toContain("shugo validate");
   });
 
   it("finds docs-audit command", () => {

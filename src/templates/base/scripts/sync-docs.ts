@@ -3,12 +3,12 @@
  * sync-docs.ts — Documentation Sync Script (Template)
  *
  * Regenerates SYSTEM_MAP.md from the current directory structure
- * under shitenno-go/. Called automatically by doc-sync-hook or
- * manually via `shiten sync-docs`.
+ * under shitenno/. Called automatically by doc-sync-hook or
+ * manually via `shugo sync-docs`.
  *
  * PRINCIPLE: Documentation stays in sync with actual structure.
  *
- * This is the template version installed via `shiten init`.
+ * This is the template version installed via `shugo init`.
  * The full-featured version lives in the shitenno-cli repo.
  */
 
@@ -22,8 +22,8 @@ const __dirname = dirname(__filename);
 // ── Config ──────────────────────────────────────────────────────────────
 
 const ROOT = join(__dirname, "..", "..");
-const SHITEN_DIR = join(ROOT, "shitenno-go");
-const SYSTEM_MAP_PATH = join(SHITEN_DIR, "governance", "SYSTEM_MAP.md");
+const SHITENNO_DIR = join(ROOT, "shitenno");
+const SYSTEM_MAP_PATH = join(SHITENNO_DIR, "governance", "SYSTEM_MAP.md");
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
@@ -51,8 +51,8 @@ function walkDir(dir: string, prefix = ""): string[] {
 // ── SYSTEM_MAP Regeneration ─────────────────────────────────────────────
 
 function regenerateSystemMap(): boolean {
-  if (!existsSync(SHITEN_DIR)) {
-    console.log("  ⚠ shitenno-go/ not found, skipping");
+  if (!existsSync(SHITENNO_DIR)) {
+    console.log("  ⚠ shitenno/ not found, skipping");
     return false;
   }
 
@@ -61,7 +61,7 @@ function regenerateSystemMap(): boolean {
     return false;
   }
 
-  const files = walkDir(SHITEN_DIR);
+  const files = walkDir(SHITENNO_DIR);
   const tree = files
     .map((f) => `│   ${f}`)
     .join("\n");

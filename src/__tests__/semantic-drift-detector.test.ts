@@ -25,8 +25,8 @@ describe("extractKeywords", () => {
   });
 
   it("extracts command references", () => {
-    const result = extractKeywords("Run `shiten serve` to start the server");
-    expect(result.commands).toContain("shiten serve");
+    const result = extractKeywords("Run `shugo serve` to start the server");
+    expect(result.commands).toContain("shugo serve");
   });
 
   it("extracts dependency references in quotes", () => {
@@ -71,7 +71,7 @@ describe("detectDrift", () => {
 
   it("detects drift when CLI command is missing", () => {
     const result = detectDrift(
-      { content: 'Run `shiten deploy` to deploy', type: "doc" },
+      { content: 'Run `shugo deploy` to deploy', type: "doc" },
       MOCK_FACTS
     );
     expect(result.confidence).toBeGreaterThan(0);
@@ -79,7 +79,7 @@ describe("detectDrift", () => {
 
   it("does not flag existing CLI command", () => {
     const result = detectDrift(
-      { content: 'Run `shiten serve` to start', type: "doc" },
+      { content: 'Run `shugo serve` to start', type: "doc" },
       MOCK_FACTS
     );
     expect(result.confidence).toBe(0);
@@ -87,11 +87,11 @@ describe("detectDrift", () => {
 
   it("boosts confidence for runbooks", () => {
     const runbook = detectDrift(
-      { content: 'Deploy using `shiten deploy`', type: "runbook" },
+      { content: 'Deploy using `shugo deploy`', type: "runbook" },
       MOCK_FACTS
     );
     const doc = detectDrift(
-      { content: 'Deploy using `shiten deploy`', type: "doc" },
+      { content: 'Deploy using `shugo deploy`', type: "doc" },
       MOCK_FACTS
     );
     expect(runbook.confidence).toBeGreaterThan(doc.confidence);
@@ -127,7 +127,7 @@ describe("detectDriftBatch", () => {
   it("returns only documents with confidence > 0.8", () => {
     const docs = [
       { path: "docs/adr-001.md", content: "We use React", type: "adr", age: 30 },
-      { path: "docs/runbook.md", content: 'Install with "mongodb" and "redis" and "docker" and run `shiten deploy`', type: "runbook" },
+      { path: "docs/runbook.md", content: 'Install with "mongodb" and "redis" and "docker" and run `shugo deploy`', type: "runbook" },
     ];
     const results = detectDriftBatch(docs, MOCK_FACTS);
     expect(results.length).toBeGreaterThanOrEqual(1);
@@ -165,7 +165,7 @@ describe("golden set — false positives", () => {
     { label: "Generic English terms", content: 'Focus on quality, automation, governance, documentation' },
     { label: "Template placeholders", content: 'projectName: my-project, areas: src/components' },
     { label: "UPPERCASE headings", content: '## COMMIT_PERMISSION\n## SYSTEM_MAP\n## FORBIDDEN_OPERATIONS' },
-    { label: "Package-like refs", content: 'See shiten-governance and shitenno-go packages' },
+    { label: "Package-like refs", content: 'See shitenno-governance and shitenno packages' },
     { label: "Portuguese error words", content: 'Se erro, bug, corrigi, falhou, fazer rollback' },
     { label: "Config field names", content: 'churnWindowDays, weights, churn, violationRate, sensitiveSurface' },
     { label: "Formatted strings", content: 'Run pnpm management for setup' },
@@ -195,12 +195,12 @@ describe("golden set — true drift", () => {
     },
     {
       label: "missing CLI command",
-      content: 'Run `shiten deploy` to deploy',
+      content: 'Run `shugo deploy` to deploy',
       facts: { dependencies: [], imports: [], cliCommands: ["status", "init"], configKeys: [] },
     },
     {
-      label: "missing CLI command (shiten cli)",
-      content: 'Run `shiten cli` for setup',
+      label: "missing CLI command (shugo cli)",
+      content: 'Run `shugo cli` for setup',
       facts: { dependencies: [], imports: [], cliCommands: ["status", "init"], configKeys: [] },
     },
     {

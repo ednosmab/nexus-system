@@ -7,7 +7,7 @@ import fse from "fs-extra";
 import { invalidateCache } from "../cache.js";
 import { outputJson } from "../formatting.js";
 import { checkLifecycleGate } from "../shared.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputError } from "../output.js";
 
 const { copySync, ensureDirSync, writeFileSync } = fse;
@@ -19,61 +19,61 @@ interface FileChange {
 }
 
 export const syncCommand = new Command("sync")
-  .description("Sync project governance files from shitenno-go")
+  .description("Sync project governance files from shitenno")
   .option("-d, --dir <path>", "Target project directory (default: current)", ".")
-  .option("-n, --shiten-path <path>", "Path to shitenno-go directory")
+  .option("-n, --shitenno-path <path>", "Path to shitenno directory")
   .option("--dry-run", "Show what would be changed without making changes")
   .option("--force", "Overwrite all files without asking")
   .option("--json", "Output results as JSON")
   .action(async (options) => {
     const targetDir = resolve(options.dir);
-    const shitenPath = options.shitenPath || process.env.SHITENNO_GO_PATH;
+    const shitennoPath = options.shitennoPath || process.env.SHITENNO_GO_PATH;
     const isJson = options.json === true;
 
     // Lifecycle gate check
-    if (existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
-      const gateShitenDir = resolve(targetDir, SHITEN_DIR_NAME);
-      if (!checkLifecycleGate("sync", targetDir, gateShitenDir, isJson)) return;
+    if (existsSync(resolve(targetDir, SHITENNO_DIR_NAME))) {
+      const gateShitennoDir = resolve(targetDir, SHITENNO_DIR_NAME);
+      if (!checkLifecycleGate("sync", targetDir, gateShitennoDir, isJson)) return;
     }
 
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║      shiten sync — Update Project     ║"));
+      output(chalk.bold.cyan("  ║      shugo sync — Update Project     ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════╝"));
       outputBlank();
     }
 
-    // Validate shitenno-go path
-    if (!shitenPath) {
+    // Validate shitenno path
+    if (!shitennoPath) {
       if (isJson) {
-        outputJson({ error: "missing_path", message: "shitenno-go path not specified. Use --shiten-path or SHITENNO_GO_PATH env var." });
+        outputJson({ error: "missing_path", message: "shitenno path not specified. Use --shitenno-path or SHITENNO_GO_PATH env var." });
       } else {
-        output(chalk.red("  ✘ shitenno-go path not specified."));
-        output(chalk.gray("  Use --shiten-path <path> or set SHITENNO_GO_PATH environment variable."));
-        output(chalk.gray("  Example: shiten sync --shiten-path /path/to/shitenno-go"));
-        output(chalk.gray("  Or: SHITENNO_GO_PATH=/path/to/shitenno-go shiten sync"));
+        output(chalk.red("  ✘ shitenno path not specified."));
+        output(chalk.gray("  Use --shitenno-path <path> or set SHITENNO_GO_PATH environment variable."));
+        output(chalk.gray("  Example: shugo sync --shitenno-path /path/to/shitenno"));
+        output(chalk.gray("  Or: SHITENNO_GO_PATH=/path/to/shitenno shugo sync"));
       }
       return;
     }
 
-    const shitenDir = resolve(shitenPath);
-    if (!existsSync(shitenDir)) {
+    const shitennoDir = resolve(shitennoPath);
+    if (!existsSync(shitennoDir)) {
       if (isJson) {
-        outputJson({ error: "missing_shiten_dir", message: `shitenno-go directory not found: ${shitenDir}` });
+        outputJson({ error: "missing_shitenno_dir", message: `shitenno directory not found: ${shitennoDir}` });
       } else {
-        output(chalk.red(`  ✘ shitenno-go directory not found: ${shitenDir}`));
+        output(chalk.red(`  ✘ shitenno directory not found: ${shitennoDir}`));
       }
       return;
     }
 
-    // Check if target project has shitenno-go/ (initialized)
-    if (!existsSync(resolve(targetDir, SHITEN_DIR_NAME))) {
+    // Check if target project has shitenno/ (initialized)
+    if (!existsSync(resolve(targetDir, SHITENNO_DIR_NAME))) {
       if (isJson) {
-        outputJson({ error: "not_initialized", message: "Run 'shiten init' first, then 'shiten sync' to update." });
+        outputJson({ error: "not_initialized", message: "Run 'shugo init' first, then 'shugo sync' to update." });
       } else {
-        output(chalk.yellow("  ⚠ This project doesn't seem to be initialized with shiten."));
-        output(chalk.gray("  Run 'shiten init' first, then 'shiten sync' to update."));
+        output(chalk.yellow("  ⚠ This project doesn't seem to be initialized with shugo."));
+        output(chalk.gray("  Run 'shugo init' first, then 'shugo sync' to update."));
       }
       return;
     }
@@ -82,21 +82,21 @@ export const syncCommand = new Command("sync")
 
     try {
       // Get list of files to sync
-      const filesToSync = getFilesToSync(shitenDir, targetDir);
+      const filesToSync = getFilesToSync(shitennoDir, targetDir);
       const changes: FileChange[] = [];
 
       // Analyse each file
       for (const file of filesToSync) {
-        const shitenFile = join(shitenDir, file);
+        const shitennoFile = join(shitennoDir, file);
         const targetFile = join(targetDir, file);
 
         if (!existsSync(targetFile)) {
           changes.push({ path: file, action: "create" });
         } else {
-          const shitenContent = readFileSync(shitenFile, "utf-8");
+          const shitennoContent = readFileSync(shitennoFile, "utf-8");
           const targetContent = readFileSync(targetFile, "utf-8");
 
-          if (shitenContent !== targetContent) {
+          if (shitennoContent !== targetContent) {
             changes.push({ path: file, action: "update" });
           } else {
             changes.push({ path: file, action: "skip", reason: "identical" });
@@ -170,29 +170,29 @@ export const syncCommand = new Command("sync")
       for (const change of changes) {
         if (change.action === "skip") continue;
 
-        const shitenFile = join(shitenDir, change.path);
+        const shitennoFile = join(shitennoDir, change.path);
         const targetFile = join(targetDir, change.path);
 
         if (change.action === "create") {
           ensureDirSync(resolve(targetFile, ".."));
-          copySync(shitenFile, targetFile);
+          copySync(shitennoFile, targetFile);
         } else if (change.action === "update") {
           // Preserve project-specific customizations for certain files
           if (shouldPreserveCustomizations(change.path)) {
             const merged = mergeWithCustomizations(
-              shitenFile,
+              shitennoFile,
               targetFile
             );
             writeFileSync(targetFile, merged, "utf-8");
           } else {
-            copySync(shitenFile, targetFile);
+            copySync(shitennoFile, targetFile);
           }
         }
       }
 
       applySpinner.stop();
 
-      // Invalidate cache since shitenno-go/ may have changed
+      // Invalidate cache since shitenno/ may have changed
       invalidateCache(targetDir);
 
       if (isJson) {
@@ -222,27 +222,27 @@ export const syncCommand = new Command("sync")
     }
   });
 
-export function getFilesToSync(shitenDir: string, _targetDir: string): string[] {
+export function getFilesToSync(shitennoDir: string, _targetDir: string): string[] {
   const files: string[] = [];
 
   // Core files
   const coreFiles = [
     "docs/AGENTS.md",
     "docs/opencode-context.md",
-    "docs/Shitenno-go_GUIDE.md",
+    "docs/Shitenno_GUIDE.md",
     "opencode.json",
     "scripts/validate-session.ts",
     "scripts/close-session.ts",
   ];
 
   for (const file of coreFiles) {
-    if (existsSync(join(shitenDir, file))) {
+    if (existsSync(join(shitennoDir, file))) {
       files.push(file);
     }
   }
 
   // Skills
-  const skillsDir = join(shitenDir, "docs/skills");
+  const skillsDir = join(shitennoDir, "docs/skills");
   if (existsSync(skillsDir)) {
     const skillFiles = fse.readdirSync(skillsDir).filter((f: string) =>
       f.endsWith(".md")
@@ -260,44 +260,44 @@ export function shouldPreserveCustomizations(filePath: string): boolean {
   const preserveList = [
     "docs/AGENTS.md",
     "docs/opencode-context.md",
-    "docs/Shitenno-go_GUIDE.md",
+    "docs/Shitenno_GUIDE.md",
     "opencode.json",
   ];
   return preserveList.includes(filePath);
 }
 
 export function mergeWithCustomizations(
-  shitenFile: string,
+  shitennoFile: string,
   targetFile: string
 ): string {
-  const shitenContent = readFileSync(shitenFile, "utf-8");
+  const shitennoContent = readFileSync(shitennoFile, "utf-8");
   const targetContent = readFileSync(targetFile, "utf-8");
 
   // JSON files: merge preserving project-specific values
-  if (shitenFile.endsWith(".json")) {
-    return mergeJsonFiles(shitenContent, targetContent);
+  if (shitennoFile.endsWith(".json")) {
+    return mergeJsonFiles(shitennoContent, targetContent);
   }
 
-  // Markdown files: preserve custom sections, update/add shiten sections
-  if (shitenFile.endsWith(".md")) {
-    return mergeMarkdownFiles(shitenContent, targetContent);
+  // Markdown files: preserve custom sections, update/add shugo sections
+  if (shitennoFile.endsWith(".md")) {
+    return mergeMarkdownFiles(shitennoContent, targetContent);
   }
 
-  // For other files, use shiten content
-  return shitenContent;
+  // For other files, use shugo content
+  return shitennoContent;
 }
 
-export function mergeJsonFiles(shitenContent: string, targetContent: string): string {
+export function mergeJsonFiles(shitennoContent: string, targetContent: string): string {
   try {
-    const shiten = JSON.parse(shitenContent);
+    const shugo = JSON.parse(shitennoContent);
     const target = JSON.parse(targetContent);
 
     // Preserve project-specific models and permissions
     const preserved: Record<string, unknown> = {};
 
     // Preserve agent models and permissions from target
-    if (target.agent && shiten.agent) {
-      preserved.agent = { ...shiten.agent };
+    if (target.agent && shugo.agent) {
+      preserved.agent = { ...shugo.agent };
       for (const [agentName, agentConfig] of Object.entries(target.agent)) {
         if (preserved.agent && typeof preserved.agent === "object" && preserved.agent[agentName as keyof typeof preserved.agent]) {
           const preservedAgent = preserved.agent[agentName as keyof typeof preserved.agent] as Record<string, unknown>;
@@ -319,34 +319,34 @@ export function mergeJsonFiles(shitenContent: string, targetContent: string): st
       preserved.mcp = target.mcp;
     }
 
-    return JSON.stringify({ ...shiten, ...preserved }, null, 2);
+    return JSON.stringify({ ...shugo, ...preserved }, null, 2);
   } catch {
-    // If parsing fails, use shiten content
-    return shitenContent;
+    // If parsing fails, use shugo content
+    return shitennoContent;
   }
 }
 
-export function mergeMarkdownFiles(shitenContent: string, targetContent: string): string {
+export function mergeMarkdownFiles(shitennoContent: string, targetContent: string): string {
   // Extract sections from both files
-  const shitenSections = extractSections(shitenContent);
+  const shitennoSections = extractSections(shitennoContent);
   const targetSections = extractSections(targetContent);
 
-  // Start with shiten content as base
-  let result = shitenContent;
+  // Start with shugo content as base
+  let result = shitennoContent;
 
   // For each section in target, check if it's a custom section
   for (const [sectionTitle, sectionContent] of Object.entries(targetSections)) {
-    // If section doesn't exist in shiten, it's custom - preserve it
-    if (!shitenSections[sectionTitle]) {
+    // If section doesn't exist in shugo, it's custom - preserve it
+    if (!shitennoSections[sectionTitle]) {
       // Add custom section at the end
       result += `\n\n${sectionContent}`;
     }
     // If section exists but content differs, check if it's personalized
-    else if (shitenSections[sectionTitle] !== sectionContent) {
+    else if (shitennoSections[sectionTitle] !== sectionContent) {
       // Check if target section contains personalized content (not placeholders)
       if (!sectionContent.includes("[PERSONALIZAR:") && !sectionContent.includes("[Adicionar")) {
         // Preserve user's personalized content
-        result = result.replace(shitenSections[sectionTitle], sectionContent);
+        result = result.replace(shitennoSections[sectionTitle], sectionContent);
       }
     }
   }

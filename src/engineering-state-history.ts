@@ -35,10 +35,10 @@ export interface EngineeringStateDelta {
  * Returns the closest snapshot to the given timestamp.
  */
 export function getSnapshotAt(
-  shitenDir: string,
+  shitennoDir: string,
   timestamp: string
 ): EngineeringState | null {
-  const snapshotsDir = join(shitenDir, "history", "snapshots");
+  const snapshotsDir = join(shitennoDir, "history", "snapshots");
   if (!existsSync(snapshotsDir)) return null;
 
   const files = readdirSync(snapshotsDir)
@@ -79,10 +79,10 @@ export function getSnapshotAt(
  * List all snapshots with optional time range filter.
  */
 export function listSnapshots(
-  shitenDir: string,
+  shitennoDir: string,
   range?: { from: string; to: string }
 ): SnapshotMeta[] {
-  const snapshotsDir = join(shitenDir, "history", "snapshots");
+  const snapshotsDir = join(shitennoDir, "history", "snapshots");
   if (!existsSync(snapshotsDir)) return [];
 
   const files = readdirSync(snapshotsDir)

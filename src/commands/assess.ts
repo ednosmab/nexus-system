@@ -2,7 +2,7 @@
  * assess.ts — Maturity Assessment & Evolution Recommendations
  *
  * Re-avalia a maturidade do projeto e recomenda novas capacidades.
- * Permite evolução contínua — o Shiten cresce conforme o projeto amadurece.
+ * Permite evolução contínua — o Shugo cresce conforme o projeto amadurece.
  */
 
 import { Command } from "commander";
@@ -73,9 +73,9 @@ function displayEvolution(history: Array<{ timestamp: string; overallScore: numb
   outputBlank();
 }
 
-function displayComplexity(projectRoot: string, shitenDir: string, isJson: boolean): void {
+function displayComplexity(projectRoot: string, shitennoDir: string, isJson: boolean): void {
   const result = detectComplexity(projectRoot);
-  const active = getActiveRules(projectRoot, shitenDir);
+  const active = getActiveRules(projectRoot, shitennoDir);
 
   if (isJson) {
     outputJson({
@@ -93,7 +93,7 @@ function displayComplexity(projectRoot: string, shitenDir: string, isJson: boole
 
   outputBlank();
   output(chalk.bold.cyan("  ╔══════════════════════════════════════════╗"));
-  output(chalk.bold.cyan("  ║  shiten assess complexity                 ║"));
+  output(chalk.bold.cyan("  ║  shugo assess complexity                 ║"));
   output(chalk.bold.cyan("  ╚══════════════════════════════════════════╝"));
   outputBlank();
 
@@ -142,26 +142,26 @@ export const assessCommand = new Command("assess")
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    void printDaemonBanner(ctx.shitenDir, isJson);
+    void printDaemonBanner(ctx.shitennoDir, isJson);
 
     // Complexity mode: show project complexity and active rules
     if (options.complexity) {
-      displayComplexity(ctx.projectRoot, ctx.shitenDir, isJson);
+      displayComplexity(ctx.projectRoot, ctx.shitennoDir, isJson);
       return;
     }
 
     if (!isJson) {
       outputBlank();
       output(chalk.bold.cyan("  ╔══════════════════════════════════════════╗"));
-      output(chalk.bold.cyan("  ║  shiten assess — Maturity Assessment      ║"));
+      output(chalk.bold.cyan("  ║  shugo assess — Maturity Assessment      ║"));
       output(chalk.bold.cyan("  ╚══════════════════════════════════════════╝"));
       outputBlank();
     }
 
-    if (!checkLifecycleGate("assess", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("assess", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     // Load previous profile
-    const previousProfile = loadMaturityProfile(ctx.shitenDir);
+    const previousProfile = loadMaturityProfile(ctx.shitennoDir);
 
     // Analyse project
     const analyseSpinner = ora("Analysing project...").start();
@@ -177,7 +177,7 @@ export const assessCommand = new Command("assess")
       if (previousProfile) {
         // Re-analyze: keep previous answers but update from project analysis
         const syntheticAnswers = {
-          usedShitenBefore: previousProfile.installedCapabilities.length > 1,
+          usedShitennoBefore: previousProfile.installedCapabilities.length > 1,
           isFirstProject: false,
           projectAge: "established" as const,
           teamSize: "small" as const,
@@ -195,11 +195,11 @@ export const assessCommand = new Command("assess")
           hasReviewProcess: previousProfile.dimensions.governance > 40,
           hasDecisionControl: previousProfile.dimensions.governance > 50,
         };
-        newProfile = calculateMaturityProfile(syntheticAnswers, analysis, ctx.shitenDir);
+        newProfile = calculateMaturityProfile(syntheticAnswers, analysis, ctx.shitennoDir);
       } else {
         // No previous profile — use neutral defaults based on analysis
         const syntheticAnswers = {
-          usedShitenBefore: false,
+          usedShitennoBefore: false,
           isFirstProject: false,
           projectAge: "new" as const,
           teamSize: "solo" as const,
@@ -217,7 +217,7 @@ export const assessCommand = new Command("assess")
           hasReviewProcess: false,
           hasDecisionControl: false,
         };
-        newProfile = calculateMaturityProfile(syntheticAnswers, analysis, ctx.shitenDir);
+        newProfile = calculateMaturityProfile(syntheticAnswers, analysis, ctx.shitennoDir);
       }
       calcSpinner.succeed("Maturity profile calculated");
     } else {
@@ -250,13 +250,13 @@ export const assessCommand = new Command("assess")
       }
 
       const calcSpinner = ora("Calculating maturity profile...").start();
-      newProfile = calculateMaturityProfile(answers.maturity, analysis, ctx.shitenDir);
+      newProfile = calculateMaturityProfile(answers.maturity, analysis, ctx.shitennoDir);
       calcSpinner.succeed("Maturity profile calculated");
     }
 
     // Save and record
-    saveMaturityProfile(ctx.shitenDir, newProfile);
-    recordMaturitySnapshot(ctx.shitenDir, newProfile);
+    saveMaturityProfile(ctx.shitennoDir, newProfile);
+    recordMaturitySnapshot(ctx.shitennoDir, newProfile);
 
     // Calculate delta
     const scoreDelta = previousProfile
@@ -273,7 +273,7 @@ export const assessCommand = new Command("assess")
 
     // Record feedback for recommended capabilities
     for (const cap of newProfile.recommendedCapabilities) {
-      recordFeedback(ctx.shitenDir, {
+      recordFeedback(ctx.shitennoDir, {
         recommendationId: `cap-${cap}`,
         action: "deferred",
         context: {
@@ -298,7 +298,7 @@ export const assessCommand = new Command("assess")
       const metric = dimensionToMetric[dim];
       if (metric) {
         const action = score >= 65 ? "accepted" : score < 35 ? "rejected" : "deferred";
-        recordDimensionFeedback(ctx.shitenDir, {
+        recordDimensionFeedback(ctx.shitennoDir, {
           recommendationId: `maturity-${dim}`,
           action,
           dimension: metric,
@@ -388,7 +388,7 @@ export const assessCommand = new Command("assess")
     if (recommended.length > 0) {
       output(chalk.bold("  🎯 Recommended Capabilities:"));
       for (const cap of recommended) {
-        output(chalk.cyan(`    → ${cap} — install with: shiten upgrade --capability ${cap}`));
+        output(chalk.cyan(`    → ${cap} — install with: shugo upgrade --capability ${cap}`));
       }
       outputBlank();
     }
@@ -402,7 +402,7 @@ export const assessCommand = new Command("assess")
     }
 
     // Evolution
-    const history = readMaturityHistory(ctx.shitenDir);
+    const history = readMaturityHistory(ctx.shitennoDir);
     displayEvolution(history);
 
     // Summary
@@ -411,12 +411,12 @@ export const assessCommand = new Command("assess")
       output(chalk.gray(`    ${recommended.length} capability(ies) recommended.`));
       outputBlank();
       output(chalk.bold.cyan("  🎯 Next step:"));
-      output(chalk.cyan("    shiten upgrade --accept-recommended"));
+      output(chalk.cyan("    shugo upgrade --accept-recommended"));
       output(chalk.gray("    This will install all recommended capabilities for your maturity level."));
       outputBlank();
       output(chalk.gray("    Or install individually:"));
       for (const cap of recommended) {
-        output(chalk.gray(`      shiten upgrade --capability ${cap}`));
+        output(chalk.gray(`      shugo upgrade --capability ${cap}`));
       }
     } else {
       output(chalk.green("  ✔ Your project is well-equipped! No new capabilities recommended."));

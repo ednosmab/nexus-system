@@ -1,4 +1,4 @@
-# Use Cases — Shitenno-go
+# Use Cases — Shitenno
 
 > 48 casos de uso documentados, organizados por ator.
 > Cada caso segue o template: Objetivo → Pré-condições → Fluxo → Eventos → Pós-condições → Testes.
@@ -9,7 +9,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        SHITEN SYSTEM                             │
+│                        SHUGO SYSTEM                             │
 │                                                                 │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
 │  │  Tech Lead   │◄──►│   Sistema    │◄──►│  AI Agent    │      │
@@ -26,7 +26,7 @@
 | Ator | Papel | Casos de Uso |
 |------|-------|--------------|
 | **Tech Lead** | Humano que toma decisões, aprova regras, guia governança | UC-01 a UC-13 |
-| **AI Agent** | Agente que consome artefatos Shiten para coordenar desenvolvimento | UC-14 a UC-23 |
+| **AI Agent** | Agente que consome artefatos Shugo para coordenar desenvolvimento | UC-14 a UC-23 |
 | **Sistema** | Auto-governo, detecção, evolução, telemetria | UC-24 a UC-48 |
 
 ---
@@ -37,37 +37,37 @@
 
 ---
 
-### UC-01: Inicializar Shitenno-go
+### UC-01: Inicializar Shitenno
 
-- **Comando:** `shiten init`
+- **Comando:** `shugo init`
 - **Objetivo:** Configurar o framework de governança governance pela primeira vez no projeto
 - **Pré-condições:** Projeto existe, `opencode.json` não existe ainda
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten init`
+  1. Tech Lead executa `shugo init`
   2. Sistema analisa o projeto (stack, package manager, testes, CI)
   3. Sistema apresenta questionário de maturidade (8 blocos, 22 perguntas)
   4. Tech Lead responde perguntas sobre experiência, projeto, arquitetura, qualidade, IA, governança
   5. Sistema calcula perfil de maturidade (7 dimensões, 0-100)
   6. Sistema recomenda capacidades baseado no perfil
-  7. Sistema scaffolding a estrutura: opencode.json, shitenno-go/, AGENTS.md, skills, scripts
+  7. Sistema scaffolding a estrutura: opencode.json, shitenno/, AGENTS.md, skills, scripts
   8. Tech Lead visualiza resultados e próximos passos
 - **Fluxos alternativos:**
   - `--answers-file <json>`: Respostas vêm de arquivo JSON (modo não-interativo)
   - `--force`: Força criação dentro do diretório shitenno-cli
   - Já inicializado: Sistema avisa e sugere `upgrade` ou `assess`
 - **Eventos emitidos:** Nenhum (invalida cache)
-- **Pós-condições:** `opencode.json` existe, `shitenno-go/` criado, perfil de maturidade salvo
+- **Pós-condições:** `opencode.json` existe, `shitenno/` criado, perfil de maturidade salvo
 - **Testes obrigatórios:** `scaffolder.test.ts`, `cli-integration.test.ts > init`
 
 ---
 
 ### UC-02: Upgrade por Capacidade
 
-- **Comando:** `shiten upgrade`
+- **Comando:** `shugo upgrade`
 - **Objetivo:** Adicionar capacidades de governança específicas ao projeto
-- **Pré-condições:** Shiten já inicializado (pelo menos `opencode.json` existe)
+- **Pré-condições:** Shugo já inicializado (pelo menos `opencode.json` existe)
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten upgrade`
+  1. Tech Lead executa `shugo upgrade`
   2. Sistema mostra capacidades instaladas e recomendadas
   3. Tech Lead seleciona capacidades: `--capability <nome>` ou `--accept-recommended`
   4. Sistema copia templates da capacidade selecionada
@@ -76,18 +76,18 @@
   - `--list`: Lista todas as capacidades disponíveis
   - `--accept-recommended`: Aceita todas as recomendadas pelo perfil
 - **Eventos emitidos:** `capability.installed` (por capacidade)
-- **Pós-condições:** Novos arquivos/diretórios em `shitenno-go/`, cache invalidado
+- **Pós-condições:** Novos arquivos/diretórios em `shitenno/`, cache invalidado
 - **Testes obrigatórios:** `cli-integration.test.ts > upgrade`
 
 ---
 
 ### UC-03: Sincronizar Governança
 
-- **Comando:** `shiten sync`
+- **Comando:** `shugo sync`
 - **Objetivo:** Sincronizar arquivos de governança de uma fonte para o projeto
-- **Pré-condições:** Diretório fonte shitenno-go existe
+- **Pré-condições:** Diretório fonte shitenno existe
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten sync --shiten-path <caminho>`
+  1. Tech Lead executa `shugo sync --shitenno-path <caminho>`
   2. Sistema compara arquivos fonte vs. destino
   3. Sistema preserva customizações do projeto (AGENTS.md, opencode.json)
   4. Sistema atualiza arquivos obsoletos
@@ -102,12 +102,12 @@
 
 ### UC-04: Limpar Cache
 
-- **Comando:** `shiten clean`
+- **Comando:** `shugo clean`
 - **Objetivo:** Remover cache obsoleto e forçar análise fresca
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten clean`
-  2. Sistema remove `.shiten-cache.json` e `*.tsbuildinfo`
+  1. Tech Lead executa `shugo clean`
+  2. Sistema remove `.shitenno-cache.json` e `*.tsbuildinfo`
   3. Sistema invalida cache de análise
 - **Eventos emitidos:** `analysis.complete` (com itemsRemoved)
 - **Pós-condições:** Cache limpo, próxima análise será completa
@@ -117,11 +117,11 @@
 
 ### UC-05: Verificar Status do Projeto
 
-- **Comando:** `shiten status`
+- **Comando:** `shugo status`
 - **Objetivo:** Verificar saúde da governança, maturidade e complexidade do projeto
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten status`
+  1. Tech Lead executa `shugo status`
   2. Sistema executa 7 verificações de saúde (opencode.json, AGENTS.md, skills/, governance/, context_buffer, scripts/, contratos)
   3. Sistema carrega perfil de maturidade
   4. Sistema calcula complexidade (score 0-20, nível junior/pleno/senior)
@@ -137,11 +137,11 @@
 
 ### UC-06: Reavaliar Maturidade
 
-- **Comando:** `shiten assess`
+- **Comando:** `shugo assess`
 - **Objetivo:** Recalcular perfil de maturidade e comparar com versão anterior
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten assess`
+  1. Tech Lead executa `shugo assess`
   2. Sistema apresenta questionário (ou reutiliza respostas anteriores)
   3. Sistema recalcula 7 dimensões de maturidade
   4. Sistema compara com perfil anterior, mostra delta e sparkline de evolução
@@ -155,11 +155,11 @@
 
 ### UC-07: Detectar Padrões
 
-- **Comando:** `shiten detect`
+- **Comando:** `shugo detect`
 - **Objetivo:** Analisar histórico e reports para identificar erros recorrentes, decisões revertidas, áreas quentes
-- **Pré-condições:** Shiten inicializado, histórico acumulado
+- **Pré-condições:** Shugo inicializado, histórico acumulado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten detect`
+  1. Tech Lead executa `shugo detect`
   2. Sistema lê entradas de histórico e reports de complexidade
   3. Sistema detecta: erros recorrentes (mesma área, 3+ ocorrências), decisões revertidas, áreas quentes
   4. Sistema propõe regras candidatas (PROPOSTAS — requer aprovação do Tech Lead)
@@ -172,11 +172,11 @@
 
 ### UC-08: Auditoria de Governança
 
-- **Comando:** `shiten audit`
+- **Comando:** `shugo audit`
 - **Objetivo:** Auto-avaliação: regras mortas, violações, docs faltantes, grafo de conhecimento
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten audit`
+  1. Tech Lead executa `shugo audit`
   2. Sistema verifica 5 itens: regras mortas, hotspots de violação, docs faltantes, diretórios órfãos, context buffer obsoleto
   3. Sistema analisa grafo de conhecimento (ADRs, skills, contratos, workflows)
   4. Sistema gera optimizações: remove_rule, rewrite_rule, promote_to_lint, add_docs
@@ -189,11 +189,11 @@
 
 ### UC-09: Mentoria de Engenharia
 
-- **Comando:** `shiten doctor`
+- **Comando:** `shugo doctor`
 - **Objetivo:** Consolidar estado e fornecer orientação sobre riscos, melhorias e momentos de ensino
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten doctor`
+  1. Tech Lead executa `shugo doctor`
   2. Sistema consolida estado da engenharia
   3. Sistema analisa riscos (knowledge debt, maturidade baixa, bloqueadores ativos, sem testes)
   4. Sistema analisa melhorias (sem CI/CD, poucas capacidades, sem knowledge graph)
@@ -207,11 +207,11 @@
 
 ### UC-10: Evolução com Dual Path
 
-- **Comando:** `shiten evolve`
+- **Comando:** `shugo evolve`
 - **Objetivo:** Gerar recomendações de evolução com caminho confortável e desafiador
-- **Pré-condições:** Shiten inicializado, estado >= governed
+- **Pré-condições:** Shugo inicializado, estado >= governed
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten evolve`
+  1. Tech Lead executa `shugo evolve`
   2. Sistema analisa estado atual e gera recomendações em 4 domínios: capacidade, conhecimento, governança, automação
   3. Para cada recomendação, sistema gera Dual Path: confortável + desafiador
   4. Tech Lead escolhe uma recomendação e um caminho
@@ -228,11 +228,11 @@
 
 ### UC-11: Relatório de Performance
 
-- **Comando:** `shiten report`
+- **Comando:** `shugo report`
 - **Objetivo:** Gerar relatório rico de performance com 7 dimensões, insights e próximos passos
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten report`
+  1. Tech Lead executa `shugo report`
   2. Sistema carrega sumários de dimensões e métricas de sessão
   3. Sistema calcula scores das 7 dimensões (architectural_vision, scope_management, prompt_quality, decision_making, risk_management, technical_communication, sustainable_velocity)
   4. Sistema detecta padrões de feedback
@@ -250,11 +250,11 @@
 
 ### UC-12: Pipeline Completo de Análise
 
-- **Comando:** `shiten run`
+- **Comando:** `shugo run`
 - **Objetivo:** Executar pipeline de 5 estágios em sequência: analyze → score → detect → audit → evolve
-- **Pré-condições:** Shiten inicializado, estado >= assessed
+- **Pré-condições:** Shugo inicializado, estado >= assessed
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten run`
+  1. Tech Lead executa `shugo run`
   2. Sistema executa 5 estágios sequencialmente:
      - **analyze**: Detecta estrutura do projeto
      - **score**: Calcula complexidade
@@ -271,11 +271,11 @@
 
 ### UC-13: Validar Sessão
 
-- **Comando:** `shiten validate`
+- **Comando:** `shugo validate`
 - **Objetivo:** Validar integridade da sessão: context buffer, ADRs, contratos, git status
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Tech Lead executa `shiten validate`
+  1. Tech Lead executa `shugo validate`
   2. Sistema verifica: context buffer, diretório ADR, opencode.json (modelo, papéis de agente), contratos, status da sessão, git status
   3. Sistema reporta pass/warn/fail por verificação
   4. Tech Lead pode usar `--fix` para correção automática
@@ -290,17 +290,17 @@
 
 ## Ator 2: AI Agent (Planner/Builder/Reviewer)
 
-> Agentes de IA que consomem artefatos Shiten (AGENTS.md, contratos, skills, context buffer) para coordenar desenvolvimento de forma alinhada com a governança do projeto.
+> Agentes de IA que consomem artefatos Shugo (AGENTS.md, contratos, skills, context buffer) para coordenar desenvolvimento de forma alinhada com a governança do projeto.
 
 ---
 
 ### UC-14: Consumir AGENTS.md
 
 - **Objetivo:** Ler e seguir as diretrizes de comportamento do agente definidas no AGENTS.md
-- **Pré-condições:** `shitenno-go/docs/AGENTS.md` existe
+- **Pré-condições:** `shitenno/docs/AGENTS.md` existe
 - **Fluxo principal:**
   1. AI Agent inicia sessão de trabalho
-  2. Agent lê `shitenno-go/docs/AGENTS.md`
+  2. Agent lê `shitenno/docs/AGENTS.md`
   3. Agent identifica: papéis (planner, builder, reviewer), regras, restrições
   4. Agent ajusta comportamento conforme diretrizes
   5. Agent documenta decisões em ADRs quando necessário
@@ -312,7 +312,7 @@
 ### UC-15: Seguir Contratos de Agente
 
 - **Objetivo:** Respeitar contratos que definem responsabilidades entre agentes
-- **Pré-condições:** Contratos em `shitenno-go/governance/contracts/`
+- **Pré-condições:** Contratos em `shitenno/governance/contracts/`
 - **Fluxo principal:**
   1. Agent identifica qual contrato se aplica à tarefa atual
   2. Agent lê responsabilidades, inputs esperados, outputs garantidos
@@ -326,7 +326,7 @@
 ### UC-16: Executar Skills
 
 - **Objetivo:** Aplicar conhecimento especializado documentado em skills
-- **Pré-condições:** Skills em `shitenno-go/docs/skills/`
+- **Pré-condições:** Skills em `shitenno/docs/skills/`
 - **Fluxo principal:**
   1. Agent identifica skill relevante para a tarefa
   2. Agent lê descrição, quando aplicar, quando NÃO aplicar, anti-padrões
@@ -340,7 +340,7 @@
 ### UC-17: Respeitar FORBIDDEN_OPERATIONS
 
 - **Objetivo:** Evitar operações proibidas pela governança do projeto
-- **Pré-condições:** `shitenno-go/docs/FORBIDDEN_OPERATIONS.md` existe
+- **Pré-condições:** `shitenno/docs/FORBIDDEN_OPERATIONS.md` existe
 - **Fluxo principal:**
   1. Agent lê lista de operações proibidas
   2. Agent valida se a operação planejada está na lista
@@ -354,7 +354,7 @@
 ### UC-18: Usar Context Buffer
 
 - **Objetivo:** Manter contexto da sessão atualizado para decisões informadas
-- **Pré-condições:** `shitenno-go/context_buffer.yaml` existe
+- **Pré-condições:** `shitenno/context_buffer.yaml` existe
 - **Fluxo principal:**
   1. Agent lê context buffer ao iniciar sessão
   2. Agent identifica: estado atual, tarefas pendentes, bloqueadores, decisões recentes
@@ -368,12 +368,12 @@
 ### UC-19: Gerar ADRs (via Sugestão)
 
 - **Objetivo:** Criar Architecture Decision Records para decisões não documentadas
-- **Pré-condições:** Template ADR disponível em `shitenno-go/docs/adrs/`
+- **Pré-condições:** Template ADR disponível em `shitenno/docs/adrs/`
 - **Fluxo principal:**
   1. Agent identifica decisão arquitetural não documentada
   2. Agent lê template ADR
   3. Agent cria ADR com: contexto, decisão, consequências, alternativas consideradas
-  4. Agent salva em `shitenno-go/docs/adrs/ADR-XXX.md`
+  4. Agent salva em `shitenno/docs/adrs/ADR-XXX.md`
 - **Eventos emitidos:** `adr.created`
 - **Pós-condições:** ADR criado, knowledge graph atualizado
 - **Testes obrigatórios:** Nenhum
@@ -388,7 +388,7 @@
   1. Agent identifica padrão de conhecimento recorrente
   2. Agent lê template de skill
   3. Agent cria skill com: descrição, quando aplicar, anti-padrões, exemplos
-  4. Agent salva em `shitenno-go/docs/skills/`
+  4. Agent salva em `shitenno/docs/skills/`
 - **Eventos emitidos:** `skill.created`
 - **Pós-condições:** Skill criada, knowledge graph atualizado
 - **Testes obrigatórios:** Nenhum
@@ -398,7 +398,7 @@
 ### UC-21: Seguir Workflows
 
 - **Objetivo:** Executar processos de governança definidos em workflows
-- **Pré-condições:** Workflows em `shitenno-go/governance/workflows/`
+- **Pré-condições:** Workflows em `shitenno/governance/workflows/`
 - **Fluxo principal:**
   1. Agent identifica workflow relevante para a tarefa
   2. Agent lê passos do workflow
@@ -423,12 +423,12 @@
 
 ---
 
-### UC-23: Validar com shiten validate
+### UC-23: Validar com shugo validate
 
 - **Objetivo:** Garantir que sessão atende critérios de integridade antes de continuar
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Agent executa `shiten validate` antes de iniciar trabalho significativo
+  1. Agent executa `shugo validate` antes de iniciar trabalho significativo
   2. Sistema verifica integridade da sessão
   3. Se falhas: Agent corrige ou reporta ao Tech Lead
   4. Se passes: Agent prossegue com trabalho
@@ -439,14 +439,14 @@
 
 ## Ator 3: Sistema (Auto-governo)
 
-> O próprio Shitenno-go, executando auto-governo, detecção, evolução, telemetria e orquestração de forma autônoma.
+> O próprio Shitenno, executando auto-governo, detecção, evolução, telemetria e orquestração de forma autônoma.
 
 ---
 
 ### UC-24: State Machine Lifecycle
 
-- **Objetivo:** Gerenciar lifecycle do próprio Shiten através de 5 estados
-- **Pré-condições:** Shiten instalado
+- **Objetivo:** Gerenciar lifecycle do próprio Shugo através de 5 estados
+- **Pré-condições:** Shugo instalado
 - **Fluxo principal:**
   1. Sistema detecta estado atual do filesystem:
      - `uninitialized`: Sem opencode.json
@@ -458,7 +458,7 @@
   3. Sistema persiste estado em `lifecycle-state.json`
 - **Eventos emitidos:** `lifecycle.state_changed`
 - **Pós-condições:** Estado atualizado e persistido
-- **Testes obrigatórios:** `shiten-state-machine.test.ts`
+- **Testes obrigatórios:** `shitenno-state-machine.test.ts`
 
 ---
 
@@ -475,7 +475,7 @@
   2. Se permitido: comando executa
   3. Se negado: sistema exibe mensagem de erro com estado requerido
 - **Pós-condições:** Comando executado ou bloqueado
-- **Testes obrigatórios:** `shiten-state-machine.test.ts`
+- **Testes obrigatórios:** `shitenno-state-machine.test.ts`
 
 ---
 
@@ -512,7 +512,7 @@
 ### UC-28: Capability Evaluation
 
 - **Objetivo:** Avaliar maturidade de cada capacidade como entidade de primeira classe
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Sistema avalia 9 capacidades: core, knowledge, architecture, governance, ai, quality, metrics, operations, compliance
   2. Para cada capacidade, verifica nível: dormant → installed → configured → active → optimized
@@ -526,7 +526,7 @@
 ### UC-29: Knowledge Debt Detection
 
 - **Objetivo:** Detectar 10 tipos de gaps de conhecimento
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Sistema verifica: ADRs faltantes, runbooks faltantes, skills faltantes, docs faltantes, automação faltante, contratos faltantes, workflows faltantes, reviews faltantes, testes faltantes, ADRs stale
   2. Sistema calcula health score (0-100)
@@ -620,7 +620,7 @@
 ### UC-36: Session Tracking
 
 - **Objetivo:** Rastrear sessões de trabalho para métricas de performance
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Sistema registra início da sessão
   2. Sistema conta comandos executados, duração, feedback dado
@@ -652,7 +652,7 @@
 - **Pré-condições:** Persistência habilitada
 - **Fluxo principal:**
   1. Event bus recebe evento
-  2. Sistema grava em `shitenno-go/telemetry/events-YYYY-MM-DD.jsonl`
+  2. Sistema grava em `shitenno/telemetry/events-YYYY-MM-DD.jsonl`
   3. Eventos ficam disponíveis para análise posterior
 - **Pós-condições:** Eventos persistidos
 - **Testes obrigatórios:** Nenhum
@@ -662,9 +662,9 @@
 ### UC-39: Cache Management
 
 - **Objetivo:** Gerenciar cache de análises para performance
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
-  1. Sistema calcula checksum do conteúdo shitenno-go/
+  1. Sistema calcula checksum do conteúdo shitenno/
   2. Se checksum mudou: cache invalidado, análise refaz
   3. Se checksum igual: cache reusado
 - **Pós-condições:** Cache gerenciado
@@ -677,7 +677,7 @@
 - **Objetivo:** Carregar e registrar plugins de extensão
 - **Pré-condições:** Diretórios de plugin existem
 - **Fluxo principal:**
-  1. Sistema busca plugins em: `shitenno-go/plugins/` (projeto) e `~/.config/shiten/plugins/` (global)
+  1. Sistema busca plugins em: `shitenno/plugins/` (projeto) e `~/.config/shugo/plugins/` (global)
   2. Sistema valida manifesto: nome, versão, descrição, hooks
   3. Sistema registra plugins com HookBus
 - **Pós-condições:** Plugins carregados
@@ -716,7 +716,7 @@
 ### UC-43: State Consolidation
 
 - **Objetivo:** Consolidar toda informação de engenharia em EngineeringState canônico
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Sistema consolida: lifecycle, metadata, maturidade, capacidades, knowledge debt, knowledge graph, assets (18 tipos), métricas de entropia, health scores
   2. Sistema descobre todos EngineeringAssets do disco
@@ -730,10 +730,10 @@
 ### UC-44: Telemetry Recording
 
 - **Objetivo:** Gravar snapshots de telemetria para análise de tendência
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Após cada assess ou init, sistema grava snapshot de maturidade
-  2. Sistema salva em `shitenno-go/telemetry/maturity-YYYY-MM-DD.json`
+  2. Sistema salva em `shitenno/telemetry/maturity-YYYY-MM-DD.json`
   3. Snapshots permitem análise de tendência temporal
 - **Pós-condições:** Telemetria gravada
 - **Testes obrigatórios:** Nenhum
@@ -743,7 +743,7 @@
 ### UC-45: Health Scoring
 
 - **Objetivo:** Calcular score de saúde geral do projeto (0-100)
-- **Pré-condições:** Shiten inicializado
+- **Pré-condições:** Shugo inicializado
 - **Fluxo principal:**
   1. Sistema verifica 7 itens de saúde
   2. Sistema calcula score baseado em: checks pass, warnings, failures
@@ -807,7 +807,7 @@
 ### Fluxo 1: Tech Lead → Sistema → AI Agent
 
 ```
-Tech Lead executa: shiten init
+Tech Lead executa: shugo init
     ↓
 Sistema: analisa projeto, questiona maturidade, scaffolding
     ↓
@@ -827,7 +827,7 @@ Sistema: detecta ADR, reconstrói knowledge graph
     ↓
 Sistema: atualiza health score
     ↓
-Tech Lead: vê resultado em shiten audit
+Tech Lead: vê resultado em shugo audit
 ```
 
 ### Fluxo 3: Sistema → Sistema (Auto-governo)
@@ -847,7 +847,7 @@ Sistema: grava telemetria
 ### Fluxo 4: Tech Lead ↔ Sistema (Feedback Loop)
 
 ```
-Tech Lead: executa shiten evolve
+Tech Lead: executa shugo evolve
     ↓
 Sistema: gera recomendação com Dual Path
     ↓

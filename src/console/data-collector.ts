@@ -1,5 +1,5 @@
 /**
- * data-collector.ts — Collects all data from Shiten modules for the Console
+ * data-collector.ts — Collects all data from Shugo modules for the Console
  *
  * Reads from engineering-state, maturity-profile, knowledge-graph,
  * knowledge-debt, goal-engine, decision-engine, session-tracker,
@@ -14,7 +14,7 @@ import { consolidateEngineeringState, type EngineeringState } from "../engineeri
 import { loadMaturityProfile, type MaturityProfile } from "../maturity-profile.js";
 import { loadArtifacts, loadRelations, analyzeGraph, type GraphAnalysis } from "../knowledge-graph.js";
 import { detectKnowledgeDebt, type KnowledgeDebtReport } from "../knowledge-debt.js";
-import { detectLifecycleState, type ShitenLifecycleState } from "../shiten-state-machine.js";
+import { detectLifecycleState, type ShitennoLifecycleState } from "../shitenno-state-machine.js";
 import { getSessionMetrics, type SessionMetrics } from "../session-tracker.js";
 import { getEventBus, type EventEnvelope } from "../event-bus.js";
 import { detectCapabilitySignalsFromFilesystem, type Capability } from "../maturity-profile.js";
@@ -26,10 +26,10 @@ import { loadGrowthProfile, type GrowthProfile } from "../growth-profile.js";
 export interface ConsoleData {
   timestamp: string;
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
 
   // Lifecycle
-  lifecycle: ShitenLifecycleState;
+  lifecycle: ShitennoLifecycleState;
 
   // Engineering State
   engineering: EngineeringState;
@@ -118,47 +118,47 @@ export interface DecisionData {
 
 // ── Data Collection ────────────────────────────────────────────────────────
 
-export function collectConsoleData(projectRoot: string, shitenDir: string): ConsoleData {
+export function collectConsoleData(projectRoot: string, shitennoDir: string): ConsoleData {
   const timestamp = new Date().toISOString();
 
   // Lifecycle
-  const lifecycle = detectLifecycleState(projectRoot, shitenDir);
+  const lifecycle = detectLifecycleState(projectRoot, shitennoDir);
 
   // Engineering State
-  const engineering = consolidateEngineeringState(projectRoot, shitenDir);
+  const engineering = consolidateEngineeringState(projectRoot, shitennoDir);
 
   // Maturity
-  const maturity = loadMaturityProfile(shitenDir);
+  const maturity = loadMaturityProfile(shitennoDir);
 
   // Knowledge Graph
-  const artifacts = loadArtifacts(shitenDir);
-  const relations = loadRelations(shitenDir);
+  const artifacts = loadArtifacts(shitennoDir);
+  const relations = loadRelations(shitennoDir);
   const graph = analyzeGraph(artifacts, relations);
 
   // Knowledge Debt
-  const debt = detectKnowledgeDebt(projectRoot, shitenDir);
+  const debt = detectKnowledgeDebt(projectRoot, shitennoDir);
 
   // Capabilities
-  const capabilities = detectCapabilitySignalsFromFilesystem(shitenDir);
+  const capabilities = detectCapabilitySignalsFromFilesystem(shitennoDir);
 
   // Capability Entities (with full metadata)
-  const capabilityResult = evaluateCapabilities(engineering, shitenDir);
+  const capabilityResult = evaluateCapabilities(engineering, shitennoDir);
   const capabilityEntities = capabilityResult.capabilities;
 
   // Goals
-  const goals = loadGoals(shitenDir);
+  const goals = loadGoals(shitennoDir);
 
   // Decisions
-  const decisions = loadDecisions(shitenDir);
+  const decisions = loadDecisions(shitennoDir);
 
   // Session Metrics
-  const session = getSessionMetrics(shitenDir);
+  const session = getSessionMetrics(shitennoDir);
 
   // Recent Events (last 20)
   const recentEvents = getEventBus().getHistory().slice(-20);
 
   // Growth Profile
-  const growth = loadGrowthProfile(shitenDir);
+  const growth = loadGrowthProfile(shitennoDir);
 
   // Entropy
   const entropy = engineering.entropy;
@@ -187,7 +187,7 @@ export function collectConsoleData(projectRoot: string, shitenDir: string): Cons
   return {
     timestamp,
     projectRoot,
-    shitenDir,
+    shitennoDir,
     lifecycle,
     engineering,
     maturity,
@@ -221,10 +221,10 @@ const cache = new Map<string, CacheEntry>();
  */
 export function getOrCollectConsoleData(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   ttlMs: number = 5000,
 ): ConsoleData {
-  const key = `${projectRoot}:${shitenDir}`;
+  const key = `${projectRoot}:${shitennoDir}`;
   const now = Date.now();
   const entry = cache.get(key);
 
@@ -232,7 +232,7 @@ export function getOrCollectConsoleData(
     return entry.data;
   }
 
-  const data = collectConsoleData(projectRoot, shitenDir);
+  const data = collectConsoleData(projectRoot, shitennoDir);
   cache.set(key, { data, timestamp: now });
   return data;
 }
@@ -250,8 +250,8 @@ function countByType(artifacts: Array<{ type: string }>, type: string): number {
   return artifacts.filter((a) => a.type === type).length;
 }
 
-function loadGoals(shitenDir: string): GoalData[] {
-  const goalsDir = join(shitenDir, "governance", "goals");
+function loadGoals(shitennoDir: string): GoalData[] {
+  const goalsDir = join(shitennoDir, "governance", "goals");
   if (!existsSync(goalsDir)) return [];
 
   return readdirSync(goalsDir)
@@ -266,8 +266,8 @@ function loadGoals(shitenDir: string): GoalData[] {
     .filter((g): g is GoalData => g !== null);
 }
 
-function loadDecisions(shitenDir: string): DecisionData[] {
-  const decisionsDir = join(shitenDir, "governance", "decisions");
+function loadDecisions(shitennoDir: string): DecisionData[] {
+  const decisionsDir = join(shitennoDir, "governance", "decisions");
   if (!existsSync(decisionsDir)) return [];
 
   return readdirSync(decisionsDir)

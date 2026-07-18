@@ -4,7 +4,7 @@ export default function TeamOnboarding() {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
-        <h1 className="text-2xl font-bold text-text-primary">Joining a team that uses Shiten?</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Joining a team that uses Shugo?</h1>
         <p className="text-text-secondary max-w-2xl">
           You don't need to read everything. Here's what to do on your first day.
         </p>
@@ -16,7 +16,7 @@ export default function TeamOnboarding() {
             <span className="w-7 h-7 rounded-full bg-accent-subtle text-accent flex items-center justify-center text-xs font-bold">1</span>
             <h3 className="text-sm font-semibold text-text-primary">Get the project summary in one command</h3>
           </div>
-          <div className="command-block">shiten status</div>
+          <div className="command-block">shugo status</div>
           <p className="text-xs text-text-muted">
             This replaces "can someone catch me up on the project?" — it shows governance health, maturity scores, and complexity in one view.
           </p>
@@ -31,12 +31,12 @@ export default function TeamOnboarding() {
             Architectural decisions are recorded as ADRs (Architecture Decision Records). You can find them at:
           </p>
           <ul className="text-sm text-text-secondary flex flex-col gap-1">
-            <li><code className="text-accent">shitenno-go/docs/adr/</code> — Decision records</li>
-            <li><code className="text-accent">shitenno-go/docs/skills/</code> — Engineering practices the team follows</li>
-            <li><code className="text-accent">shitenno-go/governance/context/context_buffer.yaml</code> — Current session state</li>
+            <li><code className="text-accent">shitenno/docs/adr/</code> — Decision records</li>
+            <li><code className="text-accent">shitenno/docs/skills/</code> — Engineering practices the team follows</li>
+            <li><code className="text-accent">shitenno/governance/context/context_buffer.yaml</code> — Current session state</li>
           </ul>
           <p className="text-xs text-text-muted">
-            You don't need to read all of them. Start with <code className="text-accent">shiten status</code> — it tells you which areas need attention.
+            You don't need to read all of them. Start with <code className="text-accent">shugo status</code> — it tells you which areas need attention.
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function TeamOnboarding() {
           <div className="grid sm:grid-cols-2 gap-3 mt-2">
             <div className="bg-surface-2 rounded-lg p-3 flex flex-col gap-1">
               <div className="text-xs font-semibold text-text-primary">Discover</div>
-              <p className="text-xs text-text-muted">What Shiten is and who it's for</p>
+              <p className="text-xs text-text-muted">What Shugo is and who it's for</p>
             </div>
             <div className="bg-surface-2 rounded-lg p-3 flex flex-col gap-1">
               <div className="text-xs font-semibold text-text-primary">Concepts</div>
@@ -73,15 +73,15 @@ export default function TeamOnboarding() {
         <h2 className="text-lg font-semibold text-text-primary">Quick reference</h2>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <code className="text-accent font-mono text-xs font-bold">shiten status</code>
+            <code className="text-accent font-mono text-xs font-bold">shugo status</code>
             <span className="text-xs text-text-secondary">— Project health and maturity</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="text-accent font-mono text-xs font-bold">shiten run</code>
+            <code className="text-accent font-mono text-xs font-bold">shugo run</code>
             <span className="text-xs text-text-secondary">— Full pipeline (run weekly)</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="text-accent font-mono text-xs font-bold">shiten validate</code>
+            <code className="text-accent font-mono text-xs font-bold">shugo validate</code>
             <span className="text-xs text-text-secondary">— Check session integrity</span>
           </div>
         </div>

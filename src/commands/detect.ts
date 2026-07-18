@@ -30,14 +30,14 @@ export const detectCommand = new Command("detect")
 
     if (!isJson && !isAuto) {
       output("");
-      banner("shiten detect", "Pattern Detection");
+      banner("shugo detect", "Pattern Detection");
       outputBlank();
     }
 
     const ctx = guardNotInitialized(options, isJson);
     if (!ctx) return;
 
-    if (!checkLifecycleGate("detect", ctx.projectRoot, ctx.shitenDir, isJson)) return;
+    if (!checkLifecycleGate("detect", ctx.projectRoot, ctx.shitennoDir, isJson)) return;
 
     // ── Approve/Reject mode ────────────────────────────────────────
     if (options.approve || options.reject) {
@@ -45,15 +45,15 @@ export const detectCommand = new Command("detect")
       const action = options.approve ? "approve" : "reject";
 
       // Read existing report
-      const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitenDir, "patterns",
-        () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+      const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitennoDir, "patterns",
+        () => computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
 
       if (!cached) {
         if (isJson) {
-        outputJson({ error: "no_report", message: "No detection report found. Run 'shiten detect' first." });
+        outputJson({ error: "no_report", message: "No detection report found. Run 'shugo detect' first." });
         } else {
         outputError("No detection report found.");
-        output(chalk.gray("    Run 'shiten detect' first."));
+        output(chalk.gray("    Run 'shugo detect' first."));
         }
         return;
       }
@@ -73,7 +73,7 @@ export const detectCommand = new Command("detect")
       }
 
       // Record the decision
-      recordFeedback(ctx.shitenDir, {
+      recordFeedback(ctx.shitennoDir, {
         recommendationId: `rule-${ruleId}`,
         action: action === "approve" ? "accepted" : "rejected",
         context: { maturityScore: 0, installedCapabilities: [], knowledgeDebt: 0 },
@@ -97,14 +97,14 @@ export const detectCommand = new Command("detect")
     // Step 2.4: In --auto mode, also check for Done plans to archive
     if (isAuto) {
       try {
-        const result = checkAndArchiveDonePlans(ctx.shitenDir);
+        const result = checkAndArchiveDonePlans(ctx.shitennoDir);
         if (result.archived > 0) {
           // Log minimal info for hooks (goes to stderr which is /dev/null usually, but good practice)
-          logger.error("detect", `[shiten detect --auto] Archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
+          logger.error("detect", `[shugo detect --auto] Archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
         }
       } catch (err) {
         // Don't crash the hook if archiving fails
-        logger.error("detect", `[shiten detect --auto] Plan archiving failed: ${err}`);
+        logger.error("detect", `[shugo detect --auto] Plan archiving failed: ${err}`);
       }
     }
 
@@ -115,22 +115,22 @@ export const detectCommand = new Command("detect")
       let report: PatternDetectionReport;
       let cacheHit = false;
       if (options.cache !== false) {
-        const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitenDir, "patterns",
-          () => computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+        const cached = getCached<PatternDetectionReport>(ctx.projectRoot, ctx.shitennoDir, "patterns",
+          () => computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
         if (cached) {
           report = cached;
           cacheHit = true;
         } else {
-          report = detectPatterns(ctx.projectRoot, ctx.shitenDir);
-          setCache(ctx.projectRoot, ctx.shitenDir, "patterns", report,
-            computeKeyChecksums(ctx.projectRoot, ctx.shitenDir));
+          report = detectPatterns(ctx.projectRoot, ctx.shitennoDir);
+          setCache(ctx.projectRoot, ctx.shitennoDir, "patterns", report,
+            computeKeyChecksums(ctx.projectRoot, ctx.shitennoDir));
         }
       } else {
-        report = detectPatterns(ctx.projectRoot, ctx.shitenDir);
+        report = detectPatterns(ctx.projectRoot, ctx.shitennoDir);
       }
 
       // Write report
-      const reportFile = writePatternReport(ctx.shitenDir, report);
+      const reportFile = writePatternReport(ctx.shitennoDir, report);
 
       if (!isJson && !isAuto) {
         spinner?.succeed(`Analyzed ${report.historyEntriesAnalyzed} history entries, ${report.reportsAnalyzed} reports`);
@@ -138,7 +138,7 @@ export const detectCommand = new Command("detect")
 
       // JSON output
       if (format === "json") {
-        const growthProfile = loadGrowthProfile(ctx.shitenDir);
+        const growthProfile = loadGrowthProfile(ctx.shitennoDir);
         outputJson({
           projectRoot: ctx.projectRoot,
           historyEntriesAnalyzed: report.historyEntriesAnalyzed,
@@ -269,7 +269,7 @@ export const detectCommand = new Command("detect")
       outputBlank();
 
       if (reportFile) {
-        output(chalk.gray(`  Report saved: shitenno-go/reports/${reportFile}`));
+        output(chalk.gray(`  Report saved: shitenno/reports/${reportFile}`));
         outputBlank();
       }
 
@@ -279,7 +279,7 @@ export const detectCommand = new Command("detect")
       outputBlank();
 
       // Growth profile
-      const growthProfile = loadGrowthProfile(ctx.shitenDir);
+      const growthProfile = loadGrowthProfile(ctx.shitennoDir);
       output(formatGrowthProgress(growthProfile));
       outputBlank();
 
@@ -299,7 +299,7 @@ export const detectCommand = new Command("detect")
 
       // Record feedback for candidate rules
       for (const rule of report.candidateRules) {
-        recordFeedback(ctx.shitenDir, {
+        recordFeedback(ctx.shitennoDir, {
           recommendationId: `rule-${rule.id}`,
           action: "deferred",
           context: { maturityScore: 0, installedCapabilities: [], knowledgeDebt: 0 },

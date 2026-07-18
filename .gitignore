@@ -31,34 +31,34 @@ yarn-error.log*
 coverage/
 .vitest/
 
-# Shiten
-.shiten-cache.json
+# Shugo
+.shitenno-cache.json
 
-# Shitenno-go — dados privados
-shitenno-go/docs/feedback/
-shitenno-go/telemetry/
-shitenno-go/session-feedback/
-shitenno-go/user-profile.json
-shitenno-go/BRIEFING.md
+# Shitenno — dados privados
+shitenno/docs/feedback/
+shitenno/telemetry/
+shitenno/session-feedback/
+shitenno/user-profile.json
+shitenno/BRIEFING.md
 
-# Shitenno-go — auto-generated state files (mudam a cada execução)
-shitenno-go/docs/history/
-shitenno-go/reports/
-shitenno-go/feedback/summary.json
-shitenno-go/feedback/records/
+# Shitenno — auto-generated state files (mudam a cada execução)
+shitenno/docs/history/
+shitenno/reports/
+shitenno/feedback/summary.json
+shitenno/feedback/records/
 
-# Shitenno-go — daemon runtime state (process-specific, never version)
-shitenno-go/daemon/
+# Shitenno — daemon runtime state (process-specific, never version)
+shitenno/daemon/
 
-# Shitenno-go — derived/computable state (rebuilt from code, not human-editable)
-shitenno-go/engineering-state.json
-shitenno-go/fingerprint.json
-shitenno-go/capability-engine.json
-shitenno-go/maturity-profile.json
-shitenno-go/answers.json
+# Shitenno — derived/computable state (rebuilt from code, not human-editable)
+shitenno/engineering-state.json
+shitenno/fingerprint.json
+shitenno/capability-engine.json
+shitenno/maturity-profile.json
+shitenno/answers.json
 
-# Shitenno-go — cache
-shitenno-go/.cache/
+# Shitenno — cache
+shitenno/.cache/
 
 # Images
 logo.png

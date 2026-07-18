@@ -16,7 +16,7 @@ export default function GettingStarted() {
             <span className="w-7 h-7 rounded-full bg-accent-subtle text-accent flex items-center justify-center text-xs font-bold">1</span>
             <h3 className="text-sm font-semibold text-text-primary">Install the CLI</h3>
           </div>
-          <div className="command-block">npm install -g shitenno-go</div>
+          <div className="command-block">npm install -g shitenno</div>
         </div>
 
         <div className="layer-card flex flex-col gap-2">
@@ -24,7 +24,7 @@ export default function GettingStarted() {
             <span className="w-7 h-7 rounded-full bg-accent-subtle text-accent flex items-center justify-center text-xs font-bold">2</span>
             <h3 className="text-sm font-semibold text-text-primary">Initialize your project</h3>
           </div>
-          <div className="command-block">shiten init</div>
+          <div className="command-block">shugo init</div>
           <pre className="text-xs text-text-secondary bg-surface-2 rounded-lg p-3 overflow-x-auto">{`  Detected:
     Stack:     typescript
     Packages:  3
@@ -39,7 +39,7 @@ export default function GettingStarted() {
             <span className="w-7 h-7 rounded-full bg-accent-subtle text-accent flex items-center justify-center text-xs font-bold">3</span>
             <h3 className="text-sm font-semibold text-text-primary">Check your status</h3>
           </div>
-          <div className="command-block">shiten status</div>
+          <div className="command-block">shugo status</div>
           <pre className="text-xs text-text-secondary bg-surface-2 rounded-lg p-3 overflow-x-auto">{`  Governance Health: ✔ 7 passed  ⚠ 0 warnings  ✘ 0 failed
   Maturity: 59/100 ████████████░░░░░░░░
   Complexity: 12/20`}</pre>

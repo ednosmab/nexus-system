@@ -7,9 +7,9 @@ const configs = [
     path: 'opencode.json',
   },
   {
-    name: 'shiten-profile',
+    name: 'shitenno-profile',
     description: 'Profile de configuracao especifico do projecto.',
-    path: '.shiten/shiten-profile/',
+    path: '.shugo/shitenno-profile/',
   },
   {
     name: 'context_buffer.yaml',
@@ -19,12 +19,12 @@ const configs = [
   {
     name: 'maturity-profile.json',
     description: 'Perfil de maturidade e thresholds.',
-    path: '.shiten/maturity-profile.json',
+    path: '.shugo/maturity-profile.json',
   },
   {
     name: 'fingerprint.json',
     description: 'Identificador unico e stack do projecto.',
-    path: '.shiten/fingerprint.json',
+    path: '.shugo/fingerprint.json',
   },
 ]
 
@@ -34,7 +34,7 @@ export default function Configuration() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Configuracao</h1>
         <p className="text-text-secondary max-w-2xl">
-          Ficheiros de configuracao do Shitenno-go e seus respectivos formatos.
+          Ficheiros de configuracao do Shitenno e seus respectivos formatos.
         </p>
       </section>
 

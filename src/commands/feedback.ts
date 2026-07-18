@@ -1,17 +1,17 @@
 /**
  * feedback.ts — Context Pipeline: Feedback CLI Command
  *
- * The `shiten feedback` command. Lets AI agents report session outcomes
+ * The `shugo feedback` command. Lets AI agents report session outcomes
  * after completing work, closing the feedback loop.
  *
  * Usage:
- *   shiten feedback --outcome success
- *   shiten feedback --outcome failure --notes "Type error in auth module"
- *   shiten feedback --outcome partial --areas src/auth,src/payments
- *   shiten feedback --outcome success --user-rating 4 --user-comment "Great session"
- *   shiten feedback --json
- *   shiten feedback --summary
- *   shiten feedback --personalized
+ *   shugo feedback --outcome success
+ *   shugo feedback --outcome failure --notes "Type error in auth module"
+ *   shugo feedback --outcome partial --areas src/auth,src/payments
+ *   shugo feedback --outcome success --user-rating 4 --user-comment "Great session"
+ *   shugo feedback --json
+ *   shugo feedback --summary
+ *   shugo feedback --personalized
  */
 
 import { Command } from "commander";
@@ -61,31 +61,31 @@ export function feedbackCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      void printDaemonBanner(ctx.shitenDir, isJson);
+      void printDaemonBanner(ctx.shitennoDir, isJson);
 
-      if (!checkLifecycleGate("feedback", ctx.projectRoot, ctx.shitenDir, isJson)) {
+      if (!checkLifecycleGate("feedback", ctx.projectRoot, ctx.shitennoDir, isJson)) {
         return;
       }
 
       // ── Personalized mode ────────────────────────────────────────
       if (options.personalized) {
-        const records = getFeedbackRecords(ctx.shitenDir);
+        const records = getFeedbackRecords(ctx.shitennoDir);
         const latestRecord = records.at(-1);
 
         if (!latestRecord) {
           if (isJson) {
             outputJson({
               error: "no_feedback",
-              message: "No feedback records found. Run 'shiten feedback --outcome <type>' first.",
+              message: "No feedback records found. Run 'shugo feedback --outcome <type>' first.",
             });
           } else {
             outputError("No feedback records found.");
-            output(chalk.gray("    Run 'shiten feedback --outcome <type>' first."));
+            output(chalk.gray("    Run 'shugo feedback --outcome <type>' first."));
           }
           return;
         }
 
-        const profile = loadUserProfile(ctx.shitenDir);
+        const profile = loadUserProfile(ctx.shitennoDir);
         const feedback = generatePersonalizedFeedback(latestRecord, profile);
         const markdown = formatFeedbackAsMarkdown(feedback);
 
@@ -99,7 +99,7 @@ export function feedbackCommand(): Command {
 
         // Save to feedback directory
         const { existsSync, mkdirSync } = await import("node:fs");
-        const feedbackDir = join(ctx.shitenDir, "docs", "feedback");
+        const feedbackDir = join(ctx.shitennoDir, "docs", "feedback");
         if (!existsSync(feedbackDir)) {
           mkdirSync(feedbackDir, { recursive: true });
         }
@@ -123,14 +123,14 @@ export function feedbackCommand(): Command {
 
       // ── List mode ─────────────────────────────────────────────────
       if (options.list) {
-        const records = getFeedbackRecords(ctx.shitenDir);
+        const records = getFeedbackRecords(ctx.shitennoDir);
 
         if (records.length === 0) {
           if (isJson) {
             outputJson({ type: "feedback_list", records: [] });
           } else {
             outputWarning("No feedback records found.");
-            output(chalk.gray("  Run 'shiten feedback --outcome <type>' to record feedback."));
+            output(chalk.gray("  Run 'shugo feedback --outcome <type>' to record feedback."));
           }
           return;
         }
@@ -141,7 +141,7 @@ export function feedbackCommand(): Command {
         }
 
         output("");
-        outputSection("shiten feedback — Session History");
+        outputSection("shugo feedback — Session History");
         outputBlank();
 
         for (const record of records.slice(-20)) {
@@ -164,7 +164,7 @@ export function feedbackCommand(): Command {
 
       // ── Summary mode ─────────────────────────────────────────────
       if (options.summary) {
-        const records = getFeedbackRecords(ctx.shitenDir);
+        const records = getFeedbackRecords(ctx.shitennoDir);
         const summary = computeFeedbackSummary(records);
 
         if (isJson) {
@@ -173,7 +173,7 @@ export function feedbackCommand(): Command {
         }
 
         output("");
-        outputSection("shiten feedback — Session Summary");
+        outputSection("shugo feedback — Session Summary");
         outputBlank();
         outputSection("Statistics");
         output(`     Total sessions: ${chalk.cyan(String(summary.totalSessions))}`);
@@ -213,8 +213,8 @@ export function feedbackCommand(): Command {
           });
         } else {
           outputError("Provide --outcome with one of: success, failure, partial, session-start, session-end");
-          output(chalk.gray("    Example: shiten feedback --outcome success"));
-          output(chalk.gray("    Example: shiten feedback --outcome failure --notes 'Build broke'"));
+          output(chalk.gray("    Example: shugo feedback --outcome success"));
+          output(chalk.gray("    Example: shugo feedback --outcome failure --notes 'Build broke'"));
         }
         return;
       }
@@ -228,7 +228,7 @@ export function feedbackCommand(): Command {
         : undefined;
 
       // Read current briefing hash from cache
-      const cache = readCache(ctx.shitenDir);
+      const cache = readCache(ctx.shitennoDir);
       const briefingHash = cache?.entry?.inputHash ?? "";
       const briefingTimestamp = cache?.entry?.computedAt ?? "";
 
@@ -238,7 +238,7 @@ export function feedbackCommand(): Command {
         ? String(options["user-comment"])
         : undefined;
 
-      const storage = createFileStorage(ctx.shitenDir);
+      const storage = createFileStorage(ctx.shitennoDir);
       const record = recordOutcome(storage, {
         outcome: outcome as SessionOutcome,
         briefingHash,
@@ -255,12 +255,12 @@ export function feedbackCommand(): Command {
 
       // Update user profile based on session outcome
       const updatedProfile = updateProfileFromSession(
-        ctx.shitenDir,
+        ctx.shitennoDir,
         record.outcome,
         true, // followedRecommendations (default assumption)
         record.durationMinutes
       );
-      saveUserProfile(ctx.shitenDir, updatedProfile);
+      saveUserProfile(ctx.shitennoDir, updatedProfile);
 
       if (isJson) {
         outputJson({
@@ -297,7 +297,7 @@ export function feedbackCommand(): Command {
       // Auto-link: suggest areas on failure
       if (outcome === "failure" && (!modifiedAreas || modifiedAreas.length === 0)) {
         try {
-          const records = getFeedbackRecords(ctx.shitenDir);
+          const records = getFeedbackRecords(ctx.shitennoDir);
           if (records.length > 1) {
             const summary = computeFeedbackSummary(records);
             if (summary.failureHotspots.length > 0) {
@@ -319,7 +319,7 @@ export function feedbackCommand(): Command {
       const sessionId = options["session-id"] ? String(options["session-id"]) : getSessionId();
       if (sessionId) {
         trackFeedback(
-          ctx.shitenDir,
+          ctx.shitennoDir,
           sessionId,
           outcome as "accepted" | "rejected" | "deferred"
         );

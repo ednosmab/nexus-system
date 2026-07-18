@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import type { UserAnswers } from "./prompts.js";
 import type { Capability } from "./maturity-profile.js";
 import { logger } from "./logger.js";
-import { SHITEN_DIR_NAME } from "./constants.js";
+import { SHITENNO_DIR_NAME } from "./constants.js";
 import { getCapabilityMapping } from "./capability-mapping.js";
 
 const { copySync, ensureDirSync, readFileSync, writeFileSync, existsSync, readdirSync, removeSync } = fse;
@@ -60,7 +60,7 @@ function selectSkills(capabilities: Capability[]): string[] {
 
   // Governance skills
   const govSkills = [
-    "operacao_no_shiten",
+    "operacao_no_shitenno",
     "quick-board-enforcement",
     "system-first",
   ];
@@ -94,9 +94,9 @@ function selectSkills(capabilities: Capability[]): string[] {
 // ── Main Scaffolding Function ───────────────────────────────────────────────
 
 /**
- * Cria a estrutura inicial do Shitenno-go num projeto.
+ * Cria a estrutura inicial do Shitenno num projeto.
  *
- * Gera opencode.json, shitenno-go/, shiten-profile/, skills,
+ * Gera opencode.json, shitenno/, shitenno-profile/, skills,
  * scripts e docs baseado nas capacidades seleccionadas.
  *
  * @param targetDir - Directorio onde criar a estrutura
@@ -104,7 +104,7 @@ function selectSkills(capabilities: Capability[]): string[] {
  * @param capabilities - Capacidades a instalar (knowledge, governance, etc.)
  * @returns Resultado com ficheiros e directórios criados
  */
-export function scaffoldShitennoGo(
+export function scaffoldShitenno(
   targetDir: string,
   answers: UserAnswers,
   capabilities: Capability[]
@@ -183,7 +183,7 @@ export function scaffoldShitennoGo(
 
   // Generate ProjectProfile
   const profileTemplate = readFileSync(
-    join(baseDir, SHITEN_DIR_NAME, "profile", "_template.config.ts"), "utf-8"
+    join(baseDir, SHITENNO_DIR_NAME, "profile", "_template.config.ts"), "utf-8"
   );
   const dirName = targetDir.split(/[/\\]/).pop() || "my-project";
   const projectName = dirName.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
@@ -192,12 +192,12 @@ export function scaffoldShitennoGo(
   const profileContent = profileTemplate
     .replace(/\[PROJECT_NAME\]/g, projectName)
     .replace(/areas: \[.*?\]/s, `areas: [\n${areasStr}\n  ]`);
-  const profilePath = join(targetDir, SHITEN_DIR_NAME, "profile", `${projectName}.config.ts`);
+  const profilePath = join(targetDir, SHITENNO_DIR_NAME, "profile", `${projectName}.config.ts`);
   writeFileSync(profilePath, profileContent, "utf-8");
-  result.filesCreated.push(`shitenno-go/profile/${projectName}.config.ts`);
+  result.filesCreated.push(`${SHITENNO_DIR_NAME}/profile/${projectName}.config.ts`);
 
   // Remove template file
-  const templatePath = join(targetDir, SHITEN_DIR_NAME, "profile", "_template.config.ts");
+  const templatePath = join(targetDir, SHITENNO_DIR_NAME, "profile", "_template.config.ts");
   if (existsSync(templatePath)) {
     removeSync(templatePath);
   }
@@ -208,21 +208,21 @@ export function scaffoldShitennoGo(
   if (existsSync(gitignorePath)) {
     gitignoreContent = readFileSync(gitignorePath, "utf-8");
   }
-  if (!gitignoreContent.includes("shitenno-go/docs/feedback")) {
-    const feedbackIgnore = "\n# Shitenno-go — feedback de sessão (dado privado, não versionado)\nshitenno-go/docs/feedback/\n";
+  if (!gitignoreContent.includes(`${SHITENNO_DIR_NAME}/docs/feedback`)) {
+    const feedbackIgnore = `\n# Shitenno — feedback de sessão (dado privado, não versionado)\n${SHITENNO_DIR_NAME}/docs/feedback/\n`;
     writeFileSync(gitignorePath, gitignoreContent + feedbackIgnore, "utf-8");
   }
 
   // Copy selected skills (only if knowledge capability is installed)
-  if (capabilities.includes("knowledge") && allDirs.has("shitenno-go/docs/skills")) {
+  if (capabilities.includes("knowledge") && allDirs.has(`${SHITENNO_DIR_NAME}/docs/skills`)) {
     const skillsDir = join(baseDir, "docs/skills");
     const selectedSkills = selectSkills(capabilities);
     for (const skill of selectedSkills) {
       const srcPath = join(skillsDir, `${skill}.md`);
       if (!existsSync(srcPath)) continue;
-      const destPath = join(targetDir, SHITEN_DIR_NAME, "docs", "skills", `${skill}.md`);
+      const destPath = join(targetDir, SHITENNO_DIR_NAME, "docs", "skills", `${skill}.md`);
       copySync(srcPath, destPath);
-      result.filesCreated.push(`shitenno-go/docs/skills/${skill}.md`);
+      result.filesCreated.push(`${SHITENNO_DIR_NAME}/docs/skills/${skill}.md`);
     }
   }
 
@@ -301,7 +301,7 @@ export function updateSystemMapCapabilityStatus(
   const newBlock = [
     "<!-- CAPABILITY_STATUS -->",
     "As capacidades instaladas neste projecto determinam quais secções do AGENTS.md",
-    "estão activas. Execute `shiten upgrade --list` para ver todas as capacidades.",
+    "estão activas. Execute `shugo upgrade --list` para ver todas as capacidades.",
     "",
     "| Capacidade | Estado | Descrição |",
     "|---|---|---|",
@@ -330,7 +330,7 @@ function fillPlaceholders(content: string, answers: UserAnswers): string {
     .replace(/\[PERSONALIZAR: regras específicas de ambiente de teste e deploy, se aplicável\]/g, "[Adicionar regras de ambiente se aplicável]")
     .replace(/\[PERSONALIZAR: regras específicas do design system do projecto[\s\S]*?\]/g, `[Adicionar regras do design system: ${stylingStr}]`)
     .replace(/\[PERSONALIZAR: ex: T-shaped\]/g, "T-shaped")
-    .replace(/\[PERSONALIZAR: ex: senior\]/g, answers.maturity?.usedShitenBefore ? "senior" : "pleno")
+    .replace(/\[PERSONALIZAR: ex: senior\]/g, answers.maturity?.usedShitennoBefore ? "senior" : "pleno")
     .replace(/\[PERSONALIZAR: ex: junior-pleno\]/g, "pleno")
     .replace(/\[PERSONALIZAR: ex: peer \(par a par\)\]/g, "peer")
     .replace(/\[PERSONALIZAR: ex: mentor \(explicativo\)\]/g, answers.maturity?.isFirstProject ? "mentor" : "peer")

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getHookBus, resetHookBus, type ShitenPlugin } from "../plugin-system.js";
+import { getHookBus, resetHookBus, type ShitennoPlugin } from "../plugin-system.js";
 
 describe("PluginSystem", () => {
   beforeEach(() => {
@@ -9,7 +9,7 @@ describe("PluginSystem", () => {
   describe("HookBus", () => {
     it("registers plugins", () => {
       const bus = getHookBus();
-      const plugin: ShitenPlugin = {
+      const plugin: ShitennoPlugin = {
         name: "test-plugin",
         version: "1.0.0",
         description: "Test plugin",
@@ -23,7 +23,7 @@ describe("PluginSystem", () => {
     it("rejects duplicate plugins", () => {
       vi.spyOn(console, "warn").mockImplementation(() => {});
       const bus = getHookBus();
-      const plugin: ShitenPlugin = {
+      const plugin: ShitennoPlugin = {
         name: "test-plugin",
         version: "1.0.0",
         description: "Test plugin",
@@ -39,7 +39,7 @@ describe("PluginSystem", () => {
       const bus = getHookBus();
       let called = false;
 
-      const plugin: ShitenPlugin = {
+      const plugin: ShitennoPlugin = {
         name: "test-plugin",
         version: "1.0.0",
         description: "Test plugin",
@@ -63,7 +63,7 @@ describe("PluginSystem", () => {
     it("executeHook transforms input through plugins", async () => {
       const bus = getHookBus();
 
-      const plugin1: ShitenPlugin = {
+      const plugin1: ShitennoPlugin = {
         name: "plugin-1",
         version: "1.0.0",
         description: "Plugin 1",
@@ -75,7 +75,7 @@ describe("PluginSystem", () => {
         },
       };
 
-      const plugin2: ShitenPlugin = {
+      const plugin2: ShitennoPlugin = {
         name: "plugin-2",
         version: "1.0.0",
         description: "Plugin 2",
@@ -103,7 +103,7 @@ describe("PluginSystem", () => {
       vi.spyOn(console, "error").mockImplementation(() => {});
       const bus = getHookBus();
 
-      const failingPlugin: ShitenPlugin = {
+      const failingPlugin: ShitennoPlugin = {
         name: "failing",
         version: "1.0.0",
         description: "Failing plugin",
@@ -114,7 +114,7 @@ describe("PluginSystem", () => {
         },
       };
 
-      const successPlugin: ShitenPlugin = {
+      const successPlugin: ShitennoPlugin = {
         name: "success",
         version: "1.0.0",
         description: "Success plugin",

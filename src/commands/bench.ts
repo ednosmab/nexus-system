@@ -7,10 +7,10 @@
  * - Comparison with manual discovery approach
  *
  * Usage:
- *   shiten bench                    # Full benchmark
- *   shiten bench --json             # JSON output
- *   shiten bench --iterations <n>   # Number of iterations (default: 5)
- *   shiten bench --compare          # Compare with previous benchmark
+ *   shugo bench                    # Full benchmark
+ *   shugo bench --json             # JSON output
+ *   shugo bench --iterations <n>   # Number of iterations (default: 5)
+ *   shugo bench --compare          # Compare with previous benchmark
  */
 
 import { Command } from "commander";
@@ -21,7 +21,7 @@ import { guardNotInitialized, checkLifecycleGate } from "../shared.js";
 import { collectContext, type ContextSnapshot } from "../context-collector.js";
 import { computeInputHash, setCachedBriefing, readCache, invalidateBriefingCache } from "../briefing-cache.js";
 import { outputJson } from "../formatting.js";
-import { SHITEN_DIR_NAME } from "../constants.js";
+import { SHITENNO_DIR_NAME } from "../constants.js";
 import { output, outputBlank, outputSection } from "../output.js";
 
 // ── Benchmark Helpers ──────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ function estimateManualTokens(projectRoot: string): number {
     for (const entry of entries) {
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (!entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== SHITEN_DIR_NAME) {
+        if (!entry.name.startsWith(".") && entry.name !== "node_modules" && entry.name !== SHITENNO_DIR_NAME) {
           walkDir(fullPath);
         }
       } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".js") || entry.name.endsWith(".json")) {
@@ -78,19 +78,19 @@ interface BenchmarkResult {
 
 function runBenchmark(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   iterations: number
 ): BenchmarkResult {
   // Warm up
-  collectContext(projectRoot, shitenDir);
+  collectContext(projectRoot, shitennoDir);
 
   // Benchmark fresh briefing
   const freshTimes: number[] = [];
   let lastSnapshot: ContextSnapshot | undefined;
   for (let i = 0; i < iterations; i++) {
-    invalidateBriefingCache(shitenDir);
+    invalidateBriefingCache(shitennoDir);
     const start = performance.now();
-    const snap = collectContext(projectRoot, shitenDir);
+    const snap = collectContext(projectRoot, shitennoDir);
     freshTimes.push(performance.now() - start);
     lastSnapshot = snap;
   }
@@ -106,7 +106,7 @@ function runBenchmark(
       dynamicRuleCount: snapshot.dynamicRules.length,
       maturityScore: snapshot.maturityProfile?.overallScore ?? null,
     });
-    setCachedBriefing(shitenDir, snapshot.briefing, hash);
+    setCachedBriefing(shitennoDir, snapshot.briefing, hash);
   }
 
   // Benchmark cached briefing
@@ -114,7 +114,7 @@ function runBenchmark(
   if (snapshot) {
     for (let i = 0; i < iterations; i++) {
       const start = performance.now();
-      readCache(shitenDir);
+      readCache(shitennoDir);
       cachedTimes.push(performance.now() - start);
     }
   }
@@ -145,12 +145,12 @@ interface BenchmarkHistory {
   result: BenchmarkResult;
 }
 
-function getBenchHistoryPath(shitenDir: string): string {
-  return join(shitenDir, "reports", "bench-history.json");
+function getBenchHistoryPath(shitennoDir: string): string {
+  return join(shitennoDir, "reports", "bench-history.json");
 }
 
-function loadBenchHistory(shitenDir: string): BenchmarkHistory[] {
-  const path = getBenchHistoryPath(shitenDir);
+function loadBenchHistory(shitennoDir: string): BenchmarkHistory[] {
+  const path = getBenchHistoryPath(shitennoDir);
   if (!existsSync(path)) return [];
   try {
     return JSON.parse(readFileSync(path, "utf-8"));
@@ -159,20 +159,20 @@ function loadBenchHistory(shitenDir: string): BenchmarkHistory[] {
   }
 }
 
-function saveBenchResult(shitenDir: string, result: BenchmarkResult): void {
-  const history = loadBenchHistory(shitenDir);
+function saveBenchResult(shitennoDir: string, result: BenchmarkResult): void {
+  const history = loadBenchHistory(shitennoDir);
   history.push({ timestamp: new Date().toISOString(), result });
 
   // Keep last 20 results
   const trimmed = history.slice(-20);
-  const dir = join(shitenDir, "reports");
+  const dir = join(shitennoDir, "reports");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(getBenchHistoryPath(shitenDir), JSON.stringify(trimmed, null, 2));
+  writeFileSync(getBenchHistoryPath(shitennoDir), JSON.stringify(trimmed, null, 2));
 }
 
 function displayComparison(current: BenchmarkResult, previous: BenchmarkResult): void {
   outputBlank();
-  outputSection("shiten bench — Comparison");
+  outputSection("shugo bench — Comparison");
   outputBlank();
 
   const timeDiff = current.briefingFresh.timeMs - previous.briefingFresh.timeMs;
@@ -204,7 +204,7 @@ function displayComparison(current: BenchmarkResult, previous: BenchmarkResult):
 
 function displayBenchmark(result: BenchmarkResult): void {
   outputBlank();
-  outputSection("shiten bench — Token Benchmark");
+  outputSection("shugo bench — Token Benchmark");
   outputBlank();
 
   outputSection("⏱ Performance");
@@ -246,30 +246,30 @@ export function benchCommand(): Command {
 
       if (!isJson) {
         output("");
-        outputSection("shiten bench — Token Benchmark");
+        outputSection("shugo bench — Token Benchmark");
         outputBlank();
       }
 
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("bench", ctx.projectRoot, ctx.shitenDir, isJson)) {
+      if (!checkLifecycleGate("bench", ctx.projectRoot, ctx.shitennoDir, isJson)) {
         return;
       }
 
       // Load previous result for comparison
       let previousResult: BenchmarkResult | null = null;
       if (options.compare) {
-        const history = loadBenchHistory(ctx.shitenDir);
+        const history = loadBenchHistory(ctx.shitennoDir);
         if (history.length > 0) {
           previousResult = history.at(-1)!.result;
         }
       }
 
-      const result = runBenchmark(ctx.projectRoot, ctx.shitenDir, iterations);
+      const result = runBenchmark(ctx.projectRoot, ctx.shitennoDir, iterations);
 
       // Save result
-      saveBenchResult(ctx.shitenDir, result);
+      saveBenchResult(ctx.shitennoDir, result);
 
       if (isJson) {
         outputJson({

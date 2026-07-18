@@ -42,15 +42,15 @@
   },
 
   "instructions": [
-    "./shitenno-go/docs/AGENTS.md",
-    "./shitenno-go/docs/opencode-context.md",
-    "./shitenno-go/docs/rules/*.md",
-    "./shitenno-go/docs/skills/quick-board-enforcement.md",
-    "./shitenno-go/governance/**/*.yaml",
-    "./shitenno-go/governance/context/context_buffer.yaml"
+    "./shitenno/docs/AGENTS.md",
+    "./shitenno/docs/opencode-context.md",
+    "./shitenno/docs/rules/*.md",
+    "./shitenno/docs/skills/quick-board-enforcement.md",
+    "./shitenno/governance/**/*.yaml",
+    "./shitenno/governance/context/context_buffer.yaml"
   ],
   "skills": {
-    "paths": ["shitenno-go/docs/skills"]
+    "paths": ["shitenno/docs/skills"]
   },
   "mcp": {
     "local-filesystem": {

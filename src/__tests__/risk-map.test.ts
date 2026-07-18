@@ -7,7 +7,7 @@ import { generateRiskMap } from "../risk-map.js";
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-risk-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-risk-"));
 });
 
 afterEach(() => {
@@ -16,7 +16,7 @@ afterEach(() => {
 
 describe("generateRiskMap", () => {
   it("returns low risk for empty project", () => {
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     expect(result.overallRisk).toBe("low");
     expect(result.overallScore).toBe(0);
     expect(result.summary).toContain("acceptable");
@@ -25,7 +25,7 @@ describe("generateRiskMap", () => {
   it("analyzes src/ directory when it exists", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     writeFileSync(join(tempDir, "src", "app.ts"), "export const x = 1;");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     expect(result.areas.length).toBeGreaterThanOrEqual(1);
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
@@ -35,7 +35,7 @@ describe("generateRiskMap", () => {
   it("detects no-tests risk factor", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     writeFileSync(join(tempDir, "src", "app.ts"), "export const x = 1;");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     const noTestsFactor = srcArea!.factors.find((f) => f.type === "no-tests");
@@ -47,7 +47,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     writeFileSync(join(tempDir, "src", "app.ts"), "export const x = 1;");
     writeFileSync(join(tempDir, "src", "app.test.ts"), "test('ok', () => {});");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     const noTestsForApp = srcArea!.factors.find(
@@ -60,7 +60,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     const bigContent = Array.from({ length: 350 }, (_, i) => `line ${i}`).join("\n");
     writeFileSync(join(tempDir, "src", "big.ts"), bigContent);
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     const largeFileFactor = srcArea!.factors.find((f) => f.type === "large-file");
@@ -72,7 +72,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     const imports = Array.from({ length: 20 }, (_, i) => `import { x${i} } from "./mod${i}.js";`).join("\n");
     writeFileSync(join(tempDir, "src", "heavy.ts"), imports);
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     const manyImportsFactor = srcArea!.factors.find((f) => f.type === "many-imports");
@@ -83,7 +83,7 @@ describe("generateRiskMap", () => {
   it("detects sensitive-keyword risk factor", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     writeFileSync(join(tempDir, "src", "auth.ts"), 'const password = "secret123";');
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     const sensitiveFactor = srcArea!.factors.find((f) => f.type === "sensitive-keyword");
@@ -95,7 +95,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     const bigContent = Array.from({ length: 500 }, (_, i) => `line ${i}: import { x } from "./x.js"; auth password secret`).join("\n");
     writeFileSync(join(tempDir, "src", "mega.ts"), bigContent);
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     expect(result.overallScore).toBeLessThanOrEqual(100);
   });
 
@@ -108,7 +108,7 @@ describe("generateRiskMap", () => {
     for (const f of manyFiles) {
       writeFileSync(join(tempDir, "src", f.name), f.content);
     }
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     if (srcArea && srcArea.score >= 70) {
       expect(srcArea.riskLevel).toBe("critical");
@@ -124,7 +124,7 @@ describe("generateRiskMap", () => {
     for (const f of files) {
       writeFileSync(join(tempDir, "src", f.name), f.content);
     }
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     if (srcArea && srcArea.score >= 40 && srcArea.score < 70) {
       expect(srcArea.riskLevel).toBe("high");
@@ -135,7 +135,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     writeFileSync(join(tempDir, "src", "small.ts"), "export const x = 1;");
     writeFileSync(join(tempDir, "src", "small.test.ts"), "test('ok', () => {});");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     if (srcArea && srcArea.score < 15) {
       expect(srcArea.riskLevel).toBe("low");
@@ -147,7 +147,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "lib"), { recursive: true });
     writeFileSync(join(tempDir, "src", "a.ts"), "export const x = 1;");
     writeFileSync(join(tempDir, "lib", "b.ts"), "export const y = 2;");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     expect(result.areas.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -156,7 +156,7 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "lib"), { recursive: true });
     writeFileSync(join(tempDir, "src", "a.ts"), "export const x = 1;");
     writeFileSync(join(tempDir, "lib", "b.ts"), "export const y = 2;");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     if (result.areas.length >= 2) {
       const avg = Math.round(result.areas.reduce((s, a) => s + a.score, 0) / result.areas.length);
       expect(result.overallScore).toBe(avg);
@@ -167,14 +167,14 @@ describe("generateRiskMap", () => {
     mkdirSync(join(tempDir, "src"), { recursive: true });
     const bigContent = Array.from({ length: 400 }, (_, i) => `line ${i}: import { x } from "./x.js"; auth password`).join("\n");
     writeFileSync(join(tempDir, "src", "big.ts"), bigContent);
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     if (result.areas.some((a) => a.riskLevel === "critical" || a.riskLevel === "high")) {
       expect(result.summary).toContain("src");
     }
   });
 
   it("handles non-existent project root gracefully", () => {
-    const result = generateRiskMap("/nonexistent/path", "/nonexistent/shitenno-go");
+    const result = generateRiskMap("/nonexistent/path", "/nonexistent/shitenno");
     expect(result.overallRisk).toBe("low");
     expect(result.areas.length).toBeGreaterThanOrEqual(0);
   });
@@ -188,7 +188,7 @@ describe("generateRiskMap", () => {
     for (const f of manyFiles) {
       writeFileSync(join(tempDir, "src", f.name), f.content);
     }
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     expect(srcArea!.factors.length).toBeLessThanOrEqual(10);
@@ -201,7 +201,7 @@ describe("generateRiskMap", () => {
     writeFileSync(join(tempDir, "src", "app.ts"), "export const x = 1;");
     writeFileSync(join(tempDir, "node_modules", "pkg.ts"), "export const y = 1;");
     writeFileSync(join(tempDir, ".hidden", "secret.ts"), "export const z = 1;");
-    const result = generateRiskMap(tempDir, join(tempDir, "shitenno-go"));
+    const result = generateRiskMap(tempDir, join(tempDir, "shitenno"));
     const srcArea = result.areas.find((a) => a.path === "src");
     expect(srcArea).toBeDefined();
     expect(srcArea!.fileCount).toBe(1);

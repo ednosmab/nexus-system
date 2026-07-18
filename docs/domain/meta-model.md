@@ -1,14 +1,14 @@
 # Meta Model
 
-> How the Shitenno-go interprets a project of engineering.
+> How the Shitenno interprets a project of engineering.
 
-This document is NOT a pipeline. It is the mental model of the Shiten — the conceptual flow that describes how understanding transforms into evolution.
+This document is NOT a pipeline. It is the mental model of the Shugo — the conceptual flow that describes how understanding transforms into evolution.
 
 ---
 
-## How Shiten Sees a Project
+## How Shugo Sees a Project
 
-Shiten sees a project as a continuous transformation of knowledge:
+Shugo sees a project as a continuous transformation of knowledge:
 
 ```
 Reality
@@ -40,7 +40,7 @@ This flow describes how understanding transforms. It does not describe how softw
 
 The actual project: its code, its team, its processes, its history. Reality is what exists, regardless of whether it is understood or documented.
 
-Reality is the source of all observations. It is the raw material that Shiten transforms into knowledge.
+Reality is the source of all observations. It is the raw material that Shugo transforms into knowledge.
 
 ### Observation
 
@@ -56,7 +56,7 @@ Validated understanding that has been formalized and stored persistently. Knowle
 
 Knowledge is not the same as data or information. Data is a number. Information is data with context. Knowledge is information with meaning.
 
-The transformation from Observation to Knowledge is the core of the Shiten model.
+The transformation from Observation to Knowledge is the core of the Shugo model.
 
 ### Engineering Assets
 
@@ -104,7 +104,7 @@ The cycle never ends. Evolution generates new Reality, which generates new Obser
 
 ## The Three Layers
 
-Shiten interprets projects through three layers:
+Shugo interprets projects through three layers:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -152,7 +152,7 @@ Knowledge is permanent. State is current. Memory is temporary. Mixing these tier
 
 ## The Governance Loop
 
-Shiten operates in a continuous governance loop:
+Shugo operates in a continuous governance loop:
 
 ```
 ASSESS → RECOMMEND → APPROVE → IMPLEMENT → (re-assess)
@@ -170,7 +170,7 @@ The loop never ends. Governance is not a destination; it is a practice.
 
 ## The Key Insight
 
-Shiten is not a tool you use. It is a system that uses your project data to understand itself and recommend its own evolution.
+Shugo is not a tool you use. It is a system that uses your project data to understand itself and recommend its own evolution.
 
 The CLI is the interface. The system is the intelligence. The governance is the value.
 
@@ -186,6 +186,6 @@ The CLI is the interface. The system is the intelligence. The governance is the 
 
 ---
 
-*This document defines how the Shitenno-go interprets projects. For the formal specification of each concept, see [ubiquitous-language.md](./ubiquitous-language.md).*
+*This document defines how the Shitenno interprets projects. For the formal specification of each concept, see [ubiquitous-language.md](./ubiquitous-language.md).*
 
 *Last updated: 2026-06-28*

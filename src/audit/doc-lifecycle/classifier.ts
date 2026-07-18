@@ -91,10 +91,10 @@ export function classifyDocument(doc: DocumentInfo, signals: DetectionSignals): 
   };
 }
 
-function discoverDocuments(projectRoot: string, shitenDir: string): DocumentInfo[] {
+function discoverDocuments(projectRoot: string, shitennoDir: string): DocumentInfo[] {
   const docs: DocumentInfo[] = [];
 
-  const planDirs = [join(shitenDir, "plans"), join(projectRoot, "plans")];
+  const planDirs = [join(shitennoDir, "plans"), join(projectRoot, "plans")];
   for (const dir of planDirs) {
     if (!existsSync(dir)) continue;
 
@@ -121,7 +121,7 @@ function discoverDocuments(projectRoot: string, shitenDir: string): DocumentInfo
     }
   }
 
-  const adrDir = join(shitenDir, "docs", "adrs");
+  const adrDir = join(shitennoDir, "docs", "adrs");
   if (existsSync(adrDir)) {
     const files = readdirSync(adrDir, { recursive: true })
       .filter((f): f is string => typeof f === "string" && f.endsWith(".md") && !basename(f).startsWith("README") && !basename(f).startsWith("ADR-TEMPLATE"));

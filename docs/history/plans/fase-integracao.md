@@ -2,7 +2,7 @@
 
 ## Contexto
 
-5 módulos de infraestrutura foram criados mas não integrados. 3 módulos antigos continuam órfãos. Total: ~2.500 linhas de código morto. O Shiten continua sendo 10 ferramentas isoladas.
+5 módulos de infraestrutura foram criados mas não integrados. 3 módulos antigos continuam órfãos. Total: ~2.500 linhas de código morto. O Shugo continua sendo 10 ferramentas isoladas.
 
 ## Escopo
 
@@ -19,7 +19,7 @@
 | # | Etapa | Arquivo | Ação |
 |---|-------|---------|------|
 | 1.1 | Criar `resolveProjectContext()` usage | `src/shared.ts` | Já existe, verificar se funciona |
-| 1.2 | Refatorar `status.ts` | `src/commands/status.ts` | Substituir init guard + banner + JSON boilerplate por `createShitenCommand()` |
+| 1.2 | Refatorar `status.ts` | `src/commands/status.ts` | Substituir init guard + banner + JSON boilerplate por `createShugoCommand()` |
 | 1.3 | Refatorar `detect.ts` | `src/commands/detect.ts` | Mesmo padrão |
 | 1.4 | Refatorar `audit.ts` | `src/commands/audit.ts` | Mesmo padrão |
 | 1.5 | Refatorar `validate.ts` | `src/commands/validate.ts` | Mesmo padrão |
@@ -31,19 +31,19 @@
 
 ---
 
-## Fase 2 — Criar Comando `shiten run` (3 etapas)
+## Fase 2 — Criar Comando `shugo run` (3 etapas)
 
 **Objetivo:** Entry point para o pipeline de análise completa.
 
 | # | Etapa | Arquivo | Ação |
 |---|-------|---------|------|
-| 2.1 | Criar `src/commands/run.ts` | Novo | Implementa `shiten run` usando Pipeline + createPipelineContext |
-| 2.2 | Registrar no CLI | `bin/shiten.ts` | Adicionar `run` ao program |
-| 2.3 | Teste de integração | `src/__tests__/cli-integration.test.ts` | Adicionar teste para `shiten run` |
+| 2.1 | Criar `src/commands/run.ts` | Novo | Implementa `shugo run` usando Pipeline + createPipelineContext |
+| 2.2 | Registrar no CLI | `bin/shugo.ts` | Adicionar `run` ao program |
+| 2.3 | Teste de integração | `src/__tests__/cli-integration.test.ts` | Adicionar teste para `shugo run` |
 
 **Pipeline stages:** analyze → score → detect → audit → evolve
 
-**Critério:** `shiten run` roda todas as análises em sequência e produz um relatório consolidado.
+**Critério:** `shugo run` roda todas as análises em sequência e produz um relatório consolidado.
 
 ---
 
@@ -122,7 +122,7 @@
 | 5.3 | `validate/sync/clean` | `discovered`+ | Após resolveProjectContext |
 | 5.4 | `run` | `assessed`+ | No início do action |
 
-**Implementação:** Em `shared.ts`, adicionar `checkLifecycleGate(command, projectRoot, shitenDir)` que chama `detectLifecycleState()` + `canRunCommand()`.
+**Implementação:** Em `shared.ts`, adicionar `checkLifecycleGate(command, projectRoot, shitennoDir)` que chama `detectLifecycleState()` + `canRunCommand()`.
 
 ---
 
@@ -158,7 +158,7 @@
 | # | Etapa | Ação |
 |---|-------|------|
 | 8.1 | Testes de integração do event bus | Testar fluxo completo: command → event → module |
-| 8.2 | Testes do pipeline completo | Testar `shiten run` end-to-end |
+| 8.2 | Testes do pipeline completo | Testar `shugo run` end-to-end |
 | 8.3 | Testes de lifecycle gates | Testar que comandos são bloqueados em estados errados |
 | 8.4 | Typecheck + lint + todos os testes | `npx tsc --noEmit && npm test` |
 
@@ -167,7 +167,7 @@
 ## Ordem de Execução
 
 ```
-Fase 1 (refactor)  → Fase 2 (shiten run) → Fase 3 (event bus wiring)
+Fase 1 (refactor)  → Fase 2 (shugo run) → Fase 3 (event bus wiring)
                                                 │
                                                 ▼
                                           Fase 4 (orphan modules)
@@ -193,7 +193,7 @@ Fase 1 (refactor)  → Fase 2 (shiten run) → Fase 3 (event bus wiring)
 | Comandos publicando eventos | 0 | 10 |
 | Código duplicado nos comandos | ~280 linhas | ~0 |
 | Módulos órfãos | 8 | 0 |
-| Comando `shiten run` | Não existe | Funcional |
+| Comando `shugo run` | Não existe | Funcional |
 | Lifecycle gates enforced | 0 | 10 |
 | Feedback gravado | Nunca | Sempre |
 | Plugins carregados | Nunca | Sempre |

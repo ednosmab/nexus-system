@@ -51,7 +51,7 @@ export type ActionType =
   | "update_backlog"
   | "run_local_script"
   | "run_script"
-  | "run_shiten_command"
+  | "run_shugo_command"
   | "update_file"
   | "create_file"
   | "remove_file"
@@ -90,7 +90,7 @@ export interface RuleContext {
   trigger: TriggerType;
   eventData: Record<string, unknown>;
   projectRoot: string;
-  shitenDir: string;
+  shitennoDir: string;
   timestamp: string;
   installedCapabilities?: Capability[];
   /**

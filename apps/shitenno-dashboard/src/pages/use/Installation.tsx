@@ -6,7 +6,7 @@ export default function Installation() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Instalacao</h1>
         <p className="text-text-secondary max-w-2xl">
-          Instale o Shitenno-go no seu ambiente de desenvolvimento.
+          Instale o Shitenno no seu ambiente de desenvolvimento.
         </p>
       </section>
 
@@ -22,19 +22,19 @@ export default function Installation() {
 
         <div className="layer-card flex flex-col gap-2">
           <h3 className="text-sm font-semibold text-text-primary">Instalacao global</h3>
-          <div className="command-block">pnpm add -g shitenno-go</div>
-          <p className="text-xs text-text-muted">Instala o CLI do Shiten globalmente no seu sistema.</p>
+          <div className="command-block">pnpm add -g shitenno</div>
+          <p className="text-xs text-text-muted">Instala o CLI do Shugo globalmente no seu sistema.</p>
         </div>
 
         <div className="layer-card flex flex-col gap-2">
           <h3 className="text-sm font-semibold text-text-primary">Verificar instalacao</h3>
-          <div className="command-block">shiten --version</div>
-          <p className="text-xs text-text-muted">Deve retornar a versao instalada do Shiten.</p>
+          <div className="command-block">shugo --version</div>
+          <p className="text-xs text-text-muted">Deve retornar a versao instalada do Shugo.</p>
         </div>
 
         <div className="layer-card flex flex-col gap-2">
           <h3 className="text-sm font-semibold text-text-primary">Inicializar num projeto</h3>
-          <div className="command-block">shiten init</div>
+          <div className="command-block">shugo init</div>
           <p className="text-xs text-text-muted">Detecta o stack, gera o profile, e cria a estrutura de governanca.</p>
         </div>
       </section>

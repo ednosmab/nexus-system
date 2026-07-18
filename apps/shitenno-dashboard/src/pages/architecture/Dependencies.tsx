@@ -17,7 +17,7 @@ export default function Dependencies() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Dependencias</h1>
         <p className="text-text-secondary max-w-2xl">
-          Mapa de dependencias entre componentes do Shitenno-go.
+          Mapa de dependencias entre componentes do Shitenno.
         </p>
       </section>
 

@@ -17,7 +17,7 @@ export default function DomainModel() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Modelo de Dominio</h1>
         <p className="text-text-secondary max-w-2xl">
-          Os 8 conceitos fundamentais do dominio do Shitenno-go.
+          Os 8 conceitos fundamentais do dominio do Shitenno.
         </p>
       </section>
 

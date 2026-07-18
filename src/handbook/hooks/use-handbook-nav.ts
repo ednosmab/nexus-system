@@ -30,7 +30,7 @@ const HANDBOOK_ROOT = findHandbookRoot(__dirname);
 
 const TOPIC_REGISTRY: HandbookTopic[] = [
   // Level 1 — Fundamentals
-  { id: "what-is-shiten", level: 1, levelName: "Fundamentos", title: "O que é Shiten", description: "Definição, problema que resolve, para quem serve", file: "01-fundamentals/what-is-shiten.md" },
+  { id: "what-is-shitenno", level: 1, levelName: "Fundamentos", title: "O que é Shugo", description: "Definição, problema que resolve, para quem serve", file: "01-fundamentals/what-is-shitenno.md" },
   { id: "installation", level: 1, levelName: "Fundamentos", title: "Instalação", description: "Pré-requisitos, métodos de instalação, verificação", file: "01-fundamentals/installation.md" },
   { id: "quick-start", level: 1, levelName: "Fundamentos", title: "Primeiros Passos", description: "Init, status, detect, briefing, feedback", file: "01-fundamentals/quick-start.md" },
   { id: "concepts", level: 1, levelName: "Fundamentos", title: "Conceitos", description: "Maturity, capabilities, governance, knowledge debt", file: "01-fundamentals/concepts.md" },

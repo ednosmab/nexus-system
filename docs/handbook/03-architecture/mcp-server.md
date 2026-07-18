@@ -14,7 +14,7 @@ O MCP Server expõe o estado do projeto para agentes AI, fornecendo acesso a:
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  AI Agent   │────▶│  MCP Server │────▶│   Shiten     │
+│  AI Agent   │────▶│  MCP Server │────▶│   Shugo     │
 │  (Claude)   │     │             │     │  (Projeto)  │
 └─────────────┘     └─────────────┘     └─────────────┘
 ```
@@ -26,13 +26,13 @@ O MCP Server expõe o estado do projeto para agentes AI, fornecendo acesso a:
 ### Instalação
 
 ```bash
-shiten mcp install
+shugo mcp install
 ```
 
 ### Iniciar Servidor
 
 ```bash
-shiten mcp
+shugo mcp
 ```
 
 ### Configuração no Claude Desktop
@@ -42,8 +42,8 @@ Adicione ao `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "shiten": {
-      "command": "shiten",
+    "shugo": {
+      "command": "shugo",
       "args": ["mcp"]
     }
   }
@@ -56,10 +56,10 @@ Adicione ao `claude_desktop_config.json`:
 
 | Recurso | Descrição |
 |---|---|
-| `shiten://status` | Status de saúde do projeto |
-| `shiten://rules` | Regras ativas |
-| `shiten://plans` | Planos disponíveis |
-| `shiten://context` | Buffer de contexto |
+| `shugo://status` | Status de saúde do projeto |
+| `shugo://rules` | Regras ativas |
+| `shugo://plans` | Planos disponíveis |
+| `shugo://context` | Buffer de contexto |
 
 ---
 
@@ -67,7 +67,7 @@ Adicione ao `claude_desktop_config.json`:
 
 ### Claude Desktop
 
-1. Instale o servidor: `shiten mcp install`
+1. Instale o servidor: `shugo mcp install`
 2. Configure no Claude Desktop
 3. Reinicie o Claude
 4. O agente terá acesso ao contexto do projeto

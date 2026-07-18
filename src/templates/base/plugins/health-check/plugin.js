@@ -1,7 +1,7 @@
 /**
- * health-check Plugin — Demo Plugin for Shiten CLI
+ * health-check Plugin — Demo Plugin for Shugo CLI
  *
- * Provides extra health checks during `shiten audit`.
+ * Provides extra health checks during `shugo audit`.
  * Demonstrates the plugin system with custom-check and custom-recommendation hooks.
  *
  * WARNING: This file is auto-generated from plugin.ts. Do not edit directly.
@@ -13,14 +13,14 @@ import { join } from "node:path";
 const plugin = {
   name: "health-check",
   version: "1.0.0",
-  description: "Extra health checks for Shiten projects",
+  description: "Extra health checks for Shugo projects",
 
   hooks: {
     "custom-check": async (context) => {
-      const { projectRoot, shitenDir } = context;
+      const { projectRoot, shitennoDir } = context;
       const issues = [];
 
-      const adrDir = join(shitenDir, "docs", "adrs");
+      const adrDir = join(shitennoDir, "docs", "adrs");
       if (existsSync(adrDir)) {
         const adrFiles = readdirSync(adrDir).filter(
           (f) => f.endsWith(".md") && !f.startsWith("ADR-TEMPLATE")
@@ -50,12 +50,12 @@ const plugin = {
         issues.push("No test files found — consider adding tests");
       }
 
-      const workflowPath = join(shitenDir, "governance", "WORKFLOW.md");
+      const workflowPath = join(shitennoDir, "governance", "WORKFLOW.md");
       if (!existsSync(workflowPath)) {
         issues.push("No WORKFLOW.md — governance workflow not documented");
       }
 
-      const rulesDir = join(shitenDir, "governance", "rules");
+      const rulesDir = join(shitennoDir, "governance", "rules");
       if (existsSync(rulesDir)) {
         const ruleFiles = readdirSync(rulesDir).filter((f) => f.endsWith(".json"));
         if (ruleFiles.length === 0) {
@@ -70,8 +70,8 @@ const plugin = {
       return null;
     },
 
-    "custom-recommendation": async (shitenDir) => {
-      const adrDir = join(shitenDir, "docs", "adrs");
+    "custom-recommendation": async (shitennoDir) => {
+      const adrDir = join(shitennoDir, "docs", "adrs");
       const hasAdrs =
         existsSync(adrDir) &&
         readdirSync(adrDir).filter(
@@ -84,7 +84,7 @@ const plugin = {
           title: "Create first ADR (from health-check plugin)",
           description:
             "No Architecture Decision Records found. ADRs document important decisions.",
-          command: "shiten init",
+          command: "shugo init",
         };
       }
 

@@ -19,11 +19,11 @@ let cachedState: EngineeringState | null = null;
  * Check if the governance directory has been modified since the given timestamp.
  * This is a lightweight freshness check — much cheaper than full consolidation.
  */
-function isDiskCacheFresh(shitenDir: string, consolidatedAt: string): boolean {
+function isDiskCacheFresh(shitennoDir: string, consolidatedAt: string): boolean {
   const consolidatedTime = new Date(consolidatedAt).getTime();
   if (Number.isNaN(consolidatedTime)) return false;
 
-  const governanceDir = join(shitenDir, "governance");
+  const governanceDir = join(shitennoDir, "governance");
   if (!existsSync(governanceDir)) return true; // no governance dir = nothing can invalidate
 
   try {
@@ -71,7 +71,7 @@ function hasFileChangedSince(dir: string, sinceMs: number): boolean {
  */
 export function getEngineeringState(
   projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   forceRefresh = false
 ): EngineeringState {
   // Level 1: in-memory cache (within same CLI invocation)
@@ -79,16 +79,16 @@ export function getEngineeringState(
 
   // Level 2: disk cache (cross-process) — only if governance/ hasn't changed
   if (!forceRefresh) {
-    const diskState = loadEngineeringState(shitenDir);
-    if (diskState && isDiskCacheFresh(shitenDir, diskState.consolidatedAt)) {
+    const diskState = loadEngineeringState(shitennoDir);
+    if (diskState && isDiskCacheFresh(shitennoDir, diskState.consolidatedAt)) {
       cachedState = diskState;
       return cachedState;
     }
   }
 
   // Level 3: full consolidation (expensive)
-  cachedState = consolidateEngineeringState(projectRoot, shitenDir);
-  saveEngineeringState(shitenDir, cachedState);
+  cachedState = consolidateEngineeringState(projectRoot, shitennoDir);
+  saveEngineeringState(shitennoDir, cachedState);
   return cachedState;
 }
 

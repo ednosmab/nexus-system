@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 
 const structure = [
-  { path: '.shiten/', description: 'Directorio principal do framework.', type: 'dir' },
-  { path: '.shiten/shiten-profile/', description: 'Profile de configuracao do projecto.', type: 'dir' },
-  { path: '.shiten/engineering-state/', description: 'Estado detalhado da engenharia.', type: 'dir' },
+  { path: '.shugo/', description: 'Directorio principal do framework.', type: 'dir' },
+  { path: '.shugo/shitenno-profile/', description: 'Profile de configuracao do projecto.', type: 'dir' },
+  { path: '.shugo/engineering-state/', description: 'Estado detalhado da engenharia.', type: 'dir' },
   { path: 'docs/', description: 'Documentacao do projecto.', type: 'dir' },
   { path: 'docs/AGENTS.md', description: 'Regras do time de engenharia IA.', type: 'file' },
   { path: 'docs/FORBIDDEN_OPERATIONS.md', description: 'Operacoes proibidas.', type: 'file' },
@@ -23,7 +23,7 @@ export default function SystemStructure() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Estrutura do Sistema</h1>
         <p className="text-text-secondary max-w-2xl">
-          Arvore de directorios e ficheiros do Shitenno-go.
+          Arvore de directorios e ficheiros do Shitenno.
         </p>
       </section>
 

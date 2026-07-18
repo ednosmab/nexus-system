@@ -15,7 +15,7 @@ import {
 let tempDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-feedback-"));
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-feedback-"));
 });
 
 afterEach(() => {

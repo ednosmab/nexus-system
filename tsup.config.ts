@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["bin/shiten.ts", "src/daemon.ts"],
+  entry: ["bin/shugo.ts", "src/daemon.ts"],
   format: ["esm"],
   dts: true,
   outDir: "dist",

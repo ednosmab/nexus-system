@@ -10,7 +10,7 @@ AI agents need context to work effectively. But context is expensive:
 - **Too much context:** Agent is slow, expensive, confused
 - **Wrong context:** Agent optimizes for the wrong thing
 
-Shiten solves this with a hierarchical context system.
+Shugo solves this with a hierarchical context system.
 
 ## The P0-P4 Hierarchy
 

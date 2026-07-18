@@ -1,17 +1,17 @@
-# Shitenno-go — Documentation
+# Shitenno — Documentation
 
-> Knowledge organization for the Shiten governance framework.
+> Knowledge organization for the Shugo governance framework.
 
 ## Quick Start
 
 | I want to... | Read |
 |--------------|------|
-| Understand why Shiten exists | [Philosophy](./handbook/philosophy/) |
+| Understand why Shugo exists | [Philosophy](./handbook/philosophy/) |
 | Learn the domain model | [Domain](./domain/) |
 | See how it's built | [Architecture](./architecture/) |
 | Understand implementation | [Implementation](./implementation/) |
 | Know where it's heading | [Evolution](./evolution/) |
-| Contribute to Shiten | [Engineering](./engineering/) |
+| Contribute to Shugo | [Engineering](./engineering/) |
 | Find the active work tracker | [BACKLOG.md](./BACKLOG.md) |
 
 ## Documentation Structure
@@ -19,7 +19,7 @@
 ```
 docs/
 ├── handbook/
-│   ├── philosophy/    Why Shiten exists
+│   ├── philosophy/    Why Shugo exists
 │   ├── 01-fundamentals/  Getting started
 │   ├── 02-commands/      CLI reference
 │   └── 03-architecture/  Internal design

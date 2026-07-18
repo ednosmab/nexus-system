@@ -1,10 +1,10 @@
 # Philosophy
 
-> Why Shiten exists. The foundational principles that govern all decisions.
+> Why Shugo exists. The foundational principles that govern all decisions.
 
 ## Purpose
 
-This directory contains the constitutional foundation of the Shitenno-go. Documents here define identity, not implementation. They contain no code, no technology references, and no architecture details.
+This directory contains the constitutional foundation of the Shitenno. Documents here define identity, not implementation. They contain no code, no technology references, and no architecture details.
 
 ## Location
 
@@ -20,20 +20,20 @@ Moved from `docs/philosophy/` to `docs/handbook/philosophy/` to centralize all h
 
 | Document | Purpose |
 |----------|---------|
-| [Engineering Manifesto](./engineering-manifesto.md) | Why Shiten exists — the problem, the role of AI, the role of the engineer |
+| [Engineering Manifesto](./engineering-manifesto.md) | Why Shugo exists — the problem, the role of AI, the role of the engineer |
 | [Principles](./principles.md) | Six immutable principles that govern all decisions |
 | [Vision](./vision.md) | Long-term direction — three phases of evolution |
 
 ## Reading Order
 
-1. **Engineering Manifesto** — Start here to understand why Shiten exists
+1. **Engineering Manifesto** — Start here to understand why Shugo exists
 2. **Principles** — The rules that never change
-3. **Vision** — Where Shiten is heading
+3. **Vision** — Where Shugo is heading
 
 ## Related Documentation
 
 - [Handbook](../README.md) — The user handbook (this directory is part of it)
-- [Domain](../../../domain/) — How Shiten interprets engineering
+- [Domain](../../../domain/) — How Shugo interprets engineering
 - [Architecture](../../../architecture/) — How domain concepts are implemented
 - [Evolution](../../../evolution/) — How the system will evolve
 

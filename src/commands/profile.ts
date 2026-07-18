@@ -1,21 +1,21 @@
 /**
  * profile.ts — User Profile Management
  *
- * The `shiten profile` command. Allows users to view, set, and update
+ * The `shugo profile` command. Allows users to view, set, and update
  * their profile for personalized feedback.
  *
  * Usage:
- *   shiten profile                    # Show current profile
- *   shiten profile --set              # Interactive setup
- *   shiten profile --name "Edson"     # Set name
- *   shiten profile --role "Tech Lead em Formação"  # Set role
- *   shiten profile --architecture senior  # Set architecture level
- *   shiten profile --coding pleno     # Set coding level
- *   shiten profile --leadership senior # Set leadership level
- *   shiten profile --tone mentor      # Set feedback tone
- *   shiten profile --language pt      # Set language
- *   shiten profile --code-free 95     # Set code-free percentage
- *   shiten profile --focus "visão,leadership"  # Set focus areas
+ *   shugo profile                    # Show current profile
+ *   shugo profile --set              # Interactive setup
+ *   shugo profile --name "Edson"     # Set name
+ *   shugo profile --role "Tech Lead em Formação"  # Set role
+ *   shugo profile --architecture senior  # Set architecture level
+ *   shugo profile --coding pleno     # Set coding level
+ *   shugo profile --leadership senior # Set leadership level
+ *   shugo profile --tone mentor      # Set feedback tone
+ *   shugo profile --language pt      # Set language
+ *   shugo profile --code-free 95     # Set code-free percentage
+ *   shugo profile --focus "visão,leadership"  # Set focus areas
  */
 
 import { Command } from "commander";
@@ -37,7 +37,7 @@ import { output, outputBlank, outputSection, outputSuccess, outputError } from "
 
 function displayProfile(profile: UserProfile): void {
   outputBlank();
-  outputSection("shiten profile — User Profile");
+  outputSection("shugo profile — User Profile");
   outputBlank();
   outputSection("📋 Perfil Actual");
   output(`     Nome:          ${chalk.cyan(profile.name)}`);
@@ -59,8 +59,8 @@ function displayProfile(profile: UserProfile): void {
   output(`     Tom:           ${toneLabel}`);
   output(`     No-code:       ${profile.codeFreePercent >= 80 ? "Forte (foco em visão/leadership)" : profile.codeFreePercent >= 50 ? "Moderado" : "Técnico (foco em código)"}`);
   outputBlank();
-  output(chalk.gray("  Para alterar: shiten profile --name 'Novo Nome'"));
-  output(chalk.gray("  Para configurar interactivamente: shiten profile --set"));
+  output(chalk.gray("  Para alterar: shugo profile --name 'Novo Nome'"));
+  output(chalk.gray("  Para configurar interactivamente: shugo profile --set"));
   outputBlank();
 }
 
@@ -87,11 +87,11 @@ export function profileCommand(): Command {
       const ctx = guardNotInitialized(options, isJson);
       if (!ctx) return;
 
-      if (!checkLifecycleGate("profile", ctx.projectRoot, ctx.shitenDir, isJson)) {
+      if (!checkLifecycleGate("profile", ctx.projectRoot, ctx.shitennoDir, isJson)) {
         return;
       }
 
-      const profile = loadUserProfile(ctx.shitenDir);
+      const profile = loadUserProfile(ctx.shitennoDir);
       let updated = false;
 
       // ── Interactive setup ────────────────────────────────────────
@@ -105,7 +105,7 @@ export function profileCommand(): Command {
         }
 
         output("");
-        outputSection("shiten profile — Setup Interactivo");
+        outputSection("shugo profile — Setup Interactivo");
         outputBlank();
         output(chalk.gray("  Pressiona Enter para manter o valor actual."));
         outputBlank();
@@ -238,7 +238,7 @@ export function profileCommand(): Command {
 
       // ── Save if updated ──────────────────────────────────────────
       if (updated) {
-        saveUserProfile(ctx.shitenDir, profile);
+        saveUserProfile(ctx.shitennoDir, profile);
 
         if (isJson) {
           outputJson({ type: "profile_updated", ...profile });

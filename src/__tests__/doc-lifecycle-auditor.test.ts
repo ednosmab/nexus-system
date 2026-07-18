@@ -13,12 +13,12 @@ import {
 } from "../doc-lifecycle-auditor.js";
 
 let tempDir: string;
-let shitenDir: string;
+let shitennoDir: string;
 
 beforeEach(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "shiten-doc-lifecycle-"));
-  shitenDir = join(tempDir, "shitenno-go");
-  mkdirSync(shitenDir, { recursive: true });
+  tempDir = mkdtempSync(join(tmpdir(), "shitenno-doc-lifecycle-"));
+  shitennoDir = join(tempDir, ".shitenno");
+  mkdirSync(shitennoDir, { recursive: true });
 });
 
 afterEach(() => {
@@ -86,8 +86,8 @@ describe("detectStatusMarkers", () => {
 describe("detectSupersession", () => {
   it("detects supersession keywords in ADR content", () => {
     const adr: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-001.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-001.md",
+      path: "shitenno/docs/adrs/ADR-001.md",
+      relativePath: "shitenno/docs/adrs/ADR-001.md",
       title: "ADR-001: Use PostgreSQL",
       content: "# ADR-001: Use PostgreSQL\n\nSuperseded by ADR-002.\n",
       docType: "adr",
@@ -100,15 +100,15 @@ describe("detectSupersession", () => {
 
   it("detects when another ADR references this one as superseded", () => {
     const adrOld: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-001.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-001.md",
+      path: "shitenno/docs/adrs/ADR-001.md",
+      relativePath: "shitenno/docs/adrs/ADR-001.md",
       title: "ADR-001: Use PostgreSQL",
       content: "# ADR-001: Use PostgreSQL\n\n**Status:** Accepted\n",
       docType: "adr",
     };
     const adrNew: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-002.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-002.md",
+      path: "shitenno/docs/adrs/ADR-002.md",
+      relativePath: "shitenno/docs/adrs/ADR-002.md",
       title: "ADR-002: Use MySQL",
       content: "# ADR-002: Use MySQL\n\nThis supersedes ADR-001.\n",
       docType: "adr",
@@ -120,15 +120,15 @@ describe("detectSupersession", () => {
 
   it("calculates topic similarity between ADRs", () => {
     const adr1: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-001.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-001.md",
+      path: "shitenno/docs/adrs/ADR-001.md",
+      relativePath: "shitenno/docs/adrs/ADR-001.md",
       title: "ADR-001: Use PostgreSQL for Database",
       content: "# ADR-001: Use PostgreSQL for Database\n",
       docType: "adr",
     };
     const adr2: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-002.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-002.md",
+      path: "shitenno/docs/adrs/ADR-002.md",
+      relativePath: "shitenno/docs/adrs/ADR-002.md",
       title: "ADR-002: Use MySQL for Database",
       content: "# ADR-002: Use MySQL for Database\n",
       docType: "adr",
@@ -140,8 +140,8 @@ describe("detectSupersession", () => {
 
   it("returns low confidence when no supersession signals", () => {
     const adr: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-001.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-001.md",
+      path: "shitenno/docs/adrs/ADR-001.md",
+      relativePath: "shitenno/docs/adrs/ADR-001.md",
       title: "ADR-001: Use TypeScript",
       content: "# ADR-001: Use TypeScript\n\n**Status:** Accepted\n",
       docType: "adr",
@@ -175,8 +175,8 @@ describe("classifyDocument", () => {
 
   it("classifies ADR as superseded when supersession signals are strong", () => {
     const doc: DocumentInfo = {
-      path: "shitenno-go/docs/adrs/ADR-001.md",
-      relativePath: "shitenno-go/docs/adrs/ADR-001.md",
+      path: "shitenno/docs/adrs/ADR-001.md",
+      relativePath: "shitenno/docs/adrs/ADR-001.md",
       title: "ADR-001: Use PostgreSQL",
       content: "# ADR-001: Use PostgreSQL\n",
       docType: "adr",
@@ -239,7 +239,7 @@ describe("classifyDocument", () => {
 
 describe("auditDocLifecycle", () => {
   it("returns empty report for empty project", () => {
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     expect(report.totalPlans).toBe(0);
     expect(report.totalAdrs).toBe(0);
     expect(report.classifications).toHaveLength(0);
@@ -247,18 +247,18 @@ describe("auditDocLifecycle", () => {
   });
 
   it("classifies plans correctly", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
     writeFileSync(
-      join(shitenDir, "plans", "pending-plan.md"),
+      join(shitennoDir, "plans", "pending-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Pendente\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     expect(report.totalPlans).toBe(2);
     expect(report.totalAdrs).toBe(0);
 
@@ -274,18 +274,18 @@ describe("auditDocLifecycle", () => {
   });
 
   it("classifies ADRs correctly", () => {
-    mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "adrs"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "docs", "adrs", "ADR-001.md"),
+      join(shitennoDir, "docs", "adrs", "ADR-001.md"),
       "# ADR-001: Use PostgreSQL\n\n**Status:** Accepted\n"
     );
     writeFileSync(
-      join(shitenDir, "docs", "adrs", "ADR-002.md"),
+      join(shitennoDir, "docs", "adrs", "ADR-002.md"),
       "# ADR-002: Use MySQL\n\n**Status:** Proposed\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     expect(report.totalPlans).toBe(0);
     expect(report.totalAdrs).toBe(2);
 
@@ -301,18 +301,18 @@ describe("auditDocLifecycle", () => {
   });
 
   it("detects superseded ADRs via keyword detection", () => {
-    mkdirSync(join(shitenDir, "docs", "adrs"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "adrs"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "docs", "adrs", "ADR-001.md"),
+      join(shitennoDir, "docs", "adrs", "ADR-001.md"),
       "# ADR-001: Use PostgreSQL\n\nThis is the old decision.\n"
     );
     writeFileSync(
-      join(shitenDir, "docs", "adrs", "ADR-002.md"),
+      join(shitennoDir, "docs", "adrs", "ADR-002.md"),
       "# ADR-002: Use MySQL\n\nThis supersedes ADR-001.\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     expect(report.totalAdrs).toBe(2);
 
     const superseded = report.classifications.find(
@@ -322,18 +322,18 @@ describe("auditDocLifecycle", () => {
   });
 
   it("proposes correct moves for each status", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
     writeFileSync(
-      join(shitenDir, "plans", "old-plan.md"),
+      join(shitennoDir, "plans", "old-plan.md"),
       "# Old Plan\n\nSome content without status.\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     expect(report.proposedMoves.length).toBeGreaterThanOrEqual(1);
 
     const completedMove = report.proposedMoves.find(
@@ -344,19 +344,19 @@ describe("auditDocLifecycle", () => {
   });
 
   it("does not scan skills or governance directories", () => {
-    mkdirSync(join(shitenDir, "docs", "skills"), { recursive: true });
-    mkdirSync(join(shitenDir, "governance"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "skills"), { recursive: true });
+    mkdirSync(join(shitennoDir, "governance"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "docs", "skills", "tdd.md"),
+      join(shitennoDir, "docs", "skills", "tdd.md"),
       "# TDD Workflow\n\n**Status:** Concluído\n"
     );
     writeFileSync(
-      join(shitenDir, "governance", "WORKFLOW.md"),
+      join(shitennoDir, "governance", "WORKFLOW.md"),
       "# Workflow\n\n**Status:** Concluído\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
     // Should not include skills or governance docs
     expect(report.classifications.length).toBe(0);
   });
@@ -364,49 +364,49 @@ describe("auditDocLifecycle", () => {
 
 describe("applyMoves", () => {
   it("moves files to correct destinations", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
-    mkdirSync(join(shitenDir, "docs", "_archive", "completed"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "_archive", "completed"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
-    const result = applyMoves(report, shitenDir, false);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
+    const result = applyMoves(report, shitennoDir, false);
 
     expect(result.movesApplied).toBeGreaterThanOrEqual(1);
-    expect(existsSync(join(shitenDir, "docs", "_archive", "completed", "completed-plan.md"))).toBe(true);
+    expect(existsSync(join(shitennoDir, "docs", "_archive", "completed", "completed-plan.md"))).toBe(true);
   });
 
   it("creates destination directories if needed", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
-    const result = applyMoves(report, shitenDir, false);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
+    const result = applyMoves(report, shitennoDir, false);
 
     expect(result.movesApplied).toBeGreaterThanOrEqual(1);
-    expect(existsSync(join(shitenDir, "docs", "_archive", "completed"))).toBe(true);
+    expect(existsSync(join(shitennoDir, "docs", "_archive", "completed"))).toBe(true);
   });
 
   it("writes CHANGELOG entry for each move", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
-    mkdirSync(join(shitenDir, "docs", "_archive"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "docs", "_archive"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
-    applyMoves(report, shitenDir, false);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
+    applyMoves(report, shitennoDir, false);
 
-    const changelogPath = join(shitenDir, "docs", "_archive", "CHANGELOG.md");
+    const changelogPath = join(shitennoDir, "docs", "_archive", "CHANGELOG.md");
     expect(existsSync(changelogPath)).toBe(true);
 
     const changelog = readFileSync(changelogPath, "utf-8");
@@ -415,17 +415,17 @@ describe("applyMoves", () => {
   });
 
   it("does not move files when dry-run mode", () => {
-    mkdirSync(join(shitenDir, "plans"), { recursive: true });
+    mkdirSync(join(shitennoDir, "plans"), { recursive: true });
 
     writeFileSync(
-      join(shitenDir, "plans", "completed-plan.md"),
+      join(shitennoDir, "plans", "completed-plan.md"),
       "# Plan\n\n### 1.1\n- **Status:** Concluído\n"
     );
 
-    const report = auditDocLifecycle(tempDir, shitenDir);
-    const result = applyMoves(report, shitenDir, true);
+    const report = auditDocLifecycle(tempDir, shitennoDir);
+    const result = applyMoves(report, shitennoDir, true);
 
     expect(result.movesApplied).toBe(0);
-    expect(existsSync(join(shitenDir, "plans", "completed-plan.md"))).toBe(true);
+    expect(existsSync(join(shitennoDir, "plans", "completed-plan.md"))).toBe(true);
   });
 });

@@ -14,7 +14,7 @@ export default function Evolution() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Evolucao</h1>
         <p className="text-text-secondary max-w-2xl">
-          Como o Shitenno-go evolui ao longo do tempo e acompanha a maturidade do projeto.
+          Como o Shitenno evolui ao longo do tempo e acompanha a maturidade do projeto.
         </p>
       </section>
 
@@ -36,7 +36,7 @@ export default function Evolution() {
       <section className="layer-card flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-text-primary">Adaptabilidade</h2>
         <p className="text-sm text-text-secondary">
-          O Shiten adapta-se automaticamente ao contexto do projeto. Conforme o projeto evolui, o framework ajusta as regras, capabilities e recomendacoes.
+          O Shugo adapta-se automaticamente ao contexto do projeto. Conforme o projeto evolui, o framework ajusta as regras, capabilities e recomendacoes.
         </p>
       </section>
 

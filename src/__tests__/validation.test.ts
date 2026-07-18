@@ -16,7 +16,7 @@ import {
   sanitizeIdentifier,
 } from "../validation.js";
 
-const TEST_DIR = join(tmpdir(), "shiten-validation-test");
+const TEST_DIR = join(tmpdir(), "shitenno-validation-test");
 
 describe("safeJsonParse", () => {
   it("parses valid JSON", () => {

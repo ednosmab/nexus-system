@@ -5,7 +5,7 @@
  * Reads git log, categorizes commits by type (feat, fix, chore, docs, etc.),
  * and generates a structured CHANGELOG.md.
  *
- * Usage: node dist/shitenno-go/scripts/generate-changelog.js [--since <date>] [--output <path>]
+ * Usage: node dist/shitenno/scripts/generate-changelog.js [--since <date>] [--output <path>]
  */
 
 import { execSync } from "node:child_process";

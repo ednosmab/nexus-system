@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 
 const entryPoints = [
-  { path: 'shitenno-go/.shiten/', description: 'Directorio principal do framework.' },
-  { path: 'shitenno-go/docs/', description: 'Documentacao e guias.' },
-  { path: 'shitenno-go/governance/', description: 'Regras e agentes de governanca.' },
-  { path: 'shitenno-go/telemetry/', description: 'Dados de telemetria.' },
-  { path: 'shitenno-go/reports/', description: 'Relatorios gerados.' },
-  { path: 'shitenno-go/feedback/', description: 'Registos de feedback.' },
+  { path: 'shitenno/.shugo/', description: 'Directorio principal do framework.' },
+  { path: 'shitenno/docs/', description: 'Documentacao e guias.' },
+  { path: 'shitenno/governance/', description: 'Regras e agentes de governanca.' },
+  { path: 'shitenno/telemetry/', description: 'Dados de telemetria.' },
+  { path: 'shitenno/reports/', description: 'Relatorios gerados.' },
+  { path: 'shitenno/feedback/', description: 'Registos de feedback.' },
 ]
 
 export default function SourceCode() {
@@ -15,7 +15,7 @@ export default function SourceCode() {
       <section className="flex flex-col gap-3">
         <h1 className="text-2xl font-bold text-text-primary">Codigo Fonte</h1>
         <p className="text-text-secondary max-w-2xl">
-          Estrutura de pastas e entry points do Shitenno-go.
+          Estrutura de pastas e entry points do Shitenno.
         </p>
       </section>
 

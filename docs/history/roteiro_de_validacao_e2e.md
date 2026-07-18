@@ -1,4 +1,4 @@
-# Roteiro de Validação E2E — Shitenno-go
+# Roteiro de Validação E2E — Shitenno
 
 > Este roteiro NÃO contém as respostas. Ele contém o procedimento e a
 > pergunta certa para cada passo. Seu trabalho é executar o comando
@@ -25,7 +25,7 @@ lendo o código-fonte isoladamente.
 ## Pré-requisito
 
 ```bash
-cd shitenno-go-main
+cd shitenno-main
 npm install
 npm run build
 npm test          # confirme: todos passam? quantos?
@@ -49,16 +49,16 @@ echo "export const x = 1" > src/core/domain.ts
 ```
 
 **Por que um projeto tão mínimo:** o caso mais comum de uso real do
-Shiten é exatamente este — um projeto que está nascendo, não um
+Shugo é exatamente este — um projeto que está nascendo, não um
 projeto maduro com histórico. Se o sistema só funciona bem em
 projetos grandes/maduros, isso é uma lacuna real de cobertura.
 
 ---
 
-## Step 2 — Rodar `shiten init` interativo, de verdade
+## Step 2 — Rodar `shugo init` interativo, de verdade
 
 ```bash
-node ../caminho/para/dist/shiten.js init
+node ../caminho/para/dist/shugo.js init
 ```
 
 Responda às perguntas como um Tech Lead júnior/solo responderia
@@ -83,76 +83,76 @@ no relatório anterior).
 Para cada comando abaixo: rode, copie a saída real (não resuma de
 memória depois), e responda a pergunta específica.
 
-### `shiten status`
+### `shugo status`
 ```bash
-node <caminho>/dist/shiten.js status
+node <caminho>/dist/shugo.js status
 ```
 **Pergunta:** o "Complexity Analysis" e o "Maturity Profile" mostrados
 fazem sentido para um projeto de 2 arquivos recém-criado? Algum número
 parece estranho ou inflado?
 
-### `shiten detect`
+### `shugo detect`
 ```bash
-node <caminho>/dist/shiten.js detect
+node <caminho>/dist/shugo.js detect
 ```
 **Pergunta:** o que esse comando faz quando NÃO há histórico nenhum
 ainda (projeto novo)? A resposta dele nesse cenário é útil ou só
 "vazio, sem nada a dizer"?
 
-### `shiten audit`
+### `shugo audit`
 ```bash
-node <caminho>/dist/shiten.js audit
+node <caminho>/dist/shugo.js audit
 ```
 **Pergunta:** algum item reportado como CRITICAL ou de severidade alta
 é, na real, esperado/normal para este estágio do projeto (ex: você
 só instalou 2 capacidades de propósito)? Se sim, isso é um falso
 positivo — registre qual item e por quê.
 
-### `shiten assess`
+### `shugo assess`
 ```bash
-node <caminho>/dist/shiten.js assess
+node <caminho>/dist/shugo.js assess
 ```
 **Pergunta:** as capacidades detectadas/recomendadas batem com o que
 você de fato escolheu no `init`? Apareceu alguma capacidade que você
 não esperava?
 
-### `shiten run`
+### `shugo run`
 ```bash
-node <caminho>/dist/shiten.js run
+node <caminho>/dist/shugo.js run
 ```
 **Pergunta:** quantos estágios o pipeline de fato executou? Esse
 número bate com o que o README promete? (Conte você mesmo, não
 assuma — esta é exatamente a pergunta que revelou a inconsistência de
 8 vs. 5 estágios.)
 
-### `shiten evolve` (chamado direto, sozinho)
+### `shugo evolve` (chamado direto, sozinho)
 ```bash
-node <caminho>/dist/shiten.js evolve
+node <caminho>/dist/shugo.js evolve
 ```
 **Pergunta:** este comando, chamado sozinho, se comporta IGUAL ao
-estágio "evolve" que rodou dentro de `shiten run` no passo anterior?
+estágio "evolve" que rodou dentro de `shugo run` no passo anterior?
 Se você tivesse exatamente o mesmo estado de projeto nos dois casos,
 o resultado deveria ser o mesmo. Foi?
 
-### `shiten doctor`
+### `shugo doctor`
 ```bash
-node <caminho>/dist/shiten.js doctor
+node <caminho>/dist/shugo.js doctor
 ```
 **Pergunta:** as recomendações fazem sentido dado o estado real do
 projeto (2 arquivos, sem CI, sem testes)? Alguma recomendação parece
 genérica/copiada em vez de calibrada ao que você de fato tem?
 
-### `shiten validate`
+### `shugo validate`
 ```bash
-node <caminho>/dist/shiten.js validate
+node <caminho>/dist/shugo.js validate
 ```
 **Pergunta:** os warnings reportados são coisas que você de fato
 ainda não fez (esperado para projeto novo), ou apontam pra algo que
 o `init`/`assess` deveriam ter criado e não criaram?
 
-### `shiten report`
+### `shugo report`
 ```bash
-node <caminho>/dist/shiten.js report
+node <caminho>/dist/shugo.js report
 ```
 **Pergunta — esta é a mais importante:** olhe a seção de "força" e
 "área de melhoria" (ou nomes equivalentes). Em um projeto novo, é
@@ -201,5 +201,5 @@ você vai responder o `init` interativo de verdade, algo que eu não fiz).
 
 Registre o resultado em `docs/sdr/` (um SDR por bug confirmado, formato
 causa raiz + correção) e/ou como ADR se for decisão de design — isso
-não é burocracia, é o próprio Shiten documentando sua própria validação,
+não é burocracia, é o próprio Shugo documentando sua própria validação,
 o que é coerente com o propósito dele.

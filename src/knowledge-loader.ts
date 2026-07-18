@@ -63,8 +63,8 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; body: st
  * List ADRs with lightweight metadata (status + title), without loading the full body.
  * Returns summaries sorted by ID.
  */
-export function listAdrs(shitenDir: string): AdrSummary[] {
-  const adrDir = join(shitenDir, "docs", "adrs");
+export function listAdrs(shitennoDir: string): AdrSummary[] {
+  const adrDir = join(shitennoDir, "docs", "adrs");
   if (!existsSync(adrDir)) return [];
 
   return readdirSync(adrDir)
@@ -88,15 +88,15 @@ export function listAdrs(shitenDir: string): AdrSummary[] {
  * Load full content of a specific ADR by id or filename.
  * Returns null if not found or on unsafe input (does not throw).
  */
-export function getAdr(shitenDir: string, idOrFilename: string): AdrFull | null {
-  const adrDir = join(shitenDir, "docs", "adrs");
+export function getAdr(shitennoDir: string, idOrFilename: string): AdrFull | null {
+  const adrDir = join(shitennoDir, "docs", "adrs");
   let safe: string;
   try {
     safe = sanitizePlanName(idOrFilename);
   } catch {
     return null;
   }
-  const summaries = listAdrs(shitenDir);
+  const summaries = listAdrs(shitennoDir);
   const match = summaries.find(
     (a) => a.id === safe || a.filename === safe || a.filename === `${safe}.md`
   );
@@ -111,8 +111,8 @@ export function getAdr(shitenDir: string, idOrFilename: string): AdrFull | null 
 /**
  * List skills with metadata from frontmatter (name + description), without full body.
  */
-export function listSkills(shitenDir: string): SkillMeta[] {
-  const skillsDir = join(shitenDir, "docs", "skills");
+export function listSkills(shitennoDir: string): SkillMeta[] {
+  const skillsDir = join(shitennoDir, "docs", "skills");
   if (!existsSync(skillsDir)) return [];
 
   return readdirSync(skillsDir)
@@ -132,15 +132,15 @@ export function listSkills(shitenDir: string): SkillMeta[] {
  * Load full content of a specific skill by name or filename.
  * Returns null if not found or on unsafe input (does not throw).
  */
-export function getSkill(shitenDir: string, nameOrFilename: string): SkillFull | null {
-  const skillsDir = join(shitenDir, "docs", "skills");
+export function getSkill(shitennoDir: string, nameOrFilename: string): SkillFull | null {
+  const skillsDir = join(shitennoDir, "docs", "skills");
   let safe: string;
   try {
     safe = sanitizePlanName(nameOrFilename);
   } catch {
     return null;
   }
-  const summaries = listSkills(shitenDir);
+  const summaries = listSkills(shitennoDir);
   const match = summaries.find(
     (s) => s.name === safe || s.filename === safe || s.filename === `${safe}.md`
   );

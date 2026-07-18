@@ -2,7 +2,7 @@
  * backlog-writer.ts — Auto-backlog Generator
  *
  * Detecta gaps e adiciona automaticamente ao BACKLOG.md do projeto.
- * Usado por `shiten audit --auto-backlog` para documentar issues encontradas.
+ * Usado por `shugo audit --auto-backlog` para documentar issues encontradas.
  *
  * PRINCÍPIO: O sistema que diagnostica também documenta o plano de correção.
  */
@@ -113,7 +113,7 @@ export function formatBacklogSection(items: BacklogItem[], date: string): string
   const p3 = items.filter((i) => i.priority === "P3");
 
   let section = `## Auto-análise ${date}\n\n`;
-  section += `> **Gerado por:** shiten audit --auto-backlog\n`;
+  section += `> **Gerado por:** shugo audit --auto-backlog\n`;
   section += `> **Data:** ${date}\n`;
   section += `> **Itens:** ${items.length} (${p0.length} P0, ${p1.length} P1, ${p2.length} P2, ${p3.length} P3)\n`;
   section += `\n`;
@@ -256,7 +256,7 @@ export function issueToBacklogItem(
     title: issue.description.slice(0, 60),
     severity: severityLabel(issue.severity),
     priority,
-    source: "shiten audit",
+    source: "shugo audit",
     date,
     modules: [issue.location],
     description: issue.description,
@@ -283,7 +283,7 @@ export function dimensionToBacklogItem(
     title: `${dimension} ${score}% (abaixo de 25%)`,
     severity,
     priority,
-    source: "shiten assess",
+    source: "shugo assess",
     date,
     modules: ["src/"],
     description: `Dimensao ${dimension} do score de maturidade esta em ${score}%.`,

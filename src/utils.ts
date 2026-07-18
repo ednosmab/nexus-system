@@ -7,7 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { logger } from "./logger.js";
-import { SHITEN_DIR_NAME } from "./constants.js";
+import { SHITENNO_DIR_NAME } from "./constants.js";
 
 /** Extensões de ficheiros de código fonte. */
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"];
@@ -74,12 +74,12 @@ export function countSourceFilesInDir(dir: string): number {
  * Cache de conteúdo de ficheiros para evitar leitura repetida.
  * Usado pelo scorer para keyword search em múltiplas áreas sobrepostas.
  */
-/** Detecta a raiz do projecto shiten procurando por opencode.json ou shitenno-go/. */
-export function detectShitenProject(startDir: string): { root: string; shitenDir: string } | null {
+/** Detecta a raiz do projecto shugo procurando por opencode.json ou shitenno/. */
+export function detectShitennoProject(startDir: string): { root: string; shitennoDir: string } | null {
   let current = startDir;
   while (true) {
-    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, SHITEN_DIR_NAME))) {
-      return { root: current, shitenDir: join(current, SHITEN_DIR_NAME) };
+    if (existsSync(join(current, "opencode.json")) || existsSync(join(current, SHITENNO_DIR_NAME))) {
+      return { root: current, shitennoDir: join(current, SHITENNO_DIR_NAME) };
     }
     const parent = dirname(current);
     if (parent === current) return null;

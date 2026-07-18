@@ -14,19 +14,19 @@ import { logger } from "./logger.js";
 
 import { escapeRegex } from "./validation.js";
 
-function getBufferPath(shitenDir: string): string {
-  return join(shitenDir, "governance", "context", "context_buffer.yaml");
+function getBufferPath(shitennoDir: string): string {
+  return join(shitennoDir, "governance", "context", "context_buffer.yaml");
 }
 
-function readBuffer(shitenDir: string): string | null {
-  const path = getBufferPath(shitenDir);
+function readBuffer(shitennoDir: string): string | null {
+  const path = getBufferPath(shitennoDir);
   if (!existsSync(path)) return null;
   return readFileSync(path, "utf-8");
 }
 
-function writeBuffer(shitenDir: string, content: string): void {
-  const path = getBufferPath(shitenDir);
-  const dir = join(shitenDir, "governance", "context");
+function writeBuffer(shitennoDir: string, content: string): void {
+  const path = getBufferPath(shitennoDir);
+  const dir = join(shitennoDir, "governance", "context");
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -88,10 +88,10 @@ export interface CurrentTaskUpdate {
  * Called on session start and session end.
  */
 export function updateSession(
-  shitenDir: string,
+  shitennoDir: string,
   updates: SessionUpdate
 ): { success: boolean; message: string } {
-  let content = readBuffer(shitenDir);
+  let content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -109,7 +109,7 @@ export function updateSession(
   }
 
   if (changed) {
-    writeBuffer(shitenDir, content);
+    writeBuffer(shitennoDir, content);
     return { success: true, message: `Session updated: ${Object.keys(updates).join(", ")}` };
   }
   return { success: false, message: "No fields updated" };
@@ -120,10 +120,10 @@ export function updateSession(
  * Called on task completion, task start, etc.
  */
 export function updateCurrentTask(
-  shitenDir: string,
+  shitennoDir: string,
   updates: CurrentTaskUpdate
 ): { success: boolean; message: string } {
-  let content = readBuffer(shitenDir);
+  let content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -141,7 +141,7 @@ export function updateCurrentTask(
   }
 
   if (changed) {
-    writeBuffer(shitenDir, content);
+    writeBuffer(shitennoDir, content);
     return { success: true, message: `Current task updated: ${Object.keys(updates).join(", ")}` };
   }
   return { success: false, message: "No fields updated" };
@@ -151,10 +151,10 @@ export function updateCurrentTask(
  * Update next_p0 field in context_buffer.yaml.
  */
 export function updateNextP0(
-  shitenDir: string,
+  shitennoDir: string,
   value: string
 ): { success: boolean; message: string } {
-  let content = readBuffer(shitenDir);
+  let content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -163,7 +163,7 @@ export function updateNextP0(
   const pattern = new RegExp(`(${escaped}:\\s*").*?(")`);
   if (pattern.test(content)) {
     content = content.replace(pattern, `$1${value}$2`);
-    writeBuffer(shitenDir, content);
+    writeBuffer(shitennoDir, content);
     return { success: true, message: `next_p0 updated` };
   }
 
@@ -171,7 +171,7 @@ export function updateNextP0(
   const insertPattern = /(current_task:[\s\S]*?\n\n)/;
   if (insertPattern.test(content)) {
     content = content.replace(insertPattern, `$1next_p0: "${value}"\n\n`);
-    writeBuffer(shitenDir, content);
+    writeBuffer(shitennoDir, content);
     return { success: true, message: `next_p0 created` };
   }
 
@@ -182,10 +182,10 @@ export function updateNextP0(
  * Append an entry to completed_tasks array.
  */
 export function addCompletedTask(
-  shitenDir: string,
+  shitennoDir: string,
   task: { id: string; description: string; completed_at: string; files_modified?: string[] }
 ): { success: boolean; message: string } {
-  let content = readBuffer(shitenDir);
+  let content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -202,20 +202,20 @@ export function addCompletedTask(
   entry += "\n";
 
   content = content.replace(completedRegex, `$1${entry}`);
-  writeBuffer(shitenDir, content);
+  writeBuffer(shitennoDir, content);
   return { success: true, message: `Completed task added: ${task.id}` };
 }
 
 /**
  * Full session lifecycle update: set session + current_task in one write.
- * Used by bin/shiten.ts on session start/end.
+ * Used by bin/shugo.ts on session start/end.
  */
 export function updateSessionLifecycle(
-  shitenDir: string,
+  shitennoDir: string,
   session: SessionUpdate,
   task?: CurrentTaskUpdate
 ): { success: boolean; message: string } {
-  let content = readBuffer(shitenDir);
+  let content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -245,7 +245,7 @@ export function updateSessionLifecycle(
   }
 
   if (messages.length > 0) {
-    writeBuffer(shitenDir, content);
+    writeBuffer(shitennoDir, content);
     return { success: true, message: `Updated: ${messages.join(", ")}` };
   }
   return { success: false, message: "No fields updated" };
@@ -268,10 +268,10 @@ export interface ReminderInput {
  * skips if a reminder with the same message already exists.
  */
 export function addReminder(
-  shitenDir: string,
+  shitennoDir: string,
   reminder: ReminderInput
 ): { success: boolean; message: string; skipped?: boolean } {
-  const content = readBuffer(shitenDir);
+  const content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -293,13 +293,13 @@ export function addReminder(
   if (match) {
     const insertPos = match.index + match[0].length;
     const updated = content.slice(0, insertPos) + entry + content.slice(insertPos);
-    writeBuffer(shitenDir, updated);
+    writeBuffer(shitennoDir, updated);
     return { success: true, message: `Reminder added: ${reminder.message}` };
   }
 
   // reminders section doesn't exist — create at the beginning
   const updated = "reminders:\n" + entry + "\n" + content;
-  writeBuffer(shitenDir, updated);
+  writeBuffer(shitennoDir, updated);
   return { success: true, message: `Reminder added (new section): ${reminder.message}` };
 }
 
@@ -308,10 +308,10 @@ export function addReminder(
  * Call after the agent resolves a reminder to prevent stale entries.
  */
 export function clearRemindersByCategory(
-  shitenDir: string,
+  shitennoDir: string,
   category: ReminderCategory
 ): { success: boolean; removed: number } {
-  const content = readBuffer(shitenDir);
+  const content = readBuffer(shitennoDir);
   if (content === null) return { success: false, removed: 0 };
 
   const lines = content.split("\n");
@@ -355,7 +355,7 @@ export function clearRemindersByCategory(
   const before = lines.slice(0, remindersStart + 1).join("\n");
   const after = lines.slice(remindersEnd).join("\n");
   const updated = before + "\n" + keptBlock + (after.startsWith("\n") ? after.slice(1) : after);
-  writeBuffer(shitenDir, updated);
+  writeBuffer(shitennoDir, updated);
   return { success: true, removed };
 }
 
@@ -373,10 +373,10 @@ export interface Impediment {
  * Appends to the `impediments` array.
  */
 export function addImpediment(
-  shitenDir: string,
+  shitennoDir: string,
   impediment: Impediment
 ): { success: boolean; message: string } {
-  const content = readBuffer(shitenDir);
+  const content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found" };
   }
@@ -392,13 +392,13 @@ ${impediment.category ? `    category: "${impediment.category}"\n` : ""}`;
   if (match) {
     const insertPos = match.index + match[0].length;
     const updated = content.slice(0, insertPos) + entry + content.slice(insertPos);
-    writeBuffer(shitenDir, updated);
+    writeBuffer(shitennoDir, updated);
     return { success: true, message: `Impediment added: ${impediment.description}` };
   }
 
   // impediments section doesn't exist — add it at the end
   const updated = content.trimEnd() + "\n\nimpediments:\n" + entry;
-  writeBuffer(shitenDir, updated);
+  writeBuffer(shitennoDir, updated);
   return { success: true, message: `Impediment added (new section): ${impediment.description}` };
 }
 
@@ -407,10 +407,10 @@ ${impediment.category ? `    category: "${impediment.category}"\n` : ""}`;
  * If pattern is omitted, clears ALL impediments.
  */
 export function clearImpediments(
-  shitenDir: string,
+  shitennoDir: string,
   pattern?: string
 ): { success: boolean; message: string; removed: number } {
-  const content = readBuffer(shitenDir);
+  const content = readBuffer(shitennoDir);
   if (content === null) {
     return { success: false, message: "context_buffer.yaml not found", removed: 0 };
   }
@@ -428,7 +428,7 @@ export function clearImpediments(
   if (!pattern) {
     // Clear all impediments
     const updated = content.replace(impedimentsRegex, "impediments: []\n");
-    writeBuffer(shitenDir, updated);
+    writeBuffer(shitennoDir, updated);
     return { success: true, message: `Cleared all ${entries.length} impediments`, removed: entries.length };
   }
 
@@ -442,6 +442,6 @@ export function clearImpediments(
 
   const newBlock = kept.length > 0 ? kept.join("") : "[]\n";
   const updated = content.replace(impedimentsRegex, `impediments:\n${newBlock}`);
-  writeBuffer(shitenDir, updated);
+  writeBuffer(shitennoDir, updated);
   return { success: true, message: `Cleared ${removed} impediments matching "${pattern}"`, removed };
 }

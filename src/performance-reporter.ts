@@ -75,8 +75,8 @@ export interface PerformanceReport {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function getLatestTelemetryFile(shitenDir: string, prefix: string, rank = 0): string {
-  const telemetryDir = join(shitenDir, "telemetry");
+function getLatestTelemetryFile(shitennoDir: string, prefix: string, rank = 0): string {
+  const telemetryDir = join(shitennoDir, "telemetry");
   if (!existsSync(telemetryDir)) return "";
   try {
     const files = readdirSync(telemetryDir)
@@ -125,7 +125,7 @@ function detectTrend(current: number, previous: number): "improving" | "stable" 
 /** Generate a full performance report for the user. */
 export function generatePerformanceReport(
   _projectRoot: string,
-  shitenDir: string,
+  shitennoDir: string,
   options?: { days?: number }
 ): PerformanceReport {
   const days = options?.days || 30;
@@ -133,11 +133,11 @@ export function generatePerformanceReport(
   const periodStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
   // Gather data from all sources
-  const dimensionSummaries = getAllDimensionSummaries(shitenDir);
-  const sessionMetrics = getSessionMetrics(shitenDir, days);
-  const growthProfile = loadGrowthProfile(shitenDir);
-  const feedbackRecords = getFeedbackRecords(shitenDir);
-  const patterns = detectFeedbackPatterns(shitenDir);
+  const dimensionSummaries = getAllDimensionSummaries(shitennoDir);
+  const sessionMetrics = getSessionMetrics(shitennoDir, days);
+  const growthProfile = loadGrowthProfile(shitennoDir);
+  const feedbackRecords = getFeedbackRecords(shitennoDir);
+  const patterns = detectFeedbackPatterns(shitennoDir);
 
   // Filter records to period
   const periodRecords = feedbackRecords.filter(
@@ -208,17 +208,17 @@ export function generatePerformanceReport(
   }
 
   // Debt and maturity trends (from telemetry snapshots)
-  const currentMaturityFile = getLatestTelemetryFile(shitenDir, "maturity");
+  const currentMaturityFile = getLatestTelemetryFile(shitennoDir, "maturity");
   const currentMaturityData = currentMaturityFile ? readJsonFile<TelemetrySnapshot>(currentMaturityFile, {}) : {};
   const currentMaturity = currentMaturityData.overallScore ?? 0;
-  const previousMaturityFile = getLatestTelemetryFile(shitenDir, "maturity", 1);
+  const previousMaturityFile = getLatestTelemetryFile(shitennoDir, "maturity", 1);
   const previousMaturityData = previousMaturityFile ? readJsonFile<TelemetrySnapshot>(previousMaturityFile, {}) : {};
   const previousMaturity = previousMaturityData.overallScore ?? currentMaturity;
 
-  const currentDebtFile = getLatestTelemetryFile(shitenDir, "knowledge-debt");
+  const currentDebtFile = getLatestTelemetryFile(shitennoDir, "knowledge-debt");
   const currentDebtData = currentDebtFile ? readJsonFile<TelemetrySnapshot>(currentDebtFile, {}) : {};
   const currentDebt = currentDebtData.healthScore != null ? 100 - currentDebtData.healthScore : 100;
-  const previousDebtFile = getLatestTelemetryFile(shitenDir, "knowledge-debt", 1);
+  const previousDebtFile = getLatestTelemetryFile(shitennoDir, "knowledge-debt", 1);
   const previousDebtData = previousDebtFile ? readJsonFile<TelemetrySnapshot>(previousDebtFile, {}) : {};
   const previousDebt = previousDebtData.healthScore != null ? 100 - previousDebtData.healthScore : currentDebt;
 
@@ -469,11 +469,11 @@ function generateSummary(
 
 /** Write performance report to disk. */
 export function writePerformanceReport(
-  shitenDir: string,
+  shitennoDir: string,
   report: PerformanceReport
 ): string | null {
   try {
-    const reportsDir = join(shitenDir, "reports");
+    const reportsDir = join(shitennoDir, "reports");
     if (!existsSync(reportsDir)) {
       mkdirSync(reportsDir, { recursive: true });
     }
