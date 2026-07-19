@@ -10,6 +10,7 @@
 import { execSync } from "node:child_process";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
+import { writeFileSync } from "node:fs";
 import chalk from "chalk";
 import ora from "ora";
 import { SHITENNO_DIR_NAME } from "./constants.js";
@@ -85,7 +86,7 @@ async function runValidationWithProgress(
   return { valid, checks };
 }
 
-function checkBuild(projectRoot: string): CompletionCheck {
+export function checkBuild(projectRoot: string): CompletionCheck {
   try {
     execSync("pnpm run build 2>/dev/null", {
       encoding: "utf-8",
@@ -99,7 +100,7 @@ function checkBuild(projectRoot: string): CompletionCheck {
   }
 }
 
-function checkTests(projectRoot: string): CompletionCheck {
+export function checkTests(projectRoot: string): CompletionCheck {
   try {
     execSync("npx vitest run 2>/dev/null", {
       encoding: "utf-8",
@@ -113,7 +114,7 @@ function checkTests(projectRoot: string): CompletionCheck {
   }
 }
 
-function checkLint(projectRoot: string): CompletionCheck {
+export function checkLint(projectRoot: string): CompletionCheck {
   try {
     execSync("pnpm run lint 2>/dev/null", {
       encoding: "utf-8",
@@ -125,6 +126,60 @@ function checkLint(projectRoot: string): CompletionCheck {
   } catch {
     return { name: "LINT", passed: false, message: "Lint failed or not configured" };
   }
+}
+
+// ── Verification Record ────────────────────────────────────────────────────
+
+export interface VerificationRecord {
+  planId: string;
+  commitHash: string;
+  checks: CompletionCheck[];
+  passed: boolean;
+  timestamp: string;
+}
+
+export function runAutoVerification(
+  shitennoDir: string,
+  projectRoot: string,
+  planId: string
+): VerificationRecord {
+  const checks = [checkBuild(projectRoot), checkTests(projectRoot), checkLint(projectRoot)];
+  const passed = checks.every((c) => c.passed);
+  let commitHash = "unknown";
+  try {
+    commitHash = execSync("git rev-parse HEAD", { cwd: projectRoot, encoding: "utf-8", timeout: 5000 }).trim();
+  } catch { /* not in a git repo or git unavailable */ }
+
+  const record: VerificationRecord = {
+    planId,
+    commitHash,
+    checks,
+    passed,
+    timestamp: new Date().toISOString(),
+  };
+
+  const engine = new MarkdownPlanEngine(shitennoDir);
+  const plansDir = join(shitennoDir, "governance", "plans");
+
+  if (passed) {
+    // Grava o sidecar ANTES de mudar o status.
+    // updateStatus(id, "done") move o .md sincronamente dentro dela mesma
+    // (markdown-plan-engine.ts) — se o .verification.json for escrito
+    // depois dessa chamada, o .md já não está mais em plansDir, e o sidecar
+    // fica órfão, nunca migra para done/.
+    writeFileSync(
+      join(plansDir, `${planId}.verification.json`),
+      JSON.stringify(record, null, 2),
+      "utf-8"
+    );
+    engine.updateStatus(planId, "done"); // moveToDone() arrasta o sidecar junto
+  } else {
+    engine.updateStatus(planId, "blocked");
+    const failedNames = checks.filter((c) => !c.passed).map((c) => c.name).join(", ");
+    logger.warn("plan-lifecycle", `Plan ${planId} blocked — failed: ${failedNames}`);
+  }
+
+  return record;
 }
 
 // ── Archive / Remove Plan ──────────────────────────────────────────────────

@@ -36,4 +36,13 @@ if [ $SYNC_EXIT -ne 0 ]; then
   echo "⚠️  Documentation sync has warnings. Run 'pnpm run sync:docs:fix' to auto-fix."
 fi
 
+echo "🔍 Verifying done plans have valid verification records..."
+npx tsx scripts/verify-done-plans.ts
+VERIFY_EXIT=$?
+
+if [ $VERIFY_EXIT -ne 0 ]; then
+  echo "❌ Done plan verification failed."
+  exit 1
+fi
+
 echo "✅ Pre-commit checks passed."

@@ -4,7 +4,10 @@
  * Manages human-authored markdown execution plans.
  * Plans are stored in governance/plans/ with status tracking.
  *
- * Status flow: andamento → parado → done
+ * Status flow: andamento → parado → check → done
+ *                                      ↳ blocked (retry → check)
+ * "done" e "blocked" só devem ser escritos pelo pipeline de verificação
+ * (ver plan-lifecycle.ts:runAutoVerification), nunca diretamente pelo agente.
  * When status = done, plan is moved to done/ subdirectory.
  *
  * Architecture: MarkdownPlan → Frontmatter Parser → File Operations
@@ -19,7 +22,7 @@ import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-export type MarkdownPlanStatus = "andamento" | "parado" | "done";
+export type MarkdownPlanStatus = "andamento" | "parado" | "check" | "done" | "blocked";
 
 export interface MarkdownPlan {
   /** Plan ID (filename without .md). */
@@ -150,6 +153,8 @@ function normalizeStatusValue(raw: string): MarkdownPlanStatus {
   const lower = raw.toLowerCase();
   if (lower.includes("done") || lower.includes("conclu")) return "done";
   if (lower.includes("parado") || lower.includes("paused") || lower.includes("stopped")) return "parado";
+  if (lower.includes("check") || lower.includes("verificando") || lower.includes("checking")) return "check";
+  if (lower.includes("blocked") || lower.includes("bloqueado")) return "blocked";
   return "andamento";
 }
 
@@ -419,6 +424,15 @@ export class MarkdownPlanEngine {
     }
 
     renameSync(sourcePath, destPath);
+
+    // Arrasta o .verification.json junto, se existir. Cobre os dois
+    // caminhos de chamada — via updateStatus() direto e via archiveIfDone()
+    // (chamado pelo daemon quando o agente edita o .md manualmente).
+    const verificationSrc = join(this.plansDir, `${id}.verification.json`);
+    const verificationDest = join(this.doneDir, `${id}.verification.json`);
+    if (existsSync(verificationSrc)) {
+      renameSync(verificationSrc, verificationDest);
+    }
   }
 
   /**

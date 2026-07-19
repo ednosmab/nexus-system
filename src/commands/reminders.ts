@@ -21,8 +21,8 @@ import chalk from "chalk";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
-import { execFileSync } from "node:child_process";
 import { guardNotInitialized } from "../shared.js";
+import { sendDesktopNotification } from "../notify.js";
 import { outputJson } from "../formatting.js";
 import { printDaemonBanner } from "../daemon-context-banner.js";
 import { output, outputBlank } from "../output.js";
@@ -122,17 +122,7 @@ function saveReminders(projectRoot: string, reminders: Reminder[]): void {
   writeFileSync(bufferPath, stringifyYaml(data, { indent: 2, lineWidth: 0 }), "utf-8");
 }
 
-function sendDesktopNotification(title: string, message: string, priority: ReminderPriority): void {
-  try {
-    const urgency = priority === "high" ? "critical" : "normal";
-    execFileSync("notify-send", [title, message, `--urgency=${urgency}`], {
-      stdio: "pipe",
-      timeout: 2000,
-    });
-  } catch {
-    // notify-send not available or failed - silent fail
-  }
-}
+
 
 // ── Command ────────────────────────────────────────────────────────────────
 

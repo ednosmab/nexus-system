@@ -16,7 +16,8 @@ import { getEventBus } from "../event-bus.js";
 import { LRUCache } from "../daemon-resources.js";
 import type { ResourceClaimedPayload, ResourceReleasedPayload } from "../event-payloads.js";
 import { startWatching } from "../infrastructure/persistence/file-watcher.js";
-import { checkAndArchiveDonePlans } from "../plan-lifecycle.js";
+import { checkAndArchiveDonePlans, runAutoVerification } from "../plan-lifecycle.js";
+import { MarkdownPlanEngine } from "../markdown-plan-engine.js";
 import { auditHealth } from "../health-auditor.js";
 import { DaemonCircuitBreaker } from "../daemon-circuit-breaker.js";
 import { logger } from "../logger.js";
@@ -313,12 +314,24 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
 
   // ── Event Subscriptions ─────────────────────────────────────────────────────
 
-  // TIER 1: plan.file_changed — archive done plans + trigger standard audit + invalidate caches
+  // TIER 1: plan.file_changed — verify 'check' plans, archive done, + audit
   bus.subscribe("plan.file_changed", () => {
     recordEvent(state, "plan.file_changed");
     state.briefingCache = null;
     state.riskMapCache = null;
     try {
+      // Run auto-verification for any plan in 'check' status BEFORE archiving
+      const engine = new MarkdownPlanEngine(shitennoDir);
+      const pendingCheck = engine.listAll().filter((p) => p.isActive && p.status === "check");
+      for (const plan of pendingCheck) {
+        const record = runAutoVerification(shitennoDir, resolvedProjectRoot, plan.id);
+        daemonLog(
+          logPath,
+          record.passed ? "INFO" : "WARN",
+          `Auto-verification for ${plan.id}: ${record.passed ? "PASSED → done" : "FAILED → blocked"}`
+        );
+      }
+
       const result = checkAndArchiveDonePlans(shitennoDir);
       if (result.archived > 0) {
         daemonLog(logPath, "INFO", `Auto-archived ${result.archived} plan(s): ${result.archivedIds.join(", ")}`);
@@ -534,6 +547,33 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
     daemonLog(logPath, "DEBUG", `Audit interval recalculated: ${newInterval / 1000}s (score=${state.health?.score ?? "unknown"})`);
   });
 
+  // ── Check-nag: periodic desktop notification for plans stuck in 'check' ──
+
+  const { sendDesktopNotification } = await import("../notify.js").catch(() => ({ sendDesktopNotification: () => {} }));
+  const CHECK_NAG_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
+  let checkNagTimer: NodeJS.Timeout;
+
+  function scheduleCheckNag() {
+    checkNagTimer = setTimeout(() => {
+      try {
+        const engine = new MarkdownPlanEngine(shitennoDir);
+        const pending = engine.listAll().filter((p) => p.isActive && p.status === "check");
+        if (pending.length > 0) {
+          sendDesktopNotification(
+            "Shugo — plano pendente",
+            `${pending.length} plano(s) em 'check' aguardando verificacao: ${pending.map((p) => p.id).join(", ")}`,
+            "medium"
+          );
+        }
+      } catch (err) {
+        daemonLog(logPath, "ERROR", `Check-nag failed: ${err}`);
+      } finally {
+        scheduleCheckNag();
+      }
+    }, CHECK_NAG_INTERVAL_MS);
+  }
+  scheduleCheckNag();
+
   // ── Circuit Breaker: Reset after stable uptime ─────────────────────────────
 
   const breaker = new DaemonCircuitBreaker(shitennoDir);
@@ -547,6 +587,7 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
   const shutdown = (signal: string) => {
     daemonLog(logPath, "INFO", `Received ${signal} — shutting down`);
     clearTimeout(stableTimer);
+    clearTimeout(checkNagTimer);
     clearInterval(persistTimer);
     clearInterval(auditTimer);
     clearInterval(largeCommitTimer);

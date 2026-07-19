@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -111,14 +111,62 @@ function checkBuild() {
 // ── 7. Plan lifecycle — detect active plans ────────────────────────────────
 async function checkPlanLifecycle() {
   try {
-    const { detectActivePlans } = await import(resolve(ROOT, 'dist', 'plan-lifecycle.js'));
-    const plans = detectActivePlans(resolve(GOV, 'plans'));
-    if (plans.length > 0) {
-      warn('PLAN_LIFECYCLE', `${plans.length} active plan(s) — run "shugo plan md lifecycle" to review and archive`);
-      for (const p of plans) {
-        console.log(`         → ${p.id}: ${p.title} [${p.status}]`);
+    const { detectActivePlans, runAutoVerification } = await import(resolve(ROOT, 'dist', 'plan-lifecycle.js'));
+    const shitennoDir = resolve(ROOT, '.shitenno');
+    // CORREÇÃO: detectActivePlans espera shitennoDir, não o dir de planos.
+    const plans = detectActivePlans(shitennoDir);
+    const pendingCheck = plans.filter((p: { status: string }) => p.status === 'check');
+
+    if (pendingCheck.length > 0) {
+      warn('PLAN_LIFECYCLE', `${pendingCheck.length} plan(s) em 'check' ao fechar sessão — rodando verificação agora`);
+      for (const p of pendingCheck) {
+        const record = runAutoVerification(shitennoDir, ROOT, p.id);
+        if (record.passed) {
+          pass('PLAN_LIFECYCLE', `${p.id} → verificado e movido para done/`);
+        } else {
+          fail('PLAN_LIFECYCLE', `${p.id} → bloqueado (${record.checks.filter((c: { passed: boolean }) => !c.passed).map((c: { name: string }) => c.name).join(', ')})`);
+        }
       }
-    } else {
+    }
+
+    // Create nag reminder for plans stuck in 'check' across session boundaries
+    if (pendingCheck.length > 0) {
+      try {
+        const bufferPath = resolve(shitennoDir, 'governance', 'context', 'context_buffer.yaml');
+        if (existsSync(bufferPath)) {
+          const bufContent = readFileSync(bufferPath, 'utf-8');
+          let updated = bufContent;
+          let changed = false;
+          for (const p of pendingCheck) {
+            const nagMsg = `Plano ${p.id} segue em 'check' — verificacao nao conseguiu resolver`;
+            const escapedMsg = nagMsg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            if (!new RegExp(`^\\s*- message: "${escapedMsg}"`, 'm').test(updated)) {
+              const priority = 'high';
+              const createdAt = new Date().toISOString();
+              const entry = `  - message: "${nagMsg}"\n    priority: "${priority}"\n    category: "infra"\n    createdAt: "${createdAt}"\n`;
+              // Robust: match reminders: anywhere in the file, not just at line start
+              if (/^reminders:/m.test(updated)) {
+                updated = updated.replace(/^(reminders:)\s*\n/m, `$1\n${entry}`);
+              } else {
+                // No reminders section yet — append at end
+                updated = updated.trimEnd() + '\n\nreminders:\n' + entry;
+              }
+              changed = true;
+              warn('PLAN_LIFECYCLE', `High-priority reminder created for stale plan ${p.id}`);
+            }
+          }
+          if (changed) {
+            writeFileSync(bufferPath, updated, 'utf-8');
+          }
+        }
+      } catch { /* best effort */ }
+    }
+
+    const stillActive = plans.filter((p: { status: string }) => p.status !== 'done' && p.status !== 'check' && !pendingCheck.some((pc: { id: string }) => pc.id === p.id));
+    if (stillActive.length > 0) {
+      warn('PLAN_LIFECYCLE', `${stillActive.length} plan(s) ainda em andamento/parado — normal, não é bloqueante`);
+    }
+    if (plans.length === 0) {
       pass('PLAN_LIFECYCLE', 'No active plans — all archived');
     }
   } catch {
