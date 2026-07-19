@@ -20,9 +20,12 @@ import { loadSuppressions, addSuppression } from "../audit/suppression.js";
 import { applyAllFixes, type AutofixReport } from "../audit/autofix-engine.js";
 import { getChangedFiles } from "../audit/changed-files.js";
 import { checkPolicyGate } from "../decision-core/policy-gate.js";
-import { PolicyEngine, FilePolicyRepository } from "../policy-engine.js";
+import { PolicyEngine, FilePolicyRepository } from "../rule-engine/index.js";
 import { dimensionIcon, dimensionLabel, type AuditDimension } from "../audit/dimensions.js";
 import { categorizeIssues, groupByType, formatTypeGroup, groupOptimizationsByAction, identifyQuickWins } from "./audit/reporter.js";
+import { checkBuild, checkTests, checkLint } from "../plan-lifecycle.js";
+import { execSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
 
 // ── Subcommand: audit suppress ───────────────────────────────────────────────
 
@@ -111,6 +114,7 @@ export const auditCommand = new Command("audit")
   .option("--apply", "Apply high-confidence fixes automatically (with verification and rollback)")
   .option("--dry-run", "Simulate --apply without writing changes (use with --apply)")
   .option("--changed [base]", "Audit only files changed since base branch (default: main)")
+  .option("--full-sweep", "Roda verify:all (build+test+lint) antes da varredura, não só lê o status salvo — pode levar minutos")
   .addCommand(auditSuppressCommand)
   .action(async (options) => {
     const isJson = options.json === true;
@@ -168,6 +172,49 @@ export const auditCommand = new Command("audit")
       }
 
       const growthProfile = loadGrowthProfile(ctx.shitennoDir);
+
+      // Handle --full-sweep flag: run verify:all (build+test+lint) before audit
+      if (options.fullSweep) {
+        // Trava explícita: nunca deve rodar disparado por processo automatizado.
+        // SHITENNO_CHILD já é setado pelo próprio CLI/daemon internamente (ver
+        // cli-integration.test.ts, runShugo() seta esse env) — reaproveitar como
+        // sinal de "isso não é um humano no terminal esperando", não criar flag nova.
+        if (process.env.SHITENNO_CHILD === "1") {
+          console.error("Erro: --full-sweep não pode ser usado por processo automatizado (daemon/CI). Rode manualmente.");
+          process.exitCode = 1;
+          return;
+        }
+
+        const sweepSpinner = isJson ? null : ora("Rodando verify:all (build + test + lint) antes da varredura...").start();
+
+        const checks = [checkBuild(ctx.projectRoot), checkTests(ctx.projectRoot), checkLint(ctx.projectRoot)];
+        const passed = checks.every((c) => c.passed);
+        let commitHash = "unknown";
+        try {
+          commitHash = execSync("git rev-parse HEAD", { cwd: ctx.projectRoot, encoding: "utf-8", timeout: 5000 }).trim();
+        } catch { /* not in a git repo or git unavailable */ }
+
+        const record = {
+          commitHash,
+          checks,
+          passed,
+          timestamp: new Date().toISOString(),
+        };
+
+        writeFileSync(
+          join(ctx.shitennoDir, "governance", "last-verify.json"),
+          JSON.stringify(record, null, 2),
+          "utf-8"
+        );
+
+        if (sweepSpinner) {
+          if (record.passed) {
+            sweepSpinner.succeed("verify:all passou");
+          } else {
+            sweepSpinner.fail(`verify:all falhou: ${record.checks.filter((c) => !c.passed).map((c) => c.name).join(", ")}`);
+          }
+        }
+      }
 
       let report: HealthAuditReport;
       let cacheHit = false;

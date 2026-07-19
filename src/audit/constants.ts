@@ -192,6 +192,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectPolicyStructure",
     "detectMissingPremortem",
     "detectMissingAdrForChanges",
+    "detectDonePlanIntegrity",
     // Code Quality Intelligence (CQ-*)
     "detectJSDocCoverage",
     "detectUnsafeTypeAssertions",
@@ -212,6 +213,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectImportConsistency",
     "detectTestStructure",
     "detectAccessibilityGaps",
+    "detectStaleVerification",
   ],
   enterprise: [
     // All code-review level detectors (99)
@@ -298,6 +300,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectPolicyStructure",
     "detectMissingPremortem",
     "detectMissingAdrForChanges",
+    "detectDonePlanIntegrity",
     "detectJSDocCoverage",
     "detectUnsafeTypeAssertions",
     "detectUnreachableCode",
@@ -316,6 +319,7 @@ export const DETECTORS_BY_LEVEL: Record<AuditLevel, string[]> = {
     "detectImportConsistency",
     "detectTestStructure",
     "detectAccessibilityGaps",
+    "detectStaleVerification",
     // Enterprise: Product Strategy & Requirements (ENT-*)
     "detectVisionAlignment",
     "detectRoadmapConsistency",

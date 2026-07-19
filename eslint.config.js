@@ -89,6 +89,8 @@ export default [
       "src/commands/plan.ts",
       "src/commands/handbook.ts",
       "src/commands/hooks.ts",
+      "src/commands/audit.ts",
+      "src/commands/feedback.ts",
     ],
     rules: {
       "no-restricted-imports": "off",

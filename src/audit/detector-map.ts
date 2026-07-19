@@ -97,6 +97,7 @@ import {
   detectPolicyStructure,
   detectMissingPremortem,
   detectMissingAdrForChanges,
+  detectDonePlanIntegrity,
 } from "../audit/governance-enforcement-detectors.js";
 
 import {
@@ -230,6 +231,8 @@ import {
 
 import { detectAccessibilityGaps } from "../audit/a11y-engine.js";
 
+import { detectStaleVerification } from "../audit/detect-stale-verification.js";
+
 export function buildDetectorMap(
   projectRoot: string,
   shitennoDir: string,
@@ -345,6 +348,7 @@ export function buildDetectorMap(
     detectPolicyStructure: () => detectPolicyStructure(shitennoDir),
     detectMissingPremortem: () => detectMissingPremortem(shitennoDir),
     detectMissingAdrForChanges: () => detectMissingAdrForChanges(shitennoDir),
+    detectDonePlanIntegrity: () => detectDonePlanIntegrity(shitennoDir),
     detectMisclassifiedTier: () => detectMisclassifiedTier(shitennoDir),
     detectTierMismatches: () => detectTierMismatches(shitennoDir),
     detectJSDocCoverage: () => detectJSDocCoverage(projectRoot, sourceFiles),
@@ -436,5 +440,6 @@ export function buildDetectorMap(
     detectDuplicateDeps: () => detectDuplicateDeps(projectRoot, sourceFiles),
     detectDepAuditStatus: () => detectDepAuditStatus(projectRoot, sourceFiles),
     detectAccessibilityGaps: () => detectAccessibilityGaps(projectRoot, sourceFiles),
+    detectStaleVerification: () => detectStaleVerification(projectRoot, shitennoDir),
   };
 }

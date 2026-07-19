@@ -118,6 +118,9 @@ export type HealthIssueType =
   | "missing_policy"
   | "missing_premortem"
   | "no_adrs_created"
+  | "done_plan_missing_verification"
+  | "done_plan_failed_verification"
+  | "done_plan_orphaned_sidecar"
   // Code Quality Intelligence (Fase 6)
   | "missing_jsdoc"
   | "unsafe_type_assertion"
@@ -228,7 +231,9 @@ export type HealthIssueType =
   | "detector_failure"
   // Accessibility (A11y)
   | "accessibility_gap"
-  | "orphan_skill";
+  | "orphan_skill"
+  // Governance Integrity (J.1)
+  | "governance_integrity";
 
 /** Problema de saúde detectado no sistema. */
 export interface HealthIssue {
