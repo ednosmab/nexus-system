@@ -24,6 +24,7 @@ import { DaemonCircuitBreaker } from "../daemon-circuit-breaker.js";
 import { logger } from "../logger.js";
 import { initializeRuleEngine } from "../rule-engine/engine.js";
 import { initializeProactiveEngine } from "../prioritization/triggers.js";
+import { initDesktopNotifier } from "../desktop-notifier.js";
 import {
   createDaemonState,
   recordEvent,
@@ -257,6 +258,10 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
   const stopProactive = initializeProactiveEngine(resolvedProjectRoot, shitennoDir);
   daemonLog(logPath, "INFO", "Proactive engine initialized — subscribed to event bus");
 
+  // ── Desktop Notifications: smart rate-limited lifecycle notifications ──────
+  initDesktopNotifier();
+  daemonLog(logPath, "INFO", "Desktop notifier initialized — subscribed to lifecycle events");
+
   // ── Initial Startup Scan (async — doesn't block daemon readiness) ─────────
   // Execute proactive functions once on daemon startup via setImmediate
 
@@ -314,7 +319,7 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
     const orphanedCheck = engine.listAll().filter((p) => p.isActive && p.status === "check");
     if (orphanedCheck.length > 0) {
       daemonLog(logPath, "WARN", `Startup scan: ${orphanedCheck.length} orphaned plan(s) in 'check' — running verification now`);
-      verifyAllPendingPlans();
+      verifyAllPendingPlans().catch((err) => daemonLog(logPath, "ERROR", `Startup scan: orphaned verification promise rejected: ${err}`));
     }
     recordEvent(state, "startup_scan.verify_orphaned_check");
   } catch (err) {
@@ -665,6 +670,7 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
     clearInterval(persistTimer);
     clearInterval(auditTimer);
     clearInterval(largeCommitTimer);
+    releaseVerificationLock(shitennoDir);
     persistState(state, statePath);
     stopProactive();
     stopWatcher();

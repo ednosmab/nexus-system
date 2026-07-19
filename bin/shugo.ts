@@ -19,6 +19,7 @@ import { installMiddleware } from "../src/cli-middleware.js";
 import { stopWatching } from "../src/infrastructure/persistence/file-watcher.js";
 import { COMMAND_CATEGORIES, findCommand } from "../src/help-data.js";
 import { SHITENNO_DIR_NAME } from "../src/constants.js";
+import { initDesktopNotifier } from "../src/desktop-notifier.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -56,6 +57,9 @@ if (isInitialized) {
   currentSessionId = session.id;
   currentSessionStartedAt = session.startedAt;
   setSessionContext(session.id, session.startedAt);
+
+  // Desktop notifications for lifecycle events (session end, task completed, etc.)
+  initDesktopNotifier();
 }
 
 // Commands whose execution actually depends on the initialized engines
