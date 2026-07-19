@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { scaffoldShitenno, type ScaffoldResult } from "../scaffolder.js";
@@ -692,5 +692,84 @@ describe("CLI Integration Tests", () => {
       expect(exitCode).not.toBe(0);
       expect(stdout).toMatch(/non-interactive|answers-file/i);
     });
+  });
+
+  // ──────────────────────────────────────────────
+  // H.1 — E2E scaffold in clean directory
+  // ──────────────────────────────────────────────
+  describe("shugo init — full scaffold in clean directory (H.1)", () => {
+    const dirs: string[] = [];
+
+    afterEach(() => {
+      for (const d of dirs) rmSync(d, { recursive: true, force: true });
+      dirs.length = 0;
+    });
+
+    it("scaffolds a fully usable project from a clean directory", async () => {
+      const dir = join(tmpdir(), `shitenno-e2e-fresh-${Date.now()}`);
+      mkdirSync(dir, { recursive: true });
+      dirs.push(dir);
+
+      // Simulate a real third-party project: minimal package.json, no Shugo artifacts
+      writeFileSync(
+        join(dir, "package.json"),
+        JSON.stringify({ name: "third-party-app", version: "1.0.0", type: "module" }, null, 2)
+      );
+      writeFileSync(join(dir, "index.js"), "console.log('hello');\n");
+
+      // Create an answers file for non-interactive init (senior level ensures all capabilities installed)
+      const personaPath = join(dir, "persona.json");
+      writeFileSync(
+        personaPath,
+        JSON.stringify({
+          principalModel: "opencode/mimo-v2.5-free",
+          executorModel: "opencode/deepseek-v4-flash-free",
+          stack: ["javascript"],
+          database: "none",
+          styling: "none",
+          maturity: {
+            usedShitennoBefore: true,
+            isFirstProject: false,
+            projectAge: "mature",
+            teamSize: "medium",
+            hasDedicatedTeam: true,
+            hasArchitectureDocs: true,
+            hasADRs: true,
+            hasTechnicalReviews: true,
+            hasCICD: true,
+            hasAutomatedTests: true,
+            hasValidationPipeline: true,
+            intendsToUseAI: true,
+            aiWillImplement: true,
+            requiresHumanReview: true,
+            hasDefinedPatterns: true,
+            hasReviewProcess: true,
+            hasDecisionControl: true,
+          },
+        })
+      );
+
+      const initResult = await runShugo(
+        `init --dir "${dir}" --answers-file "${personaPath}"`,
+        dir
+      );
+      expect(initResult.exitCode).toBe(0);
+
+      // The scaffold must create the minimal usable structure:
+      expect(existsSync(join(dir, ".shitenno"))).toBe(true);
+      expect(existsSync(join(dir, ".shitenno", "governance"))).toBe(true);
+      expect(existsSync(join(dir, ".shitenno", "governance", "plans"))).toBe(true);
+
+      // Must be functional immediately, not just have files:
+      const statusResult = await runShugo("status --json", dir);
+      expect(statusResult.exitCode).toBe(0);
+      const status = JSON.parse(statusResult.stdout);
+      expect(status.initialized ?? true).toBeTruthy();
+
+      const auditResult = await runShugo("audit --json", dir);
+      expect(auditResult.exitCode).toBe(0);
+      const audit = JSON.parse(auditResult.stdout);
+      expect(typeof audit.healthScore).toBe("number");
+    }, 120_000);
   });
 });

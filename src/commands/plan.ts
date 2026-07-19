@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { MarkdownPlanEngine } from "../markdown-plan-engine.js";
 import { validatePlanFormat, extractChecklistItems, extractStepHeadings } from "../plan-format-validator.js";
 import { getEventBus } from "../event-bus.js";
+import { sendDesktopNotification } from "../notify.js";
 
 // ── Sub-command imports ────────────────────────────────────────────────────
 
@@ -86,7 +87,7 @@ export async function runPrepare(
       const bus = getEventBus();
       bus.publish("plan.format_warning", { planId, path: plan.filePath, errors: validation.errors, warnings: validation.warnings });
       if (validation.errors.length > 0) {
-        try { const { execFileSync } = await import("node:child_process"); execFileSync("notify-send", ["Shugo Plan", `Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 }); } catch { /* notify-send not available */ }
+        sendDesktopNotification("Shugo Plan", `Formato inválido: ${validation.errors.map((e) => e.message).join("; ")}`);
       }
     }
   } catch (error) { results.push({ step: "format_validation", status: "error", detail: String(error) }); }
@@ -182,12 +183,11 @@ export async function runPrepare(
     } else { results.push({ step: "backlog_sync", status: "skip", detail: "BACKLOG.md not found" }); }
   } catch (error) { results.push({ step: "backlog_sync", status: "error", detail: String(error) }); }
 
-  // Step 4: Send desktop notification
+  // Step 4: Send desktop notification (uses shared notify module with platform detection)
   try {
-    const { execFileSync } = await import("node:child_process");
-    execFileSync("notify-send", ["Shugo Plan", `Plan prepared: ${plan.title}`, "--urgency=normal"], { stdio: "pipe", timeout: 2000 });
-    results.push({ step: "notify", status: "done", detail: "Desktop notification sent" });
-  } catch { results.push({ step: "notify", status: "skip", detail: "notify-send not available or failed" }); }
+    sendDesktopNotification("Shugo Plan", `Plan prepared: ${plan.title}`);
+    results.push({ step: "notify", status: "done", detail: "Desktop notification sent (or skipped on unsupported platform)" });
+  } catch { results.push({ step: "notify", status: "skip", detail: "Notification failed" }); }
 
   return results;
 }
