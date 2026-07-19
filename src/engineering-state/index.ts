@@ -36,3 +36,11 @@ export {
 } from "./evolved.js";
 export { getSnapshotAt, listSnapshots, diffSnapshots } from "./history.js";
 export { subscribeToEngineeringState } from "./subscription.js";
+export {
+  type StateMutation,
+  type MutationSource,
+  type MutationResult,
+  getMutationLog,
+  clearMutationLog,
+  proposeStateMutation,
+} from "./mutations.js";

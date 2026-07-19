@@ -1,0 +1,18 @@
+{
+  "executionId": "EXE-BD50F081",
+  "request": {
+    "id": "invoke-mrrbv0eo",
+    "type": "auto_populate_next_p0",
+    "params": {}
+  },
+  "executionHash": "3b1d3441b8fe39fb",
+  "status": "completed",
+  "startedAt": "2026-07-19T05:00:42.576Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "BACKLOG.md not found"
+  },
+  "completedAt": "2026-07-19T05:00:42.576Z",
+  "duration": 0
+}

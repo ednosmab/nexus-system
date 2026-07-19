@@ -1,0 +1,18 @@
+{
+  "executionId": "EXE-15659AED",
+  "request": {
+    "id": "invoke-mrraq64f",
+    "type": "auto_populate_next_p0",
+    "params": {}
+  },
+  "executionHash": "3b1d3441b8fe39fb",
+  "status": "completed",
+  "startedAt": "2026-07-19T04:28:57.087Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "BACKLOG.md not found"
+  },
+  "completedAt": "2026-07-19T04:28:57.087Z",
+  "duration": 0
+}

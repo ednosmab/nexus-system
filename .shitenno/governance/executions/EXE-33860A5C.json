@@ -1,0 +1,21 @@
+{
+  "executionId": "EXE-33860A5C",
+  "request": {
+    "id": "invoke-mrr8pyeh",
+    "type": "log_event",
+    "params": {
+      "event": "session_close",
+      "message": "Session ended — run close-session to validate hygiene"
+    }
+  },
+  "executionHash": "956195e691807488",
+  "status": "completed",
+  "startedAt": "2026-07-19T03:32:47.849Z",
+  "result": "success",
+  "output": {
+    "success": true,
+    "message": "Logged event: session_close"
+  },
+  "completedAt": "2026-07-19T03:32:47.849Z",
+  "duration": 0
+}

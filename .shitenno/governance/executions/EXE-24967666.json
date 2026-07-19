@@ -1,0 +1,18 @@
+{
+  "executionId": "EXE-24967666",
+  "request": {
+    "id": "invoke-mrr84dh8",
+    "type": "auto_populate_next_p0",
+    "params": {}
+  },
+  "executionHash": "3b1d3441b8fe39fb",
+  "status": "completed",
+  "startedAt": "2026-07-19T03:16:00.956Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "BACKLOG.md not found"
+  },
+  "completedAt": "2026-07-19T03:16:00.956Z",
+  "duration": 0
+}

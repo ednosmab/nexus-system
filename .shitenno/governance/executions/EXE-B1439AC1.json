@@ -1,0 +1,22 @@
+{
+  "executionId": "EXE-B1439AC1",
+  "request": {
+    "id": "invoke-mrrab1gr",
+    "type": "update_backlog_status",
+    "params": {
+      "taskId": "${eventData.taskId}",
+      "fromState": "em implementação",
+      "toState": "em validação"
+    }
+  },
+  "executionHash": "357e8c46e9a331c3",
+  "status": "completed",
+  "startedAt": "2026-07-19T04:17:11.211Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "Task ${eventData.taskId} not found in BACKLOG.md"
+  },
+  "completedAt": "2026-07-19T04:17:11.216Z",
+  "duration": 5
+}

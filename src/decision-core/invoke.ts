@@ -15,7 +15,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ActionType, RuleAction, RuleContext } from "../domain/rules/rule.js";
-import { PolicyEngine, FilePolicyRepository } from "../policy-engine.js";
+import { PolicyEngine, FilePolicyRepository } from "../rule-engine/index.js";
 import { computeExecutionHash, type ExecutionRecord } from "../action-engine.js";
 import { checkPolicyGate } from "./policy-gate.js";
 import { checkPrecedence, type InvokeMode } from "./precedence.js";

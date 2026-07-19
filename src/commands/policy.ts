@@ -25,7 +25,7 @@ import {
   type PolicyMode,
   type PolicyEffect,
   type ComparisonOperator,
-} from "../policy-engine.js";
+} from "../rule-engine/index.js";
 import { outputJson } from "../formatting.js";
 import { output, outputBlank, outputSection, outputSuccess, outputError, outputWarning } from "../output.js";
 

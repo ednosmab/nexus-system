@@ -7,7 +7,7 @@
  * This is the FIRST gate in invoke.ts (ADR-009: policy is veto before anything else).
  */
 
-import type { PolicyEngine, PolicyEvaluation } from "../policy-engine.js";
+import type { PolicyEngine, PolicyEvaluation } from "../rule-engine/index.js";
 import type { RuleAction, RuleContext } from "../domain/rules/rule.js";
 import { getEventBus } from "../event-bus.js";
 

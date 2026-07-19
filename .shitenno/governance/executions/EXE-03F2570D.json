@@ -1,0 +1,22 @@
+{
+  "executionId": "EXE-03F2570D",
+  "request": {
+    "id": "invoke-mrr9ojsg",
+    "type": "update_backlog_status",
+    "params": {
+      "taskId": "${eventData.taskId}",
+      "fromState": "em implementação",
+      "toState": "em validação"
+    }
+  },
+  "executionHash": "357e8c46e9a331c3",
+  "status": "completed",
+  "startedAt": "2026-07-19T03:59:41.872Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "Task ${eventData.taskId} not found in BACKLOG.md"
+  },
+  "completedAt": "2026-07-19T03:59:41.876Z",
+  "duration": 4
+}

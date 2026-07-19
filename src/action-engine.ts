@@ -15,7 +15,7 @@ import { safeJsonParseValidated } from "./validation.js";
 import { checkPolicyGate } from "./decision-core/policy-gate.js";
 import { getResourceId } from "./decision-core/precedence.js";
 import { claimResource, releaseResource } from "./resource-claims.js";
-import { PolicyEngine, FilePolicyRepository } from "./policy-engine.js";
+import { PolicyEngine, FilePolicyRepository } from "./rule-engine/index.js";
 import type { RuleAction, RuleContext } from "./domain/rules/rule.js";
 import { RunScriptExecutor, CreateReminderExecutor } from "./decision-core/executors/index.js";
 

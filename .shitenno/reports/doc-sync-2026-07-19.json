@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-19T02:44:23.751Z",
+  "generated_at": "2026-07-19T05:22:46.066Z",
   "mode": "validate",
   "total_discrepancies": 15,
   "errors": 3,
@@ -90,7 +90,7 @@
     {
       "type": "validation",
       "severity": "error",
-      "message": "README statistics outdated: commands 40→37, tests 130→132",
+      "message": "README statistics outdated: commands 40→37, tests 130→135",
       "file": "README.md",
       "fixable": true
     },
