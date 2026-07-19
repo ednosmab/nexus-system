@@ -1,0 +1,6 @@
+{"type":"command.completed","payload":{"command":"shugo","projectRoot":"/media/edson-ubuntu/Data2/projeto-formação_tech/shitenno","timestamp":"2026-07-19T02:36:03.558Z","duration":6},"timestamp":"2026-07-19T02:36:03.558Z","traceId":"053b795e-d5d2-4f9d-bbd4-70c66e107b93"}
+{"type":"session.end","payload":{"sessionId":"SES-20260719023603486-0001","duration":66,"outcome":"success"},"timestamp":"2026-07-19T02:36:03.575Z","traceId":"e12d2bf7-b432-4bf7-8c32-a2fdcdcfa0ac"}
+{"type":"session.end","payload":{"sessionId":"SES-20260719023603486-0001","duration":0,"outcome":"success"},"timestamp":"2026-07-19T02:36:03.578Z","traceId":"50e855d7-3f45-4a7a-b53e-3cca404c9cb2"}
+{"type":"command.completed","payload":{"command":"shugo","projectRoot":"/media/edson-ubuntu/Data2/projeto-formação_tech/shitenno","timestamp":"2026-07-19T02:39:31.875Z","duration":4},"timestamp":"2026-07-19T02:39:31.875Z","traceId":"e6a7c5ef-9eed-404f-bdef-670e1370233d"}
+{"type":"session.end","payload":{"sessionId":"SES-20260719023931814-0001","duration":44,"outcome":"success"},"timestamp":"2026-07-19T02:39:31.882Z","traceId":"fc36544c-56da-4a12-af57-39e8b779b791"}
+{"type":"session.end","payload":{"sessionId":"SES-20260719023931814-0001","duration":0,"outcome":"success"},"timestamp":"2026-07-19T02:39:31.885Z","traceId":"7ed6f131-e2c8-4ac4-a9ba-333395578395"}
