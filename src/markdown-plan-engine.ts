@@ -361,14 +361,17 @@ export class MarkdownPlanEngine {
       if (statusMatch) {
         // Update existing status
         const newStatusDisplay = newStatus === "done" ? "Done" : 
-                                 newStatus === "parado" ? "Paused" : "In Progress";
+                                 newStatus === "parado" ? "Paused" :
+                                 newStatus === "check" ? "Check" :
+                                 newStatus === "blocked" ? "Blocked" :
+                                 "In Progress";
         content = content.replace(statusRegex, `$1${newStatusDisplay}`);
       } else {
         // Add status after title
         const lines = content.split("\n");
         const titleIndex = lines.findIndex((l) => l.startsWith("# "));
         if (titleIndex !== -1) {
-          lines.splice(titleIndex + 2, 0, "", `**Status:** ${newStatus === "done" ? "Done" : newStatus === "parado" ? "Paused" : "In Progress"}`);
+          lines.splice(titleIndex + 2, 0, "", `**Status:** ${newStatus === "done" ? "Done" : newStatus === "parado" ? "Paused" : newStatus === "check" ? "Check" : newStatus === "blocked" ? "Blocked" : "In Progress"}`);
           content = lines.join("\n");
         }
       }

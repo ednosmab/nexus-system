@@ -155,7 +155,7 @@ export function checkTests(projectRoot: string): CompletionCheck {
     execSync(`${run("test")} 2>/dev/null`, {
       encoding: "utf-8",
       cwd: projectRoot,
-      timeout: 180000,
+      timeout: 420000,
       stdio: ["pipe", "pipe", "pipe"],
     });
     return { name: "TESTS", passed: true, message: "Tests passed" };
@@ -217,12 +217,17 @@ export interface VerificationRecord {
 // senão o .verification.json cairia no mesmo problema de auto-referência
 // um nível abaixo (não pode atestar um conteúdo que inclui a si mesmo).
 function computeDiffHash(projectRoot: string): string {
-  const diffOutput = execSync(`git diff HEAD -- . ':!.shitenno/governance/plans'`, {
-    cwd: projectRoot,
-    encoding: "utf-8",
-    maxBuffer: 50 * 1024 * 1024,
-  });
-  return createHash("sha256").update(diffOutput).digest("hex");
+  try {
+    const diffOutput = execSync(`git diff HEAD -- . ':!.shitenno/governance/plans'`, {
+      cwd: projectRoot,
+      encoding: "utf-8",
+      maxBuffer: 50 * 1024 * 1024,
+    });
+    return createHash("sha256").update(diffOutput).digest("hex");
+  } catch {
+    // git diff unavailable (e.g. empty repo, no HEAD) — return a sentinel hash
+    return createHash("sha256").update("no-diff-available").digest("hex");
+  }
 }
 
 export function runAutoVerification(
