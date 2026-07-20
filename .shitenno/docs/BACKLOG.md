@@ -1765,3 +1765,33 @@
 - [ ] Passo 3 — Script de migração (roda uma vez)
 - [ ] Passo 4 — Atualizar `backlog-parser.ts`/`backlog-writer.ts` para o novo layout
 - [ ] Passo 5 — Atualizar comandos consumidores
+
+
+### BACKLOG-PLAN_2026_07_19_BLOCO_L_REFORCO_GATE — PLAN-2026-07-19 — Bloco L: Reforço do Gate — Fechando os Últimos Caminhos de Bypass
+
+| Campo | Valor |
+|---|---|
+| **Status** | planeado |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-20 |
+| **Fonte** | shugo plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-2026-07-19 — Bloco L: Reforço do Gate — Fechando os Últimos Caminhos de Bypass |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-19-BLOCO-L-reforco-gate.md` |
+
+
+### BACKLOG-PLAN_2026_07_19_MASTER_3_ESTRUTURA_E_COBERTURA — PLAN-2026-07-19 — MASTER 3/3: Estrutura e Cobertura de Teste
+
+| Campo | Valor |
+|---|---|
+| **Status** | em implementação |
+| **Severidade** | Medio |
+| **Prioridade** | P1 |
+| **Owner** | executor |
+| **Data** | 2026-07-20 |
+| **Fonte** | shugo plan md prepare |
+| **Modulos** | governance/plans/ |
+| **Descricao** | PLAN-2026-07-19 — MASTER 3/3: Estrutura e Cobertura de Teste |
+| **Correcao** | Verificar checklist no plano `governance/plans/PLAN-2026-07-19-MASTER-3-estrutura-e-cobertura.md` |

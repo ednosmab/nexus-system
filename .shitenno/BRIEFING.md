@@ -1,5 +1,5 @@
 # Pre-Session Briefing
-*Generated: 2026-07-12T01:42:24.144Z*
+*Generated: 2026-07-20T03:00:36.251Z*
 
 ---
 
@@ -10,11 +10,11 @@
 
 | Campo | Estado |
 |---|---|
-| **Tarefa em curso** | LIVING-001 Fase 1 — Cache cross-process (In Progress) |
-| **Próximo P0** | LIVING-001 Fase 1 — Cache cross-process (In Progress) |
+| **Tarefa em curso** | Nenhuma |
+| **Próximo P0** | Definir novo P0 no BACKLOG.md |
 | **Dívidas P1** | Nenhuma |
 | **Impedimentos** | Nenhum |
-| **Estado última sessão** | Em curso |
+| **Estado última sessão** | Desconhecido |
 
 ---
 
@@ -22,41 +22,17 @@
 
 | Evento | Detalhe | Hora |
 |--------|---------|------|
-| plan.format_warning | Formato inválido: PLAN-NOTIFICATION-TEST | 01:30 |
-| backlog.updated | retroactive_scan: 4 passos | 01:30 |
-| plan.format_warning | Formato inválido: PLAN-NOTIFICATION-TEST | 01:30 |
-| plan.format_warning | Formato inválido: PLAN-HANDBOOK-SYNC | 01:00 |
-| plan.format_warning | Formato inválido: PLAN-HANDBOOK-SYNC | 00:59 |
-| plan.format_warning | Formato inválido: PLAN-HANDBOOK-SYNC | 00:58 |
-| plan.format_warning | Formato inválido: PLAN-HANDBOOK-SYNC | 00:58 |
-| plan.format_warning | Formato inválido: PLAN-DYNAMIC-RULE-ADAPTATION | 00:58 |
-| plan.format_warning | Formato inválido: 2026-07-11-shitenno-living-plano-v2-3fases | 00:58 |
-| plan.format_warning | Formato inválido: 2026-07-02-shitenno-dashboard-restructure | 00:58 |
+| backlog.updated | retroactive_scan: 1 passos | 02:37 |
+| plan.format_warning | Formato inválido: PLAN-2026-07-19-BLOCO-L-reforco-gate | 02:37 |
+| backlog.updated | retroactive_scan: 2 passos | 02:07 |
+| plan.format_warning | Formato inválido: PLAN-2026-07-19-BLOCO-L-reforco-gate | 02:07 |
 
-**Resumo:** 1 sincronizações, 9 erros
-
-## Active Reminders
-
-- 🔴 **HIGH** — Health status is CRITICAL — immediate action required [health]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
-- 🟡 **MEDIUM** — Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas. [docs]
+**Resumo:** 2 sincronizações, 2 erros
 
 ## Project Identity
 - **Domain:** monorepo
 - **Scale:** medium
-- **Stack:** react
+- **Stack:** typescript, node, react
 - **Maturity:** 73/100
 
 ## Risk Status
@@ -68,15 +44,15 @@
 - **Areas Without Tests:** 5
 
 ## Context Rules (Top)
-- Area "src" has 7 file(s) without tests. Prioritize test coverage here.
+- Area "src" has 6 file(s) without tests. Prioritize test coverage here.
 - Area "src" contains sensitive keywords (auth, payment, security). Apply extra security review.
 - Area "apps" has 8 file(s) without tests. Prioritize test coverage here.
 - Area "apps" contains sensitive keywords (auth, payment, security). Apply extra security review.
 - This is a monorepo. When modifying shared packages, ensure backward compatibility.
 
 ## Dynamic Rules (From History)
-- [high] This project has 75 force push(es) in the last 180 days. Avoid "git push --force" — use --force-with-lease instead.
-- [medium] This project has 4 hotfix(es) in the last 180 days. Consider adding more pre-merge validation.
+- [high] This project has 128 force push(es) in the last 180 days. Avoid "git push --force" — use --force-with-lease instead.
+- [medium] This project has 6 hotfix(es) in the last 180 days. Consider adding more pre-merge validation.
 
 ## Recommended Next Steps
 1. Address critical risk areas: src, apps

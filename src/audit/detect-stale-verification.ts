@@ -21,18 +21,32 @@ export function detectStaleVerification(projectRoot: string, shitennoDir: string
   try {
     currentHead = execSync("git rev-parse HEAD", { cwd: projectRoot, encoding: "utf-8" }).trim();
   } catch {
-    return []; // não é repo git (ex.: ambiente de teste) — não é achado de saúde, é ambiente.
+    return [];
   }
 
   const issues: HealthIssue[] = [];
 
-  if (status.commitHash !== currentHead) {
+  // CORREÇÃO: ancestralidade, não igualdade. baseCommit nunca pode ser igual
+  // ao HEAD do commit que contém o arquivo que o registra — é auto-referência
+  // impossível (hash de commit é endereçado por conteúdo, só existe depois
+  // que a árvore, incluindo este arquivo, já fechou). "Desatualizado" precisa
+  // significar "o histórico foi reescrito desde então" (rebase/reset), não
+  // "é diferente do HEAD atual" — isso é sempre verdadeiro por construção e
+  // gera ruído em 100% dos planos, o que estava acontecendo até agora.
+  let isAncestor = true;
+  try {
+    execSync(`git merge-base --is-ancestor ${status.commitHash} HEAD`, { cwd: projectRoot, stdio: "pipe" });
+  } catch {
+    isAncestor = false;
+  }
+
+  if (!isAncestor) {
     issues.push({
       type: "governance_integrity",
       severity: 1,
-      description: `Última verificação foi no commit ${String(status.commitHash).slice(0, 7)}, HEAD atual é ${currentHead.slice(0, 7)} — pode estar desatualizada.`,
+      description: `Última varredura completa (commit ${String(status.commitHash).slice(0, 7)}) não é mais ancestral do HEAD atual (${currentHead.slice(0, 7)}) — provável rebase/reset que invalida o registro.`,
       location: "governance/last-verify.json",
-      recommendation: "Execute 'shugo audit --level code-review --full-sweep' para verificar com o commit atual.",
+      recommendation: "Execute 'shugo audit --level code-review --full-sweep' novamente.",
     });
   }
 

@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-07-20T02:20:38.625Z",
+  "mode": "fix",
+  "total_discrepancies": 12,
+  "errors": 0,
+  "warnings": 12,
+  "fixable": 0,
+  "fix_actions_applied": 2,
+  "discrepancies": [
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: .cache/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: .locks/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: daemon/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: history/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: plugins/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Directory exists but not documented in GUIDE: profile/",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Command implemented but not documented: shugo daemon",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Command implemented but not documented: shugo events",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Command implemented but not documented: shugo handbook",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Command implemented but not documented: shugo hooks",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Command implemented but not documented: shugo scheduled-check",
+      "fixable": false
+    },
+    {
+      "type": "validation",
+      "severity": "warning",
+      "message": "Version mismatch: CHANGELOG says 1.2.0, package.json says 1.1.0",
+      "file": "CHANGELOG.md",
+      "fixable": false
+    }
+  ]
+}

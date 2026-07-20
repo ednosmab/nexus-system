@@ -8,6 +8,7 @@
  */
 
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
@@ -184,14 +185,44 @@ export function checkLint(projectRoot: string): CompletionCheck {
   }
 }
 
+export function checkGateIntegrity(projectRoot: string): CompletionCheck {
+  try {
+    execSync("npx vitest run src/__tests__/plan-lifecycle-gate-e2e.test.ts --reporter=dot", {
+      cwd: projectRoot,
+      timeout: 30000,
+      stdio: "pipe",
+    });
+    return { name: "GATE_SELF_TEST", passed: true, message: "Gate de done verificado (caso positivo + negativo)" };
+  } catch (err) {
+    return {
+      name: "GATE_SELF_TEST",
+      passed: false,
+      message: `Mecanismo de done comprometido — não confiar em nenhuma verificação até corrigir: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
 // ── Verification Record ────────────────────────────────────────────────────
 
 export interface VerificationRecord {
   planId: string;
-  commitHash: string;
+  baseCommit: string; // contexto/depuração — NÃO usar para validar (auto-referência impossível)
+  diffHash: string;   // ancoragem real: sha256 do diff de código no momento da verificação
   checks: CompletionCheck[];
   passed: boolean;
   timestamp: string;
+}
+
+// Exclui os próprios arquivos de governança de plano do escopo do hash —
+// senão o .verification.json cairia no mesmo problema de auto-referência
+// um nível abaixo (não pode atestar um conteúdo que inclui a si mesmo).
+function computeDiffHash(projectRoot: string): string {
+  const diffOutput = execSync(`git diff HEAD -- . ':!.shitenno/governance/plans'`, {
+    cwd: projectRoot,
+    encoding: "utf-8",
+    maxBuffer: 50 * 1024 * 1024,
+  });
+  return createHash("sha256").update(diffOutput).digest("hex");
 }
 
 export function runAutoVerification(
@@ -199,16 +230,18 @@ export function runAutoVerification(
   projectRoot: string,
   planId: string
 ): VerificationRecord {
-  const checks = [checkBuild(projectRoot), checkTests(projectRoot), checkLint(projectRoot)];
+  const checks = [checkBuild(projectRoot), checkTests(projectRoot), checkLint(projectRoot), checkGateIntegrity(projectRoot)];
   const passed = checks.every((c) => c.passed);
-  let commitHash = "unknown";
+  let baseCommit = "unknown";
   try {
-    commitHash = execSync("git rev-parse HEAD", { cwd: projectRoot, encoding: "utf-8", timeout: 5000 }).trim();
+    baseCommit = execSync("git rev-parse HEAD", { cwd: projectRoot, encoding: "utf-8", timeout: 5000 }).trim();
   } catch { /* not in a git repo or git unavailable */ }
+  const diffHash = computeDiffHash(projectRoot);
 
   const record: VerificationRecord = {
     planId,
-    commitHash,
+    baseCommit,
+    diffHash,
     checks,
     passed,
     timestamp: new Date().toISOString(),
@@ -246,15 +279,19 @@ export function archivePlan(shitennoDir: string, planId: string, validation?: Va
 
     if (validation) {
       const plansDir = join(shitennoDir, "governance", "plans");
-      let commitHash = "unknown";
+      let baseCommit = "unknown";
       try {
-        commitHash = execSync("git rev-parse HEAD", { cwd: shitennoDir, encoding: "utf-8", timeout: 5000 }).trim();
+        baseCommit = execSync("git rev-parse HEAD", { cwd: shitennoDir, encoding: "utf-8", timeout: 5000 }).trim();
       } catch { /* not a git repo */ }
+      let diffHash = "unknown";
+      try {
+        diffHash = computeDiffHash(join(shitennoDir, ".."));
+      } catch { /* git diff not available */ }
 
       writeFileSync(
         join(plansDir, `${planId}.verification.json`),
         JSON.stringify(
-          { planId, commitHash, checks: validation.checks, passed: validation.valid, timestamp: new Date().toISOString() },
+          { planId, baseCommit, diffHash, checks: validation.checks, passed: validation.valid, timestamp: new Date().toISOString() },
           null, 2
         ),
         "utf-8"

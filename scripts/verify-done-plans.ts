@@ -1,6 +1,7 @@
 import { readdirSync, existsSync, readFileSync } from "node:fs";
 import { join, basename } from "node:path";
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 const doneDir = join(process.cwd(), ".shitenno", "governance", "plans", "done");
 let failed = false;
@@ -8,7 +9,7 @@ let failed = false;
 function checkForDirectDoneWrites(): boolean {
   try {
     const output = execSync(
-      `grep -rn 'updateStatus([^,]*,\\s*["\\']done["\\']' src --include="*.ts" | grep -v "src/plan-lifecycle.ts" | grep -v "__tests__"`,
+      `grep -rn 'updateStatus([^,]*,\\\\s*["\\\\']done["\\\\']' src --include="*.ts" | grep -v "src/plan-lifecycle.ts" | grep -v "__tests__"`,
       { encoding: "utf-8" }
     );
     if (output.trim()) {
@@ -19,7 +20,7 @@ function checkForDirectDoneWrites(): boolean {
     }
     return true;
   } catch {
-    return true;
+    return true; // grep sem match retorna exit code 1 — não é erro
   }
 }
 
@@ -36,6 +37,18 @@ if (!existsSync(doneDir)) {
   process.exit(0);
 }
 
+// Detecta quais planos em done/ estão sendo adicionados/alterados neste commit
+let stagedDoneFiles: string[] = [];
+try {
+  stagedDoneFiles = execSync(
+    "git diff --cached --name-only --diff-filter=ACM -- .shitenno/governance/plans/done",
+    { encoding: "utf-8" }
+  )
+    .split("\n")
+    .filter((f) => f.endsWith(".verification.json"))
+    .map((f) => basename(f, ".verification.json"));
+} catch { /* not in a git repo or no staged files */ }
+
 for (const file of readdirSync(doneDir)) {
   if (!file.endsWith(".md")) continue;
   const planId = basename(file, ".md");
@@ -47,20 +60,41 @@ for (const file of readdirSync(doneDir)) {
     continue;
   }
 
+  let record: { passed?: boolean; diffHash?: string };
   try {
-    const record = JSON.parse(readFileSync(verificationPath, "utf-8"));
-    if (!record.passed) {
-      console.error(`❌ ${planId}: .verification.json existe mas passed=false`);
-      failed = true;
-    }
+    record = JSON.parse(readFileSync(verificationPath, "utf-8"));
   } catch {
     console.error(`❌ ${planId}: .verification.json invalido (JSON parse failed)`);
     failed = true;
+    continue;
+  }
+
+  if (!record.passed) {
+    console.error(`❌ ${planId}: .verification.json existe mas passed=false`);
+    failed = true;
+    continue;
+  }
+
+  // Para planos que estão sendo staged agora, verifica se o diffHash ainda bate
+  if (stagedDoneFiles.includes(planId) && record.diffHash) {
+    try {
+      const stagedDiff = execSync(
+        "git diff --cached HEAD -- . ':!.shitenno/governance/plans'",
+        { encoding: "utf-8", maxBuffer: 50 * 1024 * 1024 }
+      );
+      const stagedHash = createHash("sha256").update(stagedDiff).digest("hex");
+      if (stagedHash !== record.diffHash) {
+        console.error(
+          `❌ ${planId}: o código staged mudou desde a última verificação (diffHash não bate) — rode a verificação de novo antes de commitar.`
+        );
+        failed = true;
+      }
+    } catch { /* git diff not available */ }
   }
 }
 
 if (failed) {
-  console.error("\nCommit bloqueado: plano(s) marcados 'done' sem prova de verificacao valida.");
+  console.error("\nCommit bloqueado: plano(s) marcados 'done' sem prova de verificação válida.");
   process.exit(1);
 }
-console.log("✅ Todos os planos em done/ tem verification.json valido");
+console.log("✅ Todos os planos em done/ têm verification.json válido");

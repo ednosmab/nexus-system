@@ -1,7 +1,7 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { exec } from "node:child_process";
+import { describe, it, expect, afterEach, beforeEach } from "vitest";
+import { exec, execSync } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { scaffoldShitenno, type ScaffoldResult } from "../scaffolder.js";
@@ -771,5 +771,122 @@ describe("CLI Integration Tests", () => {
       const audit = JSON.parse(auditResult.stdout);
       expect(typeof audit.healthScore).toBe("number");
     }, 120_000);
+  });
+
+  // ──────────────────────────────────────────────
+  // M.12 — E2E de comandos que mutam estado
+  // ──────────────────────────────────────────────
+  describe("shugo act", () => {
+    let dir: string;
+    beforeEach(() => { dir = scaffoldTestProject("act").dir; });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("executes a valid action and returns success JSON", async () => {
+      const { stdout, exitCode } = await runShugo(`act reminder --message "test reminder" --priority medium --json`, dir);
+      expect(exitCode).toBe(0);
+      const json = JSON.parse(stdout);
+      expect(json.result).toBe("success");
+      expect(json.executionId).toBeDefined();
+    });
+
+    it("is idempotent for the same --action-id", async () => {
+      const first = await runShugo(`act reminder --message "dup" --action-id ACT-DUP-001 --json`, dir);
+      const second = await runShugo(`act reminder --message "dup" --action-id ACT-DUP-001 --json`, dir);
+      expect(JSON.parse(second.stdout).executionId).toBe(JSON.parse(first.stdout).executionId);
+    });
+  });
+
+  describe("shugo plan md", () => {
+    let dir: string;
+    beforeEach(() => { dir = scaffoldTestProject("plan-md").dir; });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("creates and lists plans end-to-end", async () => {
+      const create = await runShugo(`plan create "Test plan E2E" --json`, dir);
+      expect(create.exitCode).toBe(0);
+      const plan = JSON.parse(create.stdout);
+      expect(plan.id).toBeDefined();
+      expect(plan.title).toBe("Test plan E2E");
+
+      const list = await runShugo(`plan list --json`, dir);
+      const plans = JSON.parse(list.stdout);
+      expect(Array.isArray(plans)).toBe(true);
+      expect(plans.some((p: { id: string }) => p.id === plan.id)).toBe(true);
+    }, 30000);
+  });
+
+  describe("shugo decide", () => {
+    let dir: string;
+    beforeEach(() => { dir = scaffoldTestProject("decide").dir; });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("records a decision and retrieves it by id", async () => {
+      const record = await runShugo(`decide "Use PostgreSQL over SQLite" --category architecture --risk medium --impact high --json`, dir);
+      const decision = JSON.parse(record.stdout);
+      expect(decision.id).toBeDefined();
+      const retrieved = await runShugo(`decide history ${decision.id} --json`, dir);
+      expect(JSON.parse(retrieved.stdout).category).toBe("architecture");
+    });
+  });
+
+  describe("shugo hooks", () => {
+    let dir: string;
+    beforeEach(() => {
+      dir = scaffoldTestProject("hooks").dir;
+      execSync("git init -q", { cwd: dir });
+    });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("installs hooks and they appear in .git/hooks", async () => {
+      const { exitCode } = await runShugo(`hooks`, dir);
+      expect(exitCode).toBe(0);
+      expect(existsSync(join(dir, ".git", "hooks", "pre-commit"))).toBe(true);
+    });
+  });
+
+  describe("shugo update", () => {
+    let dir: string;
+    let snapshotBefore: string;
+    beforeEach(() => {
+      dir = scaffoldTestProject("update").dir;
+      snapshotBefore = readFileSync(join(dir, ".shitenno", "governance", "rule-manifest.yaml"), "utf-8");
+    });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("--dry-run reports changes without touching any file", async () => {
+      const { exitCode, stdout } = await runShugo(`update --dry-run --json`, dir);
+      expect(exitCode).toBe(0);
+      expect(readFileSync(join(dir, ".shitenno", "governance", "rule-manifest.yaml"), "utf-8")).toBe(snapshotBefore);
+      expect(Array.isArray(JSON.parse(stdout).changes)).toBe(true);
+    });
+  });
+
+  describe("shugo clean", () => {
+    let dir: string;
+    beforeEach(() => {
+      dir = scaffoldTestProject("clean").dir;
+      writeFileSync(join(dir, "important-user-file.txt"), "não pode sumir");
+    });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("removes only Shugo-internal transient state, never user files", async () => {
+      const { exitCode } = await runShugo(`clean --json`, dir);
+      expect(exitCode).toBe(0);
+      expect(existsSync(join(dir, "important-user-file.txt"))).toBe(true);
+    });
+  });
+
+  describe("shugo sync", () => {
+    let dir: string;
+    beforeEach(() => { dir = scaffoldTestProject("sync").dir; });
+    afterEach(() => { rmSync(dir, { recursive: true, force: true }); });
+
+    it("--dry-run shows diff without writing", async () => {
+      const target = join(dir, ".shitenno", "governance", "WORKFLOW.md");
+      const before = readFileSync(target, "utf-8");
+      const { exitCode } = await runShugo(`sync --dry-run --json`, dir);
+      expect(exitCode).toBe(0);
+      expect(readFileSync(target, "utf-8")).toBe(before);
+    });
   });
 });

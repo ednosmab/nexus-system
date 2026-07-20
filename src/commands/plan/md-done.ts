@@ -6,7 +6,7 @@ import chalk from "chalk";
 import { join } from "node:path";
 import { guardNotInitialized } from "../../shared.js";
 import { SHITENNO_DIR_NAME } from "../../constants.js";
-import { archivePlan } from "../../plan-lifecycle.js";
+import { runAutoVerification } from "../../plan-lifecycle.js";
 import { outputJson } from "../../formatting.js";
 import { output } from "../../output.js";
 
@@ -23,15 +23,15 @@ export function registerMdDone(cmd: import("commander").Command) {
 
       const shitennoDir = join(ctx.projectRoot, SHITENNO_DIR_NAME);
       try {
-        const success = archivePlan(shitennoDir, id);
-        if (isJson) outputJson({ success, planId: id });
-        else {
-          if (success) {
-            output(chalk.green(`  ✓ Plan marked as done: ${id}`));
-            output(chalk.dim(`    Moved to done/ directory`));
-          } else {
-            output(chalk.red(`  Failed to archive plan: ${id}`));
-          }
+        const record = runAutoVerification(shitennoDir, ctx.projectRoot, id);
+        if (isJson) {
+          outputJson(record as unknown as Record<string, unknown>);
+        } else if (record.passed) {
+          output(chalk.green(`  ✓ Plan verified and marked as done: ${id}`));
+          output(chalk.dim(`    Moved to done/ directory`));
+        } else {
+          const failed = record.checks.filter((c) => !c.passed).map((c) => c.name).join(", ");
+          output(chalk.red(`  ✗ Plan blocked — failed checks: ${failed}`));
         }
       } catch (error) {
         if (isJson) outputJson({ error: error instanceof Error ? error.message : String(error) });

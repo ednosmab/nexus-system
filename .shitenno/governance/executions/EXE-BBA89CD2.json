@@ -1,0 +1,20 @@
+{
+  "executionId": "EXE-BBA89CD2",
+  "request": {
+    "id": "invoke-mrsn4300",
+    "type": "send_notification",
+    "params": {
+      "message": "📚 Handbook template detected — load skill handbook-fill and populate SEMANTIC blocks"
+    }
+  },
+  "executionHash": "994af64920229b75",
+  "status": "completed",
+  "startedAt": "2026-07-20T03:03:27.792Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "Unknown action type: send_notification"
+  },
+  "completedAt": "2026-07-20T03:03:28.047Z",
+  "duration": 255
+}

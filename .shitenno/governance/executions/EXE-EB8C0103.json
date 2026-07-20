@@ -1,0 +1,20 @@
+{
+  "executionId": "EXE-EB8C0103",
+  "request": {
+    "id": "invoke-mrsm65ya",
+    "type": "send_notification",
+    "params": {
+      "message": "📚 Handbook template detected — load skill handbook-fill and populate SEMANTIC blocks"
+    }
+  },
+  "executionHash": "994af64920229b75",
+  "status": "completed",
+  "startedAt": "2026-07-20T02:37:05.314Z",
+  "result": "success",
+  "output": {
+    "success": false,
+    "message": "Unknown action type: send_notification"
+  },
+  "completedAt": "2026-07-20T02:37:05.347Z",
+  "duration": 32
+}
