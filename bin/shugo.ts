@@ -77,6 +77,34 @@ const HEAVY_COMMANDS = new Set([
 
 let heavyBootstrapDone = false;
 
+// Commands that need the plan-backlog retroactive scan (plan ↔ BACKLOG.md sync).
+// Mantido separado de HEAVY_COMMANDS porque plan subcommands são leves —
+// não precisam do rule-engine, knowledge-graph etc., só da sincronia backlog.
+const PLAN_BACKLOG_COMMANDS = new Set([
+  "plan list",
+  "plan show",
+  "plan create",
+  "plan status",
+  "plan done",
+  "plan prepare",
+  "plan lifecycle",
+]);
+
+/**
+ * Full space-separated command path (ex: "plan status", "status", "daemon status").
+ * Usar isso em vez de actionCommand.name() evita colisão entre uma folha
+ * "status" de um subcomando (ex: `plan status`) e o comando raiz "status".
+ */
+function fullCommandPath(cmd: import("commander").Command): string {
+  const parts: string[] = [];
+  let c: import("commander").Command | null = cmd;
+  while (c && c.parent) {
+    parts.unshift(c.name());
+    c = c.parent;
+  }
+  return parts.join(" ");
+}
+
 /**
  * Idempotent, on-demand initialization of the heavy subsystems. Previously this
  * ran unconditionally at module top-level on every CLI invocation (even for
@@ -380,8 +408,21 @@ installMiddleware(program, {
 // pay the cost. Light commands (validate, detect, act, run, briefing, ...) skip
 // the entire initialize* chain, git branch probe, and briefing entirely.
 program.hook("preAction", async (_thisCommand, actionCommand) => {
-  if (HEAVY_COMMANDS.has(actionCommand.name())) {
+  if (HEAVY_COMMANDS.has(fullCommandPath(actionCommand))) {
     await ensureHeavyBootstrap();
+  }
+});
+
+// Lazy plan-backlog retroactive scan: só roda para comandos que tocam backlog
+// (plan list, plan show, plan create, etc.). Separado do HEAVY_COMMANDS porque
+// plan subcommands são leves — não precisam do bootstrap pesado, só da scan.
+let planBacklogScanDone = false;
+program.hook("preAction", async (_thisCommand, actionCommand) => {
+  if (planBacklogScanDone) return;
+  if (PLAN_BACKLOG_COMMANDS.has(fullCommandPath(actionCommand)) && isInitialized) {
+    planBacklogScanDone = true;
+    const { runRetroactiveScan } = await import("../src/plan-backlog-sync.js");
+    runRetroactiveScan(projectRoot, shitennoDir);
   }
 });
 
@@ -393,7 +434,7 @@ if (isInitialized && currentSessionId) {
   const bus = getEventBus();
   const endedAt = new Date();
   const duration = currentSessionStartedAt
-    ? Math.round((endedAt.getTime() - new Date(currentSessionStartedAt).getTime()) / 60000)
+    ? endedAt.getTime() - new Date(currentSessionStartedAt).getTime()
     : 0;
   bus.publish("session.end", {
     sessionId: currentSessionId,

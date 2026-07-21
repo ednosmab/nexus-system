@@ -270,8 +270,18 @@ export function initPlanBacklogSync(projectRoot: string, shitennoDir: string): v
   });
 
   logger.info("plan-backlog-sync", "Plan-Backlog sync subscribers initialized");
+}
 
-  // Retroactive scan: process plans that exist but have no BACKLOG entry
+/**
+ * Retroactive scan: process plans that exist but have no BACKLOG entry.
+ * Extraída de initPlanBacklogSync para ser lazy — só roda quando um comando
+ * que toca backlog é executado, não para todo HEAVY_COMMAND.
+ *
+ * Segurança: tem cooldown persistente + lock inter-processo, então pode ser
+ * chamada várias vezes sem risco de race condition ou trabalho duplicado.
+ */
+export function runRetroactiveScan(projectRoot: string, shitennoDir: string): void {
+  const bus = getEventBus();
   const plansDir = join(shitennoDir, "governance", "plans");
 
   if (existsSync(plansDir) && !shouldSkipScan(shitennoDir) && acquireScanLock(shitennoDir)) {
