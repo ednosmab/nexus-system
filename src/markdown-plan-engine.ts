@@ -22,7 +22,13 @@ import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-export type MarkdownPlanStatus = "andamento" | "parado" | "check" | "done" | "blocked" | "refused";
+export type MarkdownPlanStatus = "andamento" | "parado" | "check" | "checked" | "done" | "blocked" | "refused";
+
+const COMPLETION_STATUSES = new Set(["done", "checked", "concluído", "concluido"]);
+
+function isCompletionStatus(status: string): boolean {
+  return COMPLETION_STATUSES.has(status.toLowerCase());
+}
 
 export interface MarkdownPlan {
   /** Plan ID (filename without .md). */
@@ -267,7 +273,7 @@ export class MarkdownPlanEngine {
       const id = file.replace(".md", "");
       const filePath = join(this.plansDir, file);
       const plan = this.parsePlan(id, filePath, `shitenno/governance/plans/${file}`);
-      if (plan && plan.status !== "done") {
+      if (plan && !isCompletionStatus(plan.status)) {
         plans.push(plan);
       }
     }
@@ -418,8 +424,8 @@ export class MarkdownPlanEngine {
       });
     }
 
-    // If status is done, move to done/ and publish event
-    if (newStatus === "done") {
+    // If status is a completion status, move to done/ and publish event
+    if (isCompletionStatus(newStatus)) {
       this.moveToDone(id);
 
       // Publish plan.archived event for reactive chain
@@ -467,7 +473,7 @@ export class MarkdownPlanEngine {
   archiveIfDone(id: string): boolean {
     const plan = this.getById(id);
     if (!plan) return false;
-    if (plan.status !== "done") return false;
+    if (!isCompletionStatus(plan.status)) return false;
     // Guard: if plan is already in done/ or source file doesn't exist, skip
     if (!plan.isActive) return false;
     const sourcePath = join(this.plansDir, `${id}.md`);

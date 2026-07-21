@@ -89,48 +89,36 @@ export function getCapabilityFilesForEngine(capability: Capability): string[] {
   return fileMap[capability] || [];
 }
 
-export function buildCapabilityEntity(
-  capInfo: CapabilityInfo,
-  shitennoDir: string,
-  installedCapabilities: Capability[],
-  assets: Array<{ type: string; path: string }>,
-  _maturityScore: number
-): CapabilityEntity {
-  const isInstalled = installedCapabilities.includes(capInfo.id);
-  const { level, score } = detectCapabilityMaturity(capInfo.id, shitennoDir, installedCapabilities);
+interface CapabilityBuildInput {
+  capInfo: CapabilityInfo;
+  shitennoDir: string;
+  installedCapabilities: Capability[];
+  assets: Array<{ type: string; path: string }>;
+}
 
-  const capabilityAssets = assets.filter((a) => {
-    const mapping = getCapabilityFilesForEngine(capInfo.id);
-    return mapping.some((m) => a.path.startsWith(m.replace(/\/$/, "")));
-  });
+function buildCapabilityMetrics(score: number, capabilityAssets: number, activePolicies: number) {
+  return { assetCount: capabilityAssets, ruleCount: activePolicies, policyCount: activePolicies, healthScore: score, lastUpdated: new Date().toISOString(), referenceCount: 0 };
+}
 
-  const activePolicies = collectCapabilityPolicies(capInfo.id, shitennoDir);
-  const activeSkills = collectCapabilitySkills(capInfo.id, shitennoDir);
-  const templates = collectCapabilityTemplates(capInfo.id, shitennoDir);
+export function buildCapabilityEntity(capInfo: CapabilityInfo, shitennoDir: string, installedCapabilities: Capability[], assets: Array<{ type: string; path: string }>, _maturityScore: number): CapabilityEntity;
+export function buildCapabilityEntity(input: CapabilityBuildInput): CapabilityEntity;
+export function buildCapabilityEntity(capInfoOrInput: CapabilityInfo | CapabilityBuildInput, shitennoDir?: string, installedCapabilities?: Capability[], assets?: Array<{ type: string; path: string }>, _maturityScore?: number): CapabilityEntity {
+  const input = capInfoOrInput && "capInfo" in capInfoOrInput ? capInfoOrInput : { capInfo: capInfoOrInput!, shitennoDir: shitennoDir!, installedCapabilities: installedCapabilities!, assets: assets! };
+  const { capInfo, shitennoDir: sDir, installedCapabilities: installed, assets: allAssets } = input;
+
+  const isInstalled = installed.includes(capInfo.id);
+  const { level, score } = detectCapabilityMaturity(capInfo.id, sDir, installed);
+  const capabilityAssets = allAssets.filter((a) => getCapabilityFilesForEngine(capInfo.id).some((m) => a.path.startsWith(m.replace(/\/$/, ""))));
+  const activePolicies = collectCapabilityPolicies(capInfo.id, sDir);
+  const activeSkills = collectCapabilitySkills(capInfo.id, sDir);
+  const templates = collectCapabilityTemplates(capInfo.id, sDir);
 
   return {
-    id: capInfo.id,
-    name: capInfo.name,
-    description: capInfo.description,
-    maturity: level,
-    maturityScore: score,
-    dimensions: capInfo.dimensions,
-    dependencies: capInfo.requires,
-    activePolicies,
-    activeSkills,
-    templates,
-    recommendations: [],
-    metrics: {
-      assetCount: capabilityAssets.length,
-      ruleCount: activePolicies.length,
-      policyCount: activePolicies.length,
-      healthScore: score,
-      lastUpdated: new Date().toISOString(),
-      referenceCount: 0,
-    },
-    alwaysInstalled: capInfo.alwaysInstalled,
-    isInstalled,
-    files: getCapabilityFilesForEngine(capInfo.id),
+    id: capInfo.id, name: capInfo.name, description: capInfo.description,
+    maturity: level, maturityScore: score, dimensions: capInfo.dimensions,
+    dependencies: capInfo.requires, activePolicies, activeSkills, templates,
+    recommendations: [], metrics: buildCapabilityMetrics(score, capabilityAssets.length, activePolicies.length),
+    alwaysInstalled: capInfo.alwaysInstalled, isInstalled, files: getCapabilityFilesForEngine(capInfo.id),
   };
 }
 

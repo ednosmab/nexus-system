@@ -21,6 +21,20 @@ function isDetectorDefinitionFile(relPath: string): boolean {
   return SECURITY_DETECTOR_SELF_PATHS.some((p) => relPath.startsWith(p));
 }
 
+function isLocalHttpUrl(url: string): boolean {
+  return url.includes('http://localhost') || url.includes('http://127.0.0.1') || url.includes('http://0.0.0.0');
+}
+
+function isSkippableFile(relPath: string, patterns: RegExp[]): boolean {
+  return patterns.some((p) => p.test(relPath));
+}
+
+function collectMissingFlags(flags: Record<string, boolean>): string[] {
+  return Object.entries(flags)
+    .filter(([, present]) => !present)
+    .map(([name]) => name);
+}
+
 function shannonEntropy(str: string): number {
   const freq = new Map<string, number>();
   for (const ch of str) freq.set(ch, (freq.get(ch) ?? 0) + 1);
@@ -237,25 +251,23 @@ export function detectInsecureHTTP(_projectRoot: string, files: SourceFileInfo[]
   const skipFiles = [/\.test\.ts$/, /\.spec\.ts$/, /README/, /CHANGELOG/];
 
   for (const file of files) {
-    if (skipFiles.some((p) => p.test(file.relPath))) continue;
+    if (isSkippableFile(file.relPath, skipFiles)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
       if (line.trim().startsWith("//")) continue;
       const matches = line.match(httpPattern);
-      if (matches) {
-        for (const url of matches) {
-          if (!url.includes('http://localhost') && !url.includes('http://127.0.0.1') && !url.includes('http://0.0.0.0')) {
-            issues.push({
-              type: "insecure_http",
-              severity: 2,
-              description: `URL HTTP insegura em "${file.relPath}:${i + 1}": ${url}`,
-              location: `${file.relPath}:${i + 1}`,
-              recommendation: "Usar HTTPS em vez de HTTP para URLs de produção",
-              confidence: 0.7,
-            });
-          }
-        }
+      if (!matches) continue;
+      for (const url of matches) {
+        if (isLocalHttpUrl(url)) continue;
+        issues.push({
+          type: "insecure_http",
+          severity: 2,
+          description: `URL HTTP insegura em "${file.relPath}:${i + 1}": ${url}`,
+          location: `${file.relPath}:${i + 1}`,
+          recommendation: "Usar HTTPS em vez de HTTP para URLs de produção",
+          confidence: 0.7,
+        });
       }
     }
   }
@@ -419,6 +431,26 @@ export function detectUnsafeDeserialization(_projectRoot: string, files: SourceF
   return issues;
 }
 
+const NODE_BUILTINS = new Set([
+  "fs", "path", "os", "child_process", "util", "events", "stream", "http", "https",
+  "url", "crypto", "assert", "buffer", "zlib", "net", "tls", "dns", "readline",
+  "worker_threads", "perf_hooks", "v8", "vm", "module", "constants",
+]);
+for (const b of [...NODE_BUILTINS]) NODE_BUILTINS.add("node:" + b);
+
+function extractPackageName(spec: string): string {
+  return spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0] ?? "";
+}
+
+function isUndeclaredDependency(
+  pkgName: string,
+  declaredDeps: Set<string>,
+  projectRoot: string,
+): boolean {
+  if (!pkgName || NODE_BUILTINS.has(pkgName) || declaredDeps.has(pkgName)) return false;
+  return !existsSync(join(projectRoot, "node_modules", pkgName));
+}
+
 export function detectDependencyConfusion(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const pkgPath = join(projectRoot, "package.json");
@@ -432,31 +464,23 @@ export function detectDependencyConfusion(projectRoot: string, files: SourceFile
     ]);
 
     const importRegex = /(?:from|import)\s+["']([^"'./][^"']*)["']/g;
-    const NODE_BUILTINS = new Set(["fs", "path", "os", "child_process", "util", "events", "stream", "http", "https", "url", "crypto", "assert", "buffer", "zlib", "net", "tls", "dns", "readline", "worker_threads", "perf_hooks", "v8", "vm", "module", "constants"]);
-    for (const b of [...NODE_BUILTINS]) NODE_BUILTINS.add("node:" + b);
 
     for (const file of files) {
       let match;
       importRegex.lastIndex = 0;
       while ((match = importRegex.exec(file.content)) !== null) {
         const spec = match[1];
-        if (!spec) continue;
-        // Skip template literal interpolations (false positive source)
-        if (spec.includes("${")) continue;
-        const pkgName = spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
-        if (pkgName && !NODE_BUILTINS.has(pkgName) && !NODE_BUILTINS.has(spec) && !declaredDeps.has(pkgName)) {
-          const nmPath = join(projectRoot, "node_modules", pkgName);
-          if (!existsSync(nmPath)) {
-            issues.push({
-              type: "dep_confusion",
-              severity: 2,
-              description: `Dependência "${pkgName}" importada em "${file.relPath}" mas não existe em node_modules nem em package.json`,
-              location: file.relPath,
-              recommendation: `Adicionar "${pkgName}" ao package.json ou verificar se o nome está correcto`,
-              confidence: 0.7,
-            });
-          }
-        }
+        if (!spec || spec.includes("${")) continue;
+        const pkgName = extractPackageName(spec);
+        if (!isUndeclaredDependency(pkgName, declaredDeps, projectRoot)) continue;
+        issues.push({
+          type: "dep_confusion",
+          severity: 2,
+          description: `Dependência "${pkgName}" importada em "${file.relPath}" mas não existe em node_modules nem em package.json`,
+          location: file.relPath,
+          recommendation: `Adicionar "${pkgName}" ao package.json ou verificar se o nome está correcto`,
+          confidence: 0.7,
+        });
       }
     }
   } catch (err) { logger.debug("engineering-detectors", "Error in detectDependencyConfusion:", err); }
@@ -493,58 +517,79 @@ export function detectInsecureCORS(_projectRoot: string, files: SourceFileInfo[]
   return issues;
 }
 
+function checkCookieFlags(
+  block: string,
+  flagNames: Record<string, string>,
+): { hasAll: boolean; missing: string[] } {
+  const flags: Record<string, boolean> = {};
+  for (const [key, pattern] of Object.entries(flagNames)) {
+    flags[key] = new RegExp(pattern, "i").test(block);
+  }
+  const missing = collectMissingFlags(flags);
+  return { hasAll: missing.length === 0, missing };
+}
+
+function detectResCookieIssue(
+  line: string,
+  lines: string[],
+  i: number,
+  fileRelPath: string,
+): HealthIssue | null {
+  const cookieCallRegex = /res\.cookie\s*\(\s*['"][^'"]+['"]\s*,/i;
+  if (!cookieCallRegex.test(line)) return null;
+  const block = lines.slice(i, i + 6).join(" ");
+  const { hasAll, missing } = checkCookieFlags(block, {
+    httpOnly: "httpOnly\\s*[:=]\\s*true",
+    secure: "secure\\s*[:=]\\s*true",
+    sameSite: "sameSite\\s*[:=]",
+  });
+  if (hasAll) return null;
+  return {
+    type: "insecure_cookie",
+    severity: 2,
+    description: `Cookie sem flags de segurança em "${fileRelPath}:${i + 1}" — falta: ${missing.join(", ")}`,
+    location: `${fileRelPath}:${i + 1}`,
+    recommendation: `Adicionar flags: ${missing.map(f => `{${f}: true}`).join(", ")}`,
+    confidence: 0.65,
+  };
+}
+
+function detectSetCookieHeaderIssue(
+  line: string,
+  i: number,
+  fileRelPath: string,
+): HealthIssue | null {
+  const setCookieRegex = /Set-Cookie\s*[=:]/i;
+  if (!setCookieRegex.test(line)) return null;
+  const { hasAll, missing } = checkCookieFlags(line, {
+    httpOnly: "HttpOnly",
+    secure: "Secure",
+    sameSite: "SameSite",
+  });
+  if (hasAll) return null;
+  return {
+    type: "insecure_cookie",
+    severity: 2,
+    description: `Set-Cookie header sem flags em "${fileRelPath}:${i + 1}" — falta: ${missing.join(", ")}`,
+    location: `${fileRelPath}:${i + 1}`,
+    recommendation: `Adicionar flags: ${missing.join(", ")}`,
+    confidence: 0.65,
+  };
+}
+
 export function detectInsecureCookies(_projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  // Match Set-Cookie headers
-  const setCookieRegex = /Set-Cookie\s*[=:]/i;
+  const skipFiles = [/__tests__/];
 
   for (const file of files) {
-    if (file.relPath.includes("__tests__")) continue;
+    if (isSkippableFile(file.relPath, skipFiles)) continue;
     if (isDetectorDefinitionFile(file.relPath)) continue;
     const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
-      // Create regex per line to avoid lastIndex persistence with global flag
-      const cookieCallRegex = /res\.cookie\s*\(\s*['"][^'"]+['"]\s*,/i;
-      if (cookieCallRegex.test(line)) {
-        // For res.cookie(), look at the same line AND next 5 lines for options
-        const block = lines.slice(i, i + 6).join(" ");
-        const hasHttpOnly = /httpOnly\s*[:=]\s*true/i.test(block);
-        const hasSecure = /secure\s*[:=]\s*true/i.test(block);
-        const hasSameSite = /sameSite\s*[:=]/i.test(block);
-        if (!hasHttpOnly || !hasSecure || !hasSameSite) {
-          const missing: string[] = [];
-          if (!hasHttpOnly) missing.push("httpOnly");
-          if (!hasSecure) missing.push("secure");
-          if (!hasSameSite) missing.push("sameSite");
-          issues.push({
-            type: "insecure_cookie",
-            severity: 2,
-            description: `Cookie sem flags de segurança em "${file.relPath}:${i + 1}" — falta: ${missing.join(", ")}`,
-            location: `${file.relPath}:${i + 1}`,
-            recommendation: `Adicionar flags: ${missing.map(f => `{${f}: true}`).join(", ")}`,
-            confidence: 0.65,
-          });
-        }
-      } else if (setCookieRegex.test(line)) {
-        const hasHttpOnly = /HttpOnly/i.test(line);
-        const hasSecure = /Secure/i.test(line);
-        const hasSameSite = /SameSite/i.test(line);
-        if (!hasHttpOnly || !hasSecure || !hasSameSite) {
-          const missing: string[] = [];
-          if (!hasHttpOnly) missing.push("HttpOnly");
-          if (!hasSecure) missing.push("Secure");
-          if (!hasSameSite) missing.push("SameSite");
-          issues.push({
-            type: "insecure_cookie",
-            severity: 2,
-            description: `Set-Cookie header sem flags em "${file.relPath}:${i + 1}" — falta: ${missing.join(", ")}`,
-            location: `${file.relPath}:${i + 1}`,
-            recommendation: `Adicionar flags: ${missing.join(", ")}`,
-            confidence: 0.65,
-          });
-        }
-      }
+      const issue = detectResCookieIssue(line, lines, i, file.relPath)
+        ?? detectSetCookieHeaderIssue(line, i, file.relPath);
+      if (issue) issues.push(issue);
     }
   }
   return issues;

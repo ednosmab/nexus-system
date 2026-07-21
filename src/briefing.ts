@@ -123,59 +123,63 @@ export interface Briefing {
 
 // ── Briefing Generation ────────────────────────────────────────────────────
 
-export function generateBriefing(
-  fingerprint: ProjectFingerprint,
-  riskMap: RiskMap,
-  contextRules: ContextRule[],
-  dynamicRules: DynamicRule[],
-  maturityProfile?: MaturityProfile,
+interface BriefingOptions {
+  fingerprint: ProjectFingerprint;
+  riskMap: RiskMap;
+  contextRules: ContextRule[];
+  dynamicRules: DynamicRule[];
+  maturityProfile?: MaturityProfile;
   quickBoard?: {
     currentTask: string;
     nextP0: string;
     p1Debts: string;
     impediments: string;
     lastSessionStatus: string;
-  },
+  };
+  reminders?: Reminder[];
+}
+
+function generateRecommendations(
+  criticalAreas: string[],
+  areasWithoutTests: string[],
+  maturityProfile?: MaturityProfile,
+): string[] {
+  const recommendations: string[] = [];
+  if (criticalAreas.length > 0) recommendations.push(`Address critical risk areas: ${criticalAreas.join(", ")}`);
+  if (areasWithoutTests.length > 0) recommendations.push(`Improve test coverage in ${areasWithoutTests.length} area(s)`);
+  if (maturityProfile?.recommendedCapabilities?.length) {
+    recommendations.push(`Consider installing: ${maturityProfile.recommendedCapabilities.slice(0, 3).join(", ")}`);
+  }
+  if (recommendations.length === 0) recommendations.push("Project looks healthy. Continue current practices.");
+  return recommendations;
+}
+
+export function generateBriefing(
+  fingerprint: ProjectFingerprint,
+  riskMap: RiskMap,
+  contextRules: ContextRule[],
+  dynamicRules: DynamicRule[],
+  maturityProfile?: MaturityProfile,
+  quickBoard?: BriefingOptions["quickBoard"],
   reminders?: Reminder[]
 ): Briefing {
-  // Extract risk information
-  const criticalAreas = riskMap.areas
-    .filter((a) => a.riskLevel === "critical")
-    .map((a) => a.path);
-  const highAreas = riskMap.areas
-    .filter((a) => a.riskLevel === "high")
-    .map((a) => a.path);
+  const options: BriefingOptions = { fingerprint, riskMap, contextRules, dynamicRules, maturityProfile, quickBoard, reminders };
+  return generateBriefingFromOptions(options);
+}
 
-  // Extract test coverage information
+function generateBriefingFromOptions(options: BriefingOptions): Briefing {
+  const { fingerprint, riskMap, contextRules, dynamicRules, maturityProfile, quickBoard, reminders } = options;
+
+  const criticalAreas = riskMap.areas.filter((a) => a.riskLevel === "critical").map((a) => a.path);
+  const highAreas = riskMap.areas.filter((a) => a.riskLevel === "high").map((a) => a.path);
   const areasWithoutTests = riskMap.areas
     .flatMap((a) => a.factors)
     .filter((f) => f.type === "no-tests")
     .map((f) => f.description)
     .slice(0, 5);
 
-  // Generate recommendations
-  const recommendations: string[] = [];
-  if (criticalAreas.length > 0) {
-    recommendations.push(`Address critical risk areas: ${criticalAreas.join(", ")}`);
-  }
-  if (areasWithoutTests.length > 0) {
-    recommendations.push(`Improve test coverage in ${areasWithoutTests.length} area(s)`);
-  }
-  if (maturityProfile?.recommendedCapabilities?.length) {
-    recommendations.push(`Consider installing: ${maturityProfile.recommendedCapabilities.slice(0, 3).join(", ")}`);
-  }
-  if (recommendations.length === 0) {
-    recommendations.push("Project looks healthy. Continue current practices.");
-  }
-
-  // Token economy estimate:
-  // Without shugo, agent reads: package.json (~500) + AGENTS.md (~3k) +
-  // risk analysis (~2k) + history (~1k) + rules (~1.5k) = ~8k tokens
-  // With shugo: briefing provides all of that in ~500 tokens
-  // Rules add targeted context (~100 tokens each) vs agent discovering (~500 each)
-  const estimatedTokensSaved = 8000
-    + (contextRules.length * 400) // 500 (manual) - 100 (briefing) per rule
-    + (dynamicRules.length * 400);
+  const recommendations = generateRecommendations(criticalAreas, areasWithoutTests, maturityProfile);
+  const estimatedTokensSaved = 8000 + (contextRules.length * 400) + (dynamicRules.length * 400);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -185,38 +189,18 @@ export function generateBriefing(
       stack: fingerprint.stack.slice(0, 5),
       maturityScore: maturityProfile?.overallScore ?? 0,
     },
-    risks: {
-      overall: riskMap.overallRisk,
-      criticalAreas,
-      highAreas,
-    },
-    tests: {
-      hasTests: fingerprint.tooling.tests,
-      areasWithoutTests,
-    },
+    risks: { overall: riskMap.overallRisk, criticalAreas, highAreas },
+    tests: { hasTests: fingerprint.tooling.tests, areasWithoutTests },
     patterns: {
       recurringErrors: [],
-      hotAreas: riskMap.areas
-        .filter((a) => a.factors.some((f) => f.type === "high-churn"))
-        .map((a) => a.path),
+      hotAreas: riskMap.areas.filter((a) => a.factors.some((f) => f.type === "high-churn")).map((a) => a.path),
       detected: [],
     },
     contextRules: contextRules.slice(0, 5),
     dynamicRules: dynamicRules.slice(0, 3),
     recommendations,
-    tokenEconomy: {
-      estimatedTokensSaved,
-      cacheHit: false,
-      contextRuleCount: contextRules.length,
-      dynamicRuleCount: dynamicRules.length,
-    },
-    quickBoard: quickBoard ?? {
-      currentTask: "Nenhuma",
-      nextP0: "Definir novo P0 no BACKLOG.md",
-      p1Debts: "Nenhuma",
-      impediments: "Nenhum",
-      lastSessionStatus: "Desconhecido",
-    },
+    tokenEconomy: { estimatedTokensSaved, cacheHit: false, contextRuleCount: contextRules.length, dynamicRuleCount: dynamicRules.length },
+    quickBoard: quickBoard ?? { currentTask: "Nenhuma", nextP0: "Definir novo P0 no BACKLOG.md", p1Debts: "Nenhuma", impediments: "Nenhum", lastSessionStatus: "Desconhecido" },
     reminders: reminders ?? [],
   };
 }
@@ -287,87 +271,73 @@ export function briefingToSummary(briefing: Briefing): string {
   return parts.join(" | ");
 }
 
+function diffSetChanges<T>(
+  oldSet: Set<T>,
+  newSet: Set<T>,
+  addLabel: string,
+  removeLabel: string,
+): string[] {
+  const lines: string[] = [];
+  for (const item of newSet) {
+    if (!oldSet.has(item)) lines.push(`+ ${addLabel}: ${item}`);
+  }
+  for (const item of oldSet) {
+    if (!newSet.has(item)) lines.push(`- ${removeLabel}: ${item}`);
+  }
+  return lines;
+}
+
+function diffArrayChanges<T>(
+  oldArr: T[],
+  newArr: T[],
+  getKey: (item: T) => string,
+  getLabel: (item: T) => string,
+  label: string,
+): string[] {
+  const oldIds = new Set(oldArr.map(getKey));
+  return newArr.filter((item) => !oldIds.has(getKey(item))).map((item) => `+ ${label}: ${getLabel(item)}`);
+}
+
 /**
  * Generate a human-readable diff between two briefings.
- * Shows what changed between the old and new briefing.
- * Pure function — easy to test.
  */
 export function generateDiff(oldBriefing: Briefing, newBriefing: Briefing): string {
-  const lines: string[] = [];
-
-  lines.push("# Briefing Diff");
-  lines.push("");
-
+  const lines: string[] = ["# Briefing Diff", ""];
   let hasChanges = false;
 
-  // Risk changes
   if (oldBriefing.risks.overall !== newBriefing.risks.overall) {
     lines.push(`- Risk level changed: ${oldBriefing.risks.overall} → ${newBriefing.risks.overall}`);
     hasChanges = true;
   }
 
-  const oldCritical = new Set(oldBriefing.risks.criticalAreas);
-  const newCritical = new Set(newBriefing.risks.criticalAreas);
-  for (const area of newBriefing.risks.criticalAreas) {
-    if (!oldCritical.has(area)) {
-      lines.push(`+ New critical area: ${area}`);
-      hasChanges = true;
-    }
-  }
-  for (const area of oldBriefing.risks.criticalAreas) {
-    if (!newCritical.has(area)) {
-      lines.push(`- Removed critical area: ${area}`);
-      hasChanges = true;
-    }
-  }
+  const riskChanges = diffSetChanges(
+    new Set(oldBriefing.risks.criticalAreas),
+    new Set(newBriefing.risks.criticalAreas),
+    "New critical area",
+    "Removed critical area",
+  );
+  if (riskChanges.length > 0) { lines.push(...riskChanges); hasChanges = true; }
 
-  // Test coverage changes
-  const oldNoTests = new Set(oldBriefing.tests.areasWithoutTests);
-  const newNoTests = new Set(newBriefing.tests.areasWithoutTests);
-  for (const area of newBriefing.tests.areasWithoutTests) {
-    if (!oldNoTests.has(area)) {
-      lines.push(`+ New area without tests: ${area}`);
-      hasChanges = true;
-    }
-  }
-  for (const area of oldBriefing.tests.areasWithoutTests) {
-    if (!newNoTests.has(area)) {
-      lines.push(`- Area now has tests: ${area}`);
-      hasChanges = true;
-    }
-  }
+  const testChanges = diffSetChanges(
+    new Set(oldBriefing.tests.areasWithoutTests),
+    new Set(newBriefing.tests.areasWithoutTests),
+    "New area without tests",
+    "Area now has tests",
+  );
+  if (testChanges.length > 0) { lines.push(...testChanges); hasChanges = true; }
 
-  // Rule changes
-  const oldRuleIds = new Set(oldBriefing.contextRules.map((r) => r.id));
-  for (const rule of newBriefing.contextRules) {
-    if (!oldRuleIds.has(rule.id)) {
-      lines.push(`+ New rule: [${rule.area}] ${rule.rule}`);
-      hasChanges = true;
-    }
-  }
+  const ruleChanges = diffArrayChanges(oldBriefing.contextRules, newBriefing.contextRules, (r) => r.id, (r) => `[${r.area}] ${r.rule}`, "New rule");
+  if (ruleChanges.length > 0) { lines.push(...ruleChanges); hasChanges = true; }
 
-  // Dynamic rule changes
-  const oldDynamicIds = new Set(oldBriefing.dynamicRules.map((r) => r.id));
-  for (const rule of newBriefing.dynamicRules) {
-    if (!oldDynamicIds.has(rule.id)) {
-      lines.push(`+ New dynamic rule: [${rule.severity}] ${rule.rule}`);
-      hasChanges = true;
-    }
-  }
+  const dynamicChanges = diffArrayChanges(oldBriefing.dynamicRules, newBriefing.dynamicRules, (r) => r.id, (r) => `[${r.severity}] ${r.rule}`, "New dynamic rule");
+  if (dynamicChanges.length > 0) { lines.push(...dynamicChanges); hasChanges = true; }
 
-  // Recommendation changes
   const oldRecs = new Set(oldBriefing.recommendations);
   for (const rec of newBriefing.recommendations) {
-    if (!oldRecs.has(rec)) {
-      lines.push(`+ New recommendation: ${rec}`);
-      hasChanges = true;
-    }
+    if (!oldRecs.has(rec)) { lines.push(`+ New recommendation: ${rec}`); hasChanges = true; }
   }
 
-  if (!hasChanges) {
-    lines.push("No changes detected.");
-  }
-
+  if (!hasChanges) lines.push("No changes detected.");
   return lines.join("\n");
 }
 
@@ -424,126 +394,89 @@ export function manifestRulesToMarkdown(section: ManifestRuleSection): string {
   return lines.join("\n");
 }
 
-export function briefingToMarkdown(briefing: Briefing): string {
-  const lines: string[] = [];
+function markdownQuickBoard(briefing: Briefing): string[] {
+  if (!briefing.quickBoard) return [];
+  const qb = briefing.quickBoard;
+  return [
+    "---", "",
+    "## QUICK BOARD — Estado do Projecto", "",
+    "> **Apresentar este quadro ao utilizador antes da primeira resposta operacional.**",
+    "> Veja regra #13 em `docs/AGENTS.md` (QUICK BOARD DE AVISO).", "",
+    "| Campo | Estado |", "|---|---|",
+    `| **Tarefa em curso** | ${qb.currentTask} |`,
+    `| **Próximo P0** | ${qb.nextP0} |`,
+    `| **Dívidas P1** | ${qb.p1Debts} |`,
+    `| **Impedimentos** | ${qb.impediments} |`,
+    `| **Estado última sessão** | ${qb.lastSessionStatus} |`,
+    "", "---", "",
+  ];
+}
 
-  lines.push("# Pre-Session Briefing");
-  lines.push(`*Generated: ${briefing.generatedAt}*`);
+function markdownRecentActivity(briefing: Briefing): string[] {
+  if (!briefing.recentActivity || briefing.recentActivity.events.length === 0) return [];
+  const lines = ["## Actividade Recente (24h)", "", "| Evento | Detalhe | Hora |", "|--------|---------|------|"];
+  for (const event of briefing.recentActivity.events) {
+    lines.push(`| ${event.type} | ${event.summary} | ${event.timestamp.slice(11, 16)} |`);
+  }
+  lines.push("", `**Resumo:** ${briefing.recentActivity.syncCount} sincronizações, ${briefing.recentActivity.errorCount} erros`, "");
+  return lines;
+}
+
+function markdownReminders(briefing: Briefing): string[] {
+  if (!briefing.reminders || briefing.reminders.length === 0) return [];
+  const priorityOrder: Record<ReminderPriority, number> = { high: 0, medium: 1, low: 2 };
+  const sorted = [...briefing.reminders].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  const lines = ["## Active Reminders", ""];
+  for (const r of sorted) lines.push(`- ${getPriorityIcon(r.priority)} — ${r.message} ${getCategoryLabel(r.category)}`);
   lines.push("");
+  return lines;
+}
 
-  // Quick Board — session state summary
-  if (briefing.quickBoard) {
-    lines.push("---");
-    lines.push("");
-    lines.push("## QUICK BOARD — Estado do Projecto");
-    lines.push("");
-    lines.push("> **Apresentar este quadro ao utilizador antes da primeira resposta operacional.**");
-    lines.push("> Veja regra #13 em `docs/AGENTS.md` (QUICK BOARD DE AVISO).");
-    lines.push("");
-    lines.push("| Campo | Estado |");
-    lines.push("|---|---|");
-    lines.push(`| **Tarefa em curso** | ${briefing.quickBoard.currentTask} |`);
-    lines.push(`| **Próximo P0** | ${briefing.quickBoard.nextP0} |`);
-    lines.push(`| **Dívidas P1** | ${briefing.quickBoard.p1Debts} |`);
-    lines.push(`| **Impedimentos** | ${briefing.quickBoard.impediments} |`);
-    lines.push(`| **Estado última sessão** | ${briefing.quickBoard.lastSessionStatus} |`);
-    lines.push("");
-    lines.push("---");
+function markdownRules(briefing: Briefing): string[] {
+  const lines: string[] = [];
+  if (briefing.contextRules.length > 0) {
+    lines.push("## Context Rules (Top)");
+    for (const rule of briefing.contextRules) lines.push(`- ${rule.rule}`);
     lines.push("");
   }
-
-  // Recent Activity — last 24h events
-  if (briefing.recentActivity && briefing.recentActivity.events.length > 0) {
-    lines.push("## Actividade Recente (24h)");
-    lines.push("");
-    lines.push("| Evento | Detalhe | Hora |");
-    lines.push("|--------|---------|------|");
-
-    for (const event of briefing.recentActivity.events) {
-      const time = event.timestamp.slice(11, 16);
-      lines.push(`| ${event.type} | ${event.summary} | ${time} |`);
-    }
-
-    lines.push("");
-    lines.push(
-      `**Resumo:** ${briefing.recentActivity.syncCount} sincronizações, ${briefing.recentActivity.errorCount} erros`
-    );
+  if (briefing.dynamicRules.length > 0) {
+    lines.push("## Dynamic Rules (From History)");
+    for (const rule of briefing.dynamicRules) lines.push(`- [${rule.severity}] ${rule.rule}`);
     lines.push("");
   }
+  return lines;
+}
 
-  // Reminders section
-  if (briefing.reminders && briefing.reminders.length > 0) {
-    lines.push("## Active Reminders");
-    lines.push("");
+export function briefingToMarkdown(briefing: Briefing): string {
+  const lines: string[] = ["# Pre-Session Briefing", `*Generated: ${briefing.generatedAt}*`, ""];
 
-    // Sort reminders by priority: high → medium → low
-    const priorityOrder: Record<ReminderPriority, number> = { high: 0, medium: 1, low: 2 };
-    const sortedReminders = [...briefing.reminders].sort(
-      (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
-    );
+  lines.push(...markdownQuickBoard(briefing));
+  lines.push(...markdownRecentActivity(briefing));
+  lines.push(...markdownReminders(briefing));
 
-    for (const reminder of sortedReminders) {
-      const priority = getPriorityIcon(reminder.priority);
-      const category = getCategoryLabel(reminder.category);
-      lines.push(`- ${priority} — ${reminder.message} ${category}`);
-    }
-    lines.push("");
-  }
-
-  // Project identity
   lines.push("## Project Identity");
   lines.push(`- **Domain:** ${briefing.project.domain}`);
   lines.push(`- **Scale:** ${briefing.project.scale}`);
   lines.push(`- **Stack:** ${briefing.project.stack.join(", ")}`);
-  lines.push(`- **Maturity:** ${briefing.project.maturityScore}/100`);
-  lines.push("");
+  lines.push(`- **Maturity:** ${briefing.project.maturityScore}/100`, "");
 
-  // Risks
   lines.push("## Risk Status");
   lines.push(`- **Overall:** ${briefing.risks.overall}`);
-  if (briefing.risks.criticalAreas.length > 0) {
-    lines.push(`- **Critical:** ${briefing.risks.criticalAreas.join(", ")}`);
-  }
-  if (briefing.risks.highAreas.length > 0) {
-    lines.push(`- **High:** ${briefing.risks.highAreas.join(", ")}`);
-  }
+  if (briefing.risks.criticalAreas.length > 0) lines.push(`- **Critical:** ${briefing.risks.criticalAreas.join(", ")}`);
+  if (briefing.risks.highAreas.length > 0) lines.push(`- **High:** ${briefing.risks.highAreas.join(", ")}`);
   lines.push("");
 
-  // Tests
   lines.push("## Test Coverage");
   lines.push(`- **Has Tests:** ${briefing.tests.hasTests ? "Yes" : "No"}`);
-  if (briefing.tests.areasWithoutTests.length > 0) {
-    lines.push(`- **Areas Without Tests:** ${briefing.tests.areasWithoutTests.length}`);
-  }
+  if (briefing.tests.areasWithoutTests.length > 0) lines.push(`- **Areas Without Tests:** ${briefing.tests.areasWithoutTests.length}`);
   lines.push("");
 
-  // Context rules
-  if (briefing.contextRules.length > 0) {
-    lines.push("## Context Rules (Top)");
-    for (const rule of briefing.contextRules) {
-      lines.push(`- ${rule.rule}`);
-    }
-    lines.push("");
-  }
+  lines.push(...markdownRules(briefing));
 
-  // Dynamic rules
-  if (briefing.dynamicRules.length > 0) {
-    lines.push("## Dynamic Rules (From History)");
-    for (const rule of briefing.dynamicRules) {
-      lines.push(`- [${rule.severity}] ${rule.rule}`);
-    }
-    lines.push("");
-  }
-
-  // Recommendations
   lines.push("## Recommended Next Steps");
-  for (const rec of briefing.recommendations) {
-    lines.push(`1. ${rec}`);
-  }
+  for (const rec of briefing.recommendations) lines.push(`1. ${rec}`);
 
-  // Token economy
-  lines.push("");
-  lines.push("## Token Economy");
+  lines.push("", "## Token Economy");
   lines.push(`- **Estimated tokens saved:** ~${briefing.tokenEconomy.estimatedTokensSaved.toLocaleString()}`);
   lines.push(`- **Context rules:** ${briefing.tokenEconomy.contextRuleCount}`);
   lines.push(`- **Dynamic rules:** ${briefing.tokenEconomy.dynamicRuleCount}`);

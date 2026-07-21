@@ -55,68 +55,45 @@ export function detectTestHealth(projectRoot: string): HealthIssue[] {
   return issues;
 }
 
+function extractFileExports(files: SourceFileInfo[]): Map<string, Set<string>> {
+  const exportRegex = /^export\s+(?:function|const|class|interface|type|enum)\s+(\w+)/gm;
+  const fileExports = new Map<string, Set<string>>();
+  for (const file of files) {
+    const exports = new Set<string>();
+    let match;
+    while ((match = exportRegex.exec(file.content)) !== null) { if (match[1]) exports.add(match[1]); }
+    fileExports.set(file.fullPath, exports);
+  }
+  return fileExports;
+}
+
+function isFileReferenced(file: SourceFileInfo, files: SourceFileInfo[], exports: Set<string>): boolean {
+  const isImportedByPath = files.some((other) => {
+    if (other.fullPath === file.fullPath) return false;
+    return other.content.includes(`/${file.basename}.js"`) || other.content.includes(`/${file.basename}"`) || other.content.includes(`/${file.basename}.ts"`);
+  });
+  if (isImportedByPath) return true;
+  if (exports.size === 0) return false;
+  return [...exports].some((symbol) => files.some((other) => {
+    if (other.fullPath === file.fullPath) return false;
+    return new RegExp(`\\b${symbol}\\b`).test(other.content);
+  }));
+}
+
 export function detectOrphanModules(_projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   if (files.length === 0) return issues;
-
   try {
-    // Phase 1: Extract all exports from each file
-    const exportRegex = /^export\s+(?:function|const|class|interface|type|enum)\s+(\w+)/gm;
-    const fileExports = new Map<string, Set<string>>(); // filePath -> Set of export names
-
-    for (const file of files) {
-      const exports = new Set<string>();
-      let match;
-      while ((match = exportRegex.exec(file.content)) !== null) {
-        if (match[1]) exports.add(match[1]);
-      }
-      fileExports.set(file.fullPath, exports);
-    }
-
-    // Phase 2: Build a set of all symbols referenced across all files
-    const allSymbols = new Set<string>();
-    for (const file of files) {
-      const wordRegex = /\b([A-Z]\w+)\b/g;
-      let m;
-      while ((m = wordRegex.exec(file.content)) !== null) {
-        if (m[1]) allSymbols.add(m[1]);
-      }
-    }
-
-    // Phase 3: For each file, check if it's imported by path OR if any export is used
-    for (const file of files) {
-      if (file.fullPath.includes("/commands/") || file.fullPath.includes("/console/")) continue;
-
-      // Check 1: Is the file imported by path from another file?
-      const isImportedByPath = files.some((other) => {
-        if (other.fullPath === file.fullPath) return false;
-        return other.content.includes(`/${file.basename}.js"`) || other.content.includes(`/${file.basename}"`) || other.content.includes(`/${file.basename}.ts"`);
-      });
-
-      // Check 2: Are any of this file's exports used by other files?
+    const fileExports = extractFileExports(files);
+    const nonOrphanFiles = files.filter((f) => !f.fullPath.includes("/commands/") && !f.fullPath.includes("/console/"));
+    for (const file of nonOrphanFiles) {
       const exports = fileExports.get(file.fullPath) ?? new Set();
-      const hasUsedExports = exports.size > 0 && [...exports].some((symbol) => {
-        return files.some((other) => {
-          if (other.fullPath === file.fullPath) return false;
-          const wordBoundary = new RegExp(`\\b${symbol}\\b`);
-          return wordBoundary.test(other.content);
-        });
-      });
-
-      if (!isImportedByPath && !hasUsedExports) {
-        const exportCount = exports.size;
-        const exportList = exportCount > 0
-          ? ` (${exportCount} exports: ${[...exports].slice(0, 3).join(", ")}${exportCount > 3 ? "..." : ""})`
-          : "";
-        issues.push({
-          type: "orphan_module",
-          severity: file.lineCount > ORPHAN_SEVERITY_THRESHOLD ? 2 : 1,
-          description: `Modulo orfao: "${file.relPath}" (${file.lineCount} linhas${exportList}) — nenhum import nem export usado por outro modulo`,
-          location: file.relPath,
-          recommendation: `Verificar se "${file.basename}" e necessario — remover se morto, ou adicionar imports para os exports usados`,
-          confidence: 0.6,
-        });
-      }
+      if (isFileReferenced(file, files, exports)) continue;
+      const exportCount = exports.size;
+      const exportList = exportCount > 0 ? ` (${exportCount} exports: ${[...exports].slice(0, 3).join(", ")}${exportCount > 3 ? "..." : ""})` : "";
+      issues.push({ type: "orphan_module", severity: file.lineCount > ORPHAN_SEVERITY_THRESHOLD ? 2 : 1,
+        description: `Modulo orfao: "${file.relPath}" (${file.lineCount} linhas${exportList}) — nenhum import nem export usado por outro modulo`,
+        location: file.relPath, recommendation: `Verificar se "${file.basename}" e necessario — remover se morto, ou adicionar imports para os exports usados`, confidence: 0.6 });
     }
   } catch (err) { logger.debug("engineering-detectors", "Error in detectOrphanModules:", err); }
   return issues;
@@ -175,64 +152,29 @@ export function detectTestCoverageGaps(projectRoot: string, files: SourceFileInf
   return issues;
 }
 
+function parseAndReportLintIssues(output: string, issues: HealthIssue[], hasError: boolean): void {
+  try {
+    const results = JSON.parse(output) as Array<{ errorCount: number; warningCount: number }>;
+    let totalErrors = 0, totalWarnings = 0;
+    for (const r of results) { totalErrors += r.errorCount || 0; totalWarnings += r.warningCount || 0; }
+    if (hasError && totalErrors > 0) {
+      issues.push({ type: "lint_error", severity: 2, description: `ESLint encontrou ${totalErrors} erro(s) e ${totalWarnings} warning(s)`, location: "src/", recommendation: "Corrigir erros ESLint — execute 'npx eslint src/ --fix' para correcoes automaticas", confidence: 0.95 });
+    } else if (totalWarnings > 0) {
+      issues.push({ type: "lint_error", severity: 1, description: `ESLint encontrou ${totalWarnings} warning(s) (0 erros)`, location: "src/", recommendation: "Rever warnings ESLint — execute 'npx eslint src/' para detalhes", confidence: 0.95 });
+    }
+  } catch (parseErr) { logger.debug("engineering-detectors", hasError ? "ESLint error output not JSON:" : "ESLint output not JSON:", parseErr); }
+}
+
 export function detectLintIssues(projectRoot: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const eslintConfigs = [".eslintrc.js", ".eslintrc.json", ".eslintrc.yml", "eslint.config.js", "eslint.config.mjs"];
   if (!eslintConfigs.some((c) => existsSync(join(projectRoot, c)))) return issues;
-
   try {
-    const output = execSync("npx eslint src/ --format=json 2>&1", {
-      cwd: projectRoot,
-      encoding: "utf-8",
-      timeout: 15_000,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    try {
-      const results = JSON.parse(output) as Array<{ errorCount: number; warningCount: number }>;
-      let totalWarnings = 0;
-      for (const r of results) { totalWarnings += r.warningCount || 0; }
-      if (totalWarnings > 0) {
-        issues.push({
-          type: "lint_error",
-          severity: 1,
-          description: `ESLint encontrou ${totalWarnings} warning(s) (0 erros)`,
-          location: "src/",
-          recommendation: "Rever warnings ESLint — execute 'npx eslint src/' para detalhes",
-          confidence: 0.95,
-        });
-      }
-    } catch (parseErr) { logger.debug("engineering-detectors", "ESLint output not JSON:", parseErr); }
+    const output = execSync("npx eslint src/ --format=json 2>&1", { cwd: projectRoot, encoding: "utf-8", timeout: 15_000, stdio: ["pipe", "pipe", "pipe"] });
+    parseAndReportLintIssues(output, issues, false);
   } catch (err: unknown) {
     const e = err as { stdout?: string };
-    const output = String(e.stdout || "");
-    try {
-      const results = JSON.parse(output) as Array<{ errorCount: number; warningCount: number }>;
-      let totalErrors = 0;
-      let totalWarnings = 0;
-      for (const r of results) {
-        totalErrors += r.errorCount || 0;
-        totalWarnings += r.warningCount || 0;
-      }
-      if (totalErrors > 0) {
-        issues.push({
-          type: "lint_error",
-          severity: 2,
-          description: `ESLint encontrou ${totalErrors} erro(s) e ${totalWarnings} warning(s)`,
-          location: "src/",
-          recommendation: "Corrigir erros ESLint — execute 'npx eslint src/ --fix' para correcoes automaticas",
-          confidence: 0.95,
-        });
-      } else if (totalWarnings > 0) {
-        issues.push({
-          type: "lint_error",
-          severity: 1,
-          description: `ESLint encontrou ${totalWarnings} warning(s) (0 erros)`,
-          location: "src/",
-          recommendation: "Rever warnings ESLint — execute 'npx eslint src/' para detalhes",
-          confidence: 0.95,
-        });
-      }
-    } catch (parseErr) { logger.debug("engineering-detectors", "ESLint error output not JSON:", parseErr); }
+    parseAndReportLintIssues(String(e.stdout || ""), issues, true);
   }
   return issues;
 }

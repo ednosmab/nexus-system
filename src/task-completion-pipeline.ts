@@ -67,7 +67,7 @@ function findActivePlanForTask(shitennoDir: string, taskId: string): string | nu
         if (statusMatch) {
           const statusValue = statusMatch[1] || "";
           const status = statusValue.trim().toLowerCase();
-          if (status !== "done" && status !== "concluído" && status !== "concluido") {
+          if (status !== "done" && status !== "concluído" && status !== "concluido" && status !== "checked") {
             return file.replace(".md", "");
           }
         }

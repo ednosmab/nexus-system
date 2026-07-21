@@ -204,17 +204,8 @@ export function setCache<T>(
   data: T,
   checksums: Record<string, string>
 ): void {
-  const cache = readCache(projectRoot) || {
-    version: 1 as const,
-    projectRoot,
-  };
-
-  cache[key] = {
-    checksums,
-    computedAt: new Date().toISOString(),
-    data,
-  };
-
+  const cache = readCache(projectRoot) || { version: 1 as const, projectRoot };
+  cache[key] = { checksums, computedAt: new Date().toISOString(), data };
   writeCache(projectRoot, cache);
 }
 

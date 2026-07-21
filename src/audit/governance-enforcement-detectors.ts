@@ -314,6 +314,67 @@ export function detectMissingAdrForChanges(shitennoDir: string): HealthIssue[] {
 
 // ── 2.9 Done Plan Integrity ────────────────────────────────────────────────
 
+function checkPlanVerification(planId: string, file: string, doneDir: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const verificationPath = join(doneDir, `${planId}.verification.json`);
+
+  if (!existsSync(verificationPath)) {
+    issues.push({
+      type: "done_plan_missing_verification",
+      severity: 3,
+      description: `Plano ${planId} está em done/ sem .verification.json — possivel bypass do pipeline de verificação`,
+      location: `governance/plans/done/${file}`,
+      recommendation: "Mover o plano de volta para plans/ e re-executar o fluxo check → done.",
+      confidence: 0.98,
+    });
+    return issues;
+  }
+
+  try {
+    const record = JSON.parse(readFileSync(verificationPath, "utf-8"));
+    if (!record.passed) {
+      issues.push({
+        type: "done_plan_failed_verification",
+        severity: 3,
+        description: `Plano ${planId} está em done/ mas .verification.json tem passed=false — verificação falhou e plano não foi bloqueado`,
+        location: `governance/plans/done/${planId}.verification.json`,
+        recommendation: "Mover o plano de volta para plans/ e corrigir os checks que falharam antes de re-verificar.",
+        confidence: 0.99,
+      });
+    }
+  } catch {
+    issues.push({
+      type: "done_plan_missing_verification",
+      severity: 2,
+      description: `Plano ${planId} tem .verification.json mas o JSON é inválido`,
+      location: `governance/plans/done/${planId}.verification.json`,
+      recommendation: "Corrigir ou recriar o .verification.json com dados válidos.",
+      confidence: 0.9,
+    });
+  }
+
+  return issues;
+}
+
+function checkOrphanedSidecars(doneDir: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const sidecars = readdirSync(doneDir).filter((f) => f.endsWith(".verification.json"));
+  for (const sidecar of sidecars) {
+    const planId = sidecar.replace(/\.verification\.json$/, "");
+    if (!existsSync(join(doneDir, `${planId}.md`))) {
+      issues.push({
+        type: "done_plan_orphaned_sidecar",
+        severity: 2,
+        description: `.verification.json órfão para ${planId} — arquivo .md não existe em done/`,
+        location: `governance/plans/done/${sidecar}`,
+        recommendation: "Remover o .verification.json órfão ou restaurar o .md correspondente.",
+        confidence: 0.95,
+      });
+    }
+  }
+  return issues;
+}
+
 export function detectDonePlanIntegrity(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const doneDir = join(shitennoDir, "governance", "plans", "done");
@@ -321,63 +382,10 @@ export function detectDonePlanIntegrity(shitennoDir: string): HealthIssue[] {
 
   try {
     const files = readdirSync(doneDir).filter((f) => f.endsWith(".md"));
-
     for (const file of files) {
-      const planId = file.replace(/\.md$/, "");
-      const verificationPath = join(doneDir, `${planId}.verification.json`);
-
-      if (!existsSync(verificationPath)) {
-        issues.push({
-          type: "done_plan_missing_verification",
-          severity: 3,
-          description: `Plano ${planId} está em done/ sem .verification.json — possivel bypass do pipeline de verificação`,
-          location: `governance/plans/done/${file}`,
-          recommendation: "Mover o plano de volta para plans/ e re-executar o fluxo check → done.",
-          confidence: 0.98,
-        });
-        continue;
-      }
-
-      try {
-        const record = JSON.parse(readFileSync(verificationPath, "utf-8"));
-        if (!record.passed) {
-          issues.push({
-            type: "done_plan_failed_verification",
-            severity: 3,
-            description: `Plano ${planId} está em done/ mas .verification.json tem passed=false — verificação falhou e plano não foi bloqueado`,
-            location: `governance/plans/done/${planId}.verification.json`,
-            recommendation: "Mover o plano de volta para plans/ e corrigir os checks que falharam antes de re-verificar.",
-            confidence: 0.99,
-          });
-        }
-      } catch {
-        issues.push({
-          type: "done_plan_missing_verification",
-          severity: 2,
-          description: `Plano ${planId} tem .verification.json mas o JSON é inválido`,
-          location: `governance/plans/done/${planId}.verification.json`,
-          recommendation: "Corrigir ou recriar o .verification.json com dados válidos.",
-          confidence: 0.9,
-        });
-      }
+      issues.push(...checkPlanVerification(file.replace(/\.md$/, ""), file, doneDir));
     }
-
-    // Check for orphaned sidecars (.verification.json without matching .md)
-    const sidecars = readdirSync(doneDir).filter((f) => f.endsWith(".verification.json"));
-    for (const sidecar of sidecars) {
-      const planId = sidecar.replace(/\.verification\.json$/, "");
-      const mdPath = join(doneDir, `${planId}.md`);
-      if (!existsSync(mdPath)) {
-        issues.push({
-          type: "done_plan_orphaned_sidecar",
-          severity: 2,
-          description: `.verification.json órfão para ${planId} — arquivo .md não existe em done/`,
-          location: `governance/plans/done/${sidecar}`,
-          recommendation: "Remover o .verification.json órfão ou restaurar o .md correspondente.",
-          confidence: 0.95,
-        });
-      }
-    }
+    issues.push(...checkOrphanedSidecars(doneDir));
   } catch {
     logger.debug("governance-enforcement", "Failed to scan done/ directory");
   }

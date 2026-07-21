@@ -36,6 +36,22 @@ export function getBacklogPath(status: string): string {
   return ACTIVE_PATH;
 }
 
+function parseTableField(line: string): { key: string; value: string } | null {
+  const match = line.match(/\*\*(\w+)\*\*\s*\|\s*(.+?)\s*\|?\s*$/);
+  if (!match || !match[1] || !match[2]) return null;
+  return { key: match[1], value: match[2].trim().replace(/\|$/, "").trim() };
+}
+
+function applyFieldToItem(item: Partial<BacklogItem>, key: string, value: string): void {
+  switch (key) {
+    case "Status": item.state = value; break;
+    case "Severidade": item.severity = value; break;
+    case "Prioridade": item.priority = value; break;
+    case "Owner": item.owner = value; break;
+    case "Descricao": item.description = value; break;
+  }
+}
+
 /**
  * Parse a backlog file and extract items with their states and properties.
  */
@@ -43,70 +59,29 @@ export function parseBacklog(backlogPath: string): BacklogItem[] {
   if (!existsSync(backlogPath)) return [];
 
   const items: BacklogItem[] = [];
-  const content = readFileSync(backlogPath, "utf-8");
-  const lines = content.split("\n");
-
+  const lines = readFileSync(backlogPath, "utf-8").split("\n");
   let currentSection = "";
   let currentItem: Partial<BacklogItem> | null = null;
 
   for (const line of lines) {
     const sectionMatch = line.match(/^## (P[0-9]+)\s/);
-    if (sectionMatch) {
-      currentSection = sectionMatch[1]!;
-      continue;
-    }
+    if (sectionMatch) { currentSection = sectionMatch[1]!; continue; }
 
     const itemMatch = line.match(/^### (.+)/);
     if (itemMatch) {
-      if (currentItem?.id) {
-        items.push(currentItem as BacklogItem);
-      }
-
+      if (currentItem?.id) items.push(currentItem as BacklogItem);
       const titleRaw = itemMatch[1]!;
-      const id = titleRaw.split(" ")[0]!;
-      currentItem = {
-        id,
-        title: titleRaw,
-        state: "",
-        severity: "",
-        priority: currentSection,
-        owner: "",
-        description: "",
-      };
+      currentItem = { id: titleRaw.split(" ")[0]!, title: titleRaw, state: "", severity: "", priority: currentSection, owner: "", description: "" };
       continue;
     }
 
     if (currentItem && line.startsWith("| **")) {
-      const match = line.match(/\*\*(\w+)\*\*\s*\|\s*(.+?)\s*\|?\s*$/);
-      if (match) {
-        const [, key, value] = match;
-        const val = value!.trim().replace(/\|$/, "").trim();
-
-        switch (key) {
-          case "Status":
-            currentItem.state = val;
-            break;
-          case "Severidade":
-            currentItem.severity = val;
-            break;
-          case "Prioridade":
-            currentItem.priority = val;
-            break;
-          case "Owner":
-            currentItem.owner = val;
-            break;
-          case "Descricao":
-            currentItem.description = val;
-            break;
-        }
-      }
+      const field = parseTableField(line);
+      if (field) applyFieldToItem(currentItem, field.key, field.value);
     }
   }
 
-  if (currentItem?.id) {
-    items.push(currentItem as BacklogItem);
-  }
-
+  if (currentItem?.id) items.push(currentItem as BacklogItem);
   return items;
 }
 

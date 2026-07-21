@@ -107,11 +107,47 @@ export function detectLockFileDrift(projectRoot: string): HealthIssue[] {
   return issues;
 }
 
+const NODE_BUILTINS = new Set([
+  "fs", "path", "os", "child_process", "util", "events", "stream", "http", "https",
+  "url", "crypto", "assert", "buffer", "zlib", "net", "tls", "dns", "readline",
+  "worker_threads", "perf_hooks", "v8", "vm", "module", "constants", "querystring",
+  "string_decoder", "timers", "tty", "punycode", "domain", "cluster", "dgram",
+  "dns/promises", "fs/promises", "path/posix", "path/win32",
+]);
+for (const builtin of [...NODE_BUILTINS]) NODE_BUILTINS.add(`node:${builtin}`);
+
+function extractPackageName(spec: string): string {
+  return spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0] ?? spec;
+}
+
+function isUndeclaredPackage(pkgName: string, declaredDeps: Set<string>): boolean {
+  return !NODE_BUILTINS.has(pkgName) && !declaredDeps.has(pkgName);
+}
+
+function scanFileForUndeclaredDeps(content: string, relPath: string, declaredDeps: Set<string>, usedPackages: Map<string, string>): void {
+  const importRegex = /(?:from|import)\s+["']([^"'\.\/][^"']*)["']/g;
+  const requireRegex = /require\s*\(\s*["']([^"'\.\/][^"']*)["']\s*\)/g;
+  let match;
+  importRegex.lastIndex = 0;
+  while ((match = importRegex.exec(content)) !== null) {
+    const importPath = match[1];
+    if (!importPath) continue;
+    const pkgName = extractPackageName(importPath);
+    if (pkgName && isUndeclaredPackage(pkgName, declaredDeps) && !usedPackages.has(pkgName)) usedPackages.set(pkgName, relPath);
+  }
+  requireRegex.lastIndex = 0;
+  while ((match = requireRegex.exec(content)) !== null) {
+    const importPath = match[1];
+    if (!importPath) continue;
+    const pkgName = extractPackageName(importPath);
+    if (pkgName && isUndeclaredPackage(pkgName, declaredDeps) && !usedPackages.has(pkgName)) usedPackages.set(pkgName, relPath);
+  }
+}
+
 export function detectPhantomDependencies(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const pkgPath = join(projectRoot, "package.json");
   if (!existsSync(pkgPath)) return issues;
-
   try {
     const pkg = safeJsonParseValidated(readFileSync(pkgPath, "utf-8"), isRecord, "supply:detectPhantomDependencies");
     if (!pkg) return issues;
@@ -120,54 +156,13 @@ export function detectPhantomDependencies(projectRoot: string, files: SourceFile
       ...Object.keys((pkg as Record<string, unknown>).devDependencies ?? {}),
       ...Object.keys((pkg as Record<string, unknown>).peerDependencies ?? {}),
     ]);
-
-    const NODE_BUILTINS = new Set([
-      "fs", "path", "os", "child_process", "util", "events", "stream", "http", "https",
-      "url", "crypto", "assert", "buffer", "zlib", "net", "tls", "dns", "readline",
-      "worker_threads", "perf_hooks", "v8", "vm", "module", "constants", "querystring",
-      "string_decoder", "timers", "tty", "punycode", "domain", "cluster", "dgram",
-      "dns/promises", "fs/promises", "path/posix", "path/win32",
-    ]);
-    for (const builtin of [...NODE_BUILTINS]) {
-      NODE_BUILTINS.add(`node:${builtin}`);
-    }
-
-    const importRegex = /(?:from|import)\s+["']([^"'\.\/][^"']*)["']/g;
-    const requireRegex = /require\s*\(\s*["']([^"'\.\/][^"']*)["']\s*\)/g;
     const usedPackages = new Map<string, string>();
-
-    for (const file of files) {
-      let match;
-      importRegex.lastIndex = 0;
-      while ((match = importRegex.exec(file.content)) !== null) {
-        const spec = match[1];
-        if (!spec) continue;
-        const pkgName = spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
-        if (pkgName && !NODE_BUILTINS.has(pkgName) && !NODE_BUILTINS.has(spec) && !declaredDeps.has(pkgName) && !usedPackages.has(pkgName)) {
-          usedPackages.set(pkgName, file.relPath);
-        }
-      }
-      requireRegex.lastIndex = 0;
-      while ((match = requireRegex.exec(file.content)) !== null) {
-        const spec = match[1];
-        if (!spec) continue;
-        const pkgName = spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
-        if (pkgName && !NODE_BUILTINS.has(pkgName) && !NODE_BUILTINS.has(spec) && !declaredDeps.has(pkgName) && !usedPackages.has(pkgName)) {
-          usedPackages.set(pkgName, file.relPath);
-        }
-      }
-    }
-
+    for (const file of files) scanFileForUndeclaredDeps(file.content, file.relPath, declaredDeps, usedPackages);
     if (usedPackages.size > 0) {
       const phantomList = Array.from(usedPackages.entries()).map(([pkg, file]) => `${pkg} (usado em ${file})`);
-      issues.push({
-        type: "phantom_dep",
-        severity: 2,
+      issues.push({ type: "phantom_dep", severity: 2,
         description: `${usedPackages.size} dependência(s) usada(s) mas não declarada(s): ${phantomList.slice(0, 5).join(", ")}${phantomList.length > 5 ? ` (+${phantomList.length - 5})` : ""}`,
-        location: "package.json",
-        recommendation: `Adicionar ao package.json: ${Array.from(usedPackages.keys()).slice(0, 3).join(", ")}`,
-        confidence: 0.75,
-      });
+        location: "package.json", recommendation: `Adicionar ao package.json: ${Array.from(usedPackages.keys()).slice(0, 3).join(", ")}`, confidence: 0.75 });
     }
   } catch (err) { logger.debug("engineering-detectors", "Error in detectPhantomDependencies:", err); }
   return issues;
@@ -220,55 +215,44 @@ export function detectDeprecatedPackages(projectRoot: string): HealthIssue[] {
 
 // ── New detectors (Fase 5) ───────────────────────────────────────────────────
 
-function parseNpmAuditOutput(output: string): HealthIssue[] {
+function parseNpmFormat(audit: Record<string, unknown>): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  try {
-    // Try npm/pnpm format first (single JSON object)
-    const audit = JSON.parse(output);
-    const vulns = audit.vulnerabilities ?? {};
-
-    for (const [name, info] of Object.entries(vulns)) {
-      const v = info as { severity?: string; via?: Array<{ title?: string; url?: string }> };
-      if (!v.severity) continue;
-      const severity = v.severity === "critical" || v.severity === "high" ? 3
-        : v.severity === "moderate" ? 2 : 1;
-      const via = v.via?.filter((x: { title?: string }) => x.title).map((x: { title?: string }) => x.title).join(", ") ?? "";
-      issues.push({
-        type: "dependency_vulnerability",
-        severity: severity as 1 | 2 | 3,
-        description: `Dependência "${name}" possui vulnerabilidade (${v.severity}): ${via}`,
-        location: "package-lock.json",
-        recommendation: `Rodar "npm audit fix" ou atualizar ${name} para versão segura`,
-        confidence: 0.9,
-      });
-    }
-  } catch {
-    // Fallback: yarn audit returns NDJSON (one JSON object per line)
-    const seen = new Set<string>();
-    for (const line of output.split("\n")) {
-      if (!line.trim()) continue;
-      try {
-        const entry = JSON.parse(line);
-        if (entry.type === "auditAdvisory" && entry.data?.advisory) {
-          const adv = entry.data.advisory;
-          const name = adv.module_name ?? "unknown";
-          if (seen.has(name)) continue;
-          seen.add(name);
-          const severity = adv.severity === "critical" || adv.severity === "high" ? 3
-            : adv.severity === "moderate" ? 2 : 1;
-          issues.push({
-            type: "dependency_vulnerability",
-            severity: severity as 1 | 2 | 3,
-            description: `Dependência "${name}" possui vulnerabilidade (${adv.severity}): ${adv.title ?? ""}`,
-            location: "yarn.lock",
-            recommendation: `Rodar "yarn audit fix" ou atualizar ${name} para versão segura`,
-            confidence: 0.9,
-          });
-        }
-      } catch { /* skip malformed lines */ }
-    }
+  const vulns = (audit.vulnerabilities ?? {}) as Record<string, { severity?: string; via?: Array<{ title?: string }> }>;
+  for (const [name, v] of Object.entries(vulns)) {
+    if (!v.severity) continue;
+    const severity = v.severity === "critical" || v.severity === "high" ? 3 : v.severity === "moderate" ? 2 : 1;
+    const via = v.via?.filter((x) => x.title).map((x) => x.title).join(", ") ?? "";
+    issues.push({ type: "dependency_vulnerability", severity: severity as 1 | 2 | 3,
+      description: `Dependência "${name}" possui vulnerabilidade (${v.severity}): ${via}`,
+      location: "package-lock.json", recommendation: `Rodar "npm audit fix" ou atualizar ${name} para versão segura`, confidence: 0.9 });
   }
   return issues;
+}
+
+function parseYarnFormat(output: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const seen = new Set<string>();
+  for (const line of output.split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      const entry = JSON.parse(line);
+      if (entry.type !== "auditAdvisory" || !entry.data?.advisory) continue;
+      const adv = entry.data.advisory;
+      const name = adv.module_name ?? "unknown";
+      if (seen.has(name)) continue;
+      seen.add(name);
+      const severity = adv.severity === "critical" || adv.severity === "high" ? 3 : adv.severity === "moderate" ? 2 : 1;
+      issues.push({ type: "dependency_vulnerability", severity: severity as 1 | 2 | 3,
+        description: `Dependência "${name}" possui vulnerabilidade (${adv.severity}): ${adv.title ?? ""}`,
+        location: "yarn.lock", recommendation: `Rodar "yarn audit fix" ou atualizar ${name} para versão segura`, confidence: 0.9 });
+    } catch { /* skip malformed lines */ }
+  }
+  return issues;
+}
+
+function parseNpmAuditOutput(output: string): HealthIssue[] {
+  try { return parseNpmFormat(JSON.parse(output)); }
+  catch { return parseYarnFormat(output); }
 }
 
 export function detectDependencyVulnerabilities(projectRoot: string): HealthIssue[] {
@@ -335,47 +319,46 @@ export function detectIncompatibleLicenses(projectRoot: string): HealthIssue[] {
   return issues;
 }
 
+const SECRET_PATTERNS = [
+  { regex: /(?:password|passwd|pwd)\s*[=:]\s*\S+/i, name: "password" },
+  { regex: /(?:api[_-]?key|apikey)\s*[=:]\s*\S+/i, name: "API key" },
+  { regex: /(?:secret|token)\s*[=:]\s*\S+/i, name: "secret/token" },
+  { regex: /(?:private[_-]?key)\s*[=:]\s*\S+/i, name: "private key" },
+];
+
+function isFileGitignored(fileName: string, projectRoot: string): boolean {
+  const gitignorePath = join(projectRoot, ".gitignore");
+  if (!existsSync(gitignorePath)) return false;
+  const gitignore = readFileSync(gitignorePath, "utf-8");
+  return gitignore.split("\n").some((line) => line.trim() === fileName || line.trim() === `/${fileName}`);
+}
+
+function scanFileForSecrets(content: string, fileName: string, issues: HealthIssue[]): void {
+  const lines = content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    if (line.trim().startsWith("#") || !line.trim()) continue;
+    for (const { regex, name } of SECRET_PATTERNS) {
+      if (regex.test(line)) {
+        issues.push({ type: "config_secret", severity: 3,
+          description: `Possível ${name} em "${fileName}:${i + 1}" — arquivo de config versionado contém segredo`,
+          location: `${fileName}:${i + 1}`,
+          recommendation: `Mover segredo para variável de ambiente ou .env gitignored; adicionar ${fileName} ao .gitignore`, confidence: 0.75 });
+        break;
+      }
+    }
+  }
+}
+
 export function detectConfigSecrets(projectRoot: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const SECRET_PATTERNS = [
-    { regex: /(?:password|passwd|pwd)\s*[=:]\s*\S+/i, name: "password" },
-    { regex: /(?:api[_-]?key|apikey)\s*[=:]\s*\S+/i, name: "API key" },
-    { regex: /(?:secret|token)\s*[=:]\s*\S+/i, name: "secret/token" },
-    { regex: /(?:private[_-]?key)\s*[=:]\s*\S+/i, name: "private key" },
-  ];
   const CONFIG_FILES = [".env", ".env.local", ".env.production", "credentials.json", "secrets.json", ".npmrc"];
-
   for (const fileName of CONFIG_FILES) {
     const filePath = join(projectRoot, fileName);
     if (!existsSync(filePath)) continue;
-    const gitignorePath = join(projectRoot, ".gitignore");
-    if (existsSync(gitignorePath)) {
-      const gitignore = readFileSync(gitignorePath, "utf-8");
-      if (gitignore.split("\n").some((line) => line.trim() === fileName || line.trim() === `/${fileName}`)) {
-        continue;
-      }
-    }
-    try {
-      const content = readFileSync(filePath, "utf-8");
-      const lines = content.split("\n");
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]!;
-        if (line.trim().startsWith("#") || !line.trim()) continue;
-        for (const { regex, name } of SECRET_PATTERNS) {
-          if (regex.test(line)) {
-            issues.push({
-              type: "config_secret",
-              severity: 3,
-              description: `Possível ${name} em "${fileName}:${i + 1}" — arquivo de config versionado contém segredo`,
-              location: `${fileName}:${i + 1}`,
-              recommendation: `Mover segredo para variável de ambiente ou .env gitignored; adicionar ${fileName} ao .gitignore`,
-              confidence: 0.75,
-            });
-            break;
-          }
-        }
-      }
-    } catch (readErr) { logger.debug("engineering-detectors", "Error reading config file:", readErr); }
+    if (isFileGitignored(fileName, projectRoot)) continue;
+    try { scanFileForSecrets(readFileSync(filePath, "utf-8"), fileName, issues); }
+    catch (readErr) { logger.debug("engineering-detectors", "Error reading config file:", readErr); }
   }
   return issues;
 }

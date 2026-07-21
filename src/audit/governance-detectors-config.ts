@@ -119,80 +119,152 @@ export function detectReportNaming(shitennoDir: string): HealthIssue[] {
   return issues;
 }
 
-export function detectBareWordRefs(shitennoDir: string): HealthIssue[] {
-  const issues: HealthIssue[] = [];
-  const p0Files = [
-    "AGENTS.md",
-    "FORBIDDEN_OPERATIONS.md",
-    "DESDO.md",
-    "Requisitos_plataforma.md",
-    "CONTEXT_HIERARCHY.md",
-  ];
-  const docPath = join(shitennoDir, "docs/AGENTS.md");
-  if (!existsSync(docPath)) return issues;
+function checkP0FileExists(file: string, shitennoDir: string, locations: string[]): boolean {
+  return locations.some((loc) => existsSync(join(shitennoDir, loc, file)));
+}
 
-  try {
-    const content = readFileSync(docPath, "utf-8");
-    const p0Line = content.split("\n").find((l) => l.includes("Requisitos_plataforma"));
-    if (p0Line) {
-      const locations = ["docs/", "cognition/context/", "governance/", ""];
-      for (const file of p0Files) {
-        if (p0Line.includes(file)) {
-          const found = locations.some((loc) => existsSync(join(shitennoDir, loc, file)));
-          if (!found) {
-            issues.push({
-              type: "bare_word_ref",
-              severity: 3,
-              description: `Referência P0 obrigatória "${file}" não existe em nenhuma localização`,
-              location: "shitenno/docs/AGENTS.md",
-              recommendation: `Criar "${file}" ou remover da lista P0 em AGENTS.md`,
-              confidence: 0.7,
-            });
-          }
-        }
-      }
+function detectBareWordRefsInFile(content: string, shitennoDir: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const p0Files = ["AGENTS.md", "FORBIDDEN_OPERATIONS.md", "DESDO.md", "Requisitos_plataforma.md", "CONTEXT_HIERARCHY.md"];
+  const p0Line = content.split("\n").find((l) => l.includes("Requisitos_plataforma"));
+  if (!p0Line) return issues;
+  const locations = ["docs/", "cognition/context/", "governance/", ""];
+  for (const file of p0Files) {
+    if (p0Line.includes(file) && !checkP0FileExists(file, shitennoDir, locations)) {
+      issues.push({ type: "bare_word_ref", severity: 3,
+        description: `Referência P0 obrigatória "${file}" não existe em nenhuma localização`,
+        location: "shitenno/docs/AGENTS.md", recommendation: `Criar "${file}" ou remover da lista P0 em AGENTS.md`, confidence: 0.7 });
     }
-  } catch (err) { logger.debug("governance-detectors", "Error in detectBareWordRefs:", err); }
+  }
+  return issues;
+}
+
+export function detectBareWordRefs(shitennoDir: string): HealthIssue[] {
+  const docPath = join(shitennoDir, "docs/AGENTS.md");
+  if (!existsSync(docPath)) return [];
+  try { return detectBareWordRefsInFile(readFileSync(docPath, "utf-8"), shitennoDir); }
+  catch (err) { logger.debug("governance-detectors", "Error in detectBareWordRefs:", err); return []; }
+}
+
+function isBranchConvention(dirPart: string): boolean {
+  return ["feat/", "fix/", "hotfix/", "chore/", "docs/", "refactor/"].includes(dirPart) || dirPart.includes("git ") || dirPart.includes("&&");
+}
+
+function scanDocForTemplateDirRefs(content: string, doc: string, shitennoDir: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const templateRefRegex = /`([^`\n]*<[^`\n>]+>[^`\n]*)`/g;
+  let match;
+  while ((match = templateRefRegex.exec(content)) !== null) {
+    const ref = match[1];
+    if (!ref) continue;
+    const dirPart = ref.split(/[<]/)[0];
+    if (!dirPart || !dirPart.includes("/") || dirPart.startsWith("shitenno/") || isBranchConvention(dirPart)) continue;
+    if (!existsSync(join(shitennoDir, dirPart))) {
+      issues.push({ type: "template_dir_ref", severity: 2,
+        description: `Directório "${dirPart}" referenciado por template "${ref}" não existe`,
+        location: `shitenno/${doc}`, recommendation: `Criar directório "${dirPart}" ou corrigir referência em "${doc}"`, confidence: 0.75 });
+    }
+  }
   return issues;
 }
 
 export function detectTemplateDirRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
-  const docsToScan = [
-    "docs/AGENTS.md",
-    "docs/capabilities.md",
-    "cognition/context/CONTEXT_HIERARCHY.md",
-  ];
-  const templateRefRegex = /`([^`\n]*<[^`\n>]+>[^`\n]*)`/g;
-  const branchConventions = new Set(["feat/", "fix/", "hotfix/", "chore/", "docs/", "refactor/"]);
-
+  const docsToScan = ["docs/AGENTS.md", "docs/capabilities.md", "cognition/context/CONTEXT_HIERARCHY.md"];
   for (const doc of docsToScan) {
     const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
-    try {
-      const content = readFileSync(path, "utf-8");
-      let match;
-      while ((match = templateRefRegex.exec(content)) !== null) {
-        const ref = match[1];
-        if (!ref) continue;
-        const dirPart = ref.split(/[<]/)[0];
-        if (dirPart && dirPart.includes("/") && !dirPart.startsWith("shitenno/")) {
-          if (branchConventions.has(dirPart)) continue;
-          if (dirPart.includes("git ") || dirPart.includes("&&")) continue;
-          const dirPath = join(shitennoDir, dirPart);
-          if (!existsSync(dirPath)) {
-            issues.push({
-              type: "template_dir_ref",
-              severity: 2,
-              description: `Directório "${dirPart}" referenciado por template "${ref}" não existe`,
-              location: `shitenno/${doc}`,
-              recommendation: `Criar directório "${dirPart}" ou corrigir referência em "${doc}"`,
-              confidence: 0.75,
-            });
-          }
-        }
-      }
-    } catch (err) { logger.debug("governance-detectors", "Error scanning template dir refs:", err); }
+    try { issues.push(...scanDocForTemplateDirRefs(readFileSync(path, "utf-8"), doc, shitennoDir)); }
+    catch (err) { logger.debug("governance-detectors", "Error scanning template dir refs:", err); }
+  }
+  return issues;
+}
+
+const KNOWN_CORRECTIONS: Record<string, string> = {
+  "context_buffer.md": "context_buffer.yaml",
+  "context_buffer.json": "context_buffer.yaml",
+};
+
+const EXTENSION_SWAP: Record<string, string> = {
+  ".ts": ".json",
+  ".json": ".ts",
+  ".md": ".yaml",
+  ".yaml": ".md",
+  ".js": ".ts",
+  ".txt": ".md",
+};
+
+const DOCS_TO_SCAN = [
+  "docs/AGENTS.md",
+  "governance/WORKFLOW.md",
+  "docs/CONCEPTUAL_MODEL.md",
+  "docs/capabilities.md",
+  "cognition/context/CONTEXT_HIERARCHY.md",
+  "governance/agents/AI-CONTRACT-reviewer-v1.yaml",
+  "governance/agents/AI-CONTRACT-planner-v1.yaml",
+  "governance/agents/AI-CONTRACT-orchestrator-v1.yaml",
+  "governance/agents/AI-CONTRACT-executor-v1.yaml",
+];
+
+function findFileInDirs(baseName: string, shitennoDir: string, projectRoot: string, docDir: string): boolean {
+  return existsSync(join(docDir, baseName)) ||
+    existsSync(join(shitennoDir, "governance/context", baseName)) ||
+    existsSync(join(shitennoDir, baseName)) ||
+    existsSync(join(projectRoot, baseName));
+}
+
+interface FileCheckContext {
+  content: string;
+  doc: string;
+  shitennoDir: string;
+  projectRoot: string;
+  docDir: string;
+}
+
+function checkKnownCorrections(ctx: FileCheckContext): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  for (const [wrongName, correctName] of Object.entries(KNOWN_CORRECTIONS)) {
+    if (ctx.content.includes(wrongName) && findFileInDirs(correctName, ctx.shitennoDir, ctx.projectRoot, ctx.docDir)) {
+      issues.push({
+        type: "extension_mismatch",
+        severity: 2,
+        description: `Referência "${wrongName}" usa extensão errada — ficheiro real é "${correctName}"`,
+        location: `shitenno/${ctx.doc}`,
+        recommendation: `Corrigir "${wrongName}" para "${correctName}" em "${ctx.doc}"`,
+        confidence: 0.7,
+      });
+    }
+  }
+  return issues;
+}
+
+function checkSwappedExtensions(ctx: FileCheckContext): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const refRegex = /`([a-zA-Z0-9_/.-]+)(\.(?:md|ts|js|yaml|json|txt))`/g;
+  let match;
+  while ((match = refRegex.exec(ctx.content)) !== null) {
+    const baseName = match[1] as string;
+    const ext = match[2] as string;
+    if (!baseName || baseName.includes("*") || baseName.includes("[") || baseName.includes("<") || baseName.includes("YYYY") || baseName.includes("MM-DD")) continue;
+
+    const fullName = `${baseName}${ext}`;
+    if (KNOWN_CORRECTIONS[fullName]) continue;
+    if (findFileInDirs(fullName, ctx.shitennoDir, ctx.projectRoot, ctx.docDir)) continue;
+
+    const swappedExt = EXTENSION_SWAP[ext];
+    if (!swappedExt) continue;
+
+    const swappedName = `${baseName}${swappedExt}`;
+    if (findFileInDirs(swappedName, ctx.shitennoDir, ctx.projectRoot, ctx.docDir)) {
+      issues.push({
+        type: "extension_mismatch",
+        severity: 2,
+        description: `Referência "${fullName}" usa extensão errada — ficheiro real é "${swappedName}"`,
+        location: `shitenno/${ctx.doc}`,
+        recommendation: `Corrigir "${fullName}" para "${swappedName}" em "${ctx.doc}"`,
+        confidence: 0.75,
+      });
+    }
   }
   return issues;
 }
@@ -200,92 +272,16 @@ export function detectTemplateDirRefs(shitennoDir: string): HealthIssue[] {
 export function detectExtensionMismatch(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const projectRoot = join(shitennoDir, "..");
-  const KNOWN_CORRECTIONS: Record<string, string> = {
-    "context_buffer.md": "context_buffer.yaml",
-    "context_buffer.json": "context_buffer.yaml",
-  };
 
-  const docsToScan = [
-    "docs/AGENTS.md",
-    "governance/WORKFLOW.md",
-    "docs/CONCEPTUAL_MODEL.md",
-    "docs/capabilities.md",
-    "cognition/context/CONTEXT_HIERARCHY.md",
-    "governance/agents/AI-CONTRACT-reviewer-v1.yaml",
-    "governance/agents/AI-CONTRACT-planner-v1.yaml",
-    "governance/agents/AI-CONTRACT-orchestrator-v1.yaml",
-    "governance/agents/AI-CONTRACT-executor-v1.yaml",
-  ];
-
-  const EXTENSION_SWAP: Record<string, string> = {
-    ".ts": ".json",
-    ".json": ".ts",
-    ".md": ".yaml",
-    ".yaml": ".md",
-    ".js": ".ts",
-    ".txt": ".md",
-  };
-
-  for (const doc of docsToScan) {
+  for (const doc of DOCS_TO_SCAN) {
     const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
-    const docDir = dirname(path);
     try {
       const content = readFileSync(path, "utf-8");
-
-      for (const [wrongName, correctName] of Object.entries(KNOWN_CORRECTIONS)) {
-        if (content.includes(wrongName)) {
-          const found =
-            existsSync(join(docDir, correctName)) ||
-            existsSync(join(shitennoDir, "governance/context", correctName)) ||
-            existsSync(join(shitennoDir, correctName)) ||
-            existsSync(join(projectRoot, correctName));
-          if (found) {
-            issues.push({
-              type: "extension_mismatch",
-              severity: 2,
-              description: `Referência "${wrongName}" usa extensão errada — ficheiro real é "${correctName}"`,
-              location: `shitenno/${doc}`,
-              recommendation: `Corrigir "${wrongName}" para "${correctName}" em "${doc}"`,
-              confidence: 0.7,
-            });
-          }
-        }
-      }
-
-      const refRegex = /`([a-zA-Z0-9_/.-]+)(\.(?:md|ts|js|yaml|json|txt))`/g;
-      let match;
-      while ((match = refRegex.exec(content)) !== null) {
-        const baseName = match[1] as string;
-        const ext = match[2] as string;
-        if (!baseName || baseName.includes("*") || baseName.includes("[") || baseName.includes("<") || baseName.includes("YYYY") || baseName.includes("MM-DD")) continue;
-
-        const fullName = `${baseName}${ext}`;
-        if (KNOWN_CORRECTIONS[fullName]) continue;
-
-        const exactPath = join(shitennoDir, fullName);
-        const exactPathRoot = join(projectRoot, fullName);
-        const exactPathDocDir = join(docDir, fullName);
-        if (existsSync(exactPath) || existsSync(exactPathRoot) || existsSync(exactPathDocDir)) continue;
-
-        const swappedExt = EXTENSION_SWAP[ext];
-        if (!swappedExt) continue;
-
-        const swappedName = `${baseName}${swappedExt}`;
-        const swappedPathShitenno = join(shitennoDir, swappedName);
-        const swappedPathRoot = join(projectRoot, swappedName);
-        const swappedPathDocDir = join(docDir, swappedName);
-        if (existsSync(swappedPathShitenno) || existsSync(swappedPathRoot) || existsSync(swappedPathDocDir)) {
-          issues.push({
-            type: "extension_mismatch",
-            severity: 2,
-            description: `Referência "${fullName}" usa extensão errada — ficheiro real é "${swappedName}"`,
-            location: `shitenno/${doc}`,
-            recommendation: `Corrigir "${fullName}" para "${swappedName}" em "${doc}"`,
-            confidence: 0.75,
-          });
-        }
-      }
+      const docDir = dirname(path);
+      const ctx: FileCheckContext = { content, doc, shitennoDir, projectRoot, docDir };
+      issues.push(...checkKnownCorrections(ctx));
+      issues.push(...checkSwappedExtensions(ctx));
     } catch (err) { logger.debug("governance-detectors", "Error scanning extension mismatch:", err); }
   }
   return issues;

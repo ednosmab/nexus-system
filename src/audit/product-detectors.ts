@@ -158,51 +158,57 @@ export function detectKPICoverage(projectRoot: string): HealthIssue[] {
 
 // ── 1.4 Orphan Requirements ─────────────────────────────────────────────────
 
-export function detectOrphanRequirements(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
-  const issues: HealthIssue[] = [];
-  const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
+const FEATURE_PATTERNS = [
+  /feature[s]?\s*[:]\s*`?(\w+)`?/gi,
+  /implementa[çc][ãa]o\s+de\s+(.+)/gi,
+  /criar\s+(.+)/gi,
+  /adicionar\s+(.+)/gi,
+];
 
-  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
-  if (!existsSync(docsDir)) return issues;
+const DOC_FILES = ["BACKLOG.md", "BRIEFING.md"];
 
-  const featurePatterns = [
-    /feature[s]?\s*[:]\s*`?(\w+)`?/gi,
-    /implementa[çc][ãa]o\s+de\s+(.+)/gi,
-    /criar\s+(.+)/gi,
-    /adicionar\s+(.+)/gi,
-  ];
-
-  const docFeatures = new Set<string>();
-  const docFiles = ["BACKLOG.md", "BRIEFING.md"];
-
-  for (const file of docFiles) {
+function collectDocFeatures(projectRoot: string): Set<string> {
+  const features = new Set<string>();
+  for (const file of DOC_FILES) {
     const path = join(projectRoot, file);
     if (!existsSync(path)) continue;
     const content = readFileSync(path, "utf-8");
-    for (const pattern of featurePatterns) {
+    for (const pattern of FEATURE_PATTERNS) {
       let match;
       while ((match = pattern.exec(content)) !== null) {
-        docFeatures.add(match[1]?.toLowerCase().trim() ?? "");
+        features.add(match[1]?.toLowerCase().trim() ?? "");
       }
     }
   }
+  return features;
+}
 
-  if (docFeatures.size === 0) return issues;
-
-  const codeExports = new Set<string>();
+function collectCodeExports(files: SourceFileInfo[]): Set<string> {
+  const exports = new Set<string>();
+  const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
   for (const file of files) {
     if (skipPatterns.some((p) => p.test(file.relPath))) continue;
     const exportMatches = file.content.matchAll(/^export\s+(?:async\s+)?(?:function|const|class)\s+(\w+)/gm);
     for (const m of exportMatches) {
-      if (m[1]) codeExports.add(m[1].toLowerCase());
+      if (m[1]) exports.add(m[1].toLowerCase());
     }
   }
+  return exports;
+}
 
+export function detectOrphanRequirements(projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const docsDir = join(projectRoot, SHITENNO_DIR_NAME, "docs");
+  if (!existsSync(docsDir)) return issues;
+
+  const docFeatures = collectDocFeatures(projectRoot);
+  if (docFeatures.size === 0) return issues;
+
+  const codeExports = collectCodeExports(files);
   let orphanCount = 0;
   for (const feature of docFeatures) {
     const words = feature.split(/\s+/).filter((w) => w.length > 3);
-    const foundInCode = words.some((w) => codeExports.has(w));
-    if (!foundInCode) orphanCount++;
+    if (!words.some((w) => codeExports.has(w))) orphanCount++;
   }
 
   if (orphanCount > 3) {

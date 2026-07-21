@@ -213,154 +213,110 @@ export function startWatching(
   };
 }
 
-/**
- * Handle a file change event.
- */
-function handleFileChange(
+function publishTypeSpecificEvents(
+  artifactType: string,
   filePath: string,
-  shitennoDir: string,
   bus: ReturnType<typeof getEventBus>,
-  enableDocSync: boolean
 ): void {
-  // Skip hidden files/dirs (e.g. .git, .env) — but NOT the shitennoDir root itself.
-  // relativePath strips the shitennoDir prefix, so ".shitenno" won't appear in segments.
-  const relativePath = filePath.slice(shitennoDir.length + 1);
-  const segments = relativePath.split(/[/\\]/);
-  if (segments.some((s) => s.startsWith(".") && s !== "")) return;
-
-  const artifactType = detectArtifactType(filePath, shitennoDir);
-
-  // Record change for frequency tracking
-  const frequency = changeHistory.recordChange(filePath);
-
-  // Read file content for size calculation
-  let newContent: string;
-  const oldContent: string | null = null;
-  try {
-    newContent = readFileSync(filePath, "utf-8");
-  } catch {
-    // File might have been deleted
-    newContent = "";
-  }
-
-  // Calculate significance
-  const significance: SignificanceResult = calculateSignificance(
-    filePath,
-    shitennoDir,
-    oldContent,
-    newContent,
-    frequency
-  );
-
-  // Publish asset.updated for all changes
-  bus.publish("asset.updated", {
-    assetId: filePath,
-    assetType: artifactType,
-    path: filePath,
-    changes: ["content"],
-  });
-
-  // Type-specific events
   if (artifactType === "rule") {
-    // Rules changed — rule engine will pick up on next event
     bus.publish("rule.triggered", {
-      ruleId: filePath.split("/").pop()?.replace(/\.json$/, "") || "unknown",
+      ruleId: basename(filePath).replace(/\.json$/, "") || "unknown",
       ruleDescription: "Rule file updated",
       actionsExecuted: 0,
       success: true,
     });
   }
 
-  if (artifactType === "workflow") {
-    // Workflow changed — lifecycle may need re-evaluation
+  if (artifactType === "workflow" || artifactType === "config") {
     bus.publish("engineering_state.updated", {
-      dimension: "governance",
+      dimension: artifactType === "workflow" ? "governance" : "configuration",
       previousValue: null,
       newValue: filePath,
       source: "file-watcher",
     });
   }
+}
 
-  if (artifactType === "config") {
-    // Config changed — fingerprint may be stale
-    bus.publish("engineering_state.updated", {
-      dimension: "configuration",
-      previousValue: null,
-      newValue: filePath,
-      source: "file-watcher",
-    });
+function handleDocSync(
+  filePath: string,
+  relativePath: string,
+  significance: SignificanceResult,
+  enableDocSync: boolean,
+  bus: ReturnType<typeof getEventBus>,
+): void {
+  if (!enableDocSync || !significance.shouldSync) return;
+  if (significance.level === "high") {
+    logger.info("file-watcher", `High significance change: ${relativePath} (${significance.score.toFixed(2)})`);
   }
+  bus.publish("docs.sync.triggered", {
+    path: filePath,
+    relativePath,
+    significance: significance.score,
+    level: significance.level,
+    outputLevel: significance.outputLevel,
+    reasons: significance.reasons,
+  });
+}
 
-  // Doc sync trigger based on significance
-  if (enableDocSync && significance.shouldSync) {
-    if (significance.level === "high") {
-      logger.info(
-        "file-watcher",
-        `High significance change: ${relativePath} (${significance.score.toFixed(2)})`
-      );
-    }
-
-    bus.publish("docs.sync.triggered", {
-      path: filePath,
-      relativePath,
-      significance: significance.score,
-      level: significance.level,
-      outputLevel: significance.outputLevel,
-      reasons: significance.reasons,
-    });
-  }
-
-  // Plan file change — publish event for rule engine to evaluate
-  // Guard: if this change was caused by our own sync write, don't re-trigger
+function handlePlanChange(
+  filePath: string,
+  relativePath: string,
+  newContent: string,
+  bus: ReturnType<typeof getEventBus>,
+): void {
   if (isSyncWriteInProgress()) return;
+  if (!relativePath.startsWith("governance/plans/") || !relativePath.endsWith(".md")) return;
+  const fileName = basename(filePath);
+  if (fileName === "TEMPLATE.md" || fileName === "README.md" || relativePath.includes("/done/") || relativePath.includes("/reference/")) return;
+  bus.publish("plan.file_changed", { planId: fileName.replace(".md", ""), path: relativePath, content: newContent });
+}
 
-  if (relativePath.startsWith("governance/plans/") && relativePath.endsWith(".md")) {
-    const fileName = basename(filePath);
-    if (fileName !== "TEMPLATE.md" && fileName !== "README.md" &&
-        !relativePath.includes("/done/") && !relativePath.includes("/reference/")) {
-      const planId = fileName.replace(".md", "");
-      bus.publish("plan.file_changed", {
-        planId,
-        path: relativePath,
-        content: newContent,
-      });
+function handleBacklogChange(
+  filePath: string,
+  newContent: string,
+  shitennoDir: string,
+  bus: ReturnType<typeof getEventBus>,
+): void {
+  if (basename(filePath) !== "BACKLOG.md") return;
+  import("../../plan-backlog-sync.js").then(({ syncBacklogToPlan }) => {
+    const sectionRegex = /### (BACKLOG-[A-Z_0-9]+)(?:\s*—\s*(.+))?/g;
+    let match;
+    while ((match = sectionRegex.exec(newContent)) !== null) {
+      const backlogId = match[1] ?? "";
+      const planId = backlogId.replace("BACKLOG-", "").toLowerCase().replace(/_/g, "-");
+      const sectionStart = match.index;
+      const nextSection = newContent.indexOf("\n### ", sectionStart + 1);
+      const section = newContent.slice(sectionStart, nextSection !== -1 ? nextSection : undefined);
+      const statusMatch = section.match(/\*\*Status\*\*\s*\|\s*([^|]+)/);
+      syncBacklogToPlan(shitennoDir, planId, statusMatch?.[1]?.trim().toLowerCase() ?? "planeado");
     }
-  }
+    bus.publish("backlog.updated", { path: filePath, timestamp: new Date().toISOString() });
+  }).catch(() => { /* Import failed */ });
+}
 
-  // BACKLOG.md change — sync status back to plan files
-  if (basename(filePath) === "BACKLOG.md") {
-    import("../../plan-backlog-sync.js").then(({ syncBacklogToPlan }) => {
-      // Parse ### BACKLOG-XXX — Title headers and extract Status from table
-      const sectionRegex = /### (BACKLOG-[A-Z_0-9]+)(?:\s*—\s*(.+))?/g;
-      let match;
+function handleFileChange(
+  filePath: string,
+  shitennoDir: string,
+  bus: ReturnType<typeof getEventBus>,
+  enableDocSync: boolean
+): void {
+  const relativePath = filePath.slice(shitennoDir.length + 1);
+  const segments = relativePath.split(/[/\\]/);
+  if (segments.some((s) => s.startsWith(".") && s !== "")) return;
 
-      while ((match = sectionRegex.exec(newContent)) !== null) {
-        const backlogId = match[1] ?? "";
-        const planId = backlogId.replace("BACKLOG-", "").toLowerCase().replace(/_/g, "-");
+  const artifactType = detectArtifactType(filePath, shitennoDir);
+  const frequency = changeHistory.recordChange(filePath);
 
-        // Extract Status field from the table following this header
-        const sectionStart = match.index;
-        const nextSection = newContent.indexOf("\n### ", sectionStart + 1);
-        const section = newContent.slice(sectionStart, nextSection !== -1 ? nextSection : undefined);
+  let newContent: string;
+  try { newContent = readFileSync(filePath, "utf-8"); } catch { newContent = ""; }
 
-        const statusMatch = section.match(/\*\*Status\*\*\s*\|\s*([^|]+)/);
-        const backlogStatus = statusMatch?.[1]?.trim().toLowerCase() ?? "planeado";
+  const significance = calculateSignificance(filePath, shitennoDir, null, newContent, frequency);
 
-        syncBacklogToPlan(
-          shitennoDir,
-          planId,
-          backlogStatus
-        );
-      }
-
-      bus.publish("backlog.updated", {
-        path: filePath,
-        timestamp: new Date().toISOString(),
-      });
-    }).catch(() => {
-      // Import failed — skip silently
-    });
-  }
+  bus.publish("asset.updated", { assetId: filePath, assetType: artifactType, path: filePath, changes: ["content"] });
+  publishTypeSpecificEvents(artifactType, filePath, bus);
+  handleDocSync(filePath, relativePath, significance, enableDocSync, bus);
+  handlePlanChange(filePath, relativePath, newContent, bus);
+  handleBacklogChange(filePath, newContent, shitennoDir, bus);
 }
 
 /**

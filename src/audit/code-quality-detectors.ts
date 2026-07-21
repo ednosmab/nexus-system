@@ -114,58 +114,53 @@ export function detectUnsafeTypeAssertions(_projectRoot: string, files: SourceFi
 
 // ── 3.3 Unreachable Code ────────────────────────────────────────────────────
 
+function isUnreachableLine(trimmed: string): boolean {
+  return trimmed.length > 0 && !trimmed.startsWith("}") && !trimmed.startsWith("case ") && !trimmed.startsWith("default:") && !trimmed.startsWith("catch") && !trimmed.startsWith("finally");
+}
+
+function isTerminalStatement(trimmed: string): { return: boolean; throw: boolean; break: boolean; continue: boolean } {
+  return {
+    return: /^\s*(?:return\b|process\.exit\()/i.test(trimmed) && !trimmed.endsWith("{"),
+    throw: /^\s*throw\b/i.test(trimmed) && !trimmed.endsWith("{"),
+    break: /^\s*break\b/i.test(trimmed),
+    continue: /^\s*continue\b/i.test(trimmed),
+  };
+}
+
+function scanFileForUnreachableCode(file: SourceFileInfo): { count: number; locations: string[] } {
+  let count = 0;
+  const locations: string[] = [];
+  const lines = file.content.split("\n");
+  let state = { return: false, throw: false, break: false, continue: false };
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]!.trim();
+    if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) continue;
+    if ((state.return || state.throw || state.break || state.continue) && isUnreachableLine(trimmed)) {
+      count++;
+      if (locations.length < 5) locations.push(`${file.relPath}:${i + 1}`);
+      state = { return: false, throw: false, break: false, continue: false };
+    }
+    state = isTerminalStatement(trimmed);
+  }
+  return { count, locations };
+}
+
 export function detectUnreachableCode(_projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
-
   let unreachableCount = 0;
   const unreachableLocations: string[] = [];
-
   for (const file of files) {
     if (skipPatterns.some((p) => p.test(file.relPath))) continue;
-
-    const lines = file.content.split("\n");
-    let afterReturn = false;
-    let afterThrow = false;
-    let afterBreak = false;
-    let afterContinue = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const trimmed = lines[i]!.trim();
-
-      if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) continue;
-
-      if (afterReturn || afterThrow || afterBreak || afterContinue) {
-        if (trimmed.length > 0 && !trimmed.startsWith("}") && !trimmed.startsWith("case ") && !trimmed.startsWith("default:") && !trimmed.startsWith("catch") && !trimmed.startsWith("finally")) {
-          unreachableCount++;
-          if (unreachableLocations.length < 5) {
-            unreachableLocations.push(`${file.relPath}:${i + 1}`);
-          }
-          afterReturn = false;
-          afterThrow = false;
-          afterBreak = false;
-          afterContinue = false;
-        }
-      }
-
-      afterReturn = /^\s*(?:return\b|process\.exit\()/i.test(trimmed) && !trimmed.endsWith("{");
-      afterThrow = /^\s*throw\b/i.test(trimmed) && !trimmed.endsWith("{");
-      afterBreak = /^\s*break\b/i.test(trimmed);
-      afterContinue = /^\s*continue\b/i.test(trimmed);
-    }
+    const result = scanFileForUnreachableCode(file);
+    unreachableCount += result.count;
+    unreachableLocations.push(...result.locations);
   }
-
   if (unreachableCount > 0) {
-    issues.push({
-      type: "unreachable_code",
-      severity: 2,
+    issues.push({ type: "unreachable_code", severity: 2,
       description: `${unreachableCount} linha(s) inalcançável(s) detectada(s): ${unreachableLocations.join(", ")}`,
-      location: unreachableLocations.join(", "),
-      recommendation: "Remover código inalcançável após return/throw/break/continue.",
-      confidence: 0.7,
-    });
+      location: unreachableLocations.join(", "), recommendation: "Remover código inalcançável após return/throw/break/continue.", confidence: 0.7 });
   }
-
   return issues;
 }
 
@@ -322,41 +317,28 @@ export function detectLongParams(_projectRoot: string, files: SourceFileInfo[]):
 export function detectDeepNesting(_projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
-
   for (const file of files) {
     if (skipPatterns.some((p) => p.test(file.relPath))) continue;
-
-    const lines = file.content.split("\n");
     let maxDepth = 0;
-    let depth = 0;
-    let deepLine = -1;
-
+    let deepLine = 0;
+    const lines = file.content.split("\n");
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]!;
-      for (const ch of line) {
-        if (ch === "{") {
-          depth++;
-          if (depth > maxDepth) {
-            maxDepth = depth;
-            deepLine = i + 1;
-          }
+      const indent = line.search(/\S/);
+      if (indent >= 0) {
+        const depth = Math.floor(indent / 2);
+        if (depth > maxDepth) {
+          maxDepth = depth;
+          deepLine = i + 1;
         }
-        if (ch === "}") depth--;
       }
     }
-
     if (maxDepth > 6) {
-      issues.push({
-        type: "deep_nesting",
-        severity: maxDepth > 8 ? 2 : 1,
+      issues.push({ type: "deep_nesting", severity: maxDepth > 8 ? 2 : 1,
         description: `Aninhamento profundo em "${file.relPath}" — profundidade máxima ${maxDepth} (linha ${deepLine})`,
-        location: `${file.relPath}:${deepLine}`,
-        recommendation: "Extrair lógica aninhada para funções auxiliares. Usar early return para reduzir aninhamento.",
-        confidence: 0.85,
-      });
+        location: `${file.relPath}:${deepLine}`, recommendation: "Extrair lógica aninhada para funções auxiliares. Usar early return para reduzir aninhamento.", confidence: 0.85 });
     }
   }
-
   return issues;
 }
 
@@ -418,60 +400,48 @@ export function detectDuplicateCode(_projectRoot: string, files: SourceFileInfo[
 
 // ── 3.9 God Functions (>80 lines) ───────────────────────────────────────────
 
+const FUNC_START_REGEX = /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:const|let)\s+(\w+)\s*=\s*(?:async\s+)?\(/;
+
+function findFunctionEnd(lines: string[], startIndex: number): { endIndex: number; name: string } {
+  let braceDepth = 0, inFunction = false;
+  const match = lines[startIndex]!.match(FUNC_START_REGEX);
+  const funcName = match?.[1] ?? match?.[2] ?? "anonymous";
+  for (let i = startIndex; i < lines.length; i++) {
+    for (const ch of lines[i]!) {
+      if (ch === "{") { braceDepth++; inFunction = true; }
+      if (ch === "}") braceDepth--;
+    }
+    if (inFunction && braceDepth <= 0) return { endIndex: i, name: funcName };
+  }
+  return { endIndex: lines.length - 1, name: funcName };
+}
+
+function detectGodFunctionsInFile(file: SourceFileInfo): Array<{ name: string; start: number; lines: number }> {
+  const results: Array<{ name: string; start: number; lines: number }> = [];
+  const lines = file.content.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]!.trim();
+    if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) continue;
+    if (!FUNC_START_REGEX.test(lines[i]!)) continue;
+    const { endIndex, name } = findFunctionEnd(lines, i);
+    const funcLines = endIndex - i + 1;
+    if (funcLines > 80) results.push({ name, start: i, lines: funcLines });
+    i = endIndex;
+  }
+  return results;
+}
+
 export function detectGodFunctions(_projectRoot: string, files: SourceFileInfo[]): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const skipPatterns = [/\.test\.ts$/, /\.spec\.ts$/, /__tests__/];
-
-  const funcStartRegex = /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:const|let)\s+(\w+)\s*=\s*(?:async\s+)?\(/;
-
   for (const file of files) {
     if (skipPatterns.some((p) => p.test(file.relPath))) continue;
-
-    const lines = file.content.split("\n");
-    let braceDepth = 0;
-    let funcStart = -1;
-    let funcName = "";
-    let inFunction = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]!;
-      const trimmed = line.trim();
-
-      if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) continue;
-
-      if (!inFunction) {
-        const match = line.match(funcStartRegex);
-        if (match) {
-          funcName = match[1] ?? match[2] ?? "anonymous";
-          funcStart = i;
-          inFunction = true;
-        }
-      }
-
-      for (const ch of line) {
-        if (ch === "{") braceDepth++;
-        if (ch === "}") braceDepth--;
-      }
-
-      if (inFunction && braceDepth <= 0) {
-        inFunction = false;
-        const funcLines = i - funcStart + 1;
-        if (funcLines > 80) {
-          issues.push({
-            type: "god_function",
-            severity: funcLines > 150 ? 2 : 1,
-            description: `Função "${funcName}" em "${file.relPath}:${funcStart + 1}" tem ${funcLines} linhas — considerar dividir`,
-            location: `${file.relPath}:${funcStart + 1}`,
-            recommendation: `Dividir "${funcName}" em funções menores (<80 linhas cada).`,
-            confidence: 0.7,
-          });
-        }
-        funcName = "";
-        funcStart = -1;
-      }
+    for (const func of detectGodFunctionsInFile(file)) {
+      issues.push({ type: "god_function", severity: func.lines > 150 ? 2 : 1,
+        description: `Função "${func.name}" em "${file.relPath}:${func.start + 1}" tem ${func.lines} linhas — considerar dividir`,
+        location: `${file.relPath}:${func.start + 1}`, recommendation: `Dividir "${func.name}" em funções menores (<80 linhas cada).`, confidence: 0.7 });
     }
   }
-
   return issues;
 }
 

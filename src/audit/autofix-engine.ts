@@ -39,77 +39,39 @@ const VERIFY_TIMEOUT_MS = 60_000;
  * Applies a suggestion, verifies with typecheck, reverts if broken.
  * NUNCA aplica se confidence < threshold — autofix só em fixes de alta certeza.
  */
-export function applyAndVerify(
-  suggestion: Suggestion,
-  projectRoot: string,
-  opts: { minConfidence?: number; verifyCommand?: string; dryRun?: boolean } = {}
-): ApplyResult {
-  const minConfidence = opts.minConfidence ?? DEFAULT_MIN_CONFIDENCE;
-
-  if (suggestion.confidence < minConfidence) {
-    return {
-      suggestion,
-      status: "skipped",
-      reason: `confidence ${suggestion.confidence} < ${minConfidence}`,
-    };
-  }
-
+function validatePreconditions(suggestion: Suggestion, projectRoot: string, minConfidence: number): { valid: boolean; result?: ApplyResult } {
+  if (suggestion.confidence < minConfidence) return { valid: false, result: { suggestion, status: "skipped", reason: `confidence ${suggestion.confidence} < ${minConfidence}` } };
   const filePath = `${projectRoot}/${suggestion.file}`;
+  if (!existsSync(filePath)) return { valid: false, result: { suggestion, status: "skipped", reason: `file not found: ${suggestion.file}` } };
+  return { valid: true };
+}
 
-  if (!existsSync(filePath)) {
-    return {
-      suggestion,
-      status: "skipped",
-      reason: `file not found: ${suggestion.file}`,
-    };
-  }
-
+function applyPatchAndVerify(filePath: string, suggestion: Suggestion, projectRoot: string, verifyCmd: string): ApplyResult {
   const backupPath = `${filePath}${BACKUP_SUFFIX}`;
   copyFileSync(filePath, backupPath);
-
   try {
     const content = readFileSync(filePath, "utf-8");
-
-    if (!content.includes(suggestion.currentCode)) {
-      unlinkSync(backupPath);
-      return {
-        suggestion,
-        status: "skipped",
-        reason: "currentCode not found — file changed since audit",
-      };
-    }
-
-    const patched = content.replace(suggestion.currentCode, suggestion.suggestedCode);
-
-    if (opts.dryRun) {
-      unlinkSync(backupPath);
-      return {
-        suggestion,
-        status: "applied",
-        reason: "dry-run — no changes written",
-      };
-    }
-
-    writeFileSync(filePath, patched, "utf-8");
-
-    const verifyCmd = opts.verifyCommand ?? DEFAULT_VERIFY_COMMAND;
-    execSync(verifyCmd, {
-      cwd: projectRoot,
-      stdio: "pipe",
-      timeout: VERIFY_TIMEOUT_MS,
-    });
-
+    if (!content.includes(suggestion.currentCode)) { unlinkSync(backupPath); return { suggestion, status: "skipped", reason: "currentCode not found — file changed since audit" }; }
+    writeFileSync(filePath, content.replace(suggestion.currentCode, suggestion.suggestedCode), "utf-8");
+    execSync(verifyCmd, { cwd: projectRoot, stdio: "pipe", timeout: VERIFY_TIMEOUT_MS });
     unlinkSync(backupPath);
     return { suggestion, status: "applied" };
-  } catch (error) {
-    copyFileSync(backupPath, filePath);
-    unlinkSync(backupPath);
-    return {
-      suggestion,
-      status: "reverted",
-      reason: String(error).slice(0, 200),
-    };
-  }
+  } catch (error) { copyFileSync(backupPath, filePath); unlinkSync(backupPath); return { suggestion, status: "reverted", reason: String(error).slice(0, 200) }; }
+}
+
+function handleDryRun(filePath: string, suggestion: Suggestion): ApplyResult {
+  const backupPath = `${filePath}${BACKUP_SUFFIX}`;
+  if (existsSync(backupPath)) unlinkSync(backupPath);
+  return { suggestion, status: "applied", reason: "dry-run — no changes written" };
+}
+
+export function applyAndVerify(suggestion: Suggestion, projectRoot: string, opts: { minConfidence?: number; verifyCommand?: string; dryRun?: boolean } = {}): ApplyResult {
+  const minConfidence = opts.minConfidence ?? DEFAULT_MIN_CONFIDENCE;
+  const precondition = validatePreconditions(suggestion, projectRoot, minConfidence);
+  if (!precondition.valid) return precondition.result!;
+  const filePath = `${projectRoot}/${suggestion.file}`;
+  if (opts.dryRun) return handleDryRun(filePath, suggestion);
+  return applyPatchAndVerify(filePath, suggestion, projectRoot, opts.verifyCommand ?? DEFAULT_VERIFY_COMMAND);
 }
 
 // ── Batch Processing ────────────────────────────────────────────────────────

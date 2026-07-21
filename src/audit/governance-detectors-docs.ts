@@ -375,48 +375,50 @@ export function detectBrokenDirRefs(shitennoDir: string): HealthIssue[] {
   return issues;
 }
 
+const DOCS_WITH_REFS = [
+  "docs/AGENTS.md",
+  "docs/DESDO.md",
+  "docs/capabilities.md",
+  "cognition/context/CONTEXT_HIERARCHY.md",
+];
+
+function collectBacktickRefs(content: string): Set<string> {
+  const refs = new Set<string>();
+  const regex = /`([a-zA-Z0-9_/.-]+\.(?:md|ts|js|yaml|json))`/g;
+  let m;
+  while ((m = regex.exec(content)) !== null) {
+    if (m[1]) refs.add(m[1]);
+  }
+  return refs;
+}
+
+function isTemplateRef(ref: string): boolean {
+  return ref.includes("*") || ref.includes("<") || ref.includes("[") || ref.includes("YYYY") || ref.includes("MM-DD");
+}
+
+function refExists(ref: string, docDir: string, shitennoDir: string, projectRoot: string): boolean {
+  return existsSync(join(docDir, ref)) || existsSync(join(shitennoDir, ref)) || existsSync(join(projectRoot, ref));
+}
+
 export function detectNonBacktickFileRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const projectRoot = join(shitennoDir, "..");
-  const docsWithRefs = [
-    "docs/AGENTS.md",
-    "docs/DESDO.md",
-    "docs/capabilities.md",
-    "cognition/context/CONTEXT_HIERARCHY.md",
-  ];
   const fileRefRegex = /(?:^|[\s,:(])([a-zA-Z0-9_/.-]+\.(?:md|ts|js|yaml|json))(?=[\s,.)]|$)/gm;
 
-  for (const doc of docsWithRefs) {
+  for (const doc of DOCS_WITH_REFS) {
     const path = join(shitennoDir, doc);
     if (!existsSync(path)) continue;
 
-    const docDir = dirname(path);
-
     try {
       const content = readFileSync(path, "utf-8");
-      const backtickRefs = new Set<string>();
-      const backtickRegex = /`([a-zA-Z0-9_/.-]+\.(?:md|ts|js|yaml|json))`/g;
-      let m;
-      while ((m = backtickRegex.exec(content)) !== null) {
-        if (m[1]) backtickRefs.add(m[1]);
-      }
+      const backtickRefs = collectBacktickRefs(content);
+      const docDir = dirname(path);
 
       let match;
       while ((match = fileRefRegex.exec(content)) !== null) {
         const ref = match[1];
-        if (
-          !ref ||
-          ref.includes("*") ||
-          ref.includes("<") ||
-          ref.includes("[") ||
-          ref.includes("YYYY") ||
-          ref.includes("MM-DD") ||
-          backtickRefs.has(ref)
-        ) continue;
-        const refPathRelative = join(docDir, ref);
-        const refPathAbsolute = join(shitennoDir, ref);
-        const refPathRoot = join(projectRoot, ref);
-        if (!existsSync(refPathRelative) && !existsSync(refPathAbsolute) && !existsSync(refPathRoot)) {
+        if (!ref || isTemplateRef(ref) || backtickRefs.has(ref)) continue;
+        if (!refExists(ref, docDir, shitennoDir, projectRoot)) {
           issues.push({
             type: "broken_ref",
             severity: 2,

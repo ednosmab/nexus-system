@@ -47,80 +47,52 @@ function writeBriefingMarkdown(projectRoot: string, briefing: Briefing): string 
   return filePath;
 }
 
-function displayBriefingByDepth(briefing: Briefing, cacheHit: boolean, depth: BriefingDepth): void {
-  outputBlank();
-  banner("shugo briefing", "Context Pipeline");
-  outputBlank();
-  const tokenLabel = depth === "minimal" ? "~200" : depth === "standard" ? "~500" : "~1000";
-  output(chalk.gray(`  Depth: ${depth} (${tokenLabel} tokens)`));
-  outputBlank();
-
-  // ── Project identity (always shown) ──
+function displayProjectIdentity(briefing: Briefing, depth: BriefingDepth): void {
   outputSection("Project Identity");
   output(`     Domain:   ${chalk.cyan(briefing.project.domain)}`);
   output(`     Scale:    ${chalk.cyan(briefing.project.scale)}`);
-  if (depth !== "minimal") {
-    output(`     Stack:    ${briefing.project.stack.join(", ")}`);
-    output(`     Maturity: ${briefing.project.maturityScore}/100`);
-  } else {
-    output(`     Stack:    ${briefing.project.stack.join(", ")}`);
-  }
+  output(`     Stack:    ${briefing.project.stack.join(", ")}`);
+  if (depth !== "minimal") output(`     Maturity: ${briefing.project.maturityScore}/100`);
   outputBlank();
+}
 
-  // ── Risk status (always shown) ──
+function displayRiskStatus(briefing: Briefing, depth: BriefingDepth): void {
   const riskColor = briefing.risks.overall === "critical" ? chalk.red :
                     briefing.risks.overall === "high" ? chalk.yellow :
                     briefing.risks.overall === "medium" ? chalk.hex("#FFA500") : chalk.green;
   outputSection("Risk Status");
   output(`     Overall:  ${riskColor(briefing.risks.overall)}`);
-  if (briefing.risks.criticalAreas.length > 0) {
-    output(chalk.red(`     Critical: ${briefing.risks.criticalAreas.join(", ")}`));
-  }
-  if (depth !== "minimal" && briefing.risks.highAreas.length > 0) {
-    output(chalk.yellow(`     High:     ${briefing.risks.highAreas.join(", ")}`));
-  }
+  if (briefing.risks.criticalAreas.length > 0) output(chalk.red(`     Critical: ${briefing.risks.criticalAreas.join(", ")}`));
+  if (depth !== "minimal" && briefing.risks.highAreas.length > 0) output(chalk.yellow(`     High:     ${briefing.risks.highAreas.join(", ")}`));
   outputBlank();
+}
 
-  // ── Test coverage (standard+ only) ──
-  if (depth !== "minimal") {
-    outputSection("Test Coverage");
-    output(`     Has Tests: ${briefing.tests.hasTests ? chalk.green("Yes") : chalk.red("No")}`);
-    if (briefing.tests.areasWithoutTests.length > 0) {
-      output(chalk.yellow(`     Without Tests: ${briefing.tests.areasWithoutTests.length} area(s)`));
-    }
+function displayTestCoverage(briefing: Briefing): void {
+  outputSection("Test Coverage");
+  output(`     Has Tests: ${briefing.tests.hasTests ? chalk.green("Yes") : chalk.red("No")}`);
+  if (briefing.tests.areasWithoutTests.length > 0) output(chalk.yellow(`     Without Tests: ${briefing.tests.areasWithoutTests.length} area(s)`));
+  outputBlank();
+}
+
+function displayRecentActivity(briefing: Briefing): void {
+  if (!briefing.recentActivity || briefing.recentActivity.events.length === 0) return;
+  outputSection("Actividade Recente (24h)");
+  for (const event of briefing.recentActivity.events.slice(0, 5)) {
+    const time = event.timestamp.slice(11, 16);
+    const color = event.type.includes("error") || event.type.includes("warning") ? chalk.red : chalk.gray;
+    output(color(`     ${time} ${event.type}: ${event.summary}`));
+  }
+  output(chalk.gray(`     ${briefing.recentActivity.syncCount} sincronizações, ${briefing.recentActivity.errorCount} erros`));
+  outputBlank();
+}
+
+function displayRules(briefing: Briefing, depth: BriefingDepth): void {
+  if (depth === "minimal") return;
+  if (briefing.contextRules.length > 0) {
+    outputSection(depth === "full" ? "Context Rules (Top)" : "Context Rules");
+    for (const rule of briefing.contextRules) output(chalk.gray(`     • ${rule.rule}`));
     outputBlank();
   }
-
-  // ── Recent Activity (standard+ only) ──
-  if (depth !== "minimal" && briefing.recentActivity && briefing.recentActivity.events.length > 0) {
-    outputSection("Actividade Recente (24h)");
-    for (const event of briefing.recentActivity.events.slice(0, 5)) {
-      const time = event.timestamp.slice(11, 16);
-      const color = event.type.includes("error") || event.type.includes("warning") ? chalk.red : chalk.gray;
-      output(color(`     ${time} ${event.type}: ${event.summary}`));
-    }
-    const syncCount = briefing.recentActivity.syncCount;
-    const errorCount = briefing.recentActivity.errorCount;
-    output(chalk.gray(`     ${syncCount} sincronizações, ${errorCount} erros`));
-    outputBlank();
-  }
-
-  // ── Context rules (standard: text, minimal: skip) ──
-  if (depth === "standard" && briefing.contextRules.length > 0) {
-    outputSection("Context Rules");
-    for (const rule of briefing.contextRules) {
-      output(chalk.gray(`     • ${rule.rule}`));
-    }
-    outputBlank();
-  } else if (depth === "full" && briefing.contextRules.length > 0) {
-    outputSection("Context Rules (Top)");
-    for (const rule of briefing.contextRules) {
-      output(chalk.gray(`     • ${rule.rule}`));
-    }
-    outputBlank();
-  }
-
-  // ── Dynamic rules (full only) ──
   if (depth === "full" && briefing.dynamicRules.length > 0) {
     outputSection("Dynamic Rules (From History)");
     for (const rule of briefing.dynamicRules) {
@@ -129,18 +101,15 @@ function displayBriefingByDepth(briefing: Briefing, cacheHit: boolean, depth: Br
     }
     outputBlank();
   }
+}
 
-  // ── Recurring errors (full only) ──
-  if (depth === "full" && briefing.patterns.recurringErrors.length > 0) {
+function displayPatterns(briefing: Briefing): void {
+  if (briefing.patterns.recurringErrors.length > 0) {
     outputSection("Recurring Error Hotspots");
-    for (const area of briefing.patterns.recurringErrors) {
-      output(chalk.red(`     • ${area}`));
-    }
+    for (const area of briefing.patterns.recurringErrors) output(chalk.red(`     • ${area}`));
     outputBlank();
   }
-
-  // ── Detected patterns (full only) ──
-  if (depth === "full" && briefing.patterns.detected.length > 0) {
+  if (briefing.patterns.detected.length > 0) {
     outputSection("Detected Patterns");
     for (const p of briefing.patterns.detected) {
       const icon = p.severity >= 4 ? "🚨" : p.severity >= 2 ? "⚠️" : "ℹ️";
@@ -148,28 +117,42 @@ function displayBriefingByDepth(briefing: Briefing, cacheHit: boolean, depth: Br
     }
     outputBlank();
   }
+}
 
-  // ── Recommendations (always at least top 1) ──
+function displayRecommendations(briefing: Briefing, depth: BriefingDepth): void {
   const maxRecs = depth === "minimal" ? 1 : depth === "standard" ? 3 : briefing.recommendations.length;
   outputSection("Recommendations");
-  for (const rec of briefing.recommendations.slice(0, maxRecs)) {
-    output(chalk.cyan(`     → ${rec}`));
+  for (const rec of briefing.recommendations.slice(0, maxRecs)) output(chalk.cyan(`     → ${rec}`));
+  outputBlank();
+}
+
+function displayTokenEconomy(briefing: Briefing, depth: BriefingDepth, cacheHit: boolean): void {
+  if (depth === "minimal") {
+    if (cacheHit) { output(chalk.gray("  Cached")); outputBlank(); }
+    return;
   }
+  if (cacheHit) { output(chalk.gray("  Used cached briefing")); outputBlank(); }
+  outputSection("Token Economy");
+  output(chalk.green(`     Saved: ~${briefing.tokenEconomy.estimatedTokensSaved.toLocaleString()} tokens vs manual discovery`));
+  outputBlank();
+}
+
+function displayBriefingByDepth(briefing: Briefing, cacheHit: boolean, depth: BriefingDepth): void {
+  outputBlank();
+  banner("shugo briefing", "Context Pipeline");
+  outputBlank();
+  const tokenLabel = depth === "minimal" ? "~200" : depth === "standard" ? "~500" : "~1000";
+  output(chalk.gray(`  Depth: ${depth} (${tokenLabel} tokens)`));
   outputBlank();
 
-  // ── Token economy (standard+ only) ──
-  if (depth !== "minimal") {
-    if (cacheHit) {
-      output(chalk.gray("  Used cached briefing"));
-      outputBlank();
-    }
-    outputSection("Token Economy");
-    output(chalk.green(`     Saved: ~${briefing.tokenEconomy.estimatedTokensSaved.toLocaleString()} tokens vs manual discovery`));
-    outputBlank();
-  } else if (cacheHit) {
-    output(chalk.gray("  Cached"));
-    outputBlank();
-  }
+  displayProjectIdentity(briefing, depth);
+  displayRiskStatus(briefing, depth);
+  if (depth !== "minimal") displayTestCoverage(briefing);
+  if (depth !== "minimal") displayRecentActivity(briefing);
+  displayRules(briefing, depth);
+  if (depth === "full") displayPatterns(briefing);
+  displayRecommendations(briefing, depth);
+  displayTokenEconomy(briefing, depth, cacheHit);
 
   output(chalk.gray(`  Generated: ${briefing.generatedAt}`));
   outputBlank();

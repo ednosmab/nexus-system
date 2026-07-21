@@ -54,6 +54,57 @@ export function detectScriptWiring(projectRoot: string, shitennoDir: string): He
   return issues;
 }
 
+const TEMPLATE_PATTERNS = ["YYYY", "MM-DD", "<", "*", "[camada]"];
+const SKIP_DIRS = ["governance/", "docs/", "shitenno/"];
+
+function isTemplateRef(ref: string): boolean {
+  return ref.includes("<") || ref.includes("YYYY") || ref.includes("*") || TEMPLATE_PATTERNS.some((p) => ref.includes(p));
+}
+
+function isSkippableDirRef(ref: string): boolean {
+  return SKIP_DIRS.some((d) => ref.startsWith(d));
+}
+
+function checkFileRef(
+  ref: string,
+  file: string,
+  shitennoDir: string,
+  projectRoot: string,
+): HealthIssue | null {
+  if (!ref || isTemplateRef(ref)) return null;
+  const refShitenno = join(shitennoDir, ref);
+  const refRoot = join(projectRoot, ref);
+  if (existsSync(refShitenno) || existsSync(refRoot)) return null;
+  return {
+    type: "agent_contract_ref",
+    severity: 2,
+    description: `Referência quebrada em "${file}": "${ref}" não existe`,
+    location: `shitenno/governance/agents/${file}`,
+    recommendation: `Corrigir referência "${ref}" em "${file}" ou criar o ficheiro`,
+    confidence: 0.75,
+  };
+}
+
+function checkDirRef(
+  ref: string,
+  file: string,
+  shitennoDir: string,
+  projectRoot: string,
+): HealthIssue | null {
+  if (!ref || isTemplateRef(ref) || isSkippableDirRef(ref)) return null;
+  const refShitenno = join(shitennoDir, ref);
+  const refRoot = join(projectRoot, ref);
+  if (existsSync(refShitenno) || existsSync(refRoot)) return null;
+  return {
+    type: "agent_contract_ref",
+    severity: 2,
+    description: `Referência quebrada em "${file}": directório "${ref}" não existe`,
+    location: `shitenno/governance/agents/${file}`,
+    recommendation: `Criar directório "${ref}" ou corrigir referência em "${file}"`,
+    confidence: 0.75,
+  };
+}
+
 export function detectAgentContractRefs(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const agentsDir = join(shitennoDir, "governance/agents");
@@ -62,53 +113,22 @@ export function detectAgentContractRefs(shitennoDir: string): HealthIssue[] {
   const projectRoot = join(shitennoDir, "..");
   const files = readdirSync(agentsDir).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
 
-  const TEMPLATE_PATTERNS = ["YYYY", "MM-DD", "<", "*", "[camada]"];
-  const SKIP_DIRS = ["governance/", "docs/", "shitenno/"];
-
   for (const file of files) {
-    const path = join(agentsDir, file);
     try {
-      const content = readFileSync(path, "utf-8");
+      const content = readFileSync(join(agentsDir, file), "utf-8");
 
       const refRegex = /`([^`]+\.(?:md|yaml|json|ts|js))`/g;
       let match;
       while ((match = refRegex.exec(content)) !== null) {
-        const ref = match[1];
-        if (!ref || ref.includes("<") || ref.includes("YYYY")) continue;
-        const refShitenno = join(shitennoDir, ref);
-        const refRoot = join(projectRoot, ref);
-        if (!existsSync(refShitenno) && !existsSync(refRoot)) {
-          issues.push({
-            type: "agent_contract_ref",
-            severity: 2,
-            description: `Referência quebrada em "${file}": "${ref}" não existe`,
-            location: `shitenno/governance/agents/${file}`,
-            recommendation: `Corrigir referência "${ref}" em "${file}" ou criar o ficheiro`,
-            confidence: 0.75,
-          });
-        }
+        const issue = checkFileRef(match[1] ?? "", file, shitennoDir, projectRoot);
+        if (issue) issues.push(issue);
       }
 
       const dirRefRegex = /\b([a-zA-Z0-9_/.-]+\/)\s*(?:\||$)/gm;
       let dirMatch;
       while ((dirMatch = dirRefRegex.exec(content)) !== null) {
-        const ref = dirMatch[1];
-        if (!ref || ref.includes("<") || ref.includes("YYYY") || ref.includes("*")) continue;
-        if (TEMPLATE_PATTERNS.some((p) => ref.includes(p))) continue;
-        if (SKIP_DIRS.some((d) => ref.startsWith(d))) continue;
-
-        const refShitenno = join(shitennoDir, ref);
-        const refRoot = join(projectRoot, ref);
-        if (!existsSync(refShitenno) && !existsSync(refRoot)) {
-          issues.push({
-            type: "agent_contract_ref",
-            severity: 2,
-            description: `Referência quebrada em "${file}": directório "${ref}" não existe`,
-            location: `shitenno/governance/agents/${file}`,
-            recommendation: `Criar directório "${ref}" ou corrigir referência em "${file}"`,
-            confidence: 0.75,
-          });
-        }
+        const issue = checkDirRef(dirMatch[1] ?? "", file, shitennoDir, projectRoot);
+        if (issue) issues.push(issue);
       }
     } catch (err) { logger.debug("governance-detectors", "Error scanning agent contracts:", err); }
   }
@@ -197,30 +217,31 @@ export function detectNumberingGap(shitennoDir: string): HealthIssue[] {
     } catch (err) { logger.debug("governance-detectors", "Error scanning FORBIDDEN_OPERATIONS:", err); }
   }
 
-  const agentsPath = join(shitennoDir, "docs/AGENTS.md");
-  if (existsSync(agentsPath)) {
-    try {
-      const content = readFileSync(agentsPath, "utf-8");
-      const letterMatches = [...content.matchAll(/^(\s*)\*\*([a-z])\.\*\*/gm)];
-      if (letterMatches.length > 2) {
-        const letters = letterMatches.map((m) => (m[2] ?? "").charCodeAt(0)).filter((c) => c > 0);
-        for (let i = 1; i < letters.length; i++) {
-          if (letters[i]! - letters[i - 1]! > 1) {
-            const from = String.fromCharCode(letters[i - 1]!);
-            const to = String.fromCharCode(letters[i]!);
-            issues.push({
-              type: "numbering_gap",
-              severity: 2,
-              description: `Gap na lettering em AGENTS.md: ${from}→${to} (letra ${String.fromCharCode(letters[i - 1]! + 1)} ausente)`,
-              location: "shitenno/docs/AGENTS.md",
-              recommendation: `Verificar se a letra ${String.fromCharCode(letters[i - 1]! + 1)} foi removida ou renumerada`,
-              confidence: 0.65,
-            });
-          }
-        }
-      }
-    } catch (err) { logger.debug("governance-detectors", "Error scanning AGENTS.md numbering:", err); }
+  return issues;
+}
+
+function findLetterGaps(letterMatches: RegExpMatchArray[]): string[] {
+  const gaps: string[] = [];
+  const letters = letterMatches.map((m) => (m[2] ?? "").charCodeAt(0)).filter((c) => c > 0);
+  for (let i = 1; i < letters.length; i++) {
+    if (letters[i]! - letters[i - 1]! > 1) {
+      gaps.push(`${String.fromCharCode(letters[i - 1]!)}→${String.fromCharCode(letters[i]!)} (letra ${String.fromCharCode(letters[i - 1]! + 1)} ausente)`);
+    }
   }
+  return gaps;
+}
+
+function detectNumberingGapsInFile(agentsPath: string, issues: HealthIssue[]): void {
+  try {
+    const content = readFileSync(agentsPath, "utf-8");
+    const letterMatches = [...content.matchAll(/^(\s*)\*\*([a-z])\.\*\*/gm)];
+    if (letterMatches.length <= 2) return;
+    for (const gap of findLetterGaps(letterMatches)) {
+      issues.push({ type: "numbering_gap", severity: 2,
+        description: `Gap na lettering em AGENTS.md: ${gap}`,
+        location: "shitenno/docs/AGENTS.md", recommendation: `Verificar se a letra foi removida ou renumerada`, confidence: 0.65 });
+    }
+  } catch (err) { logger.debug("governance-detectors", "Error scanning AGENTS.md numbering:", err); }
 
   return issues;
 }
@@ -330,6 +351,49 @@ export function detectDocCountMismatch(shitennoDir: string): HealthIssue[] {
   return issues;
 }
 
+function extractP0Refs(content: string): Set<string> {
+  const p0 = new Set<string>();
+  const p0Patterns = [
+    /P0[:\s]+([^\n]+)/gi,
+    /Level\s*0[:\s]+([^\n]+)/gi,
+    /nível\s*0[:\s]+([^\n]+)/gi,
+    /\[Nível\s*0:\s*P0\]\s+([^\n]+)/gi,
+  ];
+  for (const pattern of p0Patterns) {
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+      const fileRefs = (match[1] ?? "").match(/[A-Z_]+\.md/g);
+      if (fileRefs) {
+        for (const ref of fileRefs) p0.add(ref);
+      }
+    }
+  }
+  return p0;
+}
+
+function compareP0Sets(
+  fileA: string,
+  p0A: Set<string>,
+  fileB: string,
+  p0B: Set<string>,
+): HealthIssue | null {
+  const onlyInA = [...p0A].filter((f) => !p0B.has(f));
+  const onlyInB = [...p0B].filter((f) => !p0A.has(f));
+  if (onlyInA.length === 0 && onlyInB.length === 0) return null;
+
+  const parts: string[] = [];
+  if (onlyInA.length > 0) parts.push(`${fileA} tem: ${onlyInA.join(", ")}`);
+  if (onlyInB.length > 0) parts.push(`${fileB} tem: ${onlyInB.join(", ")}`);
+  return {
+    type: "cross_doc_p0_contradiction",
+    severity: 2,
+    description: `Hierarquia P0 inconsistente entre docs: ${parts.join("; ")}`,
+    location: `shitenno/${fileA}`,
+    recommendation: "Reconciliar listas P0 em todos os documentos",
+    confidence: 0.65,
+  };
+}
+
 export function detectCrossDocP0Contradiction(shitennoDir: string): HealthIssue[] {
   const issues: HealthIssue[] = [];
   const files = [
@@ -339,28 +403,12 @@ export function detectCrossDocP0Contradiction(shitennoDir: string): HealthIssue[
   ];
 
   const p0Map = new Map<string, Set<string>>();
-
   for (const file of files) {
     const path = join(shitennoDir, file);
     if (!existsSync(path)) continue;
     try {
       const content = readFileSync(path, "utf-8");
-      const p0 = new Set<string>();
-      const p0Patterns = [
-        /P0[:\s]+([^\n]+)/gi,
-        /Level\s*0[:\s]+([^\n]+)/gi,
-        /nível\s*0[:\s]+([^\n]+)/gi,
-        /\[Nível\s*0:\s*P0\]\s+([^\n]+)/gi,
-      ];
-      for (const pattern of p0Patterns) {
-        let match;
-        while ((match = pattern.exec(content)) !== null) {
-          const fileRefs = (match[1] ?? "").match(/[A-Z_]+\.md/g);
-          if (fileRefs) {
-            for (const ref of fileRefs) p0.add(ref);
-          }
-        }
-      }
+      const p0 = extractP0Refs(content);
       if (p0.size > 0) p0Map.set(file, p0);
     } catch (err) { logger.debug("governance-detectors", "Error in detectCrossDocP0Contradiction:", err); }
   }
@@ -371,61 +419,39 @@ export function detectCrossDocP0Contradiction(shitennoDir: string): HealthIssue[
       const entryA = entries[i];
       const entryB = entries[j];
       if (!entryA || !entryB) continue;
-      const [fileA, p0A] = entryA;
-      const [fileB, p0B] = entryB;
-      const onlyInA = [...p0A].filter((f) => !p0B.has(f));
-      const onlyInB = [...p0B].filter((f) => !p0A.has(f));
-      if (onlyInA.length > 0 || onlyInB.length > 0) {
-        const parts: string[] = [];
-        if (onlyInA.length > 0) parts.push(`${fileA} tem: ${onlyInA.join(", ")}`);
-        if (onlyInB.length > 0) parts.push(`${fileB} tem: ${onlyInB.join(", ")}`);
-        issues.push({
-          type: "cross_doc_p0_contradiction",
-          severity: 2,
-          description: `Hierarquia P0 inconsistente entre docs: ${parts.join("; ")}`,
-          location: `shitenno/${fileA}`,
-          recommendation: "Reconciliar listas P0 em todos os documentos",
-          confidence: 0.65,
-        });
-      }
+      const issue = compareP0Sets(entryA[0], entryA[1], entryB[0], entryB[1]);
+      if (issue) issues.push(issue);
     }
   }
   return issues;
 }
 
-export function detectEmptyDataFiles(shitennoDir: string): HealthIssue[] {
-  const issues: HealthIssue[] = [];
-  const dirsToScan = [
-    "telemetry",
-    "reports",
-    "docs/history",
-    "governance/knowledge-graph",
-  ];
-
-  for (const dir of dirsToScan) {
-    const dirPath = join(shitennoDir, dir);
-    if (!existsSync(dirPath)) continue;
+function scanFileForEmptyFiles(dir: string, files: string[], issues: HealthIssue[]): void {
+  for (const file of files) {
+    const filePath = join(dir, file);
     try {
-      const files = readdirSync(dirPath);
-      for (const file of files) {
-        const filePath = join(dirPath, file);
-        try {
-          const stat = statSync(filePath);
-          if (stat.isFile() && stat.size === 0) {
-            issues.push({
-              type: "empty_data_file",
-              severity: 1,
-              description: `Ficheiro vazio (0 bytes): ${dir}/${file}`,
-              location: `shitenno/${dir}/${file}`,
-              recommendation: `Verificar se ${file} deveria ter conteúdo ou removê-lo`,
-              confidence: 0.95,
-            });
-          }
-        } catch (statErr) { logger.debug("governance-detectors", "Error checking file stat:", statErr); }
+      const stat = statSync(filePath);
+      if (stat.isFile() && stat.size === 0) {
+        issues.push({ type: "empty_data_file", severity: 1,
+          description: `Ficheiro vazio (0 bytes): ${dir}/${file}`,
+          location: `shitenno/${dir}/${file}`, recommendation: `Verificar se ${file} deveria ter conteúdo ou removê-lo`, confidence: 0.95 });
       }
-    } catch (scanErr) { logger.debug("governance-detectors", "Error in detectEmptyDataFiles:", scanErr); }
+    } catch (statErr) { logger.debug("governance-detectors", "Error checking file stat:", statErr); }
   }
+}
+
+function detectEmptyDataFilesInDir(dir: string, shitennoDir: string): HealthIssue[] {
+  const issues: HealthIssue[] = [];
+  const dirPath = join(shitennoDir, dir);
+  if (!existsSync(dirPath)) return issues;
+  try { scanFileForEmptyFiles(dir, readdirSync(dirPath), issues); }
+  catch (scanErr) { logger.debug("governance-detectors", "Error in detectEmptyDataFiles:", scanErr); }
   return issues;
+}
+
+export function detectEmptyDataFiles(shitennoDir: string): HealthIssue[] {
+  const dirsToScan = ["telemetry", "reports", "docs/history", "governance/knowledge-graph"];
+  return dirsToScan.flatMap((dir) => detectEmptyDataFilesInDir(dir, shitennoDir));
 }
 
 

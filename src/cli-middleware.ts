@@ -16,6 +16,7 @@ import { trackCommand } from "./session-tracker.js";
 import { loadPlugins, getHookBus } from "./plugin-system.js";
 import { isDaemonRunning, startDaemon, shouldSkipDaemon, getApprovedPath } from "./daemon-client.js";
 import { DaemonCircuitBreaker } from "./daemon-circuit-breaker.js";
+import { createFileStorage, recordOutcome } from "./session-feedback.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -109,9 +110,14 @@ function handlePostAction(ctx: MiddlewareContext, preActionTimestampRef: { value
       getEventBus().publish("session.end", { sessionId: resolvedSessionId, duration: sessionDuration, outcome });
     }
     if (!ctx.sessionId) return;
-    const feedback = await getFeedbackCollector(ctx.shitennoDir);
-    await feedback.record({ command: commandName, sessionId: ctx.sessionId, timestamp: new Date().toISOString(), outcome: "success", duration });
-    await feedback.flush();
+    const storage = createFileStorage(ctx.shitennoDir);
+    recordOutcome(storage, {
+      outcome: "success",
+      briefingHash: "",
+      briefingTimestamp: "",
+      sessionId: ctx.sessionId,
+      durationMinutes: Math.round(duration / 60000),
+    });
   };
 }
 export function installMiddleware(program: Command, ctx: MiddlewareContext): void {
