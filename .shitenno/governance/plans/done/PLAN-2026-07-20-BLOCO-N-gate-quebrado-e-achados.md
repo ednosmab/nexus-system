@@ -1,7 +1,7 @@
 # BLOCO N — Gate de verificação quebrado + achados desta auditoria
 
-**Status:** Refused
-**Updated_at:** 2026-07-21T13:03:46.392Z
+**Status:** Done
+**Updated_at:** 2026-07-22T04:18:34.505Z
 **Date:** 2026-07-21
 **Contexto:** Auditoria do zip `shitenno-feat-audit__2_.zip`. O usuário reportou:
 "o mecanismo no done não está validando mais os planos, dá falha, mas no log não

@@ -15,6 +15,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { updateCurrentTask, addCompletedTask } from "./context-buffer-writer.js";
+import { matchesTaskId } from "./id-matcher.js";
 import { logger } from "./logger.js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -150,9 +151,7 @@ export function findBacklogItem(
 
   return (
     items.find(
-      (item) =>
-        item.id.toLowerCase().includes(lowerTaskId) ||
-        lowerTaskId.includes(item.id.toLowerCase())
+      (item) => matchesTaskId(item.id, lowerTaskId)
     ) || null
   );
 }

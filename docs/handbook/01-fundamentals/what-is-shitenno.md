@@ -1,90 +1,96 @@
-# O que é Shugo
+# What Is Shugo
 
-> Uma explicação simples do que o Shugo faz e por que ele existe.
+> A plain-language explanation of what Shugo does and why it exists.
 
----
-
-## O problema
-
-Toda equipe de engenharia acumula conhecimento: decisões de arquitetura, padrões de código, runbooks, habilidades. Mas esse conhecimento:
-
-- **Vive isolado** — cada documento é uma ilha
-- **Decai silenciosamente** — ninguém verifica se ainda é válido
-- **Falta contexto** — não se sabe quando usar ou por que existe
-- **Não compõe** — conhecimento não gera mais conhecimento
-
-Isso cria **Knowledge Debt** — o custo invisível de conhecimento documentado mas desconectado.
+For the full canonical definition, see [Identity](../domain/identity.md).
 
 ---
 
-## O que é Shugo
+## The Problem
 
-O **Shitenno** é um framework de governança para desenvolvimento de software assistido por IA.
+Every engineering team accumulates knowledge: architecture decisions, code patterns, runbooks, skills. But this knowledge:
 
-Ele:
+- **Lives in isolation** — each document is an island
+- **Decays silently** — nobody checks if it's still valid
+- **Lacks context** — you don't know when to use it or why it exists
+- **Doesn't compound** — knowledge doesn't generate more knowledge
 
-- **Analisa** a complexidade do seu projeto
-- **Detecta** padrões no histórico de engenharia
-- **Audita** a saúde da governança
-- **Recomenda** ações baseadas em evidências
-- **Adapta** o nível de detalhe ao seu perfil
-
-O Shugo **não é**:
-
-- Um framework de documentação
-- Um framework de IA
-- Um CLI genérico
-
-O verdadeiro domínio é: **gestão da evolução de produto através de conhecimento, governança e automação.**
+This creates **Knowledge Debt** — the invisible cost of documented but disconnected engineering knowledge.
 
 ---
 
-## Para quem serve
+## What Shugo Is
 
-| Tamanho de equipe | Perfil | O que Shugo resolve |
-|---|---|---|
-| **Solo** | Developer trabalhando sozinho que perde contexto entre sessões | Preserva estado para retomar sem reler tudo |
-| **2-5 pessoas** | Pequena equipe onde conhecimento vive na cabeça de uma pessoa | Torna conhecimento tácito explícito e verificável |
-| **5-15 pessoas** | Equipe em crescimento onde onboarding é doloroso | Novos membros entram em horas, não semanas |
-| **Times com AI** | Equipes onde agentes AI operam sem contexto de governança | Agentes recebem contexto governado e hierárquico |
+Shugo is an **engineering governance system** for software projects. It is not a framework, not a linter, and not a CI pipeline.
+
+It:
+
+- **Analyzes** your project's complexity
+- **Detects** patterns in engineering history
+- **Audits** governance health
+- **Recommends** actions based on evidence
+- **Adapts** the level of detail to your experience profile
+
+### The Three Components
+
+| Component | Role |
+|-----------|------|
+| **Shugo CLI** | The command-line binary — the single entry point (~38 commands) |
+| **`.shitenno/`** | Per-project generated artifact containing governance data |
+| **Daemon** | Optional background process for real-time governance (one per project, spawned by the CLI, runs isolated) |
+
+### The MCP Bridge
+
+`shugo mcp` runs an MCP (Model Context Protocol) server that bridges human knowledge and AI capability. It exposes tools like `getBriefing`, `getRiskMap`, `getRules`, `getEngineeringState`, and more — giving AI agents governed context for your project.
 
 ---
 
-## Os 3 camadas operacionais
+## Who It's For
+
+| Team Size | Profile | What Shugo Solves |
+|-----------|---------|-------------------|
+| **Solo** | Developer working alone who loses context between sessions | Preserves state to resume without re-reading everything |
+| **2–5 people** | Small team where knowledge lives in one person's head | Makes tacit knowledge explicit and verifiable |
+| **5–15 people** | Growing team where onboarding is painful | New members onboard in hours, not weeks |
+| **AI-assisted teams** | Teams where AI agents operate without governance context | Agents receive governed, hierarchical context |
+
+---
+
+## The Three Operational Layers
 
 ```
 ┌─────────────────────────────────────────┐
 │  Governance Layer                       │
-│  "Como trabalhamos"                     │
+│  "How we work"                          │
 │  Rules, Workflows, Contracts            │
 ├─────────────────────────────────────────┤
 │  Knowledge Layer                        │
-│  "O que sabemos"                        │
+│  "What we know"                         │
 │  ADRs, Skills, Runbooks, Scripts        │
 ├─────────────────────────────────────────┤
 │  Analysis Layer                         │
-│  "O que medimos"                        │
+│  "What we measure"                      │
 │  Scoring, Patterns, Health, Debt        │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## Os 6 princípios imutáveis
+## The Six Immutable Principles
 
-1. **Código é Consequência de Conhecimento** — bem escrito vem de bem entendido
-2. **Arquitetura é Consequência de Domínio** — não de frameworks
-3. **Capabilities Evoluem antes de Features** — habilidades primeiro, funcionalidades depois
-4. **AI Amplifica Boa Engenharia** — não substitui, amplifica
-5. **Toda Decisão Gera Conhecimento** — cada escolha é uma semente
-6. **Estado de Engenharia é Mais Importante que Estado de Código** — o que sabemos importa mais que o que escrevemos
+1. **Code Is a Consequence of Knowledge** — well-written comes from well-understood
+2. **Architecture Is a Consequence of Domain** — not of frameworks
+3. **Capabilities Evolve Before Features** — abilities first, functionality after
+4. **AI Amplifies Good Engineering** — it doesn't replace, it amplifies
+5. **Every Decision Produces Knowledge** — every choice is a seed
+6. **Engineering State Matters More Than Code State** — what we know matters more than what we write
 
 ---
 
-## Como funciona (visão geral)
+## How It Works (Overview)
 
 ```
-Seu Projeto
+Your Project
     │
     ▼
 ┌─────────┐    ┌─────────┐    ┌─────────┐
@@ -97,15 +103,15 @@ Seu Projeto
 └─────────┘    └─────────┘    └─────────┘
 ```
 
-1. **Init** — Instala governança no projeto
-2. **Analyse** — Detecta stack, packages, maturidade
-3. **Score** — Calcula score de saúde (0-100)
-4. **Detect** — Encontra padrões no histórico
-5. **Audit** — Verifica integridade da governança
-6. **Evolve** — Recomenda próximas ações
+1. **Init** — Installs governance in your project
+2. **Analyse** — Detects stack, packages, maturity
+3. **Score** — Calculates health score (0–100)
+4. **Detect** — Finds patterns in history
+5. **Audit** — Verifies governance integrity
+6. **Evolve** — Recommends next actions
 
 ---
 
-## Próximo passo
+## Next Step
 
-→ [Instalação](installation.md)
+→ [Installation](installation.md)

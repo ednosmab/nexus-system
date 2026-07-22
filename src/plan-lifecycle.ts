@@ -1,6 +1,17 @@
 /**
  * plan-lifecycle.ts — Plan Lifecycle Management
  *
+ * DUAS PORTAS DE ENTRADA PARA "DONE" (ver BLOCO Q):
+ *   1. task-completion-pipeline.ts → runCompletionPipeline()
+ *      cobre: tests, lint, documentation, backlog, plan_status
+ *      NÃO cobre: build, gate_self_test
+ *   2. plan-lifecycle.ts → runAutoVerification() / runLifecycleReview()
+ *      cobre: build, tests, lint, gate_self_test
+ *      NÃO cobre: documentation, backlog
+ * Um plano pode ser arquivado por qualquer uma das duas sem passar pelos
+ * checks exclusivos da outra. Se isso mudar de ser aceitável, ver o teste
+ * done-entrypoints-coverage.test.ts.
+ *
  * Detects active plans, infers status, validates completion,
  * and archives/removes them after user confirmation.
  *

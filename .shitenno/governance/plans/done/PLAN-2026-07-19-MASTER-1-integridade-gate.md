@@ -1,7 +1,7 @@
 # PLAN-2026-07-19 — MASTER 1/3: Status Geral + Integridade do Gate
 
-**Status:** Refused
-**Updated_at:** 2026-07-21T05:09:16.515Z
+**Status:** Done
+**Updated_at:** 2026-07-22T04:11:16.473Z
 **Date:** 2026-07-21
 
 **Consolida e substitui:** todos os blocos anteriores (correcoes-cirurgicas A-D, F v1/v2, G, H, I, J, L). Esta é a versão de referência única daqui pra frente — os arquivos antigos podem ser arquivados depois que este for repassado ao agente.

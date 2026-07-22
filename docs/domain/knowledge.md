@@ -6,6 +6,8 @@
 
 Knowledge is validated understanding that has been formalized and stored persistently. It is not raw data. It is not information. It is understanding that has been processed, connected, and made actionable.
 
+> For the formal domain specification, see [ubiquitous-language.md](./ubiquitous-language.md#knowledge).
+
 The distinction matters:
 
 - **Data** is a number, a log entry, a metric. It tells you what happened.

@@ -1,6 +1,17 @@
 /**
  * task-completion-pipeline.ts — Task Completion Pipeline
  *
+ * DUAS PORTAS DE ENTRADA PARA "DONE" (ver BLOCO Q):
+ *   1. task-completion-pipeline.ts → runCompletionPipeline()
+ *      cobre: tests, lint, documentation, backlog, plan_status
+ *      NÃO cobre: build, gate_self_test
+ *   2. plan-lifecycle.ts → runAutoVerification() / runLifecycleReview()
+ *      cobre: build, tests, lint, gate_self_test
+ *      NÃO cobre: documentation, backlog
+ * Um plano pode ser arquivado por qualquer uma das duas sem passar pelos
+ * checks exclusivos da outra. Se isso mudar de ser aceitável, ver o teste
+ * done-entrypoints-coverage.test.ts.
+ *
  * Implements the 3-layer automated task completion pipeline:
  * Layer 1: Completion Gates (5 gates)
  * Layer 2: Backlog State Machine
@@ -12,6 +23,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "./logger.js";
+import { matchesTaskId } from "./id-matcher.js";
 import { validateCompletionGate, type CompletionResult } from "./task-completion.js";
 import { archivePlan, type ValidationResult } from "./plan-lifecycle.js";
 import { completeTask } from "./backlog-state-machine.js";
@@ -27,6 +39,10 @@ export interface PipelineResult {
   planArchived: boolean;
   eventPublished: boolean;
   errors: string[];
+  /** true when a side-effecting step (backlog write) succeeded but a later
+   *  step (plan archival) failed — the state requires manual reconciliation,
+   *  not a simple retry. */
+  partialFailure: boolean;
 }
 
 export interface PipelineOptions {
@@ -56,7 +72,7 @@ function listPlanFiles(plansDir: string): string[] {
 
 function planIsActive(plansDir: string, file: string, lowerTaskId: string): boolean {
   const id = file.replace(".md", "").toLowerCase();
-  if (!id.includes(lowerTaskId) && !lowerTaskId.includes(id)) return false;
+  if (!matchesTaskId(id, lowerTaskId)) return false;
   const content = readFileSync(join(plansDir, file), "utf-8");
   const statusMatch = content.match(/\*\*Status:\*\*\s*(.+)/i);
   if (!statusMatch) return false;
@@ -153,12 +169,15 @@ function buildValidationResult(gates: CompletionResult): ValidationResult {
   };
 }
 
-function archiveActivePlan(ctx: ArchiveContext, skipArchive: boolean | undefined): boolean {
-  if (skipArchive) return false;
+function archiveActivePlan(
+  ctx: ArchiveContext,
+  skipArchive: boolean | undefined
+): { archived: boolean; planFound: boolean } {
+  if (skipArchive) return { archived: false, planFound: false };
   const planId = findActivePlanForTask(ctx.shitennoDir, ctx.taskId);
   if (!planId) {
     logger.info("task-completion-pipeline", `No active plan found for task: ${ctx.taskId}`);
-    return false;
+    return { archived: false, planFound: false };
   }
 
   const validationResult = buildValidationResult(ctx.gates);
@@ -167,15 +186,15 @@ function archiveActivePlan(ctx: ArchiveContext, skipArchive: boolean | undefined
     const archived = archivePlan(ctx.shitennoDir, planId, validationResult);
     if (archived) {
       logger.info("task-completion-pipeline", `Plan archived: ${planId}`);
-      return true;
+      return { archived: true, planFound: true };
     }
     ctx.errors.push(`Plan archival failed for: ${planId}`);
-    return false;
+    return { archived: false, planFound: true };
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     ctx.errors.push(`Plan archival failed for ${planId}: ${msg}`);
     logger.warn("task-completion-pipeline", `Plan archival error: ${msg}`);
-    return false;
+    return { archived: false, planFound: true };
   }
 }
 
@@ -187,18 +206,30 @@ export function runCompletionPipeline(options: PipelineOptions): PipelineResult 
   if (!gates.passed) {
     return {
       success: false, taskId: options.taskId, gates,
-      backlogUpdated: false, planArchived: false, eventPublished: false, errors,
+      backlogUpdated: false, planArchived: false, eventPublished: false, partialFailure: false, errors,
     };
   }
 
   const eventPublished = publishCompletionEvent(options.taskId, gates.gates.length, errors);
   const backlogUpdated = transitionBacklog(options.shitennoDir, options.taskId, options.skipBacklog, errors);
-  const planArchived = archiveActivePlan({ shitennoDir: options.shitennoDir, taskId: options.taskId, gates, errors }, options.skipArchive);
+  const { archived: planArchived, planFound: planIdWasFound } = archiveActivePlan(
+    { shitennoDir: options.shitennoDir, taskId: options.taskId, gates, errors },
+    options.skipArchive,
+  );
+  const partialFailure = backlogUpdated && !planArchived && planIdWasFound;
   const success = errors.length === 0;
 
-  logger.info("task-completion-pipeline", `Pipeline completed for ${options.taskId}: success=${success}, backlog=${backlogUpdated}, plan=${planArchived}, event=${eventPublished}`);
+  if (partialFailure) {
+    try {
+      getEventBus().publish("pipeline.partial_failure" as any, {
+        taskId: options.taskId, backlogUpdated, planArchived, errors,
+      });
+    } catch { /* best-effort */ }
+  }
 
-  return { success, taskId: options.taskId, gates, backlogUpdated, planArchived, eventPublished, errors };
+  logger.info("task-completion-pipeline", `Pipeline completed for ${options.taskId}: success=${success}, backlog=${backlogUpdated}, plan=${planArchived}, event=${eventPublished}, partialFailure=${partialFailure}`);
+
+  return { success, taskId: options.taskId, gates, backlogUpdated, planArchived, eventPublished, partialFailure, errors };
 }
 
 /**

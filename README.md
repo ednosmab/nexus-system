@@ -1,10 +1,26 @@
 # Shitenno
 
-> A CLI tool for preserving engineering context across AI-assisted work sessions — scoring, pattern detection, health auditing.
+> Engineering knowledge governance — the context bridge between you, your team, and the AI agents that work on your project.
 
-Shugo analyzes your project's complexity, detects patterns in engineering history, and audits governance health, so you (and the AI agents you work with) don't lose context between sessions. It adapts suggestions to a declared experience level (Junior / Pleno / Senior).
+## What it is
 
-**Status:** built and validated for solo use. Team usage (2+ people on the same project) has not been tested with real users yet — see [Known Limitations](docs/KNOWN_LIMITATIONS.md) before relying on it in a shared repository.
+**Shitenno** is an engineering knowledge governance system. It observes your project, maintains a persistent and verifiable model of what is already known about it — decisions, risks, test coverage, patterns, knowledge gaps — and serves that state as trustworthy context to both humans and AI agents working in the repository. Every intervention produces an outcome, and that outcome feeds back into future recommendations.
+
+It exists to solve a specific problem: work sessions (human or AI) that start from zero, with no memory of what was already decided, tested, or broken before. Shitenno calls this **Knowledge Debt** — knowledge that exists but is disconnected, unverified, or never reaches whoever (or whatever) needs it at the moment of acting.
+
+**The three components:**
+
+| Component | What it is |
+|---|---|
+| **Shugo** | The binary/CLI — single entry point (`shugo init`, `audit`, `briefing`, `plan`, `daemon`, `mcp`, among ~35 commands) |
+| **`.shitenno/`** | Artifact generated per project when running `shugo init` — where state, cache, history, and that repository's daemon live |
+| **Daemon** | Background process, one per project, started by the CLI (automatically or via `shugo daemon start`). Once started it runs isolated — watches files, listens to the event bus, triggers checks — but the CLI never depends on it: there's always a disk-based fallback path |
+
+**The AI bridge:** the MCP server (`shugo mcp`) exposes the project's state as tools an LLM agent can query before and during work — `getBriefing`, `getRiskMap`, `getRules`, `getEngineeringState`, `getBacklog`, `getADRs`, `getSkills` — and receives the outcome back via `submitFeedback`, closing the loop between recommendation and reality.
+
+**What it is not:** not a linter/formatter (it recommends, it doesn't apply code changes on its own); not a framework you import into your application code; not an AI wrapper (it doesn't call any LLM — it's the context layer an external LLM queries); not hosted or multi-tenant — every instance is local and isolated per project.
+
+**Status:** built and validated for solo use. Team usage (2+ people on the same project) has not been tested with real users yet — see [Known Limitations](docs/KNOWN_LIMITATIONS.md) before relying on it in a shared repository. Part of the architecture described above (advanced autonomy phases, third-party extensibility) is design direction documented in [`docs/evolution/`](docs/evolution/), not current state.
 
 ---
 

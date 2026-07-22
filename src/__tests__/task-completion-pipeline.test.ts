@@ -58,6 +58,7 @@ describe("PipelineResult type", () => {
       backlogUpdated: true,
       planArchived: false,
       eventPublished: true,
+      partialFailure: false,
       errors: [],
     };
     expect(result.success).toBe(true);

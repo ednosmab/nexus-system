@@ -1,6 +1,6 @@
 # PLAN-2026-07-19 — MASTER 2/3: Correção de Dados e Checks Genéricos
 
-**Status:** In Progress
+**Status:** In progress
 (M.8 pendente, M.9 e M.10 concluídos)
 **Updated_at:** 2026-07-21T00:00:00.000Z
 **Date:** 2026-07-21

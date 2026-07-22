@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { join } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { SHITENNO_DIR_NAME } from "./constants.js";
+import { matchesTaskId } from "./id-matcher.js";
 import { checkTests, checkLint } from "./plan-lifecycle.js";
 
 export interface CompletionGate {
@@ -73,10 +74,6 @@ function isDocFile(f: string): boolean {
   return f.endsWith(".md") || f.includes("docs/") || f.includes("README");
 }
 
-function fileMatchesAny(file: string, files: string[]): boolean {
-  return files.some((m) => m.includes(file) || file.includes(m));
-}
-
 function checkDocumentationUpdated(
   projectRoot: string,
   _shitennoDir: string,
@@ -95,7 +92,9 @@ function checkDocumentationUpdated(
       return { name: "documentation", passed: true, message: "No documentation files affected — skipping" };
     }
 
-    const missing = docFiles.filter((f) => !fileMatchesAny(f, modifiedFiles));
+    const normalize = (p: string) => relative(projectRoot, resolve(projectRoot, p));
+    const normalizedModified = new Set(modifiedFiles.map(normalize));
+    const missing = docFiles.filter((f) => !normalizedModified.has(normalize(f)));
 
     if (missing.length === 0) {
       return { name: "documentation", passed: true, message: `All ${docFiles.length} documentation file(s) updated` };
@@ -120,7 +119,10 @@ function checkBacklogUpdated(shitennoDir: string, taskId: string): CompletionGat
       const idx = content.indexOf(pattern);
       if (idx === -1) continue;
 
-      const section = content.slice(idx, idx + 200);
+      const nextHeadingIdx = content.indexOf("\n### ", idx + pattern.length);
+      const section = nextHeadingIdx === -1
+        ? content.slice(idx)
+        : content.slice(idx, nextHeadingIdx);
       if (section.includes("Done") || section.includes("concluído") || section.includes("concluido")) {
         return {
           name: "backlog",
@@ -154,7 +156,7 @@ function findMatchingPlan(plansDir: string, taskId: string): string | null {
     );
     return files.find((f: string) => {
       const id = f.replace(".md", "").toLowerCase();
-      return id.includes(taskId.toLowerCase()) || taskId.toLowerCase().includes(id);
+      return matchesTaskId(id, taskId.toLowerCase());
     }) ?? null;
   } catch {
     return null;

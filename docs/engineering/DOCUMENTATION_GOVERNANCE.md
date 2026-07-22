@@ -40,6 +40,8 @@
 
 | Subject | Canonical Document |
 |---------|-------------------|
+| Project identity ("what is Shitenno") | docs/domain/identity.md |
+| Problem it solves | docs/domain/problem-statement.md |
 | Domain glossary | docs/domain/ubiquitous-language.md |
 | Engineering principles | docs/handbook/philosophy/principles.md |
 | Module validation | docs/architecture/validation-matrix.md |
@@ -64,4 +66,4 @@ Documentation changes shall not be merged unless:
 
 ---
 
-*Last updated: 2026-06-29*
+*Last updated: 2026-07-22*
