@@ -31,7 +31,10 @@ import { output, outputBlank } from "./output.js";
 
 function extractExecError(err: unknown): string {
   if (err instanceof Error) {
-    const execErr = err as Error & { stderr?: string; stdout?: string };
+    const execErr = err as Error & { stderr?: string; stdout?: string; killed?: boolean; signal?: string };
+    if (execErr.killed) {
+      return `[TIMEOUT] Processo interrompido por exceder o tempo limite. ${execErr.stderr || execErr.stdout || ""}`.trim();
+    }
     return execErr.stderr || execErr.stdout || err.message;
   }
   return String(err);
@@ -156,14 +159,21 @@ export function checkBuild(projectRoot: string): CompletionCheck {
 
 export function checkTests(projectRoot: string): CompletionCheck {
   const pkg = readPackageJsonSafe(projectRoot);
-  if (!pkg?.scripts?.test) {
+  // O gate de "done" usa test:unit, não test — a suíte completa inclui
+  // 4 arquivos de e2e/bench (cli-integration, dashboard,
+  // heavy-bootstrap-scoping, bench) que escalonam o CLI real via
+  // subprocess dezenas de vezes; rodá-los a cada verificação de plano
+  // estoura o timeout do gate (ver BLOCO P). Suíte completa continua
+  // reservada para `npm run test` manual / CI.
+  const gateScript = pkg?.scripts?.["test:unit"] ? "test:unit" : "test";
+  if (!pkg?.scripts?.[gateScript]) {
     // No test script — blocking. "done" without any runnable test suite defeats the
     // whole purpose of the Bloco F verification gate.
-    return { name: "TESTS", passed: false, message: "No 'test' script in package.json — cannot verify" };
+    return { name: "TESTS", passed: false, message: `No '${gateScript}' script in package.json — cannot verify` };
   }
   const { run } = resolveRunner(projectRoot);
   try {
-    execSync(`${run("test")}`, {
+    execSync(`${run(gateScript)}`, {
       encoding: "utf-8",
       cwd: projectRoot,
       timeout: 420000,
