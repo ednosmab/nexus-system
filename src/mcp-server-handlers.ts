@@ -22,6 +22,51 @@ import { loadSkillManifest, partitionSkills, type TaskMetadata } from "./skill-m
 
 type ToolResponse = { content: Array<{ type: string; text: string }> };
 
+function formatBriefingMarkdown(
+  briefing: Briefing,
+  mandatorySkills: Array<{ id: string; name: string; content: string }>
+): string {
+  let md = briefingToMarkdown(briefing);
+  if (mandatorySkills.length > 0) {
+    md += "\n\n## Mandatory Skills (auto-attached)\n\n";
+    for (const s of mandatorySkills) {
+      md += `### ${s.name}\n${s.content}\n\n`;
+    }
+  }
+  return md;
+}
+
+function formatBriefingJson(
+  briefing: Briefing,
+  json: Record<string, unknown>,
+  mandatorySkills: Array<{ id: string; name: string; content: string }>,
+  depth: string
+): string {
+  if (mandatorySkills.length > 0) {
+    json.mandatorySkills = mandatorySkills.map((s) => ({
+      id: s.id,
+      name: s.name,
+      content: s.content,
+    }));
+  }
+  if (depth === "minimal") {
+    return JSON.stringify({
+      project: briefing.project,
+      risks: briefing.risks,
+      recommendations: briefing.recommendations.slice(0, 1),
+      mandatorySkills: mandatorySkills.map((s) => ({ id: s.id, name: s.name })),
+    }, null, 2);
+  }
+  if (depth === "full") {
+    return JSON.stringify({
+      ...json,
+      quickBoard: briefing.quickBoard,
+      tokenEconomy: briefing.tokenEconomy,
+    }, null, 2);
+  }
+  return JSON.stringify(json, null, 2);
+}
+
 export async function handleGetBriefing(
   projectRoot: string,
   shitennoDir: string,
@@ -29,9 +74,9 @@ export async function handleGetBriefing(
 ): Promise<ToolResponse> {
   const format = (args.format as string) ?? "json";
   const depth = (args.depth as string) ?? "standard";
+  const task = args.task as string | undefined;
 
   let briefing: Briefing;
-
   if (isDaemonRunning(shitennoDir)) {
     const result = await queryDaemon<{ type: string; data: Briefing }>(shitennoDir, {
       type: "query_briefing",
@@ -41,43 +86,18 @@ export async function handleGetBriefing(
     briefing = collectContext(projectRoot, shitennoDir).briefing;
   }
 
-  if (format === "markdown") {
-    return { content: [{ type: "text", text: briefingToMarkdown(briefing) }] };
-  }
+  const taskMeta: TaskMetadata = { task };
+  const mandatorySkills = loadMandatorySkillsForTask(shitennoDir, taskMeta);
 
+  if (format === "markdown") {
+    return { content: [{ type: "text", text: formatBriefingMarkdown(briefing, mandatorySkills) }] };
+  }
   if (format === "summary") {
     return { content: [{ type: "text", text: briefingToSummary(briefing) }] };
   }
 
   const json = briefingToJson(briefing);
-
-  if (depth === "minimal") {
-    return {
-      content: [{
-        type: "text",
-        text: JSON.stringify({
-          project: briefing.project,
-          risks: briefing.risks,
-          recommendations: briefing.recommendations.slice(0, 1),
-        }, null, 2),
-      }],
-    };
-  }
-
-  if (depth === "full") {
-    return {
-      content: [{
-        type: "text",
-        text: JSON.stringify({
-          ...json,
-          quickBoard: briefing.quickBoard,
-          tokenEconomy: briefing.tokenEconomy,
-        }, null, 2),
-      }],
-    };
-  }
-
-  return { content: [{ type: "text", text: JSON.stringify(json, null, 2) }] };
+  return { content: [{ type: "text", text: formatBriefingJson(briefing, json, mandatorySkills, depth) }] };
 }
 
 export async function handleGetRiskMap(
@@ -132,6 +152,31 @@ function loadMandatoryRules(shitennoDir: string) {
       const manifest = loadManifest(manifestPath);
       const { mandatory } = partitionRules(manifest, {});
       return mandatory.map((r) => ({ id: r.id, path: r.path, priority: r.priority }));
+    }
+  } catch {}
+  return [];
+}
+
+/**
+ * Load mandatory skills for the given task metadata.
+ * Used by handleGetBriefing to pre-attach mandatory skills so agents
+ * don't need a separate getSkills call.
+ */
+function loadMandatorySkillsForTask(
+  shitennoDir: string,
+  taskMeta: TaskMetadata
+): Array<{ id: string; name: string; content: string }> {
+  try {
+    const manifestPath = join(shitennoDir, "governance", "skill-manifest.yaml");
+    if (existsSync(manifestPath)) {
+      const manifest = loadSkillManifest(manifestPath);
+      const { mandatory } = partitionSkills(manifest, taskMeta);
+      return mandatory
+        .map((entry) => {
+          const skill = getSkill(shitennoDir, entry.id);
+          return skill ? { id: entry.id, name: skill.name, content: skill.content } : null;
+        })
+        .filter((s): s is NonNullable<typeof s> => s !== null);
     }
   } catch {}
   return [];

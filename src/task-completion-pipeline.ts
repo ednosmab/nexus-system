@@ -221,7 +221,7 @@ export function runCompletionPipeline(options: PipelineOptions): PipelineResult 
 
   if (partialFailure) {
     try {
-      getEventBus().publish("pipeline.partial_failure" as any, {
+      getEventBus().publish("pipeline.partial_failure", {
         taskId: options.taskId, backlogUpdated, planArchived, errors,
       });
     } catch { /* best-effort */ }

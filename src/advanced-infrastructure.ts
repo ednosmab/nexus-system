@@ -127,6 +127,7 @@ const EVENT_VERSIONS: Record<ShitennoEventType, EventVersion> = {
   "action.pre_sensitive": 1,
   "resource.claimed": 1,
   "resource.released": 1,
+  "pipeline.partial_failure": 1,
 };
 
 /** Migrate a payload from one version to another. */

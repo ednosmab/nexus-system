@@ -367,6 +367,13 @@ export interface SystemUpdatedPayload extends EventMeta {
   cliVersion: string;
 }
 
+export interface PipelinePartialFailurePayload extends EventMeta {
+  taskId: string;
+  backlogUpdated: boolean;
+  planArchived: boolean;
+  errors: string[];
+}
+
 // ── Payload Map ────────────────────────────────────────────────────────────
 
 /**
@@ -420,6 +427,7 @@ export interface EventPayloadMap {
   "docs.sync.triggered": DocsSyncTriggeredPayload;
   "doc.lifecycle.audited": DocLifecycleAuditPayload;
   "system.updated": SystemUpdatedPayload;
+  "pipeline.partial_failure": PipelinePartialFailurePayload;
 }
 
 // ── Helper ─────────────────────────────────────────────────────────────────
