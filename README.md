@@ -233,7 +233,7 @@ shitenno-cli/
 |--------|-------|
 | CLI Commands | 38 |
 | Source Files | 269 |
-| Test Files | 147 |
+| Test Files | 148 |
 | Audit Detectors | 100+ |
 | Engine Modules | 12 |
 

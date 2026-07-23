@@ -528,6 +528,7 @@
 │   governance/executions/EXE-3B691EE3.json
 │   governance/executions/EXE-3BD0C325.json
 │   governance/executions/EXE-3C07A228.json
+│   governance/executions/EXE-3C145252.json
 │   governance/executions/EXE-3C7678AB.json
 │   governance/executions/EXE-3CA85197.json
 │   governance/executions/EXE-3CB07361.json
@@ -580,6 +581,7 @@
 │   governance/executions/EXE-48D461CD.json
 │   governance/executions/EXE-48EE5998.json
 │   governance/executions/EXE-492643B8.json
+│   governance/executions/EXE-4951435E.json
 │   governance/executions/EXE-4A184CC6.json
 │   governance/executions/EXE-4A5D990B.json
 │   governance/executions/EXE-4A619E03.json
@@ -590,6 +592,7 @@
 │   governance/executions/EXE-4AF7F4BB.json
 │   governance/executions/EXE-4B3F8EC2.json
 │   governance/executions/EXE-4B4306A3.json
+│   governance/executions/EXE-4B598296.json
 │   governance/executions/EXE-4BB15359.json
 │   governance/executions/EXE-4BB35951.json
 │   governance/executions/EXE-4BE6364A.json
@@ -783,6 +786,7 @@
 │   governance/executions/EXE-7466AB3B.json
 │   governance/executions/EXE-74937B30.json
 │   governance/executions/EXE-74D2FF2F.json
+│   governance/executions/EXE-74D6FCF9.json
 │   governance/executions/EXE-74E9C048.json
 │   governance/executions/EXE-74EB771F.json
 │   governance/executions/EXE-75333A15.json
@@ -1046,6 +1050,7 @@
 │   governance/executions/EXE-AF902421.json
 │   governance/executions/EXE-AFC0D99D.json
 │   governance/executions/EXE-AFE8168C.json
+│   governance/executions/EXE-B0464011.json
 │   governance/executions/EXE-B096D2FC.json
 │   governance/executions/EXE-B09C8F84.json
 │   governance/executions/EXE-B0AAB8DD.json
@@ -1161,6 +1166,7 @@
 │   governance/executions/EXE-CA337B1E.json
 │   governance/executions/EXE-CAE20183.json
 │   governance/executions/EXE-CB291C51.json
+│   governance/executions/EXE-CB8E0D18.json
 │   governance/executions/EXE-CBB4C05A.json
 │   governance/executions/EXE-CBD6A6BD.json
 │   governance/executions/EXE-CBD7CA65.json
@@ -1677,6 +1683,7 @@
 │   reports/patterns-2026-07-20.json
 │   reports/patterns-2026-07-21.json
 │   reports/patterns-2026-07-22.json
+│   reports/patterns-2026-07-23.json
 │   scripts/
 │   scripts/add-frontmatter.ts
 │   scripts/backlog.ts
