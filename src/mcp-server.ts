@@ -39,9 +39,9 @@ import {
   BACKLOG_MCP_TOOLS,
 } from "./backlog-mcp-tools.js";
 
-type ToolResponse = { content: Array<{ type: string; text: string }>; isError?: boolean };
+import type { ToolResponse } from "./mcp-types.js";
 
-const TOOLS = [
+export const TOOLS = [
   {
     name: "getBriefing",
     description:
@@ -142,7 +142,7 @@ const TOOLS = [
   ...BACKLOG_MCP_TOOLS,
 ];
 
-async function dispatchTool(
+export async function dispatchTool(
   name: string,
   projectRoot: string,
   shitennoDir: string,
@@ -191,16 +191,17 @@ export function createMcpServer(projectRoot: string, shitennoDir?: string): Serv
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  // Required by MCP SDK type signature
+  server.setRequestHandler(CallToolRequestSchema, async (request, _extra) => {
     const { name, arguments: args } = request.params;
     const toolArgs = (args ?? {}) as Record<string, unknown>;
     try {
-      return await dispatchTool(name, projectRoot, resolvedShitennoDir, toolArgs);
+      return await dispatchTool(name, projectRoot, resolvedShitennoDir, toolArgs) as unknown as Record<string, unknown>;
     } catch (error) {
       return {
         content: [{ type: "text", text: `Error executing ${name}: ${error instanceof Error ? error.message : String(error)}` }],
         isError: true,
-      };
+      } as unknown as Record<string, unknown>;
     }
   });
 

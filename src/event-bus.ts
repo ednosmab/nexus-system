@@ -73,9 +73,21 @@ export type ShitennoEventType =
   | "proactive.digest_ready"
   | "action.pre_sensitive"
   | "pipeline.partial_failure"
-  | "audit.standard";
+  | "audit.standard"
+  | "source.changed"
+  | "git.branch_changed"
+  | "git.ref_updated"
+  | "semantic.pattern_detected";
 
 export type EventHandler<T = unknown> = (payload: T) => void | Promise<void>;
+
+/** Optional semantic annotation added by the Signal Classifier. */
+export interface SemanticAnnotation {
+  domain: string;
+  subdomain: string;
+  confidence: number;
+  evidence: string[];
+}
 
 /** Envelope wrapping a typed payload with metadata. */
 export interface EventEnvelope<T = unknown> {
@@ -84,6 +96,7 @@ export interface EventEnvelope<T = unknown> {
   timestamp: string;
   traceId: TraceId;
   correlationId?: CorrelationId;
+  semantic?: SemanticAnnotation;
 }
 
 export interface EventBus {

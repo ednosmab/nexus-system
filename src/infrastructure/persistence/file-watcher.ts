@@ -29,6 +29,12 @@ export interface WatcherOptions {
   extraPaths?: string[];
   /** Enable doc sync on significant changes (default: true) */
   enableDocSync?: boolean;
+  /** Enable source code watching (opt-in via SHITENNO_WATCH_SOURCE=1) */
+  watchSourceCode?: boolean;
+  /** Project root for source code watching */
+  projectRoot?: string;
+  /** Enable git event watching (branch changes, commits) */
+  watchGitEvents?: boolean;
 }
 
 interface WatcherContext {
@@ -94,6 +100,21 @@ export function startWatching(
     ...(options.extraPaths || []),
   ];
 
+  // C.1: Source code watching (opt-in)
+  if (options.watchSourceCode && options.projectRoot) {
+    const srcDir = join(options.projectRoot, "src");
+    watchPaths.push(srcDir);
+    logger.info("file-watcher", `Source code watching enabled: ${srcDir}`);
+  }
+
+  // C.2: Git event watching (opt-in)
+  if (options.watchGitEvents && options.projectRoot) {
+    const gitHead = join(options.projectRoot, ".git", "HEAD");
+    const gitRefs = join(options.projectRoot, ".git", "refs");
+    watchPaths.push(gitHead, gitRefs);
+    logger.info("file-watcher", `Git event watching enabled: .git/HEAD, .git/refs/`);
+  }
+
   const ctx: WatcherContext = {
     shitennoDir,
     bus: getEventBus(),
@@ -136,10 +157,20 @@ function createWatcherInstance(watchPaths: string[], ctx: WatcherContext): FSWat
   });
 
   watcher.on("change", (filePath: string) => {
+    // C.2: Git event handling
+    if (filePath.endsWith(".git/HEAD") || filePath.includes(".git/refs/")) {
+      handleGitEvent(filePath, ctx);
+      return;
+    }
     handleChangeEvent(filePath, ctx);
   });
 
   watcher.on("add", (filePath: string) => {
+    // C.2: Git ref creation
+    if (filePath.includes(".git/refs/")) {
+      handleGitEvent(filePath, ctx);
+      return;
+    }
     handleFileAdd(filePath, ctx);
   });
 
@@ -347,6 +378,15 @@ function handleFileChange(
   const segments = relativePath.split(/[/\\]/);
   if (segments.some((s) => s.startsWith(".") && s !== "")) return;
 
+  // C.1: Source code change detection
+  if (filePath.includes("/src/") && !filePath.includes("/src/commands")) {
+    bus.publish("source.changed", {
+      path: filePath,
+      relativePath,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   const artifactType = detectArtifactType(filePath, shitennoDir);
   const frequency = changeHistory.recordChange(filePath);
 
@@ -360,6 +400,42 @@ function handleFileChange(
   handleDocSync({ filePath, relativePath, significance }, enableDocSync, bus);
   handlePlanChange(filePath, relativePath, newContent, bus);
   handleBacklogChange(filePath, newContent, shitennoDir, bus);
+}
+
+function handleGitEvent(filePath: string, ctx: WatcherContext): void {
+  const existing = ctx.pendingEvents.get(filePath);
+  if (existing) clearTimeout(existing);
+
+  ctx.pendingEvents.set(
+    filePath,
+    setTimeout(() => {
+      ctx.pendingEvents.delete(filePath);
+      publishGitEvent(filePath, ctx.bus);
+    }, ctx.debounceMs)
+  );
+}
+
+function publishGitEvent(filePath: string, bus: ReturnType<typeof getEventBus>): void {
+  const isHead = filePath.endsWith(".git/HEAD");
+  const isRef = filePath.includes(".git/refs/");
+
+  if (isHead) {
+    // Branch switch detected
+    bus.publish("git.branch_changed", {
+      path: filePath,
+      timestamp: new Date().toISOString(),
+      type: "head_updated",
+    });
+  } else if (isRef) {
+    // New branch/tag created
+    const refName = filePath.split(".git/refs/")[1] ?? "unknown";
+    bus.publish("git.ref_updated", {
+      path: filePath,
+      refName,
+      timestamp: new Date().toISOString(),
+      type: "ref_created_or_updated",
+    });
+  }
 }
 
 /**

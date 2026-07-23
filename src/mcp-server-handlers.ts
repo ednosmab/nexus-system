@@ -20,7 +20,7 @@ import { loadManifest, partitionRules } from "./rule-manifest.js";
 import { loadSkillManifest, partitionSkills, type TaskMetadata } from "./skill-manifest.js";
 import { recordSkillResolution } from "./context-buffer-writer.js";
 
-type ToolResponse = { content: Array<{ type: string; text: string }> };
+import type { ToolResponse } from "./mcp-types.js";
 
 function formatBriefingMarkdown(
   briefing: Briefing,

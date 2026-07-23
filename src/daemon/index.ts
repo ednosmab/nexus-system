@@ -27,6 +27,10 @@ import { initializeProactiveEngine } from "../prioritization/triggers.js";
 import { initDesktopNotifier } from "../desktop-notifier.js";
 import { initAutoBriefing } from "../auto-briefing.js";
 import { initProactiveDigest } from "../proactive-digest.js";
+import { classifyEvent } from "../semantic/signal-classifier.js";
+import { getChangeJournal, resetChangeJournal } from "../semantic/change-journal.js";
+import { getPatternMatcher, resetPatternMatcher } from "../semantic/pattern-matcher.js";
+import { loadSemanticGrowthProfile } from "../semantic/growth-profile.js";
 import {
   createDaemonState,
   recordEvent,
@@ -414,6 +418,40 @@ function initEngines(ctx: DaemonContext): { stopProactive: () => void; isResourc
   const stopDigest = initProactiveDigest(ctx.shitennoDir);
   daemonLog(ctx.logPath, "INFO", "Proactive digest initialized — periodic summary every 30min");
 
+  // Semantic Layer: Initialize journal and subscribe to events
+  const journal = getChangeJournal(ctx.shitennoDir, ctx.state.startedAt);
+  const bus = getEventBus();
+  // Subscribe to all events and classify them into the journal
+  const allEventTypes = [
+    "session.start", "session.end", "analysis.complete", "command.completed",
+    "score.calculated", "pattern.detected", "health.checked", "debt.detected",
+    "capability.installed", "capability.unlocked", "maturity.changed",
+    "rule.triggered", "evolution.recommended", "adr.created", "skill.created",
+    "validation.completed", "task.completed", "pipeline.complete",
+    "engineering_state.consolidated", "knowledge_debt.detected",
+    "plan.status_changed", "plan.created", "plan.file_changed",
+    "source.changed", "git.branch_changed", "git.ref_updated",
+    "challenge.generated", "audit.standard",
+  ] as const;
+
+  for (const eventType of allEventTypes) {
+    bus.subscribe(eventType, (payload) => {
+      try {
+        const event = { type: eventType, payload, timestamp: new Date().toISOString(), traceId: crypto.randomUUID() };
+        const classification = classifyEvent(event);
+        const files = Array.isArray((payload as Record<string, unknown>).affectedFiles)
+          ? (payload as Record<string, unknown>).affectedFiles as string[]
+          : typeof (payload as Record<string, unknown>).file === "string"
+            ? [(payload as Record<string, unknown>).file as string]
+            : [];
+        journal.add(classification, 1, files, [classification.signals[0] ?? "source.changed"]);
+      } catch {
+        // Classification failure should not break the daemon
+      }
+    });
+  }
+  daemonLog(ctx.logPath, "INFO", "Semantic journal initialized — classifying events into journal");
+
   return { stopProactive: () => { stopProactive(); stopDigest(); }, isResourceClaimed };
 }
 
@@ -668,6 +706,22 @@ function setupPeriodicTimers(
   const consolidationTimer = setInterval(() => {
     try {
       getEventBus().publish("engineering_state.consolidated", {});
+
+      // Semantic Layer: Run pattern matcher on journal
+      try {
+        const journal = getChangeJournal(ctx.shitennoDir, ctx.state.startedAt);
+        const matcher = getPatternMatcher(journal);
+        const patterns = matcher.detect();
+        if (patterns.length > 0) {
+          daemonLog(ctx.logPath, "INFO", `Semantic pattern matcher: ${patterns.length} pattern(s) detected`);
+
+          // Log semantic growth profile state
+          const profile = loadSemanticGrowthProfile(ctx.shitennoDir);
+          daemonLog(ctx.logPath, "DEBUG", `Semantic growth: capacity=${Math.round(profile.growthCapacity * 100)}%, challenge=${Math.round(profile.challengeLevel * 100)}%, patterns=${profile.semanticChoices.length}`);
+        }
+      } catch (err) {
+        daemonLog(ctx.logPath, "ERROR", `Semantic pattern matcher failed: ${err}`);
+      }
     } catch (err) {
       daemonLog(ctx.logPath, "ERROR", `Engineering state consolidation failed: ${err}`);
     }
@@ -754,6 +808,13 @@ function setupShutdown(
     persistState(ctx.state, ctx.statePath);
     ctx.stopProactive();
     ctx.stopWatcher();
+    // Semantic Layer cleanup
+    try {
+      resetChangeJournal();
+      resetPatternMatcher();
+    } catch {
+      // Cleanup failure should not prevent shutdown
+    }
     ctx.socket.close(() => {
       cleanup(ctx.pidPath, ctx.sockPath);
       daemonLog(ctx.logPath, "INFO", "Daemon stopped cleanly");
@@ -803,6 +864,9 @@ export async function runDaemon(shitennoDir: string, projectRoot?: string): Prom
 
   ctx.stopWatcher = startWatching(shitennoDir, {
     extraPaths: [join(resolvedProjectRoot, "src", "commands")],
+    watchSourceCode: process.env.SHITENNO_WATCH_SOURCE === "1",
+    projectRoot: resolvedProjectRoot,
+    watchGitEvents: process.env.SHITENNO_WATCH_GIT === "1",
   });
   const { stopProactive } = initEngines(ctx);
   ctx.stopProactive = stopProactive;

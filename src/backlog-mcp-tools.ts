@@ -23,7 +23,7 @@ import {
   type BacklogSeverity,
 } from "./backlog-core.js";
 
-type ToolResponse = { content: Array<{ type: string; text: string }>; isError?: boolean };
+import type { ToolResponse } from "./mcp-types.js";
 
 // ── getBacklog (enhanced) ─────────────────────────────────────────────────
 

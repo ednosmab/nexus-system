@@ -1,17 +1,5 @@
 reminders:
-  - message: "Revisar handbook — AI preencheu dados semânticos. Editar partes filosóficas."
-    priority: "medium"
-    category: "docs"
-    createdAt: "2026-07-16T04:58:10.072Z"
-  - message: "Health status is CRITICAL — immediate action required"
-    priority: "medium"
-    category: "feature"
-    createdAt: "2026-07-15T04:32:10.092Z"
-  - message: "High knowledge debt detected — create ADRs and skills"
-    priority: "medium"
-    category: "feature"
-    createdAt: "2026-07-15T04:32:04.732Z"
-
+[]
 session:
   id: session-2026-07-16-audit
   status: active

@@ -296,39 +296,27 @@ async function handleNotificationsAction(opts: Record<string, unknown>): Promise
   const ctx = guardNotInitialized(opts, false);
   if (!ctx) return;
 
-  const notificationsPath = join(ctx.shitennoDir, "notifications.jsonl");
-  if (!existsSync(notificationsPath)) {
+  const { readNotificationLog } = await import("../notify.js");
+  const entries = readNotificationLog(ctx.shitennoDir, { last: Number(opts.lines) || 20 });
+
+  if (entries.length === 0) {
     output(chalk.yellow("  No notifications log found. Desktop notifications may not have been sent yet."));
     return;
   }
 
-  try {
-    const content = readFileSync(notificationsPath, "utf-8");
-    const lines = content.split("\n").filter(Boolean);
-    const numLines = Number(opts.lines) || 20;
-    const tail = lines.slice(-numLines);
+  outputBlank();
+  output(chalk.bold.cyan(`  Recent Notifications (last ${entries.length}):`));
+  outputBlank();
 
-    outputBlank();
-    output(chalk.bold.cyan(`  Recent Notifications (last ${tail.length}):`));
-    outputBlank();
-
-    for (const line of tail) {
-      try {
-        const entry = JSON.parse(line);
-        const time = entry.timestamp ? chalk.gray(new Date(entry.timestamp).toLocaleTimeString()) : "";
-        const type = entry.type ? chalk.cyan(`[${entry.type}]`) : "";
-        const msg = entry.message ?? "";
-        output(`  ${time} ${type} ${msg}`);
-      } catch {
-        output(chalk.gray(`  ${line}`));
-      }
-    }
-
-    outputBlank();
-    output(chalk.gray(`  Total: ${lines.length} notifications recorded`));
-  } catch (err) {
-    output(chalk.red(`  Error reading notifications: ${err}`));
+  for (const entry of entries) {
+    const time = entry.timestamp ? chalk.gray(new Date(entry.timestamp as string).toLocaleTimeString()) : "";
+    const type = entry.type ? chalk.cyan(`[${entry.type}]`) : "";
+    const msg = entry.message ?? "";
+    output(`  ${time} ${type} ${msg}`);
   }
+
+  outputBlank();
+  output(chalk.gray(`  Total: ${entries.length} notifications shown`));
 }
 
 export function daemonCommand(): Command {

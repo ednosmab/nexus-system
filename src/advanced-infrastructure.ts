@@ -131,6 +131,10 @@ const EVENT_VERSIONS: Record<ShitennoEventType, EventVersion> = {
   "resource.released": 1,
   "pipeline.partial_failure": 1,
   "audit.standard": 1,
+  "source.changed": 1,
+  "git.branch_changed": 1,
+  "git.ref_updated": 1,
+  "semantic.pattern_detected": 1,
 };
 
 /** Migrate a payload from one version to another. */
