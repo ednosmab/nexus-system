@@ -28,6 +28,7 @@ import { initDesktopNotifier } from "../desktop-notifier.js";
 import { initAutoBriefing } from "../auto-briefing.js";
 import { initProactiveDigest } from "../proactive-digest.js";
 import { classifyEvent } from "../semantic/signal-classifier.js";
+import { killActiveProcesses } from "../exec-async.js";
 import { getChangeJournal, resetChangeJournal } from "../semantic/change-journal.js";
 import { getPatternMatcher, resetPatternMatcher } from "../semantic/pattern-matcher.js";
 import { loadSemanticGrowthProfile } from "../semantic/growth-profile.js";
@@ -423,6 +424,11 @@ function initEngines(ctx: DaemonContext): { stopProactive: () => void; isResourc
   // Semantic Layer: Initialize journal and subscribe to events
   const journal = getChangeJournal(ctx.shitennoDir, ctx.state.startedAt);
   const bus = getEventBus();
+
+  // Enable dead letter queue for async error capture
+  bus.enableDeadLetterQueue(ctx.shitennoDir);
+  daemonLog(ctx.logPath, "INFO", "Dead letter queue enabled — async errors will be captured");
+
   // Subscribe to all events and classify them into the journal
   const allEventTypes = [
     "session.start", "session.end", "analysis.complete", "command.completed",
@@ -842,6 +848,7 @@ function setupShutdown(
     clearInterval(timers.largeCommitTimer);
     clearInterval(timers.consolidationTimer);
     timers.cleanupAudit();
+    killActiveProcesses();
     releaseVerificationLock(ctx.shitennoDir);
     persistState(ctx.state, ctx.statePath);
     ctx.stopProactive();

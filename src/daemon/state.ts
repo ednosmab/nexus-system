@@ -1,5 +1,6 @@
 import { existsSync, writeFileSync, readFileSync } from "node:fs";
 import { logger } from "../logger.js";
+import { getEventBus } from "../event-bus.js";
 
 // ── Daemon State ──────────────────────────────────────────────────────────────
 
@@ -39,6 +40,20 @@ export interface EventEntry {
   timestamp: string;
 }
 
+/** Timer state for scheduled periodic tasks. */
+export interface TimerInfo {
+  /** When the timer last fired */
+  lastFiredAt: string | null;
+  /** Interval in milliseconds */
+  intervalMs: number;
+}
+
+/** Timer info with computed next-fire time for IPC responses. */
+export interface TimerInfoResponse extends TimerInfo {
+  /** When the timer will next fire (computed from lastFiredAt + intervalMs) */
+  nextFireAt: string | null;
+}
+
 export interface DaemonState {
   drift: DriftInfo | null;
   sessions: SessionInfo[];
@@ -53,6 +68,18 @@ export interface DaemonState {
   lastCommandAt: string | null;
   proactiveEngine: { lastCheck: string | null; challengesTriggered: number; cooldownUntil: string | null } | null;
   audit: { lastAuditTime: string | null; auditCount: number; notificationsSent: number } | null;
+  /** Timer tracking for next-fire display */
+  timers: {
+    audit: TimerInfo;
+    consolidation: TimerInfo;
+    proactiveDigest: TimerInfo;
+  } | null;
+  /** Notification stats for last 24h */
+  notificationStats: {
+    sent: number;
+    throttled: number;
+    last24hWindow: string;
+  } | null;
 }
 
 export const MAX_EVENTS = 100;
@@ -74,6 +101,8 @@ export function createDaemonState(): DaemonState {
     lastCommandAt: null,
     proactiveEngine: null,
     audit: null,
+    timers: null,
+    notificationStats: null,
   };
 }
 
@@ -87,8 +116,13 @@ export function recordEvent(state: DaemonState, eventType: string): void {
 export function persistState(state: DaemonState, statePath: string): void {
   try {
     writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
-  } catch {
-    logger.debug("daemon", "Failed to persist daemon state");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.warn("daemon", `Failed to persist daemon state: ${msg}`);
+    getEventBus().publish("watcher.error" as never, {
+      error: `State persistence failed: ${msg}`,
+      timestamp: new Date().toISOString(),
+    } as never);
   }
 }
 

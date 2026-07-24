@@ -180,6 +180,13 @@ export async function pingDaemon(shitennoDir: string): Promise<boolean> {
 
 // ── Query: Status ────────────────────────────────────────────────────────────
 
+/** Timer info with computed next-fire time for IPC responses. */
+export interface TimerInfoResponse {
+  lastFiredAt: string | null;
+  intervalMs: number;
+  nextFireAt: string | null;
+}
+
 export interface DaemonStatusResponse {
   type: string;
   pid: number;
@@ -196,6 +203,12 @@ export interface DaemonStatusResponse {
   debt: { gapCount: number; healthScore: number; detectedAt: string } | null;
   proactiveEngine: { lastCheck: string | null; challengesTriggered: number; cooldownUntil: string | null } | null;
   audit: { lastAuditTime: string | null; auditCount: number; notificationsSent: number } | null;
+  timers: {
+    audit: TimerInfoResponse;
+    consolidation: TimerInfoResponse;
+    proactiveDigest: TimerInfoResponse;
+  } | null;
+  notificationStats: { sent: number; throttled: number; last24hWindow: string } | null;
 }
 
 /**

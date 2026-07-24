@@ -1,7 +1,7 @@
 import type { Socket } from "node:net";
 import { appendFileSync } from "node:fs";
 import { logger } from "../logger.js";
-import { type DaemonState, MAX_EVENTS, MAX_SESSIONS } from "./state.js";
+import { type DaemonState, type TimerInfo, type TimerInfoResponse, MAX_EVENTS, MAX_SESSIONS } from "./state.js";
 
 export interface IpcMessage {
   type: string;
@@ -55,13 +55,27 @@ function handleHandshake(opts: HandleMessageOptions): void {
   }
 }
 
+function computeTimerInfo(timer: TimerInfo): TimerInfoResponse {
+  const nextFireAt = timer.lastFiredAt
+    ? new Date(new Date(timer.lastFiredAt).getTime() + timer.intervalMs).toISOString()
+    : null;
+  return { lastFiredAt: timer.lastFiredAt, intervalMs: timer.intervalMs, nextFireAt };
+}
+
+function buildTimerResponse(timers: DaemonState["timers"]): { audit: TimerInfoResponse; consolidation: TimerInfoResponse; proactiveDigest: TimerInfoResponse } | null {
+  if (!timers) return null;
+  return {
+    audit: computeTimerInfo(timers.audit),
+    consolidation: computeTimerInfo(timers.consolidation),
+    proactiveDigest: computeTimerInfo(timers.proactiveDigest),
+  };
+}
+
 function handleStatus(opts: HandleMessageOptions): void {
   const { socket, state, sockPath, shitennoDir, startedAt, daemonVersion } = opts;
   const uptimeSec = Math.round((Date.now() - startedAt) / 1000);
   const activeSessions = state.sessions.filter((s) => !s.endedAt).length;
-  const lastSession = state.sessions.length > 0
-    ? state.sessions[state.sessions.length - 1]
-    : null;
+  const lastSession = state.sessions.length > 0 ? state.sessions[state.sessions.length - 1] : null;
 
   sendJson(socket, {
     type: "status",
@@ -72,15 +86,15 @@ function handleStatus(opts: HandleMessageOptions): void {
     uptimeSeconds: uptimeSec,
     eventsRecorded: state.events.length,
     activeSessions,
-    lastSession: lastSession
-      ? { id: lastSession.id, startedAt: lastSession.startedAt, duration: lastSession.duration }
-      : null,
+    lastSession: lastSession ? { id: lastSession.id, startedAt: lastSession.startedAt, duration: lastSession.duration } : null,
     drift: state.drift,
     health: state.health,
     challengesQueued: state.challenges.length,
     debt: state.debt,
     proactiveEngine: state.proactiveEngine ?? null,
     audit: state.audit ?? null,
+    timers: buildTimerResponse(state.timers),
+    notificationStats: state.notificationStats ?? null,
   });
 }
 
