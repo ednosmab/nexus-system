@@ -288,10 +288,10 @@ Fase 6  (1h)      → 22 → 0
 
 | Checkpoint | Warnings | Status |
 |------------|----------|--------|
-| Fase 0 completa | ≤300 | pendente |
-| Fase 1 completa | ≤216 | pendente |
-| Fase 2 completa | ≤161 | pendente |
-| Fase 3 completa | ≤119 | pendente |
-| Fase 4 completa | ≤77 | pendente |
-| Fase 5 completa | ≤28 | pendente |
-| Fase 6 completa | 0 | pendente |
+| Fase 0 completa | ≤300 | ✅ 299 |
+| Fase 1 completa | ≤216 | ✅ 210 |
+| Fase 2 completa | ≤161 | ✅ 155 |
+| Fase 3 completa | ≤119 | ✅ 113 |
+| Fase 4 completa | ≤77 | ✅ 71 |
+| Fase 5 completa | ≤28 | ✅ 22 |
+| Fase 6 completa | 0 | ✅ 0 |
