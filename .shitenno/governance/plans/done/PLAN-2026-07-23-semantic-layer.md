@@ -1,18 +1,41 @@
----
-title: Camada Semântica — Classificação, Raciocínio e Dual Path
-status: refused
-created: 2026-07-23
-author: Shitenno System
-tags:
-  - semantic
-  - proactive
-  - dual-path
-  - classification
-  - reasoning
-updated_at: 2026-07-23T15:14:02.337Z
----
-
 # Camada Semântica — Classificação, Raciocínio e Dual Path
+
+**Status:** Done
+**Updated_at:** 2026-07-24T15:08:59.990Z
+**Date:** 2026-07-23
+**Author:** Shitenno System
+**Tags:** semantic, proactive, dual-path, classification, reasoning
+
+## Checklist
+
+- [ ] Classifica dependências em package.json (pg → persistence, helmet → security)
+- [ ] Classifica arquivos criados (migrations/ → persistence, src/auth/ → authentication)
+- [ ] Classifica config changes (DATABASE_URL → persistence, JWT_SECRET → security)
+- [ ] Confiança calculada corretamente (0-1)
+- [ ] Evidências rastreadas (quais sinais geraram a classificação)
+- [ ] Todos os testes passam
+- [ ] Change Journal grava classificações em JSONL
+- [ ] Journal filtra por domínio e janela temporal
+- [ ] Pattern Matcher detecta architectural_shift (3+ sinais em 5 sessões)
+- [ ] Pattern Matcher detecta scope_drift (2+ domínios novos)
+- [ ] Padrões publicam evento `semantic.pattern_detected`
+- [ ] Daemon integra journal + matcher
+- [ ] Todos os testes passam
+- [ ] Growth Profile persiste por projecto
+- [ ] Dual Path mostra Path A (confortável) e Path B (desafiador)
+- [ ] Escolha é registada no Growth Profile
+- [ ] Sistema adapta nível de desafio baseado no histórico
+- [ ] Comandos evolve/audit/status/detect mostram dual path
+- [ ] Briefing inclui padrões semânticos detectados
+- [ ] Todos os testes passam
+- [ ] README.md actualizado com seção Semantic Layer
+- [ ] docs/semantic/ criado com 8 arquivos
+- [ ] Referências CLI actualizadas
+- [ ] Eventos documentados
+- [ ] Templates actualizados (AGENTS.md, WORKFLOW.md)
+- [ ] Conceptual model actualizado
+- [ ] Nenhuma referência quebrada
+- [ ] Linguagem acessível e clara
 
 ## Visão
 
