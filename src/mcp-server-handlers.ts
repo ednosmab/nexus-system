@@ -18,6 +18,7 @@ import { sanitizePlanName } from "./path-safety.js";
 import { listAdrs, getAdr, listSkills, getSkill } from "./knowledge-loader.js";
 import { loadManifest, partitionRules } from "./rule-manifest.js";
 import { loadSkillManifest, partitionSkills, type TaskMetadata } from "./skill-manifest.js";
+import { logger } from "./logger.js";
 import { recordSkillResolution } from "./context-buffer-writer.js";
 
 import type { ToolResponse } from "./mcp-types.js";

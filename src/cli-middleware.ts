@@ -12,6 +12,7 @@
 import { Command } from "commander";
 import { existsSync } from "node:fs";
 import { getEventBus } from "./event-bus.js";
+import { logger } from "./logger.js";
 import { trackCommand } from "./session-tracker.js";
 import { loadPlugins, getHookBus } from "./plugin-system.js";
 import { isDaemonRunning, startDaemon, shouldSkipDaemon, getApprovedPath } from "./daemon-client.js";
@@ -79,7 +80,9 @@ function handlePreAction(ctx: MiddlewareContext, resolvedSessionId: string, sess
       getEventBus().publish("session.start", { sessionId: resolvedSessionId, projectRoot: ctx.projectRoot });
       // Auto-briefing fallback: generate BRIEFING.md if daemon is not running
       if (!isDaemonRunning(ctx.shitennoDir)) {
-        try { initAutoBriefing(ctx.projectRoot, ctx.shitennoDir); } catch {}
+        try { initAutoBriefing(ctx.projectRoot, ctx.shitennoDir); } catch (err) {
+          logger.debug("middleware", `Auto-briefing fallback failed: ${err}`);
+        }
       }
     }
     await ensurePluginsLoaded(ctx.projectRoot);
@@ -105,7 +108,9 @@ function tryAutoStartDaemon(shitennoDir: string, command: Command) {
     if (existsSync(approvedPath) && !breaker.isTripped() && !isDaemonRunning(shitennoDir)) {
       startDaemon(shitennoDir).catch(() => {});
     }
-  } catch {}
+  } catch (err) {
+    logger.debug("middleware", `Auto-start daemon check failed: ${err}`);
+  }
 }
 
 interface PostActionInput { ctx: MiddlewareContext; preActionTimestampRef: { value: number }; sessionEndedRef: { value: boolean };

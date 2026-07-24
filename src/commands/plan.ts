@@ -8,6 +8,7 @@
 
 import { Command } from "commander";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { parseAllDocuments } from "yaml";
 import { MarkdownPlanEngine } from "../markdown-plan-engine.js";
 import { validatePlanFormat, extractChecklistItems, extractStepHeadings } from "../plan-format-validator.js";
 import { getEventBus } from "../event-bus.js";
@@ -39,31 +40,77 @@ export interface PrepareResult {
  * 3. Sync to BACKLOG.md
  * 4. Send desktop notification
  */
+/**
+ * Convert YAML frontmatter block to legacy **Field:** value lines.
+ * Only handles known fields: title, status, created, author, tags.
+ */
+function formatYamlHeader(content: string): string {
+  const yamlMatch = content.match(/^(---\r?\n[\s\S]*?\r?\n---\r?\n?)/);
+  if (!yamlMatch) return content;
+  const yamlBlock = yamlMatch[1];
+  if (!yamlBlock) return content;
+  let rest = content.slice(yamlBlock.length);
+  const docs = parseAllDocuments(yamlBlock);
+  const parsed = docs[0]?.toJSON();
+  if (!parsed || typeof parsed !== "object") return content;
+
+  if (parsed.title) {
+    rest = rest.replace(/^#[^\n]*\n/, "");
+  }
+
+  const lines: string[] = [];
+  if (parsed.title) lines.push(`# ${parsed.title}`, "");
+  if (parsed.status) lines.push(`**Status:** ${parsed.status}`);
+  if (parsed.created) lines.push(`**Date:** ${parsed.created}`);
+  if (parsed.author) lines.push(`**Author:** ${parsed.author}`);
+  if (Array.isArray(parsed.tags) && parsed.tags.length > 0) {
+    lines.push(`**Tags:** ${parsed.tags.join(", ")}`);
+  }
+  lines.push("");
+  return lines.join("\n") + rest;
+}
+
+/**
+ * Ensure the legacy header has Status, Date, and Updated_at fields.
+ * Returns true if the content was modified.
+ */
+function ensureLegacyFields(content: string): { content: string; updated: boolean } {
+  const lines = content.split("\n");
+  let updated = false;
+
+  if (!content.match(/\*\*Status:\*\*/)) {
+    const titleLine = lines.findIndex((l) => l.startsWith("# "));
+    if (titleLine !== -1) { lines.splice(titleLine + 2, 0, "", "**Status:** Pending"); updated = true; }
+  }
+  if (!content.match(/\*\*Date:\*\*/)) {
+    const statusLine = lines.findIndex((l) => l.match(/\*\*Status:\*\*/));
+    if (statusLine !== -1) { lines.splice(statusLine + 1, 0, `**Date:** ${new Date().toISOString().slice(0, 10)}`); updated = true; }
+  }
+  if (!content.match(/\*\*Updated_at:\*\*/)) {
+    const lastField = lines.findIndex((l) => l.match(/^\*\*[A-Z]/));
+    if (lastField !== -1) { lines.splice(lastField + 1, 0, `**Updated_at:** ${new Date().toISOString()}`); updated = true; }
+  }
+
+  return { content: lines.join("\n"), updated };
+}
+
 function ensureFormatHeader(plan: { filePath: string }): PrepareResult {
   try {
     let content = readFileSync(plan.filePath, "utf-8");
-    let updated = false;
     const hasYamlBlock = /^---\r?\n[\s\S]*?\r?\n---\r?\n?/.test(content);
+    let updated = false;
 
-    if (!hasYamlBlock) {
-      const lines = content.split("\n");
-      if (!content.match(/\*\*Status:\*\*/)) {
-        const titleLine = lines.findIndex((l) => l.startsWith("# "));
-        if (titleLine !== -1) { lines.splice(titleLine + 2, 0, "", "**Status:** Pending"); updated = true; }
-      }
-      if (!content.match(/\*\*Date:\*\*/)) {
-        const statusLine = lines.findIndex((l) => l.match(/\*\*Status:\*\*/));
-        if (statusLine !== -1) { lines.splice(statusLine + 1, 0, `**Date:** ${new Date().toISOString().slice(0, 10)}`); updated = true; }
-      }
-      if (!content.match(/\*\*Updated_at:\*\*/)) {
-        const lastField = lines.findIndex((l) => l.match(/^\*\*[A-Z]/));
-        if (lastField !== -1) { lines.splice(lastField + 1, 0, `**Updated_at:** ${new Date().toISOString()}`); updated = true; }
-      }
-      content = lines.join("\n");
+    if (hasYamlBlock) {
+      content = formatYamlHeader(content);
+      updated = true;
     }
 
+    const result = ensureLegacyFields(content);
+    content = result.content;
+    updated = updated || result.updated;
+
     if (updated) { writeFileSync(plan.filePath, content, "utf-8"); return { step: "format_header", status: "done", detail: "Header formatted to shugo standard" }; }
-    return { step: "format_header", status: "skip", detail: hasYamlBlock ? "YAML frontmatter present" : "Header already conformant" };
+    return { step: "format_header", status: "skip", detail: "Header already conformant" };
   } catch (error) { return { step: "format_header", status: "error", detail: String(error) }; }
 }
 

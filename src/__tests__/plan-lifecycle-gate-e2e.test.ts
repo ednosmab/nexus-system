@@ -73,14 +73,14 @@ describe("Bloco F — gate de done, caso positivo, negativo e invalidação por 
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it("caso positivo: build+test+lint passam → done/ com sidecar e diffHash consistente", () => {
+  it("caso positivo: build+test+lint passam → done/ com sidecar e diffHash consistente", async () => {
     writeFileSync(join(dir, "app.ts"), "export const version = 2;\n");
 
     const engine = new MarkdownPlanEngine(shitennoDir);
     const plan = engine.create({ title: "Plano de teste — caso positivo" });
     engine.updateStatus(plan.id, "check");
 
-    const record = runAutoVerification(shitennoDir, dir, plan.id);
+    const record = await runAutoVerification(shitennoDir, dir, plan.id);
     const expectedDiff = realExecSync(
       `git diff HEAD -- . ':!.shitenno/governance/plans'`,
       { cwd: dir, encoding: "utf-8" }
@@ -110,7 +110,7 @@ describe("Bloco F — gate de done, caso positivo, negativo e invalidação por 
     expect(record.diffHash).toBe(expectedHash);
   });
 
-  it("caso negativo: um check falha → refused, NÃO vai para done/", () => {
+  it("caso negativo: um check falha → refused, NÃO vai para done/", async () => {
     // Override test script to fail — real execSync will run it and it will exit 1
     writeFileSync(
       join(dir, "package.json"),
@@ -125,7 +125,7 @@ describe("Bloco F — gate de done, caso positivo, negativo e invalidação por 
     const plan = engine.create({ title: "Plano de teste — caso negativo" });
     engine.updateStatus(plan.id, "check");
 
-    const record = runAutoVerification(shitennoDir, dir, plan.id);
+    const record = await runAutoVerification(shitennoDir, dir, plan.id);
 
     expect(record.passed).toBe(false);
     expect(engine.getById(plan.id)!.status).toBe("refused");
@@ -147,7 +147,7 @@ describe("Bloco F — gate de done, caso positivo, negativo e invalidação por 
     ).toBe(false);
   });
 
-  it("caso de invalidação: código muda depois da verificação → diffHash não bate", () => {
+  it("caso de invalidação: código muda depois da verificação → diffHash não bate", async () => {
     const engine = new MarkdownPlanEngine(shitennoDir);
     const plan = engine.create({
       title: "Plano de teste — invalidação por diffHash",
@@ -155,7 +155,7 @@ describe("Bloco F — gate de done, caso positivo, negativo e invalidação por 
     engine.updateStatus(plan.id, "check");
     writeFileSync(join(dir, "app.ts"), "export const version = 2;\n");
 
-    const record = runAutoVerification(shitennoDir, dir, plan.id);
+    const record = await runAutoVerification(shitennoDir, dir, plan.id);
 
     writeFileSync(join(dir, "app.ts"), "export const version = 3;\n");
     realExecSync("git add -A", { cwd: dir });

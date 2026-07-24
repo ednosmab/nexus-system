@@ -39,6 +39,7 @@ import {
   recordEvent,
   persistState,
   loadState,
+  MAX_SESSIONS,
 } from "./state.js";
 import { handleMessage, sendJson, type IpcMessage } from "./ipc.js";
 import {
@@ -46,6 +47,7 @@ import {
   isLargeCommit,
   validateReminders,
   moveCompletedBacklogToDone,
+  recoverOrphanSidecars,
 } from "./startup-scan.js";
 
 const __dirname_file = dirname(fileURLToPath(import.meta.url));
@@ -337,6 +339,16 @@ function runStartupScan(
   }
 
   try {
+    const orphans = recoverOrphanSidecars(ctx.shitennoDir);
+    if (orphans.removed > 0) {
+      daemonLog(ctx.logPath, "INFO", `Startup scan: removed ${orphans.removed} orphan sidecar(s)`);
+    }
+    recordEvent(ctx.state, "startup_scan.recover_orphans");
+  } catch (err) {
+    daemonLog(ctx.logPath, "ERROR", `Startup scan: recoverOrphanSidecars failed: ${err}`);
+  }
+
+  try {
     const reminders = validateReminders(ctx.shitennoDir);
     if (reminders.removed > 0) {
       daemonLog(ctx.logPath, "INFO", `Startup scan: removed ${reminders.removed} stale reminder(s)`);
@@ -563,7 +575,7 @@ function subscribeSessionAndStateTracking(ctx: DaemonContext): void {
       id: p?.sessionId ?? `session-${Date.now()}`,
       startedAt: new Date().toISOString(),
     });
-    if (ctx.state.sessions.length > 50) {
+    if (ctx.state.sessions.length > MAX_SESSIONS) {
       ctx.state.sessions.shift();
     }
   });

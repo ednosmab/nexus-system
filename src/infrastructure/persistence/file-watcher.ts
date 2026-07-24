@@ -201,6 +201,11 @@ function handleWatcherError(err: unknown, watchPaths: string[], ctx: WatcherCont
   logger.info("file-watcher", `Restarting watcher in ${delay}ms (attempt ${watcherRestartCount}/${MAX_RESTARTS})`);
   setTimeout(() => {
     activeWatcher?.close();
+    // Clear pending debounce timers to prevent stale events from the old watcher
+    for (const timeout of ctx.pendingEvents.values()) {
+      clearTimeout(timeout);
+    }
+    ctx.pendingEvents.clear();
     activeWatcher = createWatcherInstance(watchPaths, ctx);
   }, delay);
 }
