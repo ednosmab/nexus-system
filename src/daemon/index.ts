@@ -432,7 +432,8 @@ function initEngines(ctx: DaemonContext): { stopProactive: () => void; isResourc
     "validation.completed", "task.completed", "pipeline.complete",
     "engineering_state.consolidated", "knowledge_debt.detected",
     "plan.status_changed", "plan.created", "plan.file_changed",
-    "source.changed", "git.branch_changed", "git.ref_updated",
+    "source.changed", "source.file_added", "source.file_deleted",
+    "git.branch_changed", "git.commit_detected", "git.ref_updated",
     "challenge.generated", "audit.standard",
   ] as const;
 
@@ -521,6 +522,13 @@ function subscribeTier1Events(
       detectedAt: new Date().toISOString(),
     };
     daemonLog(ctx.logPath, "WARN", `Drift detected: ${ctx.state.drift.filesChanged} files, ${ctx.state.drift.minutesSinceLastCommit} min`);
+  });
+
+  bus.subscribe("git.branch_changed", () => {
+    recordEvent(ctx.state, "git.branch_changed");
+    ctx.state.briefingCache = null;
+    ctx.state.riskMapCache = null;
+    daemonLog(ctx.logPath, "INFO", "Branch changed — briefing and risk caches invalidated");
   });
 
   bus.subscribe("task.completed", () => {

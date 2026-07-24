@@ -174,6 +174,12 @@ function createWatcherInstance(watchPaths: string[], ctx: WatcherContext): FSWat
     handleFileAdd(filePath, ctx);
   });
 
+  // C.1: File deletion detection
+  watcher.on("unlink", (filePath: string) => {
+    if (filePath.includes(".git/")) return;
+    handleFileDelete(filePath, ctx);
+  });
+
   return watcher;
 }
 
@@ -231,6 +237,52 @@ function handleFileAdd(filePath: string, ctx: WatcherContext): void {
     assetType: artifactType,
     path: filePath,
   });
+
+  // C.1: Source file added — publish event for proactive checks
+  if (filePath.includes("/src/")) {
+    const sourceRelative = filePath.replace(/.*\/src\//, "src/");
+    bus.publish("source.file_added", {
+      path: filePath,
+      relativePath: sourceRelative,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // C.1: package.json changed — trigger engineering state update
+  if (basename(filePath) === "package.json") {
+    bus.publish("engineering_state.updated", {
+      dimension: "configuration",
+      previousValue: null,
+      newValue: filePath,
+      source: "file-watcher",
+    });
+  }
+}
+
+function handleFileDelete(filePath: string, ctx: WatcherContext): void {
+  if (!/\.(md|yaml|json|ts)$/.test(filePath)) return;
+
+  const { shitennoDir, bus } = ctx;
+  const relativePath = filePath.slice(shitennoDir.length + 1);
+  if (relativePath.split(/[/\\]/).some((s) => s.startsWith(".") && s !== "")) return;
+
+  const artifactType = detectArtifactType(filePath, shitennoDir);
+
+  bus.publish("asset.archived", {
+    assetId: filePath,
+    assetType: artifactType,
+    path: filePath,
+  });
+
+  // C.1: Source file deleted — publish event for proactive checks
+  if (filePath.includes("/src/")) {
+    const sourceRelative = filePath.replace(/.*\/src\//, "src/");
+    bus.publish("source.file_deleted", {
+      path: filePath,
+      relativePath: sourceRelative,
+      timestamp: new Date().toISOString(),
+    });
+  }
 }
 
 function publishArtifactCreatedEvents(
@@ -425,6 +477,11 @@ function publishGitEvent(filePath: string, bus: ReturnType<typeof getEventBus>):
       path: filePath,
       timestamp: new Date().toISOString(),
       type: "head_updated",
+    });
+    // C.2: Also publish commit_detected on HEAD change
+    bus.publish("git.commit_detected", {
+      path: filePath,
+      timestamp: new Date().toISOString(),
     });
   } else if (isRef) {
     // New branch/tag created

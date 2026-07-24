@@ -75,7 +75,10 @@ export type ShitennoEventType =
   | "pipeline.partial_failure"
   | "audit.standard"
   | "source.changed"
+  | "source.file_added"
+  | "source.file_deleted"
   | "git.branch_changed"
+  | "git.commit_detected"
   | "git.ref_updated"
   | "semantic.pattern_detected"
   | "semantic.insight_detected";
